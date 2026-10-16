@@ -676,7 +676,7 @@ function specGet(){const s=P.spt;if(s){if(s.m&&s.m.hp>0)return s.m;if(s.p!=null&
  let t=null,bd=700;const c=o=>{const d=D(o.x,o.y,P.sx,P.sy);if(d<bd){bd=d;t=o}};M.forEach(m=>{if(m.hp>0)c(m)});if(mp.on)for(const[id,r]of Object.entries(mp.rp))if(r.hp>0)c(r);
  if(t){const id=Object.entries(mp.rp||{}).find(([i,r])=>r===t);P.spt=id?{p:+id[0]}:{m:t}}return t}
 function specTick(dt){const t=specGet();if(t){const k=Math.min(1,dt*4);P.sx+=(t.x-P.sx)*k;P.sy+=(t.y-P.sy)*k;P.sa2=t.a||0}}
-function specName(){const t=specGet();if(!t)return 'nothing left alive';if(t.boss)return BOSS[boss].n;if(t.ty)return t.ty[0].toUpperCase()+t.ty.slice(1);return t.h!==undefined&&t.sk?(t.nm||'a rival hunter'):'a hunter'}
+function specName(){const t=specGet();if(!t)return 'nothing left alive';if(t.boss)return BOSS[boss].n;if(typeof t.ty=='string')return t.ty[0].toUpperCase()+t.ty.slice(1);return t.nm||'a rival hunter'}   // rival hunters carry ty as a NUMBER (their target y), so only a string ty means a monster
 function drawDead(){if(!P.dead)return;ctx.save();ctx.fillStyle='rgba(30,0,4,.35)';ctx.fillRect(0,0,VW,VH);ctx.font='bold 26px monospace';tx('YOU DIED',VW/2,VH/2-70,'#c01824','center');ctx.font='bold 10px monospace';const t=specGet();tx(t?'Spectating your killer: '+specName():'Nothing left to watch',VW/2,VH/2-50,'#e8c8c8','center');
  const bx0=VW/2-62,by0=VH-64,hov=mouse.x>bx0&&mouse.x<bx0+124&&mouse.y>by0&&mouse.y<by0+22;ctx.fillStyle=hov?'#8a1c1c':'#4a0e12';ctx.fillRect(bx0,by0,124,22);ctx.strokeStyle='#e8e6d8';ctx.lineWidth=1;ctx.strokeRect(bx0+.5,by0+.5,124,22);ctx.font='bold 10px monospace';tx('Leave the Breach',VW/2,by0+15,'#fff','center');tx('(or press Enter)',VW/2,by0+36,'#a88','center');ctx.restore()}
 function drawMob(m,x,y,f){const t=m.ty||'imp',sc=t=='skitter'?.75:t=='brute'?1.5:1;
@@ -1766,6 +1766,7 @@ function rpDraw(L,cx,cy){Object.entries(mp.rp).forEach(([id,r])=>{if(r.hp<=0)ret
   el.style.color=bad||old?'#f66':'#9f9';el.textContent='MONSTER SYNC | you: '+(pname||'Hunter '+(mp.me+1))+' | monster host: '+(me?'YOU':hn(mp.host)+' (last update '+age.toFixed(1)+'s ago)')+' | monsters alive: '+M.filter(m=>m.hp>0).length+(old?' | OLDER VERSION IN LOBBY':'')+(mp.fx?' | sync fixes: '+mp.fx:'')+'  [F3 hides]'},300)}
 const MKS=Object.keys(MOBS);let mpFx=0,mpNP=0;
 const mpCli=()=>mp.on&&mp.host!=mp.me;
+const MPDELAY=150;   // ms: how far behind the host monsters are drawn so there are always two snapshots to blend
 // bite validation: how far a monster can really reach, plus a small allowance for network delay
 const MPLAG=40,mpReach=m=>m.lesser?LESSER.cerberus.rg+8:m.boss?48:m.ty=='vine'?140:m.ty=='brute'?20:14;
 const mpNewId=()=>mp.mid=(mp.mid||1000)+1;
@@ -1778,7 +1779,11 @@ function mpHostCheck(){if(mp.host==mp.me)return;const now=Date.now();if(!mp.out[
  const alive=i=>i==mp.me||(!mp.out[i]&&now-(mp.ls[i]||mp.t0)<6000);let c=-1;for(let i=0;i<mp.n;i++)if(alive(i)){c=i;break}
  if(c==mp.me){mp.host=mp.me;mp.ep++;mp.hs=now}else if(c>=0){mp.host=c;mp.hs=now}}
 function mpPre(dt){mpHostCheck();
- if(mpCli()){const k=Math.min(1,dt*12);for(const m of M){m.fl-=dt;if(m.hp<=0||m.gx===undefined)continue;const dx=m.gx-m.x,dy=m.gy-m.y;if(Math.abs(dx)+Math.abs(dy)>.4)m.wk+=dt*(m.ty=='skitter'?12:8);m.x+=dx*k;m.y+=dy*k}}
+ if(mpCli()){const k=Math.min(1,dt*12),rt=Date.now()-(mp.ro||0)-MPDELAY;for(const m of M){m.fl-=dt;if(m.hp<=0||m.gx===undefined)continue;let nx,ny;const b=m.buf;
+  if(b&&b.length){let j=-1;for(let i=0;i<b.length;i++)if(b[i].t>=rt){j=i;break}
+   if(j<0){nx=b[b.length-1].x;ny=b[b.length-1].y}else if(j==0){nx=b[0].x;ny=b[0].y}else{const a=b[j-1],c=b[j],u=(rt-a.t)/(c.t-a.t);nx=a.x+(c.x-a.x)*u;ny=a.y+(c.y-a.y)*u}}
+  else{nx=m.x+(m.gx-m.x)*k;ny=m.y+(m.gy-m.y)*k}   // no timestamps yet (older host): old chase
+  if(Math.abs(nx-m.x)+Math.abs(ny-m.y)>.05)m.wk+=dt*(m.ty=='skitter'?12:8);m.x=nx;m.y=ny}}
  else mp.pool=[P,...Object.values(mp.rp).filter(q=>q.hp>0)]}
 function mpPost(dt){if(!mpCli())for(const x of M)if(x.id===undefined)x.id=mpNewId();if(!mpCli()&&(mp.mt-=dt)<=0){mp.mt=.1;mpSendSnap()}}
 function mpPause(dt){const k=keys,l=mouse.l,r=mouse.r;keys={};mouse.l=mouse.r=0;try{update(dt)}finally{keys=k;mouse.l=l;mouse.r=r}}
@@ -1788,16 +1793,18 @@ function mpSendSnap(){const full=(++mp.fc)%8==0,pl=[P,...Object.values(mp.rp)].f
   const e=[x.id,+x.x.toFixed(1),+x.y.toFixed(1),Math.ceil(x.hp),+(x.a||0).toFixed(2),+(x.wk||0).toFixed(1),x.st=='chase'?1:0,x.fl>0?1:0,x.boss?-1:x.lesser?-2:MKS.indexOf(x.ty||'imp')];
   if(x.boss)e.push([x.dash>0?1:0]);else if(x.lesser)e.push([Math.max(0,CST.indexOf(x.st)),+(x.sn||0).toFixed(1),+Math.max(0,x.cd||0).toFixed(2)]);else if(x.ty=='vine')e.push([x.fi?1:0,+Math.max(0,(x.lw||0)-T).toFixed(2),+(x.la||0).toFixed(2),+Math.max(0,(x.lf||0)-T).toFixed(2)]);
   m.push(e)}
- mpSend({t:'ms',ep:mp.ep,q:++mp.sq,fu:full?1:0,m,k,kb:(()=>{const b=M.find(x=>x.boss);return b&&b.hp<=0&&b.lh!=null?b.lh:undefined})(),e:eb.map(b=>[+b.x.toFixed(1),+b.y.toFixed(1),+b.vx.toFixed(0),+b.vy.toFixed(0),+b.l.toFixed(2)])})}
+ mpSend({t:'ms',ts:Date.now(),ep:mp.ep,q:++mp.sq,fu:full?1:0,m,k,kb:(()=>{const b=M.find(x=>x.boss);return b&&b.hp<=0&&b.lh!=null?b.lh:undefined})(),e:eb.map(b=>[+b.x.toFixed(1),+b.y.toFixed(1),+b.vx.toFixed(0),+b.vy.toFixed(0),+b.l.toFixed(2)])})}
 function mpGetSnap(o){const f=o.f;if(!(o.ep>mp.ep||(o.ep==mp.ep&&f<=mp.host)))return;if(o.ep==mp.ep&&f==mp.host&&o.q<=mp.sq)return;
  mp.ep=o.ep;mp.host=f;mp.sq=o.q;mp.hs=Date.now();if(o.kb!=null)mpKB=o.kb;
+ // timestamps: estimate (this clock - host clock) as the fastest recent delivery, so snapshots can be replayed on the host's timeline
+ const hk=o.ep+':'+f,dly=Date.now()-(o.ts||Date.now());if(mp.rk!==hk||mp.ro===undefined){mp.rk=hk;mp.ro=dly;for(const m of M)m.buf=null}else if(dly<mp.ro)mp.ro=dly;else mp.ro+=(dly-mp.ro)*.02;const sts=o.ts||0;
  const by=new Map(M.map(m=>[m.id,m]));
  for(const e of o.m){let m=by.get(e[0]);if(e[0]>mp.mid)mp.mid=e[0];
   if(!m){if(e[8]==-2)m=mkCerberus(e[1],e[2]);else if(e[8]<0)continue;else m=mkMob(e[1],e[2],'chase',MKS[e[8]]);m.id=e[0];M.push(m);by.set(m.id,m)}
   // full snapshots are the truth: if the host lists it alive, it is alive here too (bosses excluded, they have a corpse state)
   if(m.hp<=0){if(o.fu&&!m.boss&&e[3]>0){m.hp=e[3];m._dead=0;m._pd=0;m.gx=undefined;mp.fx=(mp.fx||0)+1}else continue}
-  if(m.gx===undefined||Math.hypot(e[1]-m.x,e[2]-m.y)>80){m.x=e[1];m.y=e[2]}
-  m.gx=e[1];m.gy=e[2];m.hp=e[3];if(e[3]>.5)m._pd=0;m.a=e[4];m.st=e[6]?'chase':'idle';if(e[7])m.fl=.1;
+  if(m.gx===undefined||Math.hypot(e[1]-m.x,e[2]-m.y)>80){m.x=e[1];m.y=e[2];m.buf=null}
+  m.gx=e[1];m.gy=e[2];if(sts){const b=m.buf||(m.buf=[]);if(!b.length||sts>b[b.length-1].t){b.push({t:sts,x:e[1],y:e[2]});if(b.length>8)b.shift()}}m.hp=e[3];if(e[3]>.5)m._pd=0;m.a=e[4];m.st=e[6]?'chase':'idle';if(e[7])m.fl=.1;
   const x=e[9];if(x){if(m.boss)m.dash=x[0];else if(m.lesser){m.st=CST[x[0]]||'roam';m.sn=x[1];m.cd=x[2]}else{m.fi=x[0];m.lw=T+x[1];m.la=x[2];if(x[3]>0){if(!(m.lf>T))m.lf=T+x[3]}else m.lf=0}}}
  for(const id of o.k){const m=by.get(id);if(m&&m.hp>0){mpFx=1;try{kill(m)}finally{mpFx=0}}}
  // ...and anything alive here that a full snapshot does not list is a ghost: drop it
