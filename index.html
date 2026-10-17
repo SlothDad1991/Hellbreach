@@ -17,7 +17,7 @@ h2{margin:6px 0;font-size:30px;border-bottom:2px dashed #e8e6d866}
 .paper::before{content:'';position:absolute;top:-5px;left:50%;width:10px;height:10px;border-radius:50%;background:#b01c1c;box-shadow:0 2px 3px #000}
 .paper.on{outline:3px solid var(--red);outline-offset:3px}
 .chalk{border:2px solid #e8e6d855;border-radius:6px 14px 5px 12px}
-.tbar{display:flex;gap:10px;justify-content:center;margin:2px 0 10px;position:relative;z-index:1}.tbox{flex:0 1 150px;min-width:0;border:2px solid #e8e6d855;border-radius:6px 14px 5px 12px;background:#0005;padding:4px 8px;text-align:center;font-size:24px;line-height:1.05;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.tbox small{display:block;font-size:16px;opacity:.75}.tbox.emp{border-style:dashed;opacity:.6}.tbox.me{border-color:#ffd9d0}.tbox.rdy{background:#1e7a3acc;border-color:#6be08a}
+.fbar{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:0 0 10px}.fbar>span{flex-basis:100%;text-align:center;font-size:20px;opacity:.75}.fbox{flex:1 1 90px;min-width:0;border:2px solid #e8e6d855;border-radius:6px 14px 5px 12px;background:#0005;padding:4px 8px;text-align:center;font-size:24px;line-height:1.05;cursor:pointer;opacity:.55}.fbox.on{background:#8a1c1ccc;border-color:#ffd9d0;opacity:1}.fbox.lock{cursor:default}.tbar{display:flex;gap:10px;justify-content:center;margin:2px 0 10px;position:relative;z-index:1}.tbox{flex:0 1 150px;min-width:0;border:2px solid #e8e6d855;border-radius:6px 14px 5px 12px;background:#0005;padding:4px 8px;text-align:center;font-size:24px;line-height:1.05;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.tbox small{display:block;font-size:16px;opacity:.75}.tbox.emp{border-style:dashed;opacity:.6}.tbox.me{border-color:#ffd9d0}.tbox.rdy{background:#1e7a3acc;border-color:#6be08a}
 .chalk:hover{background:#ffffff10}
 .chalk.on{border-color:#ffd9d0;background:#c0392b33;border-radius:30px 10px 28px 12px}
 .chalk small{display:block;font-size:17px;opacity:.75}
@@ -178,12 +178,32 @@ button.tt-btn:active{transform:translateX(12px) scale(.98)}
               dots (always shown, even outside sight range); other hunters are not shown unless they are in view, as now.
      STEP 7 (DONE: already on for shots, melee and bombs; added P.lh last-hunter stamp, 'dead' now carries by + lh, helper mpKill(o,f). NOT attributed to a hunter yet: fire/flask pools and tripwires, so those kills count as non-teammate; revisit in step 9) - Friendly fire. Check first what hunter-vs-hunter damage the game already has (bullets, explosions, fire, melee, traps); where none exists add it for everyone, teammates included,
               and send each hit with the shooter's id. Track the last hunter who damaged someone (id and time) so deaths know their killer. Host validates, as with monster bites.
-     STEP 8 - Tainted gear. When a hunter dies, record who killed them: a hunter on the SAME team (direct hit, or last damage from a teammate within about 5 seconds, e.g. their grenade or fire)
+     STEP 8 (DONE: mpDie() decides it on the victim's client with mpKill + mpMate and stamps tn:1 on every dropped item and on the 'dead' message; there is no item list in the host snapshot, items travel as 'dr' messages, so tn rides in those. Pickup loop skips tn items and says "The gear is tainted by evil." (3.5s throttle); tainted piles are drawn with a purple ring; Raum and the Magpie Feather ignore them; kill feed adds the line) - Tainted gear. When a hunter dies, record who killed them: a hunter on the SAME team (direct hit, or last damage from a teammate within about 5 seconds, e.g. their grenade or fire)
               marks the corpse and drop as tainted. Looting a tainted corpse shows "The gear is tainted by evil" and gives nothing (also true in spectate/leave flow). Any other cause
               (monster, boss, environment, an enemy team, bleeding out with no teammate hit) stays lootable. The tainted flag is decided by the monster host and synced in the snapshot.
-     STEP 9 - Edge cases and tests. Disconnect or tab close (remove from team after the heartbeat timeout), duplicate names, inviting someone already in a team or in a match, invite while
+     STEP 9 (DONE, 42 lobby checks pass in /home/claude/test_teams.js with stubbed relay clients: invites, drops, duplicate names, full team, busy replies, killer rule, grouping 2+2+2 / 3+3 / 3+2+1 / 3+1 / 7 solos, 300 skewed-clock runs agreeing on who is in the match. Changes: members ping the host every 3s and the host removes a member silent for 12s; invite replies say WHY (in a match, searching, in a team, answering another invite); an accept that arrives too late or to a full team gets a 'nj' reply instead of an 8s hang; accepting clears my own unanswered invites; no inviting, leaving or kicking while a search runs; grouping is the pure function mpGroupTeams; tripwire hits on hunters now carry the layer's id (k:'tripwire') so they count as that hunter's kill; a flask thrown by a hunter now burns OTHER hunters too (before it was cosmetic on their screen) and credits the thrower, so fire is real friendly fire. Tutorial and solo untouched: solo sends nothing, tutorial stubs mpSearch) - Edge cases and tests. Disconnect or tab close (remove from team after the heartbeat timeout), duplicate names, inviting someone already in a team or in a match, invite while
               searching, host change, teams of 2 + 2 + 2 and 3 + 3 and mixed totals, team of 3 + solo. The tutorial and solo play must be untouched. Simulate lobbies with stubbed relay clients
               (as done for the map) before shipping. Tick the steps off in this list.
+   -----------------------------------------------------------------------------------------------------
+   DONE: MATCH FILTER BOXES (owner's request, Oct 18; teams steps 1-9 are done; F1-F4 below are all built, only the open questions at the end are left). On the hub, in the empty space ABOVE the Enter the Breach button (top of the right-hand .opts
+   column), add 3 boxes that can be selected and deselected: SOLOS, DUOS, TRIOS. The search then only matches you against teams of the sizes you have SELECTED.
+     Rules as understood (owner confirmed the idea, not every detail; the open questions below are my reading): all three start selected. At least one must stay selected (the last one cannot be
+       deselected). The filter is about the OTHER teams in the match, never your own teammates. A match only forms when every team in it is acceptable to every other team (mutual): team X
+       joins a group only if X's selection includes each team's size already in the group AND each of those teams' selections includes X's size. Teams are still never split.
+       The HOST's selection is the team's selection: only the host can click the boxes; members see the host's selection (greyed, not clickable) via the roster message. The boxes are locked while a search runs.
+       Solo and tutorial are untouched (a solo hunter just has the same three boxes).
+     F1 (DONE: fltBar(), fltOf(), click handler placed just above the 'Topic-compatible adapter' comment; mp.flt) - UI: .fbar with three .fbox boxes (label "Match against", Solos / Duos / Trios), selected = lit, click toggles (data-fl), mp.flt bitmask (1 solo, 2 duo, 4 trio, default 7) saved in
+              localStorage key 'hb_flt'; helper fltBar() rendered first inside .opts in the hub markup (line with teamGo(ok)).
+     F2 (DONE) - Roster: host adds fl to the 'ros' message; members adopt it into mp.tflt and draw it read-only.
+     F3 (DONE: heartbeat carries fl; seen[].fl; mpGroupsAll(list) builds groups and mpSearch starts the group holding me; mpGroupTeams = first group; overlay shows 'Only matching with: ...') - Search: the heartbeat in mpSearch carries fl (the team's selection) and ts (team size). mpGroupTeams checks the mutual rule above. A hunter whose oldest compatible group is not the global
+              oldest must still be able to start, so grouping runs per group: mpGroupsAll(list) builds groups oldest first, each client starts the group that contains it.
+              If nothing compatible turns up the existing 90s fallback still starts a solo run (unchanged); the search overlay should say which sizes it is searching for.
+     F4 (DONE: 59 checks, incl. 400 random lobbies; rebuild the harness from the grouping rule if it is gone) - Tests: extend /home/claude/test_teams.js style harness (stubbed relay clients; the file is not saved in the game, rebuild it): solos-only vs trios-only never meet; duo+solo with
+              mutual picks match; one-sided picks do not match; last box cannot be deselected; members cannot toggle; all-selected behaves exactly like today (2+2+2, 3+3, 3+2+1 still fill 6).
+     DONE (owner's request): if a teammate drops out while the team is searching, the rest are pulled out of the search and back to the hub (tmPull; ready states cleared, a note says why).
+       Triggers: the host removes a silent member (12s), a member leaves, the host disbands or goes quiet (tmReset), or anyone presses Stop searching (k:'cs' on the team room; the whole team stops, the team itself stays together).
+       A pull is quiet (mp.cancel(1)) so it does not echo. The 90s fallback and a countdown that already found a match are unchanged.
+     Open questions for the owner: should hunters who deselect their OWN size still be matched with other teams (assumed yes)? Should a long wait relax the filter after 90s instead of starting a solo run?
      Open questions for the owner: can mixed teams share a match (e.g. trio + duo + solo = 6)? Does a solo hunter count as a team when others are in teams? Should the host be able to Enter without waiting for Ready?
        Can teammates share loot or revive each other later? What happens to a team in a match when its host leaves mid-run?
    -----------------------------------------------------------------------------------------------------
@@ -573,7 +593,7 @@ const achBody=()=>{const[e,N]=achTotals();return `<div class=achw><h2 class=lt>A
 const LBB=[{k:'esc',n:'Survivors',u:'escapes'},{k:'bosses',n:'Archdemon Slayers',u:'archdemons slain'},{k:'cash',n:'Bounty Barons',u:'bounty carried out',pre:1},{k:'horde',n:'Horde Breakers',u:'horde kills'},{k:'banish',n:'Banishers',u:'banished corpses'},{k:'tiers',n:'Achievement Hunters',u:'achievement tiers'}];
 let lbTab=0,LBD={},LBC=[],lbT=0,lbOT=0,LBID='';
 try{LBID=localStorage.getItem('bh_pid')||'';if(!/^[a-z0-9]{8,16}$/.test(LBID)){LBID=('x'+Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2)).slice(0,14);localStorage.setItem('bh_pid',LBID)}}catch(e){if(!LBID)LBID=('x'+Math.random().toString(36).slice(2)+'000000').slice(0,12)}
-const lbMine=()=>({n:cleanName(pname)||'Unnamed Hunter',esc:AST.esc|0,bosses:AST.bosses|0,cash:AST.cash|0,horde:AST.horde|0,banish:AST.banish|0,bounty:AST.bounty|0,tiers:achTotals()[0],ts:Date.now()});
+const lbMine=()=>({n:cleanName(pname)||'Unnamed Hunter',cl:nmClT(),esc:AST.esc|0,bosses:AST.bosses|0,cash:AST.cash|0,horde:AST.horde|0,banish:AST.banish|0,bounty:AST.bounty|0,tiers:achTotals()[0],ts:Date.now()});
 function lbRecv(topic,buf){try{const id=String(topic).split('/')[2];if(!/^[a-z0-9]{8,16}$/.test(id)||id===LBID)return;const o=JSON.parse(buf.toString()),v=x=>Math.max(0,Math.min(1e9,Math.floor(+x||0)));if(!o||typeof o!='object')return;
  const e={n:cleanName(o.n)||'Hunter',esc:v(o.esc),bosses:v(o.bosses),cash:v(o.cash),horde:v(o.horde),banish:v(o.banish),bounty:v(o.bounty),tiers:Math.min(999,v(o.tiers)),ts:v(o.ts)};if(!LBD[id]||e.ts>=LBD[id].ts)LBD[id]=e}catch(e){}}
 function lbTop(k){const all=Object.entries(LBD).map(([id,e])=>({id,n:e.n,v:e[k],ts:e.ts}));const m=lbMine();all.push({id:LBID,n:m.n,v:m[k],ts:m.ts,me:1});
@@ -585,6 +605,32 @@ function lbOpen(){if(LBC.length)return;lbOT=Date.now();setTimeout(lbRefresh,8500
 function lbClose(){if(!LBC.length)return;LBC.forEach(c=>{try{c.end(true)}catch(e){}});LBC=[]}
 // after every run: publish lifetime totals to the Cloudflare relay's retained leaderboard topic
 function lbPush(){try{const c=relayClient(['hb1/lb/+']);c.on('connect',()=>{lbPub(c);setTimeout(()=>{try{c.end()}catch(e){}},1500)});c.on('error',()=>{try{c.end(true)}catch(e){}});setTimeout(()=>{try{c.end(true)}catch(e){}},15000)}catch(e){}}
+// ---------- UNIQUE HUNTER NAMES ----------
+// No two hunters may use the same name. The registry is the leaderboard's retained rows on the Cloudflare relay: one row per device (LBID) holding the name n and the time it was FIRST claimed (cl).
+// Claiming a name = scan the rows for 2.5s; if another device already holds the same name key (lowercase letters and digits only) the name is taken; otherwise publish my row and scan again
+// for 2.5s to catch two hunters claiming at the same moment (the earlier cl wins, ties go to the lower device id). Rows not refreshed for 60 days are ignored so abandoned names free up.
+// Offline (relay not reachable within 6s) the name is allowed and checked again next time. Dev names that are password-unlocked skip the check. Name key = nmKey().
+const nmKey=n=>cleanName(n).toLowerCase().replace(/[^a-z0-9]/g,'');
+let NMOK='';try{NMOK=localStorage.getItem('bh_nmok')||''}catch(e){}   // the last name that passed the check (display form)
+const nmOkSet=n=>{NMOK=cleanName(n);try{localStorage.setItem('bh_nmok',NMOK)}catch(e){}};
+function nmClT(){try{const o=JSON.parse(localStorage.getItem('bh_nmcl')||'null');return o&&o.k===nmKey(pname)?+o.t||0:0}catch(e){return 0}}
+const NM_SCAN=2500,NM_STALE=60*864e5;
+function nmClaim(name,cb){const key=nmKey(name);if(!key)return cb('ok');let done=0,c,prev=null;const rows={};
+ const mineT=(()=>{try{const o=JSON.parse(localStorage.getItem('bh_nmcl')||'null');return o&&o.k===key&&+o.t?+o.t:Date.now()}catch(e){return Date.now()}})();
+ const fin=r=>{if(done)return;done=1;try{c.end(true)}catch(e){}cb(r)};
+ const lose=()=>Object.entries(rows).some(([id,r])=>r.k===key&&Date.now()-r.ts<NM_STALE&&(r.cl<mineT||r.cl===mineT&&id<LBID));
+ try{c=relayClient(['hb1/lb/+'])}catch(e){return cb('offline')}
+ c.on('message',(t,b)=>{try{const id=String(t).split('/')[2];if(!/^[a-z0-9]{8,16}$/.test(id)||id===LBID)return;const o=JSON.parse(b.toString());rows[id]={k:nmKey(o.n),ts:+o.ts||0,cl:+o.cl||+o.ts||0}}catch(e){}});
+ c.on('error',()=>{});const off=setTimeout(()=>fin('offline'),6000);
+ c.on('connect',()=>{clearTimeout(off);c.subscribe('hb1/lb/+');setTimeout(()=>{if(done)return;if(lose())return fin('taken');
+  try{prev=localStorage.getItem('bh_nmcl');localStorage.setItem('bh_nmcl',JSON.stringify({k:key,t:mineT}))}catch(e){}lbPub(c);
+  setTimeout(()=>{if(done)return;if(lose()){try{if(prev===null)localStorage.removeItem('bh_nmcl');else localStorage.setItem('bh_nmcl',prev)}catch(e){}return fin('taken')}nmOkSet(name);fin('ok')},NM_SCAN)},NM_SCAN)})}
+// same check when leaving the name screen: gate(v,then) runs then() once the name is accepted
+function nmGate(v,then,fail){if(!nmKey(v)||(hasDev(v)&&DEVAUTH)||nmKey(v)===nmKey(NMOK)){then();return}
+ nmClaim(v,r=>{if(r=='taken')fail();else then()})}
+// existing players are checked once, a few seconds after the game loads; if their name turns out to be taken it is cleared
+setTimeout(()=>{if(pname&&nmKey(pname)&&!(hasDev(pname)&&DEVAUTH)&&nmKey(pname)!==nmKey(NMOK))nmClaim(pname,r=>{if(r=='taken'){const bad=pname;pname=NMOK||'';SAVE();lbPush();note='The name "'+bad+'" belongs to another hunter, so yours was cleared. Pick a new one under Hunter Name.';tmRefresh()}})},4000);
+// ---------- /UNIQUE HUNTER NAMES ----------
 const lbBody=()=>{const B=LBB[lbTab]||LBB[0],all=lbTop(B.k).filter(r=>r.v>0),fm=v=>(B.pre?'$':'')+v.toLocaleString(),RC=['#ffd23a','#c8ccd2','#cd7f32','#e8e6d8','#e8e6d8'];
  const rows=[0,1,2,3,4].map(i=>{const r=all[i];return r?`<div class="lbr${r.me?' you':''}"><b style="color:${RC[i]}">#${i+1}</b><span class=n style="color:${devCol(r.n,'#e8e6d8')}">${r.n}${r.me?' (you)':''}</span><span class=v>${fm(r.v)}</span></div>`:`<div class=lbr style="opacity:.4"><b>#${i+1}</b><span class=n>\u2014</span><span class=v></span></div>`}).join('');
  const mi=all.findIndex(r=>r.me),mine=lbMine()[B.k],on=LBC.some(c=>c.connected),n=Object.keys(LBD).length+1;
@@ -838,12 +884,14 @@ function menu(m){try{if(scr=='lb')lbOpen();else lbClose()}catch(e){}try{const an
  else if(scr=='missions')body=`<div class=cols>${col('Ledgers',ledList())}${col((LEDGERS[mi]||LEDGERS[0]).t,ledStory())}</div><div class=foot><span>Active: ${ledFoot()}</span>${back}</div>`;
  else if(scr=='lore'){const S=LORE[lorTab]||LORE[0],op=lorOpen>=0&&lkHas(lorTab,lorOpen)?S.e[lorOpen]:null,nf=S.e.filter((q,i)=>lkHas(lorTab,i)).length;
   body=`<div class=slate><div class=tabs>${LORE.map((s,i)=>`<div class="tb ${i==lorTab?'on':''}" data-l=${i}>${s.t.replace(' Lore','')}</div>`).join('')}</div><h2 class=lt>${S.t}</h2><p class=sub>${op?'Folder open. Close it to pick another.':S.sub}</p>`+(op?`<div class=fopen><div class=ftab>${op[0]}</div><div class=fback><div class=fsheet><div class="pol sp"><canvas data-la="${lorTab}.${lorOpen}" width=224 height=126></canvas></div><h3>${op[0]}</h3><p>${op[1]}</p></div></div></div>`:`<div class=fds>${S.e.map((n0,i)=>{const kn=lkHas(lorTab,i);return `<div class="fd${kn?'':' lk'}" ${kn?'data-lo='+i:''} style="--r:${(((i*37)%7)-3)*.8}deg"><div class=ft></div><div class=fl>${kn?n0[0]:'???'}</div></div>`}).join('')}</div>`)+`</div><div class=foot><span>${nf} of ${S.e.length} folders found${op?'':' \u2014 click one to open it'}</span>${op?'<button data-lo=-1>\u2190 Close folder</button>':back}</div>`} else if(scr=='help')body=`<div class=lore><h2>Controls</h2><ul>${HELP.split(' \u00b7 ').map(l=>`<li>${l}</li>`).join('')}</ul></div><div class=foot><span></span>${back}</div>`;
- else body=`${teamBar()}<div class=hub><div class=lcol><div class=stage><canvas id=pc width=256 height=288></canvas><div class=cap>${pname?pname+' \u2014 ':''}${PRI[sel.pri].n} \u00b7 ${SID[sel.side].n} \u00b7 ${tl}</div></div><div class=chalk data-v=name>Hunter Name<small>${pname||'Unnamed \u2014 tap to set'}</small></div>${riskBox()}</div><div class=opts>${teamGo(ok)}${ok?'':'<p class=msg style="font-size:20px">Can\'t afford this loadout.</p>'}<div class=chalk data-v=sk>Skins<small>${SKINS[sel.skin].n}</small></div><div class=chalk data-v=stash>Stash & Armory<small>${STB.reduce((a,t)=>a+t.length,0)} items stored</small></div><div class=chalk data-v=missions>Ledgers<small>${ledSub()}</small></div><div class=chalk data-v=ach>Achievements<small>${achTotals()[0]} of ${achTotals()[1]} tiers earned</small></div><div class=chalk data-v=lore>Lore</div><div class=chalk data-v=lb>Leaderboard<small>Top 5 hunters on each board</small></div><div class=chalk data-v=title>Main Menu</div></div></div><div class=foot><span>Cash: $${bank} &nbsp;|&nbsp; Loadout: $${c}</span><span>Ledger: ${ledFoot()}</span></div>`;
+ else body=`${teamBar()}<div class=hub><div class=lcol><div class=stage><canvas id=pc width=256 height=288></canvas><div class=cap>${pname?pname+' \u2014 ':''}${PRI[sel.pri].n} \u00b7 ${SID[sel.side].n} \u00b7 ${tl}</div></div><div class=chalk data-v=name>Hunter Name<small>${pname||'Unnamed \u2014 tap to set'}</small></div>${riskBox()}</div><div class=opts>${fltBar()}${teamGo(ok)}${ok?'':'<p class=msg style="font-size:20px">Can\'t afford this loadout.</p>'}<div class=chalk data-v=sk>Skins<small>${SKINS[sel.skin].n}</small></div><div class=chalk data-v=stash>Stash & Armory<small>${STB.reduce((a,t)=>a+t.length,0)} items stored</small></div><div class=chalk data-v=missions>Ledgers<small>${ledSub()}</small></div><div class=chalk data-v=ach>Achievements<small>${achTotals()[0]} of ${achTotals()[1]} tiers earned</small></div><div class=chalk data-v=lore>Lore</div><div class=chalk data-v=lb>Leaderboard<small>Top 5 hunters on each board</small></div><div class=chalk data-v=title>Main Menu</div></div></div><div class=foot><span>Cash: $${bank} &nbsp;|&nbsp; Loadout: $${c}</span><span>Ledger: ${ledFoot()}</span></div>`;
 ;const drawIcons=()=>document.querySelectorAll('canvas[data-ic]').forEach(c=>{const o=ctx;ctx=c.getContext('2d');try{ctx.clearRect(0,0,34,18);drawWpn(c.dataset.ic,5,9,0,1,c.dataset.wk)}finally{ctx=o}});
  $('#menu').style.display='block';$('#menu').innerHTML=`<div class=board><i hidden></i><h1>\u2620 Hellbreach \u2620</h1>${m?`<p class=msg>${m}</p>`:''}${body}</div>`;drawIcons();if(scr=='name'){const pn=$('#pn');if(pn){const sv=()=>{const v=cleanName(pn.value);if(hasDev(v)&&!DEVAUTH)return;pname=v;SAVE()},
-   cm=then=>{const v=cleanName(pn.value);if(!hasDev(v)||DEVAUTH){pname=v;SAVE();if(then)then();return}
-    devAsk(ok=>{if(ok){DEVAUTH=1;try{localStorage.setItem('bh_dv',PW_HASH)}catch(e){}pname=v;SAVE();if(then)then()}else{const w=cleanName(v.replace(/dev/gi,''));pn.value=w;pname=w;SAVE();pn.focus()}})};
-   pn.oninput=sv;{const sb=document.querySelector('#menu .opts button[data-v=hub]');if(sb)sb.addEventListener('click',e=>{const v=cleanName(pn.value);if(hasDev(v)&&!DEVAUTH){e.stopPropagation();cm(()=>{scr='hub';menu('')})}else cm()})}
+   cm=then=>{const v=cleanName(pn.value),acc=()=>{pname=v;SAVE();if(then)then()},bad=()=>{pn.disabled=false;pname=NMOK||'';SAVE();lbPush();menu('\u201c'+v+'\u201d is already taken by another hunter. Choose a different name.')},
+     chk=()=>{if(!nmKey(v)||(hasDev(v)&&DEVAUTH)||nmKey(v)===nmKey(NMOK)){acc();return}pn.disabled=true;const w=document.createElement('p');w.className='msg';w.textContent='Checking that name...';pn.insertAdjacentElement('afterend',w);nmGate(v,()=>{pn.disabled=false;acc()},bad)};
+    if(!hasDev(v)||DEVAUTH){chk();return}
+    devAsk(ok=>{if(ok){DEVAUTH=1;try{localStorage.setItem('bh_dv',PW_HASH)}catch(e){}acc()}else{const w=cleanName(v.replace(/dev/gi,''));pn.value=w;pname=w;SAVE();pn.focus()}})};
+   pn.oninput=sv;{const sb=document.querySelector('#menu .opts button[data-v=hub]');if(sb)sb.addEventListener('click',e=>{e.stopPropagation();cm(()=>{scr='hub';menu('')})})}
    ['keydown','keyup','keypress'].forEach(ev=>pn.addEventListener(ev,e=>e.stopPropagation()));pn.addEventListener('keydown',e=>{if(e.key=='Enter')cm(()=>{scr='hub';menu('')})});pn.focus();pn.setSelectionRange(pn.value.length,pn.value.length)}}if(scr=='stash')stashInit();if(scr=='lore'){loreStr();setTimeout(loreStr,120);loreArt()}}
 $('#menu').onclick=e=>{const t=e.target.closest('[data-lb],[data-so],[data-stt],[data-ws],[data-l],[data-lo],[data-v],[data-xa],[data-bq],[data-m],[data-f],[data-y],[data-n],[data-w],[data-u],[data-q],[data-r],[data-k],[data-p],[data-s],[data-t],#go');if(!t)return;const d=t.dataset;if(d.stt===undefined)stConf=-1;
  if(d.stt!==undefined){const i=+d.stt;if(stUn[i]){stConf=-1;stSet(i);selRef=null;selInfo=null}else if(stConf!=i)stConf=i;else if(bank<STP[i]){note='Not enough cash: that tab costs $'+STP[i].toLocaleString()+'.';stConf=-1}else{bank-=STP[i];stUn[i]=1;stConf=-1;stSet(i);selRef=null;selInfo=null;SAVE();note='Stash tab '+(i+1)+' unlocked!'}}else if(d.bq){pq=Math.max(1,Math.min(PQMAX,pq+(d.bq=='+'?1:-1)))}else if(d.xa){const i=d.xa[0]=='s'?1:0,w=xaW(i);if(w){const n=xa[i]+(d.xa[1]=='+'?1:-1);if(n<0||n>XAMAX)return;if(d.xa[1]=='+'&&cost()+xaP(w)>bank){note='Not enough cash.'}else xa[i]=n}}else if(d.lb!==undefined)lbTab=+d.lb;else if(d.so!==undefined)note=sortStash();else if(d.l!==undefined){lorTab=+d.l;lorOpen=-1}else if(d.lo!==undefined)lorOpen=+d.lo;else if(d.ws){const id=d.ws;if(id.startsWith('x_')){delete sel.wsk[id.slice(2)];SAVE()}else{const s=WSKINS[id];if(s){if(own.includes(id)){wsConf=null;note='Apply it from the Stash: select the weapon, then press Skin.'}else if(wsConf!=id){wsConf=id}else if(bank<s.c){note='Not enough cash.';wsConf=null}else{bank-=s.c;own.push(id);wsConf=null;SAVE();note='Unlocked '+s.n+'! Select a weapon in the Stash and press Skin to apply it.'}}}}else if(d.v){wsConf=null;lorOpen=-1;scr=d.v;if(/^shop_/.test(d.v))shopScr=d.v}else if(d.m){mi=+d.m;const Lx=LEDGERS[mi];if(Lx&&lst(Lx.id).i<Lx.tasks.length){AL=Lx.id;SAVE()}}else if(d.f){curFam=d.f;const f=FAMS[d.f];if(own.includes(d.f)){if(Object.values(SKINS).filter(v=>v.f==d.f).length>1)scr='l_var';else{sel.skin=f.def;SAVE()}}else{pend={t:'f',k:d.f};scr='buy'}}
@@ -1150,7 +1198,7 @@ const mkCerberus=(x,y)=>{const o=LESSER.cerberus;return{x,y,hp:o.hp,mh:o.hp,st:'
 const mkRaum=(x,y)=>{const o=LESSER.raum;return{x,y,hp:o.hp,mh:o.hp,st:'circ',rs:'circ',wt:0,cd:R(8,18),fl:0,wk:0,a:R(0,6.28),ty:'raum',lesser:1,hx:x,hy:y,hr:0,z:o.alt,loot:[]}};
 function raumPick(m,o){let best=null,bd=o.sm;
  for(const q of lessTgts()){if(!lessOut(q.x,q.y))continue;const d=D(m.x,m.y,q.x,q.y);if(d<bd&&(q!==P||P.ts.some(Boolean))){bd=d;best={q}}}
- for(const it of items){if(it.got||it.nest||(it.t!='tool'&&it.t!='ammo'&&it.t!='cash')||!lessOut(it.x,it.y))continue;const d=D(m.x,m.y,it.x,it.y)+60;if(d<bd){bd=d;best={it}}}
+ for(const it of items){if(it.got||it.nest||it.tn||(it.t!='tool'&&it.t!='ammo'&&it.t!='cash')||!lessOut(it.x,it.y))continue;const d=D(m.x,m.y,it.x,it.y)+60;if(d<bd){bd=d;best={it}}}
  return best}
 function raumGrab(m,v){m.gt=T;
  if(v.it){const it=v.it;items=items.filter(i=>i!==it);m.loot.push(Object.assign({},it,{id:undefined,got:0}));burst(it.x,it.y,8,60,'#1c1424',0);say('Raum snatches loot off the ground!',3);return}
@@ -1748,6 +1796,7 @@ function update(dt){
  if(keys.KeyE)clues.forEach(c=>{if(!c.got&&D(P.x,P.y,c.x,c.y)<20){c.got=1;found++;say(found<3?`Sigil ${found}/3 burned.`:`The sigil is complete - ${BOSS[boss].n}'s breach is open!`,5);burst(c.x,c.y,12,60,'#d8c890',0);if(found>=3)bossUnseal(1)}});
  if(corpse&&!banished&&!bty&&keys.KeyE&&D(P.x,P.y,corpse.x,corpse.y)<30){P.bp+=dt;if((P.nz-=dt)<=0){P.nz=1;noise(P.x,P.y,320)}if(P.bp>=5){banished=1;const bn=BOSS[boss].bo;P.carry+=bn;say('Banished! Bounty $'+bn+'. Reach an extraction point!',6)}}else P.bp=Math.max(0,P.bp-dt*2);
  P.pk=null;for(const it of items){if(D(P.x,P.y,it.x,it.y)>12)continue;
+  if(it.tn){if(Date.now()-tnSay>3500){tnSay=Date.now();say('The gear is tainted by evil.',3)}continue}
   if(it.t=='wpn'){P.pk=it;if(keys.KeyE)takeW(it);continue}
   if(it.t=='cash'){P.carry+=it.v;say('+$'+it.v+' from the fallen',3);it.got=1;continue}
   if(it.t=='ammo'){const ss=[0,1].filter(i=>P.w[i]&&!P.w[i].ml);if(!ss.length)continue;const i=ss[R(0,ss.length)|0];P.res[i]+=Math.ceil(P.w[i].m*1.5);say('+ammo ('+P.w[i].n+')',2)}
@@ -2286,7 +2335,7 @@ function render(){
   else if(it.t=='ammo'){ctx.fillStyle='#6a5030';ctx.fillRect(x-4,y-3,8,6);ctx.fillStyle='#e0b040';ctx.fillRect(x-3,y-2,2,3);ctx.fillRect(x,y-2,2,3)}
   else if(it.t=='cash'){ctx.fillStyle='#e0b040';ctx.fillRect(x-4,y-3,8,6);ctx.fillStyle='#8a6a20';ctx.fillRect(x-2,y-1,4,2)}
   else if(it.t=='tonic'){drawWpn('tonic',x-3,y,-1.57,.9,it.sk)}
-  else if(it.t=='tool'){drawWpn(it.k,x-4,y,-.2,.8,it.sk)}else{drawWpn('bomb',x-4,y,-.2,.8,it.sk)}});
+  else if(it.t=='tool'){drawWpn(it.k,x-4,y,-.2,.8,it.sk)}else{drawWpn('bomb',x-4,y,-.2,.8,it.sk)}if(it.tn){ctx.fillStyle='rgba(110,30,160,.35)';ctx.strokeStyle='rgba(170,70,220,'+(.5+.3*Math.sin(T*5))+')';ctx.lineWidth=1;ctx.beginPath();ctx.arc(x,y,7,0,7);ctx.fill();ctx.stroke()}});
  if((found>=3||bossOpen)&&M[0].hp>0){const x=M[0].hx-cx,y=M[0].hy-cy;ctx.strokeStyle=`rgba(200,30,40,${.5+.4*Math.sin(T*4)})`;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x-10,y-10);ctx.lineTo(x+10,y+10);ctx.moveTo(x+10,y-10);ctx.lineTo(x-10,y+10);ctx.stroke()}
  M.forEach(m=>{if(m.hp<=0){const x=m.x-cx,y=m.y-cy;if(m.boss){if(x>-40&&x<VW+40&&y>-40&&y<VH+40)drawBossCorpse(x,y,boss)}else{ctx.fillStyle='rgba(20,5,8,.8)';ctx.beginPath();ctx.ellipse(x,y,m.lesser?19.5:8,m.lesser?9:4,0,0,7);ctx.fill();ctx.fillStyle='#7a0c14';ctx.fillRect(x-3,y-1,6,2)}if(m.boss&&!banished){ctx.strokeStyle='#d8c890';ctx.beginPath();ctx.arc(x,y,24,0,6.28*P.bp/5);ctx.stroke()}}});
  ctx.drawImage(wl,cx,cy,VW,VH,0,0,VW,VH);
@@ -2746,9 +2795,11 @@ const tmSend=(topic,o)=>{if(!tmC||!tmC.connected)return false;o.t='tm';o.from=mp
 function tmClose(){if(tmOv){tmOv.remove();tmOv=null}}
 function tmOverlay(html,btns){tmClose();const o=tmOv=document.createElement('div');o.style.cssText='position:fixed;inset:0;z-index:99;background:rgba(6,2,4,.9);color:#e8e6d8;font:24px Caveat,monospace;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:12px';o.innerHTML=html;
  const r=document.createElement('div');r.style.cssText='display:flex;gap:10px;flex-wrap:wrap;justify-content:center';btns.forEach(([l,f])=>{const b=document.createElement('button');b.textContent=l;b.onclick=f;r.appendChild(b)});o.appendChild(r);document.body.appendChild(o);return o}
-const tmReset=why=>{mp.myrd=0;mp.team=null;mp.tp={};mp.pend={};tmWait=null;tmRos=0;if(why)note=why;tmRefresh()};
-function tmRoster(){const t=myTeam();tmSend(tmRoom(t.id),{k:'ros',tid:t.id,host:t.host,mem:t.members.map(id=>({id,nm:id===mp.id?pname:(mp.tp[id]||{}).nm||'Hunter',rd:id===mp.id?1:(mp.tp[id]||{}).rd?1:0}))})}
-function tmAsk(){const t=myTeam();if(t.host!==mp.id||t.members.length+Object.keys(mp.pend).length>=3)return;
+// a teammate dropped out (or someone stopped the search): the whole team leaves the search together and goes back to the hub, ready states cleared
+function tmPull(why){const was=mpBusy&&mp.cancel;if(was){try{mp.cancel(1)}catch(e){}mp.myrd=0;Object.values(mp.tp).forEach(q=>q.rd=0);if(why)note=why;tmRefresh()}return !!was}
+const tmReset=why=>{if(mpBusy&&mp.cancel){try{mp.cancel(1)}catch(e){}}mp.myrd=0;mp.team=null;mp.tp={};mp.pend={};tmWait=null;tmRos=0;if(why)note=why;tmRefresh()};
+function tmRoster(){const t=myTeam();tmSend(tmRoom(t.id),{k:'ros',tid:t.id,host:t.host,fl:mp.flt,mem:t.members.map(id=>({id,nm:id===mp.id?pname:(mp.tp[id]||{}).nm||'Hunter',rd:id===mp.id?1:(mp.tp[id]||{}).rd?1:0}))})}
+function tmAsk(){const t=myTeam();if(mpBusy){note='You cannot change your team while searching for a match.';tmRefresh();return}if(t.host!==mp.id||t.members.length+Object.keys(mp.pend).length>=3)return;
  if(!pname)return tmOverlay('<div style="font-size:34px;color:#d06a5a">Name your hunter first</div><div>Friends find you by name, so set yours under Hunter Name.</div>',[['OK',tmClose]]);
  const o=tmOverlay('<div style="font-size:34px;color:#d06a5a">Invite a hunter</div><div>Type their hunter name exactly as they set it.</div><input id=tmn type=text maxlength=14 autocomplete=off spellcheck=false style="font:28px Caveat,monospace;text-align:center"><div id=tmm style="font-size:20px;color:#ff8a7a;min-height:22px"></div>',
   [['Invite',()=>{const v=cleanName(o.querySelector('#tmn').value),k=tmKey(v),m=o.querySelector('#tmm');
@@ -2758,23 +2809,26 @@ function tmAsk(){const t=myTeam();if(t.host!==mp.id||t.members.length+Object.key
    mp.pend[k]={nm:v,t:Date.now()};tmSend('hb1/search',{k:'inv',fn:pname,to:k,tid:t.id,key:k});tmClose();tmRefresh()}],['Cancel',tmClose]]);
  setTimeout(()=>{try{o.querySelector('#tmn').focus()}catch(e){}},50)}
 function tmShowInvite(){const i=tmIn;if(!i)return;tmOverlay('<div style="font-size:34px;color:#d06a5a">Team invite</div><div>'+tmEsc(i.fn)+' invites you to their team.</div>',[['Accept',tmAccept],['Decline',()=>tmDecline('dec')]])}
-function tmAccept(){const i=tmIn;tmIn=null;tmClose();if(!i)return;if(myTeam().members.length>1)return tmSend('hb1/search',{k:'busy',to:i.id,key:i.key});
+function tmAccept(){const i=tmIn;tmIn=null;tmClose();if(!i)return;if(mode!='menu'||mpBusy)return tmSend('hb1/search',{k:'busy',to:i.id,key:i.key,why:mode!='menu'?'match':'search'});if(myTeam().members.length>1)return tmSend('hb1/search',{k:'busy',to:i.id,key:i.key});mp.pend={};
  tmWait={tid:i.tid,host:i.id,t:Date.now()};tmC&&tmC.subscribe(tmRoom(i.tid));tmSend('hb1/search',{k:'acc',to:i.id,key:i.key,nm:pname,tid:i.tid});
  tmOverlay('<div style="font-size:30px">Joining '+tmEsc(i.fn)+'\'s team...</div>',[])}
 function tmDecline(k){const i=tmIn;tmIn=null;tmClose();if(i)tmSend('hb1/search',{k,to:i.id,key:i.key})}
 function tmMsg(topic,buf){let o;try{o=JSON.parse(buf.toString())}catch(e){return}if(!o||o.t!=='tm'||o.from===mp.id||typeof o.from!=='string')return;const t=myTeam(),me=mp.id;
- if(o.k=='inv'){if(!pname||mode!='menu'||o.to!==tmKey(pname)||tmIn||tmWait)return;if(t.members.length>1)return tmSend('hb1/search',{k:'busy',to:o.from,key:o.key});tmIn={id:o.from,tid:String(o.tid).slice(0,16),fn:cleanName(o.fn)||'A hunter',key:o.key,t0:Date.now()};tmShowInvite();return}
+ if(o.k=='inv'){if(!pname||o.to!==tmKey(pname))return;const why=mode!='menu'?'match':mpBusy?'search':(tmIn||tmWait)?'invite':t.members.length>1?'team':'';if(why)return tmSend('hb1/search',{k:'busy',to:o.from,key:o.key,why});tmIn={id:o.from,tid:String(o.tid).slice(0,16),fn:cleanName(o.fn)||'A hunter',key:o.key,t0:Date.now()};tmShowInvite();return}
  if(o.to!==undefined&&o.to!==me)return;
- if(o.k=='acc'){const p=mp.pend[o.key];if(!p||t.host!==me||t.members.length>=3||o.tid!==t.id)return;delete mp.pend[o.key];t.members.push(o.from);mp.tp[o.from]={nm:cleanName(o.nm)||p.nm,rd:0};tmC&&tmC.subscribe(tmRoom(t.id));tmRoster();tmRefresh()}
- else if(o.k=='dec'||o.k=='busy'){const p=mp.pend[o.key];if(p){delete mp.pend[o.key];note=p.nm+(o.k=='dec'?' declined the invite.':' is already in a team.');tmRefresh()}}
+ if(o.k=='acc'){if(t.members.includes(o.from))return;const p=mp.pend[o.key];if(!p||t.host!==me||t.members.length>=3||o.tid!==t.id||mpBusy||mode!='menu'||t.members.includes(o.from))return tmSend('hb1/search',{k:'nj',to:o.from});delete mp.pend[o.key];t.members.push(o.from);mp.tp[o.from]={nm:cleanName(o.nm)||p.nm,rd:0,ls:Date.now()};tmC&&tmC.subscribe(tmRoom(t.id));tmRoster();tmRefresh()}
+ else if(o.k=='dec'||o.k=='busy'){const p=mp.pend[o.key];if(p){delete mp.pend[o.key];note=p.nm+(o.k=='dec'?' declined the invite.':o.why=='match'?' is in a match.':o.why=='search'?' is searching for a match.':o.why=='invite'?' is answering another invite.':' is already in a team.');tmRefresh()}}
+ else if(o.k=='nj'){if(tmWait&&tmWait.host===o.from){tmWait=null;tmClose();note='That team is full or has already left for a match.';tmRefresh()}}
  else if(o.k=='ros'){const w=tmWait&&o.tid===tmWait.tid&&o.from===tmWait.host,mine=o.tid===t.id&&t.host===o.from;if(!w&&!mine||!Array.isArray(o.mem))return;
   if(!o.mem.some(x=>x.id===me)){if(mine)tmReset('You were removed from the team.');return}
-  mp.team={id:o.tid,host:o.host,members:o.mem.map(x=>x.id)};mp.tp={};o.mem.forEach(x=>{if(x.id!==me)mp.tp[x.id]={nm:cleanName(x.nm),rd:x.rd?1:0}});tmWait=null;tmRos=Date.now();tmClose();tmRefresh()}
+  const wasN=t.members.length;mp.team={id:o.tid,host:o.host,members:o.mem.map(x=>x.id)};if(o.fl>=1&&o.fl<=7)mp.tflt=o.fl|0;mp.tp={};o.mem.forEach(x=>{if(x.id!==me)mp.tp[x.id]={nm:cleanName(x.nm),rd:x.rd?1:0}});tmWait=null;tmRos=Date.now();tmClose();tmRefresh();if(mpBusy&&o.mem.length<wasN)tmPull('A teammate dropped out, so the search was cancelled.')}
  else if(o.k=='go'){if(o.tid===t.id&&t.host===o.from&&t.host!==me&&mode=='menu'&&mp.myrd&&cost()<=bank){bank-=cost();SAVE(1);newGame()}}
- else if(o.k=='rd'){if(t.host===me&&o.tid===t.id&&t.members.includes(o.from)&&mp.tp[o.from]){mp.tp[o.from].rd=o.rd?1:0;tmRoster();tmRefresh()}}
- else if(o.k=='lv'){if(t.host===me&&t.members.includes(o.from)){t.members=t.members.filter(id=>id!==o.from);delete mp.tp[o.from];tmRoster();tmRefresh()}}
+ else if(o.k=='cs'){if(o.tid===t.id&&t.members.includes(o.from))tmPull(((mp.tp[o.from]||{}).nm||'A teammate')+' stopped the search.')}
+ else if(o.k=='hb'){if(t.host===me&&o.tid===t.id&&mp.tp[o.from])mp.tp[o.from].ls=Date.now()}
+ else if(o.k=='rd'){if(t.host===me&&o.tid===t.id&&t.members.includes(o.from)&&mp.tp[o.from]){mp.tp[o.from].ls=Date.now();mp.tp[o.from].rd=o.rd?1:0;tmRoster();tmRefresh()}}
+ else if(o.k=='lv'){if(t.host===me&&t.members.includes(o.from)){t.members=t.members.filter(id=>id!==o.from);delete mp.tp[o.from];tmRoster();if(!tmPull('A teammate left the team, so the search was cancelled.'))tmRefresh()}}
  else if(o.k=='dis'){if(o.tid===t.id&&t.host===o.from)tmReset('The team was disbanded.')}}
-function tmBox(i){const t=myTeam(),id=t.members[i];
+function tmBox(i){const t=myTeam(),id=t.members[i];if(mpBusy){note='You cannot change your team while searching for a match.';tmRefresh();return}
  if(id===undefined){if(t.host===mp.id)tmAsk();return}
  if(id===mp.id){if(t.members.length<2)return;if(t.host===mp.id){if(confirm('Disband your team?')){tmSend(tmRoom(t.id),{k:'dis',tid:t.id});tmReset()}}else if(confirm('Leave the team?')){tmSend(tmRoom(t.id),{k:'lv',tid:t.id});tmReset()}return}
  if(t.host===mp.id&&confirm('Remove '+((mp.tp[id]||{}).nm||'this hunter')+' from the team?')){t.members=t.members.filter(x=>x!==id);delete mp.tp[id];tmRoster();tmRefresh()}}
@@ -2784,6 +2838,8 @@ setInterval(()=>{try{tmTk++;const t=myTeam(),now=Date.now();
  if(tmWait&&now-tmWait.t>8000){tmWait=null;tmClose();note='The team did not answer.';tmRefresh()}
  let ch=0;for(const k in mp.pend)if(now-mp.pend[k].t>30000){delete mp.pend[k];ch=1}if(ch)tmRefresh();
  if(t.host===mp.id&&t.members.length>1&&tmTk%3==0)tmRoster();
+ if(t.members.length>1&&t.host!==mp.id&&tmTk%3==1)tmSend(tmRoom(t.id),{k:'hb',tid:t.id});   // step 9: members ping the host every 3s
+ if(t.host===mp.id&&t.members.length>1){const gone=t.members.filter(id=>id!==mp.id&&now-((mp.tp[id]||{}).ls||0)>12000);if(gone.length){const nn=gone.map(id=>(mp.tp[id]||{}).nm||'A hunter').join(', ');t.members=t.members.filter(id=>!gone.includes(id));gone.forEach(id=>delete mp.tp[id]);note=nn+' dropped from the team (no answer).';tmRoster();if(!tmPull(nn+' dropped out, so the search was cancelled.'))tmRefresh()}}   // step 9: a member silent for 12s (tab closed, connection lost) is removed
  if(t.host!==mp.id&&tmRos&&mode=='menu'&&now-tmRos>12000)tmReset('The team went quiet and was dropped.')}catch(e){}},1000);
 // TEAMS step 4: only the host sees Enter the Breach (disabled until every teammate is ready); members get a Ready Up toggle. A ready member's box turns green.
 function teamGo(ok){try{const t=myTeam(),n=t.members.length;
@@ -2796,11 +2852,21 @@ setInterval(()=>{if(mode!='menu'){mp.myrd=0;Object.values(mp.tp).forEach(q=>q.rd
 // New: every hit that came from another hunter stamps P.lh={p:hunter index,t:ms}; a death sends 'by' (the hunter whose hit was lethal) and 'lh' (the last hunter to hurt you in the past 5s).
 // mpKill(o,f) = the hunter index who killed hunter f, or null (monster, boss, environment). Step 8 uses it to taint the gear when the killer was a teammate.
 {const _hl=hurtP;hurtP=function(d,k){if(mp.on&&k&&k.p!=null&&k.p!==mp.me&&!P.dead)P.lh={p:k.p,t:Date.now()};_hl(d,k)}}
+let tnSay=0;   // step 8: last time the 'tainted by evil' line was shown (so walking over a pile does not spam it)
 const mpKill=(o,f)=>{const i=o&&o.by!=null?o.by:o&&o.lh;return i!=null&&i!==f?i:null};
 // TEAMS step 5: the host's Enter announces 'go' on the team room; every READY member then does the same as pressing Enter (pays the loadout, starts the search) and the whole team searches together.
 function tmGoAnnounce(){const t=myTeam();if(t.members.length>1&&t.host===mp.id)tmSend(tmRoom(t.id),{k:'go',tid:t.id})}
 
 const myTeam=()=>mp.team||(mp.team={id:mp.id,host:mp.id,members:[mp.id]}),teamOf=id=>mp.tm[id]||id,isMate=id=>id!==mp.id&&teamOf(id)===(mp.tm[mp.id]||myTeam().id);
+
+// MATCH FILTER (owner's request, notes F1-F4): three boxes above Enter the Breach (Solos / Duos / Trios). mp.flt = bitmask of the opposing team sizes I accept (1 solo, 2 duo, 4 trio).
+// The HOST's choice is the team's choice: it rides in the roster as fl and members keep it in mp.tflt. Matchmaking (mpGroupsAll) needs the choice to be mutual between teams.
+mp.flt=(()=>{try{const v=+localStorage.getItem('hb_flt');return v>=1&&v<=7?v:7}catch(e){return 7}})();mp.tflt=7;
+const fltOf=()=>{const t=myTeam();return t.members.length<2||t.host===mp.id?mp.flt:mp.tflt};
+const fltTxt=()=>{const v=fltOf();return v==7?'':'<br><small>Only matching with: '+['solos','duos','trios'].filter((n,i)=>v&(1<<i)).join(', ')+'</small>'};
+function fltBar(){try{const t=myTeam(),mine=t.members.length<2||t.host===mp.id,v=fltOf();return '<div class=fbar><span>Match against</span>'+['Solos','Duos','Trios'].map((n,i)=>'<div class="fbox'+(v&(1<<i)?' on':'')+(mine&&!mpBusy?'':' lock')+'" data-fl='+i+'>'+n+'</div>').join('')+'</div>'}catch(e){return ''}}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('.fbox[data-fl]');if(!b||mode!='menu'||mpBusy)return;const t=myTeam();if(t.members.length>1&&t.host!==mp.id)return;
+ const n=mp.flt^(1<<+b.dataset.fl);if(!n){note='Keep at least one team size selected.';tmRefresh();return}mp.flt=n;try{localStorage.setItem('hb_flt',n)}catch(err){}if(t.members.length>1)tmRoster();tmRefresh()});
 
 // Topic-compatible adapter over our own WebSocket relay, so existing game logic can stay unchanged.
 function relayChannel(topic){if(topic==='hb1/search')return 'search';if(topic.startsWith('hb1/room/'))return 'room-'+topic.slice('hb1/room/'.length);if(topic.startsWith('hb1/lb/'))return 'lb';return null}
@@ -2832,13 +2898,13 @@ function mpHandle(o){const r=mp.rp,f=o.f,nm=hn(f);mp.ls[f]=Date.now();if(o.v!==4
  else if(o.t=='dr')items.push(o.it);
  else if(o.t=='pk')items=items.filter(i=>!o.ids.includes(i.id));
  else if(o.t=='bn')btyTake(f);
- else if(o.t=='ff')fires.push({x:o.x,y:o.y,r:28,t:5.5,tk:99,s:Math.random()*6});
+ else if(o.t=='ff')fires.push({x:o.x,y:o.y,r:28,t:5.5,tk:99,s:Math.random()*6,ro:f});
  else if(o.t=='sts'){if(!mpCli()){const mm=M.find(q=>q.id===o.i);if(mm&&mm.hp>0)giveStatus(mm,o.k,o.tt)}}
  else if(o.t=='slt')SALT.push({x1:o.a,y1:o.b,x2:o.c,y2:o.d,t:8})
  else if(o.t=='chk')CHALK.push({x:o.x,y:o.y,r:36,t:6,m:6})
  else if(o.t=='nmk')NOISE.push({x:o.x,y:o.y,t:7,tk:0,own:0})
  else if(o.t=='fl')flares.push({x:o.x,y:o.y,t:14,tk:99,dec:1,id:-1,hp:1});
- else if(o.t=='dead'){const q0=r[f];if(q0)try{gore({x:q0.x,y:q0.y,ty:'imp'},null,70,o.by!=null&&o.ws?o.ws:'melee',palFor(q0.sk));pool(q0.x,q0.y,18,8);splat(q0.x,q0.y,50,26)}catch(e){}const dr=bty&&bty.h===f;if(dr)bty={h:null,x:q0?q0.x:bty.x,y:q0?q0.y:bty.y};delete r[f];mp.out[f]=1;say(nm+' was slain'+(o.by!=null?' by '+(o.by==mp.me?'you':hn(o.by)):'')+'!'+(dr?' The bounty has dropped!':''),dr?6:4)}
+ else if(o.t=='dead'){const q0=r[f];if(q0)try{gore({x:q0.x,y:q0.y,ty:'imp'},null,70,o.by!=null&&o.ws?o.ws:'melee',palFor(q0.sk));pool(q0.x,q0.y,18,8);splat(q0.x,q0.y,50,26)}catch(e){}const dr=bty&&bty.h===f;if(dr)bty={h:null,x:q0?q0.x:bty.x,y:q0?q0.y:bty.y};delete r[f];mp.out[f]=1;say(nm+' was slain'+(o.by!=null?' by '+(o.by==mp.me?'you':hn(o.by)):'')+'!'+(o.tn?' Their gear is tainted by evil.':'')+(dr?' The bounty has dropped!':''),dr?6:4)}
  else if(o.t=='left'){const hb=bty&&bty.h===f;if(hb)bty=null;delete r[f];mp.out[f]=1;say(nm+' escaped'+(hb?' with the bounty!':'.'),hb?6:3)}}
 function mpStop(){mp.tm={};mp.on=0;mp.room=null;mp.rp={};mp.onS=null;mpb=[];clearInterval(mpTimer);mp.cl.forEach(c=>{try{c.end(true)}catch(e){}});mp.cl=[]}
 function mpOverlay(txt){if(!mpOv){mpOv=document.createElement('div');mpOv.style.cssText='position:fixed;inset:0;z-index:99;background:rgba(6,2,4,.93);color:#e8e6d8;font:22px Caveat,monospace;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center';document.body.appendChild(mpOv)}mpOv.innerHTML='<div style="font-size:34px;color:#d06a5a">Entering the breach...</div><div>'+txt+'</div>'+(mp.cancel?'<button id="mpCancel" style="margin-top:10px;padding:8px 26px;font:22px Caveat,monospace;color:#e8e6d8;background:#3a1418;border:2px solid #d06a5a;border-radius:6px;cursor:pointer">Stop searching</button>':'');const cb=mpOv.querySelector('#mpCancel');if(cb)cb.onclick=()=>{if(mp.cancel)mp.cancel()}}
@@ -2865,20 +2931,27 @@ function mpRoster(ros,me,cb){const ov=document.createElement('div');
  ov.appendChild(h);ov.appendChild(gr);ov.appendChild(tm);document.body.appendChild(ov);
  const t0=Date.now(),upd=()=>{const l=Math.max(0,Math.ceil(RSTIME-(Date.now()-t0)/1000));tm.textContent='The descent begins in '+l+'s';return l};upd();
  const iv=setInterval(()=>{if(upd()<=0){clearInterval(iv);ov.remove();cb()}},250)}
+// TEAMS step 9: the grouping rule as a pure function (list of {id,st,tid,ts} for everyone searching, me included). A team counts once all ts of its members are searching;
+// whole teams are added oldest first while they fit in MPMAX, a team is never split, and a team that does not fit is skipped so a smaller one behind it can still go.
+function mpGroupsAll(list){const tms={};list.forEach(g=>{const k=g.tid||g.id,q=tms[k]||(tms[k]={ids:[],st:g.st,ts:1,fl:7});q.ids.push(g.id);q.st=Math.min(q.st,g.st);q.ts=Math.max(q.ts,Math.min(3,g.ts||1));q.fl&=(g.fl>=1&&g.fl<=7?g.fl:7)});
+ // MATCH FILTER: team a and team b may share a match only if each one's selected sizes include the other's size (bit n-1 = a team of n). Groups are built oldest first; every client starts the group that holds it.
+ let rest=Object.values(tms).filter(q=>q.ids.length>=q.ts).map(q=>({st:q.st,ids:q.ids.sort(),ts:q.ts,fl:q.fl})).sort((a,b)=>Math.abs(a.st-b.st)<1500?(a.ids[0]<b.ids[0]?-1:1):a.st-b.st),groups=[];
+ while(rest.length){const grp=[],used=[];rest.forEach(q=>{if(grp.length+q.ids.length>MPMAX)return;if(!used.every(u=>(q.fl&(1<<(u.ts-1)))&&(u.fl&(1<<(q.ts-1)))))return;used.push(q);q.ids.forEach(id=>grp.push({id,st:q.st}))});groups.push(grp);rest=rest.filter(q=>!used.includes(q))}
+ return groups}
+function mpGroupTeams(list){return mpGroupsAll(list)[0]||[]}
 function mpSearch(go){if(mpBusy)return;mpBusy=1;try{tmGoAnnounce()}catch(e){}mpStop();let done=0;const rs=()=>Math.random()*4294967296>>>0,t0=Date.now(),seen={},myP=mpProfile();
  const fin=(n,idx,seed,ros)=>{if(done)return;done=1;mpBusy=0;mp.cancel=null;clearInterval(mpTimer);clearTimeout(kill);if(mpOv){mpOv.remove();mpOv=null}if(n>1){if(ros){mpBusy=1;mpRoster(ros,idx,()=>{mpBusy=0;mp.on=1;mp.me=idx;mp.n=n;go(seed,n)});return}mp.on=1;mp.me=idx;mp.n=n}else mpStop();go(seed,n)};
  const kill=setTimeout(()=>fin(1,0,rs()),90000);
- const show=(n,rem)=>mpOverlay('Searching for hunters... '+n+'/'+MPMAX+'<br><small>The descent begins in '+Math.max(0,Math.ceil(rem))+'s, or when six hunters are gathered.</small><br><small style="opacity:.5">'+(relayBase('search')===RELAY_SYD?'Sydney':'Cloudflare')+' relay: '+mp.cl.filter(c=>c.connected).length+'/1</small>');
+ const show=(n,rem)=>mpOverlay('Searching for hunters... '+n+'/'+MPMAX+fltTxt()+'<br><small>The descent begins in '+Math.max(0,Math.ceil(rem))+'s, or when six hunters are gathered.</small><br><small style="opacity:.5">'+(relayBase('search')===RELAY_SYD?'Sydney':'Cloudflare')+' relay: '+mp.cl.filter(c=>c.connected).length+'/1</small>');
  
  const begin=o=>{if(done)return;if(o.bk&&BOSS[o.bk])boss=o.bk;mp.ids=Array.isArray(o.m)?o.m.slice(0,MPMAX):[];mp.tm=o.tm&&typeof o.tm=='object'?Object.fromEntries(Object.entries(o.tm).filter(([k,v])=>typeof v=='string').slice(0,MPMAX)):{};const idx=o.m.indexOf(mp.id);if(o.m.length>1){mp.room=o.room;mp.subs.push('hb1/room/'+o.room);mp.cl.forEach(c=>c.connected&&c.subscribe('hb1/room/'+o.room))}mp.me=idx;fin(o.m.length,idx,o.seed,o.m.length>1?o.m.map((id,i)=>{const r=mpProf(id===mp.id?myP:o.pf&&o.pf[id],i);r.tid=mp.tm[id]||id;return r}):null)};
- mp.cancel=()=>{if(done)return;done=1;mpBusy=0;mp.cancel=null;clearInterval(mpTimer);clearTimeout(kill);if(mpOv){mpOv.remove();mpOv=null}mpStop()};
+ mp.cancel=quiet=>{if(done)return;done=1;mpBusy=0;mp.cancel=null;clearInterval(mpTimer);clearTimeout(kill);if(mpOv){mpOv.remove();mpOv=null}mpStop();try{const t=myTeam();if(!quiet&&t.members.length>1){mp.myrd=0;Object.values(mp.tp).forEach(q=>q.rd=0);tmSend(tmRoom(t.id),{k:'cs',tid:t.id});tmRefresh()}}catch(e){}};
  mp.subs=['hb1/search'];mpConnect();show(1,MPWAIT);
- mp.onS=o=>{if(done||o.id===mp.id||o.t=='tm')return;if(o.t=='start'){if(o.m.includes(mp.id))begin(o);else o.m.forEach(i=>delete seen[i]);return}const x=seen[o.id];seen[o.id]={st:x?x.st:Date.now()-o.age*1000,last:Date.now(),p:o.p,tid:typeof o.tid=='string'?o.tid.slice(0,16):o.id,ts:Math.max(1,Math.min(3,o.ts|0||1))}};
- mpTimer=setInterval(()=>{if(done)return;const now=Date.now();mpPub('hb1/search',{id:mp.id,age:(now-t0)/1000,p:myP,tid:myTeam().id,ts:myTeam().members.length});for(const i in seen)if(now-seen[i].last>6000)delete seen[i];
+ mp.onS=o=>{if(done||o.id===mp.id||o.t=='tm')return;if(o.t=='start'){if(o.m.includes(mp.id))begin(o);else o.m.forEach(i=>delete seen[i]);return}const x=seen[o.id];seen[o.id]={st:x?x.st:Date.now()-o.age*1000,last:Date.now(),p:o.p,tid:typeof o.tid=='string'?o.tid.slice(0,16):o.id,ts:Math.max(1,Math.min(3,o.ts|0||1)),fl:o.fl>=1&&o.fl<=7?o.fl|0:7}};
+ mpTimer=setInterval(()=>{if(done)return;const now=Date.now();mpPub('hb1/search',{id:mp.id,age:(now-t0)/1000,p:myP,tid:myTeam().id,ts:myTeam().members.length,fl:fltOf()});for(const i in seen)if(now-seen[i].last>6000)delete seen[i];
   // TEAMS step 5: group whole teams only. A team counts once all its members (heartbeat field ts) are searching; teams are added in order while they fit in MPMAX.
-  const tmOf=id=>id===mp.id?myTeam().id:((seen[id]||{}).tid||id),tsOf=id=>id===mp.id?myTeam().members.length:((seen[id]||{}).ts||1),tms={};
-  [{id:mp.id,st:t0},...Object.entries(seen).map(([id,v])=>({id,st:v.st}))].forEach(g=>{const k=tmOf(g.id),q=tms[k]||(tms[k]={ids:[],st:g.st,ts:1});q.ids.push(g.id);q.st=Math.min(q.st,g.st);q.ts=Math.max(q.ts,tsOf(g.id))});
-  const grp=[];Object.values(tms).filter(q=>q.ids.length>=q.ts).map(q=>({st:q.st,ids:q.ids.sort()})).sort((a,b)=>Math.abs(a.st-b.st)<1500?(a.ids[0]<b.ids[0]?-1:1):a.st-b.st).forEach(q=>{if(grp.length+q.ids.length<=MPMAX)q.ids.forEach(id=>grp.push({id,st:q.st}))});
+  const tmOf=id=>id===mp.id?myTeam().id:((seen[id]||{}).tid||id);
+  const grp=(mpGroupsAll([{id:mp.id,st:t0,tid:myTeam().id,ts:myTeam().members.length,fl:fltOf()},...Object.entries(seen).map(([id,v])=>({id,st:v.st,tid:v.tid,ts:v.ts,fl:v.fl}))]).find(g=>g.some(x=>x.id===mp.id))||[]);
   if(!grp.length){show(0,MPWAIT);return}
   const lead=grp[0],rem=MPWAIT-(now-lead.st)/1000;
   show(grp.length,rem);
@@ -2950,10 +3023,10 @@ function mpCHurt(m,d,a,s){if(m.hp<=0||m._pd)return;const dd=Math.min(d,m.hp),dea
 
 {const _sh=shoot;shoot=function(){const n0=bul.length;_sh();if(mp.on&&bul.length>n0)mpSend({t:'sh',b:bul.slice(n0).map(b=>[+b.x.toFixed(1),+b.y.toFixed(1),+b.vx.toFixed(1),+b.vy.toFixed(1),b.l,b.d,b.wk])})};
 const _ml=melee;melee=function(){_ml();if(!mp.on)return;for(const[id,q]of Object.entries(mp.rp)){if(D(q.x,q.y,P.x,P.y)<30){let d=Math.abs(Math.atan2(q.y-P.y,q.x-P.x)-P.face);d=Math.min(d,6.28-d);if(d<1){mpSend({t:'hit',to:+id,d:30,k:'melee'});burst(q.x,q.y,6,70,'#8a0f18',1)}}}};
-function mpDie(){const it=[],at=(t,o)=>it.push({t,x:P.x+R(-14,14),y:P.y+R(-14,14),...o});
+function mpDie(){const it=[],lh0=P.lh&&Date.now()-P.lh.t<=5000?P.lh.p:null,kp0=mpKill({by:mpBy,lh:lh0},mp.me),tn=kp0!=null&&mpMate(kp0)?1:0,at=(t,o)=>it.push({t,x:P.x+R(-14,14),y:P.y+R(-14,14),...(tn?{tn:1}:{}),...o});
   P.w.forEach((x,s)=>x&&at('wpn',{s,k:x.k,mg:P.mag[s],rs:0,...(psk(s)?{sk:psk(s)}:{})}));P.bag.forEach(o=>{if(TOOL[o.k]){for(let i=0;i<(o.n||1);i++)at(o.k=='tonic'||o.k=='bomb'?o.k:'tool',{k:o.k})}else at('wpn',{s:SID[o.k]?1:0,k:o.k,...(o.sk?{sk:o.sk}:{}),...(o.mg!==undefined?{mg:o.mg}:{}),...(o.rs!==undefined?{rs:o.rs}:{})})});
   for(let i=0;i<P.tn;i++)at('tonic');for(let i=0;i<P.bm;i++)at('bomb');XT.forEach(k=>{for(let i=0;i<(P.xt[k]||0);i++)at('tool',{k})});if(P.res.some(n=>n>0)){at('ammo');at('ammo')}if(P.carry>0)at('cash',{v:P.carry});
-  it.forEach(i=>{i.id='d'+mp.me+'_'+mp.ic++;mpSend({t:'dr',it:i})});mpSend({t:'dead',by:mpBy,lh:P.lh&&Date.now()-P.lh.t<=5000?P.lh.p:null})}
+  it.forEach(i=>{i.id='d'+mp.me+'_'+mp.ic++;mpSend({t:'dr',it:i})});mpSend({t:'dead',by:mpBy,lh:lh0,tn:tn})}
 const _e3=end;end=function(w){if(mp.on){if(w)mpSend({t:'left'});else if(!P.dsent)mpDie();setTimeout(mpStop,500)}return _e3(w)};
 const _u3=update;update=function(dt){if(!mp.on)return _u3(dt);
  const ids=items.map(i=>i.id),bz=bombs.map(b=>({x:b.x,y:b.y,t:b.t}));
@@ -3004,9 +3077,10 @@ function lobLand(b){
 {const _tg=mpTgt;mpTgt=function(m){const r=_tg(m);if(m.boss||m.ty=='vine'||!flares.length||fgOn())return r;let b=null,bd=260;for(const f of flares){const d=D(m.x,m.y,f.x,f.y);if(d<bd){bd=d;b=f}}return b&&bd<D(m.x,m.y,r.x,r.y)+60?b:r}}
 {const _ht=hurtTG;hurtTG=function(d){if(TG&&TG.dec)return;_ht(d)}}
 {const _u8=update;update=function(dt){_u8(dt);if(mode!='play')return;
- for(const tr of traps){tr.t-=dt;if(tr.ar>0){tr.ar-=dt;continue}if(M.some(m=>m.hp>0&&D(m.x,m.y,tr.x,tr.y)<(m.boss?16:12))||(P.hp>0&&D(P.x,P.y,tr.x,tr.y)<10)||(mp.on&&Object.values(mp.rp).some(q=>q.hp>0&&D(q.x,q.y,tr.x,tr.y)<10))){tr.t=0;burst(tr.x,tr.y,28,150,'#ff9a30',0);burst(tr.x,tr.y,10,90,'#6a0a10',1);shake=Math.max(shake,4);noise(tr.x,tr.y,260);M.forEach(m=>{if(m.hp>0&&D(m.x,m.y,tr.x,tr.y)<46)hurt(m,55,Math.atan2(m.y-tr.y,m.x-tr.x),'tripwire')});if(P.hp>0&&D(P.x,P.y,tr.x,tr.y)<46)hurtP(55,{s:'tripwire'});if(mp.on)for(const q of Object.values(mp.rp))if(q.hp>0&&D(q.x,q.y,tr.x,tr.y)<46)mpSend({t:'hit',to:q.id,d:55,k:'mob'})}}traps=traps.filter(t=>t.t>0);
+ for(const tr of traps){tr.t-=dt;if(tr.ar>0){tr.ar-=dt;continue}if(M.some(m=>m.hp>0&&D(m.x,m.y,tr.x,tr.y)<(m.boss?16:12))||(P.hp>0&&D(P.x,P.y,tr.x,tr.y)<10)||(mp.on&&Object.values(mp.rp).some(q=>q.hp>0&&D(q.x,q.y,tr.x,tr.y)<10))){tr.t=0;burst(tr.x,tr.y,28,150,'#ff9a30',0);burst(tr.x,tr.y,10,90,'#6a0a10',1);shake=Math.max(shake,4);noise(tr.x,tr.y,260);M.forEach(m=>{if(m.hp>0&&D(m.x,m.y,tr.x,tr.y)<46)hurt(m,55,Math.atan2(m.y-tr.y,m.x-tr.x),'tripwire')});if(P.hp>0&&D(P.x,P.y,tr.x,tr.y)<46)hurtP(55,{s:'tripwire'});if(mp.on)for(const q of Object.values(mp.rp))if(q.hp>0&&D(q.x,q.y,tr.x,tr.y)<46)mpSend({t:'hit',to:q.id,d:55,k:'tripwire'})}}traps=traps.filter(t=>t.t>0);
  for(const b of lobs){b.m-=dt;b.x+=b.vx*dt;b.y+=b.vy*dt;if(hit(b.x,b.y,2)){b.x-=b.vx*dt;b.y-=b.vy*dt;b.m=0}if(b.m<=0){b.dead=1;lobLand(b)}}lobs=lobs.filter(b=>!b.dead);
- for(const f of fires){f.t-=dt;f.tk-=dt;if(f.tk<=0){f.tk=.5;if(!((f.mt||f.gf)&&mpCli()))M.forEach(m=>{if(m.hp>0&&D(m.x,m.y,f.x,f.y)<f.r+(m.boss?8:0))hurt(m,12,Math.atan2(m.y-f.y,m.x-f.x),'fire')});if(D(P.x,P.y,f.x,f.y)<f.r)hurtP(f.pd||5);burst(f.x+R(-f.r,f.r)*.7,f.y+R(-f.r,f.r)*.4,2,30,'#ff8a20',0)}}fires=fires.filter(f=>f.t>0);
+ for(const f of fires){f.t-=dt;f.tk-=dt;if(f.tk<=0){f.tk=.5;if(!((f.mt||f.gf)&&mpCli()))M.forEach(m=>{if(m.hp>0&&D(m.x,m.y,f.x,f.y)<f.r+(m.boss?8:0))hurt(m,12,Math.atan2(m.y-f.y,m.x-f.x),'fire')});if(D(P.x,P.y,f.x,f.y)<f.r)hurtP(f.pd||5);burst(f.x+R(-f.r,f.r)*.7,f.y+R(-f.r,f.r)*.4,2,30,'#ff8a20',0)}}for(const f of fires)if(f.ro!=null&&mp.on&&(f.rk=(f.rk===undefined?.3:f.rk)-dt)<=0){f.rk=.5;if(mode=='play'&&P.hp>0&&D(P.x,P.y,f.x,f.y)<f.r){mpBy=f.ro;try{hurtP(f.pd||5,{p:f.ro,s:'fire'})}finally{mpBy=null}}}   // step 9: a flask thrown by another hunter burns me here and credits them
+ fires=fires.filter(f=>f.t>0);
  for(const f of flares){f.t-=dt;f.tk-=dt;if(f.tk<=0){f.tk=2.5;if(!fgOn())noise(f.x,f.y,300)}if(!fgOn()&&Math.random()<dt*18)burst(f.x,f.y,1,40,'#ffd070',0)}flares=flares.filter(f=>f.t>0)}}
 // ---------- THE REAPER: a 60s timer. At zero a colossal winged demon takes you, one of 10 ways ----------
 // Test helpers: add ?timer=5 to shorten the clock, ?death=0..9 to force a specific death.
@@ -4080,7 +4154,7 @@ const TOTD={
  thief:()=>{P.th=3;burst(P.x,P.y,12,50,'#e8c860',0);say("Thief's Hands: your next 3 tool uses are free",3.5);try{sfx.heal()}catch(e){}}};
 function startBurn(k){if(P.dead)return;if(P.bn)return say('Already burning a totem',1.5);P.bn={k,t:0,x:P.x,y:P.y,hp:P.hp,nz:0};say('Burning the '+TOOL[k].n+'... stand still',2.5)}
 function totemTick(dt){P.hm=Math.max(0,(P.hm||0)-dt);nestTick();
- if((P.mg||0)>0){P.mg-=dt;if(!P.dead)for(const it of items){if(it.t=='wpn'||it.got)continue;const d=D(P.x,P.y,it.x,it.y);if(d<120&&d>4){const q=Math.min(d,150*dt)/d;it.x+=(P.x-it.x)*q;it.y+=(P.y-it.y)*q}}}
+ if((P.mg||0)>0){P.mg-=dt;if(!P.dead)for(const it of items){if(it.t=='wpn'||it.got||it.tn)continue;const d=D(P.x,P.y,it.x,it.y);if(d<120&&d>4){const q=Math.min(d,150*dt)/d;it.x+=(P.x-it.x)*q;it.y+=(P.y-it.y)*q}}}
  const b=P.bn;if(!b)return;
  if(P.dead||D(P.x,P.y,b.x,b.y)>3||P.hp<b.hp-.01||TC(b.k)<=0){P.bn=null;if(!P.dead)say('The burn was interrupted',2);return}
  b.t+=dt;if((b.nz-=dt)<=0){b.nz=1;noise(P.x,P.y,120)}if(Math.random()<dt*14)burst(P.x+R(-3,3),P.y-6,1,18,'#4a3c3c',0);
