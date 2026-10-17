@@ -17,6 +17,7 @@ h2{margin:6px 0;font-size:30px;border-bottom:2px dashed #e8e6d866}
 .paper::before{content:'';position:absolute;top:-5px;left:50%;width:10px;height:10px;border-radius:50%;background:#b01c1c;box-shadow:0 2px 3px #000}
 .paper.on{outline:3px solid var(--red);outline-offset:3px}
 .chalk{border:2px solid #e8e6d855;border-radius:6px 14px 5px 12px}
+.tbar{display:flex;gap:10px;justify-content:center;margin:2px 0 10px;position:relative;z-index:1}.tbox{flex:0 1 150px;min-width:0;border:2px solid #e8e6d855;border-radius:6px 14px 5px 12px;background:#0005;padding:4px 8px;text-align:center;font-size:24px;line-height:1.05;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.tbox small{display:block;font-size:16px;opacity:.75}.tbox.emp{border-style:dashed;opacity:.6}.tbox.me{border-color:#ffd9d0}.tbox.rdy{background:#1e7a3acc;border-color:#6be08a}
 .chalk:hover{background:#ffffff10}
 .chalk.on{border-color:#ffd9d0;background:#c0392b33;border-radius:30px 10px 28px 12px}
 .chalk small{display:block;font-size:17px;opacity:.75}
@@ -155,6 +156,36 @@ button.tt-btn:active{transform:translateX(12px) scale(.98)}
    is fun, frustrating or streamable, specialists tie ideas back to real grimoire/folklore so the theme stays authentic), then end with a table of the
    final picks (name, hook, what it does, how you beat it) and ask the owner which to build. Panels may say "add nothing" if the game is already full.
    Afterwards write the agreed ideas into this NOTES section so later chats can follow them. Past sessions: 9 lesser demons, then horde mobs (Gleaner built), then the Spooler (gut-chain hook mob, built).
+   -----------------------------------------------------------------------------------------------------
+   TO IMPLEMENT NEXT: TEAMS (solo, duo, trio). Owner's spec, Oct 18. Built in the steps below, one step per update, ticked off here when done. Multiplayer is the relay
+   in mpSearch / mpConnect / mpPub (topic hb1/search, rooms hb1/room/<id>), peers are mp.id, max MPMAX = 6 hunters, the monster host runs all monsters.
+     Rules: a team is 1 to 3 hunters (solo = team of 1). The map holds 6, so 3 teams of 2 or 2 teams of 3. Teams are never split by matchmaking. The hunter who
+       invited is the team HOST: only the host can press Enter the Breach, everyone else presses Ready Up. Teammates see each other on the map, and a teammate has a
+       slight BLUE OUTLINE on your screen. FRIENDLY FIRE is on. If you kill your teammate you cannot loot them: the game says the gear is tainted by evil. If anything else
+       kills your teammate (monster, fire, trap, boss, an enemy team) the gear is lootable as normal.
+     STEP 1 (DONE) - Team model (no UI yet). Built: mp.team, mp.tm, myTeam(), teamOf(id), isMate(id); search heartbeat carries tid, 'start' carries tm. mp.team={id,host,members:[ids]}, helper isMate(id), myTeam(), teamOf(id). Solo = a team with one member, so the solo flow stays exactly as it is.
+              Teams ride along in the 'start' message as o.tm (map of id to team id) so every client knows who is on whose side.
+     STEP 2 (DONE: boxes drawn by teamBar(); clicking an empty box is step 3) - Lobby boxes. On the hub screen with Hunter Name and Enter the Breach, add 3 player boxes along the top: box 1 is you (host), boxes 2 and 3 say "+ Invite".
+              Each filled box shows that hunter's name and small portrait (reuse mpPortrait / mpProfile). Boxes hide in solo until you click one.
+     STEP 3 (DONE: tm* functions after teamBar; invites ride the hb1/search channel as t:'tm', roster on room hb1/room/tm<teamId>; host re-sends roster every 3s, a member silent for 12s drops to solo; click own box = leave/disband, click a teammate as host = remove; duplicate names: first acceptor wins) - Invite and accept. Click an empty box, type a friend's name, press Invite. The invite goes over the relay on a per-name topic (hb1/inv/<lowercase name>) with the
+              host's name, team id and a timeout (about 30s). The friend gets an Accept / Decline popup. Accept: both subscribe to hb1/team/<id>, the host broadcasts the roster,
+              the friend's box fills in on every member's screen. Decline or timeout: the box resets and the host gets a short message. Anyone can leave; the host can kick.
+     STEP 4 (DONE: teamGo(); members' Ready Up sends t:'tm',k:'rd' on the team room, host relays it in the roster; ready states reset when a run starts. The host's Enter does NOT yet pull teammates into the match: that is step 5) - Host and Ready Up. The inviter is the host and is the only one who sees Enter the Breach. Other members see Ready Up (toggle). A member's box at the top turns GREEN
+              when ready (grey/red when not). Enter the Breach is disabled until every member box is green. If the host leaves, the next member becomes host (or the team disbands: ask the owner).
+     STEP 5 (DONE: mpSearch groups whole teams (heartbeat carries tid + ts = team size; a team counts once all ts members are searching), start message carries tm, roster border colours teams; host Enter sends k:'go' and every READY member pays + calls newGame; a member can't Ready Up if they can't afford their loadout) - Matchmaking with teams. Only the host starts the search, and it publishes the whole team (ids + profiles). mpSearch groups whole teams only (sum of sizes <= MPMAX),
+              never splitting one; the lead rule and the 'start' message stay the same but carry o.tm. Roster screen groups teammates under a shared team colour.
+     STEP 6 (DONE: mpMate(i) via mp.ids; rpDraw blue glow + blue name tag; teammates are blue dots on the M map. There is no minimap in this game) - Seeing your team in the match. rpDraw: teammates get a slight blue outline and a blue name tag; enemy hunters keep the current look. Map and minimap: teammates are blue
+              dots (always shown, even outside sight range); other hunters are not shown unless they are in view, as now.
+     STEP 7 (DONE: already on for shots, melee and bombs; added P.lh last-hunter stamp, 'dead' now carries by + lh, helper mpKill(o,f). NOT attributed to a hunter yet: fire/flask pools and tripwires, so those kills count as non-teammate; revisit in step 9) - Friendly fire. Check first what hunter-vs-hunter damage the game already has (bullets, explosions, fire, melee, traps); where none exists add it for everyone, teammates included,
+              and send each hit with the shooter's id. Track the last hunter who damaged someone (id and time) so deaths know their killer. Host validates, as with monster bites.
+     STEP 8 - Tainted gear. When a hunter dies, record who killed them: a hunter on the SAME team (direct hit, or last damage from a teammate within about 5 seconds, e.g. their grenade or fire)
+              marks the corpse and drop as tainted. Looting a tainted corpse shows "The gear is tainted by evil" and gives nothing (also true in spectate/leave flow). Any other cause
+              (monster, boss, environment, an enemy team, bleeding out with no teammate hit) stays lootable. The tainted flag is decided by the monster host and synced in the snapshot.
+     STEP 9 - Edge cases and tests. Disconnect or tab close (remove from team after the heartbeat timeout), duplicate names, inviting someone already in a team or in a match, invite while
+              searching, host change, teams of 2 + 2 + 2 and 3 + 3 and mixed totals, team of 3 + solo. The tutorial and solo play must be untouched. Simulate lobbies with stubbed relay clients
+              (as done for the map) before shipping. Tick the steps off in this list.
+     Open questions for the owner: can mixed teams share a match (e.g. trio + duo + solo = 6)? Does a solo hunter count as a team when others are in teams? Should the host be able to Enter without waiting for Ready?
+       Can teammates share loot or revive each other later? What happens to a team in a match when its host leaves mid-run?
    -----------------------------------------------------------------------------------------------------
    DONE: BOSS ARTWORK OVERHAUL. drawGorrath / drawNyxara / drawMordrek (just above drawM) replace the old boss sprites: gothic silhouettes, exposed ribs and
    gashes, bleeding jaws, glowing eyes, darker palettes. drawM only dispatches to them; hitboxes, AI, m.boss fields and multiplayer sync are untouched.
@@ -807,7 +838,7 @@ function menu(m){try{if(scr=='lb')lbOpen();else lbClose()}catch(e){}try{const an
  else if(scr=='missions')body=`<div class=cols>${col('Ledgers',ledList())}${col((LEDGERS[mi]||LEDGERS[0]).t,ledStory())}</div><div class=foot><span>Active: ${ledFoot()}</span>${back}</div>`;
  else if(scr=='lore'){const S=LORE[lorTab]||LORE[0],op=lorOpen>=0&&lkHas(lorTab,lorOpen)?S.e[lorOpen]:null,nf=S.e.filter((q,i)=>lkHas(lorTab,i)).length;
   body=`<div class=slate><div class=tabs>${LORE.map((s,i)=>`<div class="tb ${i==lorTab?'on':''}" data-l=${i}>${s.t.replace(' Lore','')}</div>`).join('')}</div><h2 class=lt>${S.t}</h2><p class=sub>${op?'Folder open. Close it to pick another.':S.sub}</p>`+(op?`<div class=fopen><div class=ftab>${op[0]}</div><div class=fback><div class=fsheet><div class="pol sp"><canvas data-la="${lorTab}.${lorOpen}" width=224 height=126></canvas></div><h3>${op[0]}</h3><p>${op[1]}</p></div></div></div>`:`<div class=fds>${S.e.map((n0,i)=>{const kn=lkHas(lorTab,i);return `<div class="fd${kn?'':' lk'}" ${kn?'data-lo='+i:''} style="--r:${(((i*37)%7)-3)*.8}deg"><div class=ft></div><div class=fl>${kn?n0[0]:'???'}</div></div>`}).join('')}</div>`)+`</div><div class=foot><span>${nf} of ${S.e.length} folders found${op?'':' \u2014 click one to open it'}</span>${op?'<button data-lo=-1>\u2190 Close folder</button>':back}</div>`} else if(scr=='help')body=`<div class=lore><h2>Controls</h2><ul>${HELP.split(' \u00b7 ').map(l=>`<li>${l}</li>`).join('')}</ul></div><div class=foot><span></span>${back}</div>`;
- else body=`<div class=hub><div class=lcol><div class=stage><canvas id=pc width=256 height=288></canvas><div class=cap>${pname?pname+' \u2014 ':''}${PRI[sel.pri].n} \u00b7 ${SID[sel.side].n} \u00b7 ${tl}</div></div><div class=chalk data-v=name>Hunter Name<small>${pname||'Unnamed \u2014 tap to set'}</small></div>${riskBox()}</div><div class=opts><button id=go ${ok?'':'disabled'}>Enter the Breach</button>${ok?'':'<p class=msg style="font-size:20px">Can\'t afford this loadout.</p>'}<div class=chalk data-v=sk>Skins<small>${SKINS[sel.skin].n}</small></div><div class=chalk data-v=stash>Stash & Armory<small>${STB.reduce((a,t)=>a+t.length,0)} items stored</small></div><div class=chalk data-v=missions>Ledgers<small>${ledSub()}</small></div><div class=chalk data-v=ach>Achievements<small>${achTotals()[0]} of ${achTotals()[1]} tiers earned</small></div><div class=chalk data-v=lore>Lore</div><div class=chalk data-v=lb>Leaderboard<small>Top 5 hunters on each board</small></div><div class=chalk data-v=title>Main Menu</div></div></div><div class=foot><span>Cash: $${bank} &nbsp;|&nbsp; Loadout: $${c}</span><span>Ledger: ${ledFoot()}</span></div>`;
+ else body=`${teamBar()}<div class=hub><div class=lcol><div class=stage><canvas id=pc width=256 height=288></canvas><div class=cap>${pname?pname+' \u2014 ':''}${PRI[sel.pri].n} \u00b7 ${SID[sel.side].n} \u00b7 ${tl}</div></div><div class=chalk data-v=name>Hunter Name<small>${pname||'Unnamed \u2014 tap to set'}</small></div>${riskBox()}</div><div class=opts>${teamGo(ok)}${ok?'':'<p class=msg style="font-size:20px">Can\'t afford this loadout.</p>'}<div class=chalk data-v=sk>Skins<small>${SKINS[sel.skin].n}</small></div><div class=chalk data-v=stash>Stash & Armory<small>${STB.reduce((a,t)=>a+t.length,0)} items stored</small></div><div class=chalk data-v=missions>Ledgers<small>${ledSub()}</small></div><div class=chalk data-v=ach>Achievements<small>${achTotals()[0]} of ${achTotals()[1]} tiers earned</small></div><div class=chalk data-v=lore>Lore</div><div class=chalk data-v=lb>Leaderboard<small>Top 5 hunters on each board</small></div><div class=chalk data-v=title>Main Menu</div></div></div><div class=foot><span>Cash: $${bank} &nbsp;|&nbsp; Loadout: $${c}</span><span>Ledger: ${ledFoot()}</span></div>`;
 ;const drawIcons=()=>document.querySelectorAll('canvas[data-ic]').forEach(c=>{const o=ctx;ctx=c.getContext('2d');try{ctx.clearRect(0,0,34,18);drawWpn(c.dataset.ic,5,9,0,1,c.dataset.wk)}finally{ctx=o}});
  $('#menu').style.display='block';$('#menu').innerHTML=`<div class=board><i hidden></i><h1>\u2620 Hellbreach \u2620</h1>${m?`<p class=msg>${m}</p>`:''}${body}</div>`;drawIcons();if(scr=='name'){const pn=$('#pn');if(pn){const sv=()=>{const v=cleanName(pn.value);if(hasDev(v)&&!DEVAUTH)return;pname=v;SAVE()},
    cm=then=>{const v=cleanName(pn.value);if(!hasDev(v)||DEVAUTH){pname=v;SAVE();if(then)then();return}
@@ -859,7 +890,7 @@ function buildWalls(b){const g=[[],[],[],[]],ds=[R(0,4)|0];if(Math.random()<.5)d
 // ---------- MOB TYPES (w = spawn weight: easy ones common, hard ones rare) ----------
 const MOBS={imp:{hp:45,sp:52,dm:10,cd:.9,w:44},skitter:{hp:22,sp:90,dm:6,cd:.6,w:26},bloat:{hp:60,sp:34,w:12},vine:{hp:55,sp:30,w:12},brute:{hp:130,sp:38,dm:24,cd:1.1,sc:1.5,w:6},gleaner:{hp:50,sp:62,dm:14,cd:.9,w:0},spooler:{hp:70,sp:46,dm:12,cd:1,w:9}};
 const pickMob=()=>{const tu=typeof TUTR!=='undefined'&&TUTR,wt=(k,o)=>k=='spooler'&&tu?0:o.w;let r=Math.random()*Object.entries(MOBS).reduce((a,[k,o])=>a+wt(k,o),0);for(const[k,o]of Object.entries(MOBS)){if((r-=wt(k,o))<0)return k}return'imp'};
-const mkMob=(x,y,st,ty)=>{ty=ty||pickMob();const o=MOBS[ty];return{x,y,hp:o.hp,mh:o.hp,st:st||'idle',wt:0,cd:0,fl:0,wk:0,ty}};
+const mkMob=(x,y,st,ty)=>{ty=ty||pickMob();const o=MOBS[ty],gb=gorW&&ty=='brute'?1:0,hp=gb?190:o.hp;return{x,y,hp,mh:hp,st:st||'idle',wt:0,cd:0,fl:0,wk:0,ty,gb}};
 // ---- GLEANER (horde mob): an ammo pile that is really a mimic. It lies still ('lure' on the host, shows as 'idle' on clients: anything that is not 'chase' is
 // still disguised) and springs when a hunter gets close or when it is hit. Once sprung it never gives up the chase. w:0 in MOBS keeps pickMob() from spawning it;
 // supply sites place it by hand (about 1 in 5 of their ammo piles, max 4 per map). Deaf while disguised: gunfire does not wake it, a bullet or a fist does.
@@ -903,9 +934,9 @@ function mobAI(m,a,d,v,dt){const o=MOBS[m.ty||'imp'];
  if(m.ty=='spooler'){spoolAI(m,a,d,v,dt);return}
  if(m.ty=='vine'){if(m.fi){if(T>=m.lw){m.fi=0;m.lf=T+.2;const dx=TG.x-m.x,dy=TG.y-m.y,pr=dx*Math.cos(m.la)+dy*Math.sin(m.la),pp=Math.abs(-dx*Math.sin(m.la)+dy*Math.cos(m.la));if(pr>0&&pr<135&&pp<9&&los(m.x,m.y,TG.x,TG.y))hurtTG(18);burst(m.x+Math.cos(m.la)*70,m.y+Math.sin(m.la)*70,6,60,'#8a0f18',0)}return}
   const s=d<65?-40:d>105?o.sp:0;mv(m,Math.cos(a)*s*dt,Math.sin(a)*s*dt,5);m.wk+=dt*6;if(m.cd<=0&&v&&d<125&&d>20){m.fi=1;m.lw=T+.7;m.la=a;m.cd=2.4}return}
- mv(m,Math.cos(a)*o.sp*dt,Math.sin(a)*o.sp*dt,5);m.wk+=dt*(m.ty=='skitter'?12:8);
+ const gbs=m.gb?1.21:1;mv(m,Math.cos(a)*o.sp*gbs*dt,Math.sin(a)*o.sp*gbs*dt,5);m.wk+=dt*(m.ty=='skitter'?12:8);
  if(m.ty=='bloat'){if(d<18)kill(m);return}
- if(d<13*(o.sc||1)&&m.cd<=0){m.cd=o.cd;hurtTG(o.dm)}}
+ if(d<13*(o.sc||1)&&m.cd<=0){m.cd=o.cd;hurtTG(o.dm);if(m.gb&&TG===P)P.bt=3}}
 // ---- gore: rolling heads, limbs, guts, blood spray ----
 let gibs=[],drops=[],spurts=[];
 function spray(x,y,z,a,n,sp,g){if(drops.length>650)drops.splice(0,120);for(let i=0;i<n;i++){const t=a==null?R(0,6.28):a+R(-.9,.9),v=R(.2,1)*sp;drops.push({x,y,z,vx:Math.cos(t)*v,vy:Math.sin(t)*v,vz:R(30,130),gr:g})}}
@@ -1058,9 +1089,9 @@ function drawMob(m,x,y,f){const t=m.ty||'imp',sc=t=='skitter'?.75:t=='brute'?1.5
  if(t=='vine'&&m.fi&&T<m.lw){ctx.strokeStyle='rgba(255,40,50,'+(.25+.5*(1-(m.lw-T)/.7))+')';ctx.lineWidth=1;ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(x,y-2);ctx.lineTo(x+Math.cos(m.la)*135,y-2+Math.sin(m.la)*135);ctx.stroke();ctx.setLineDash([])}
  if(t=='vine'&&T<(m.lf||0)){ctx.strokeStyle='#c01828';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(x,y-2);ctx.quadraticCurveTo(x+Math.cos(m.la)*70+Math.sin(m.la)*6,y-2+Math.sin(m.la)*70-Math.cos(m.la)*6,x+Math.cos(m.la)*135,y-2+Math.sin(m.la)*135);ctx.stroke();ctx.strokeStyle='#ff6a6a';ctx.lineWidth=1;ctx.stroke()}
  ctx.save();ctx.translate(x,y);ctx.scale(sc,sc);
- if(t=='skitter')drawImp(0,0,m.a||0,f,m.wk,'#b8a070','#6a5a38');else if(t=='brute')drawImp(0,0,m.a||0,f,m.wk,'#4a2a30','#1a0c10');else if(t=='vine')drawImp(0,0,m.a||0,f,m.wk,'#5a1a30','#2a0a18');else drawImp(0,0,m.a||0,f,m.wk);
+ if(t=='skitter')drawImp(0,0,m.a||0,f,m.wk,'#b8a070','#6a5a38');else if(t=='brute'){const G=GOR();if(G&&!f)gorBruteGlow();drawImp(0,0,m.a||0,f,m.wk,G?'#241210':'#4a2a30',G?'#0c0606':'#1a0c10');if(G&&!f)gorBruteOver(m.a||0,m.wk)}else if(t=='vine')drawImp(0,0,m.a||0,f,m.wk,'#5a1a30','#2a0a18');else drawImp(0,0,m.a||0,f,m.wk);
  if(t=='vine'&&!f){ctx.strokeStyle='#a01828';ctx.lineWidth=1.2;for(let i=-1;i<2;i++){ctx.beginPath();ctx.moveTo(i*3,3);ctx.quadraticCurveTo(i*7+Math.sin(T*3+i)*3,-3,i*9+Math.sin(T*4+i)*2,8);ctx.stroke()}}
- if(t=='brute'&&!f){ctx.fillStyle='#e8d8b0';ctx.fillRect(-5,-6,1,3);ctx.fillRect(4,-6,1,3)}
+ if(t=='brute'&&!f&&!GOR()){ctx.fillStyle='#e8d8b0';ctx.fillRect(-5,-6,1,3);ctx.fillRect(4,-6,1,3)}
  ctx.restore()}
 // ---------- LESSER DEMONS (PARKED) ----------
 // Lesser demons are a new tier between horde mobs and archdemons. Each gets its own lore page.
@@ -1394,7 +1425,7 @@ function dragEnd(){const d=drg;if(!d)return;drg=null;removeEventListener('pointe
     else{slotSet(id,{k:d.k,n:o.n,sk:o.sk});reSel({sid:id});ch=1}}}}
  if(ch)SAVE();menu()}
 function newGame(){
- boss=Object.keys(BOSS)[Math.random()*Object.keys(BOSS).length|0];showMap=0;genGround();walls=[];blds=[];
+ boss=Object.keys(BOSS)[Math.random()*Object.keys(BOSS).length|0];showMap=0;genGround();gorW=boss=='gorrath'?1:0;GFS=[];GGR=[];GHP=[];if(gorW)gorGround();nyxW=boss=='nyxara'?1:0;NSN=[];NWF=[];if(nyxW)nyxGround();morW=boss=='mordrek'?1:0;MGR=[];MBL=null;MCH=null;MBD=[];morBt=0;if(morW)morGround();walls=[];blds=[];
  camp=edgePt();exts=[];for(let t=0;exts.length<2&&t<500;t++){const p=edgePt();if(D(p.x,p.y,camp.x,camp.y)>1000&&exts.every(e=>D(p.x,p.y,e.x,e.y)>800))exts.push(p)}
 RS={};mis=ledgerTask();trees=[];M=[];bul=[];eb=[];bombs=[];lobs=[];fires=[];flares=[];parts=[];traps=[];gibs=[];drops=[];spurts=[];found=0;bossOpen=0;seals=[];banished=0;corpse=null;bty=null;bn=null;
  for(let t=0;blds.length<7&&t<2500;t++){const w=R(210,300)|0,h=R(150,210)|0,x=R(120,WW-w-120)|0,y=R(120,WH-h-120)|0,b={x,y,w,h};planWing(b);const e=bExt(b);
@@ -1403,6 +1434,7 @@ RS={};mis=ledgerTask();trees=[];M=[];bul=[];eb=[];bombs=[];lobs=[];fires=[];flar
  const sp=camp,far=[...blds].sort((a,b)=>D(b.cx,b.cy,sp.x,sp.y)-D(a.cx,a.cy,sp.x,sp.y)),bb=far[0],oth=far.slice(1).sort(()=>Math.random()-.5);
  clues=oth.slice(0,3).map(b=>({x:b.cx+R(-30,30),y:b.cy+R(-20,20),got:0}));
  for(let i=0;i<100;i++){const x=R(30,WW-30),y=R(30,WH-30);if(blds.some(b=>{const e=bExt(b);return x>e.x-25&&x<e.x+e.w+25&&y>e.y-25&&y<e.y+e.h+25})||D(x,y,sp.x,sp.y)<120||exts.some(e=>D(x,y,e.x,e.y)<60))continue;trees.push({x,y});W(x-2,y-3,4,4,1)}
+ if(gorW)gorMap(bb,sp);if(nyxW)nyxMap(bb,sp);if(morW)morMap(bb,sp);
  genBuildings(bb);genExits();sealBoss(bb);
  const B=BOSS[boss];M.push({boss:1,bb:bb,bh:B.bh,x:bb.cx,y:bb.cy,hx:bb.cx,hy:bb.cy,hp:B.hp,mh:B.hp,st:'idle',wt:0,cd:2,fl:0,dash:0,wk:0});
  for(let i=0;i<32;i++){let x,y,t=0;do{const b=i<16?blds[i%blds.length]:null;x=b?b.cx+R(-b.w/3,b.w/3):R(60,WW-60);y=b?b.cy+R(-b.h/3,b.h/3):R(60,WH-60)}while((hit(x,y,6)||D(x,y,sp.x,sp.y)<350)&&t++<30);M.push(mkMob(x,y,'idle'))}
@@ -1429,6 +1461,174 @@ RS={};mis=ledgerTask();trees=[];M=[];bul=[];eb=[];bombs=[];lobs=[];fires=[];flar
  const pw=[sel.pri!='none'?PRI[sel.pri]:null,sel.side!='none'?SID[sel.side]:null];
  P={x:sp.x,y:sp.y,hp:100,st:100,w:pw,wsk:[pw[0]?skv(sel.pri,sel.sk.p):'',pw[1]?skv(sel.side,sel.sk.s):''],bag:(sel.bag||[]).map(o=>{const c={...o};delete c.mg;delete c.rs;return c}),cur:pw[0]?0:1,mag:pw.map(w=>w?w.m:0),res:pw.map((w,i)=>w?w.m*3+(w.d?(xa[i]|0)*w.m:0):0),rl:0,cd:0,mc:0,ts:Array.from({length:NTS},(_,i)=>{const t=sel.tools[i];return t&&TOOL[t.k]?{k:t.k,n:Math.min(MAXST,t.n||1)}:null}),wd:0,hf:0,wk:0,sl:0,carry:0,bp:0,ep:0,face:0,sa:0,nz:0,lf:0};tsBind(P);
  xa=[0,0];invOpen=0;mode='play';$('#menu').style.display='none';say('Burn 3 sigils to unseal the demon\'s door, then hunt it.'+(mis.t=='none'?'':' Ledger: '+tText(mis)+'.'),6)}
+
+// ---------- GORRATH'S BREACH: map changes + fire-touched brutes (only when Gorrath is the boss; the tutorial has its own world) ----------
+// Scorched Parish (burnt ground, stumps instead of trees, ash drift that muffles sprint steps), Magma Fissures (burn you, light the dark, Gorrath cannot cross except at stone slabs),
+// Broken Walls (gaps + rubble heaps that block shots), Grass Fire (dry grass that spreads fire from flasks/flamers/meteors). Brutes: 190 HP, ~21% faster, hits ignite you, burst into flames on death.
+// Everything is placed inside newGame, so the multiplayer seed keeps it identical for every hunter.
+let gorW=0,GFS=[],GGR=[],GHP=[],gorFt=0;
+const GOR=()=>gorW&&mode=='play'&&!(typeof TUTR!=='undefined'&&TUTR);
+const gHs=(a,b)=>{const h=Math.sin(a*12.9898+b*78.233)*43758.5453;return h-Math.floor(h)};
+const gDs=(px,py,s)=>{const dx=s.x2-s.x1,dy=s.y2-s.y1,l=dx*dx+dy*dy||1,t=cl(((px-s.x1)*dx+(py-s.y1)*dy)/l,0,1);return Math.hypot(px-s.x1-t*dx,py-s.y1-t*dy)};
+const onFis=(x,y,r)=>GFS.some(q=>!q.c&&gDs(x,y,q)<r);
+function gorGround(){const g=ground.getContext('2d');g.fillStyle='rgba(8,4,4,.4)';g.fillRect(0,0,WW,WH);
+ for(let i=0;i<70;i++){g.fillStyle='rgba(0,0,0,.3)';g.beginPath();g.ellipse(R(0,WW),R(0,WH),R(30,90),R(14,40),0,0,7);g.fill()}
+ for(let i=0;i<40;i++){g.fillStyle='rgba(120,114,106,.14)';g.beginPath();g.ellipse(R(0,WW),R(0,WH),R(20,70),R(10,30),0,0,7);g.fill()}
+ for(let i=0;i<6000;i++){g.fillStyle=['#0c0606','#1a100c','#3a3430','#4a4440'][i&3];g.fillRect(R(0,WW),R(0,WH),R(1,3),1)}
+ for(let i=0;i<260;i++){g.fillStyle=Math.random()<.5?'#ff5a1a':'#ff9a3a';g.fillRect(R(0,WW)|0,R(0,WH)|0,1,1)}}
+function gorMap(bb,sp){
+ const free=(x,y,pd,cd)=>x>20&&y>20&&x<WW-20&&y<WH-20&&!blds.some(b=>{const e=bExt(b);return x>e.x-pd&&x<e.x+e.w+pd&&y>e.y-pd&&y<e.y+e.h+pd})&&D(x,y,sp.x,sp.y)>cd&&exts.every(e=>D(x,y,e.x,e.y)>70)&&clues.every(c=>D(x,y,c.x,c.y)>60);
+ // broken walls: cut a 34px gap in up to 2 long walls of every building except the lair
+ blds.forEach(b=>{if(b===bb)return;walls.filter(w=>w.k==b.ty&&!w.t&&Math.max(w.w,w.h)>=90).sort(()=>Math.random()-.5).slice(0,2).forEach(w=>{const hz=w.w>w.h,L=hz?w.w:w.h,gp=34,po=R(18,L-gp-18)|0;walls.splice(walls.indexOf(w),1);
+  if(hz){walls.push({...w,w:po});walls.push({...w,x:w.x+po+gp,w:L-po-gp});GHP.push({x:w.x+po+gp/2,y:w.y+w.h/2,h:0})}else{walls.push({...w,h:po});walls.push({...w,y:w.y+po+gp,h:L-po-gp});GHP.push({x:w.x+w.w/2,y:w.y+po+gp/2,h:0})}})});
+ // magma fissures: crooked cracks, every 5th segment is a stone slab you can cross on
+ for(let n=0;n<7;n++){let x,y,t=0;do{x=R(100,WW-100);y=R(100,WH-100)}while(!free(x,y,40,260)&&t++<80);if(t>80)continue;let a=R(0,6.28),k=0;
+  for(let i=0;i<22;i++){a+=R(-.5,.5);const nx=x+Math.cos(a)*R(28,40),ny=y+Math.sin(a)*R(28,40);if(!free(nx,ny,30,230))break;GFS.push({x1:x,y1:y,x2:nx,y2:ny,c:k++%5==2});x=nx;y=ny}}
+ // dry grass patches
+ for(let n=0;n<16;n++){let x,y,t=0;do{x=R(80,WW-80);y=R(80,WH-80)}while(!free(x,y,30,180)&&t++<60);if(t>60)continue;const c=R(9,16)|0;for(let i=0;i<c;i++){const gx=x+R(-55,55),gy=y+R(-40,40);if(free(gx,gy,12,150)&&!hit(gx,gy,4)&&!onFis(gx,gy,10))GGR.push({x:gx,y:gy,b:0,s:GGR.length})}}
+ // rubble heaps in the open (they block shots, so they are cover)
+ for(let n=0,t=0;n<10&&t<300;t++){const x=R(60,WW-60),y=R(60,WH-60);if(!free(x,y,30,180)||hit(x,y,14)||GFS.some(q=>gDs(x,y,q)<24))continue;W(x-9,y-5,18,10,1);GHP.push({x,y,h:1});n++}}
+function gorGroundDraw(cx,cy){const t=T,c=ctx;
+ c.fillStyle='rgba(170,160,150,.5)';for(let i=0;i<46;i++){const x=(gHs(i,1)*VW+t*(8+gHs(i,2)*12))%VW,y=(gHs(i,3)*VH+t*(10+gHs(i,4)*14))%VH;c.fillRect(x|0,y|0,1,1)}
+ GGR.forEach(g=>{const x=g.x-cx|0,y=g.y-cy|0;if(x<-8||x>VW+8||y<-8||y>VH+8)return;
+  if(g.b){c.fillStyle='#1a100c';c.fillRect(x-2,y-1,1,3);c.fillRect(x,y-2,1,3);c.fillRect(x+2,y,1,2);if(((t*8+g.s)|0)%3==0){c.fillStyle='#ff5a1a';c.fillRect(x,y,1,1)}}
+  else{const sw=Math.sin(t*2+g.s)*.6;c.fillStyle='#7a6a30';c.fillRect(x-2+sw,y-5,1,6);c.fillRect(x+sw,y-6,1,7);c.fillRect(x+2+sw,y-4,1,5);c.fillStyle='#a8924a';c.fillRect(x+sw,y-6,1,2)}});
+ const p=.5+.5*Math.sin(t*3);
+ GFS.forEach(q=>{const x1=q.x1-cx,y1=q.y1-cy,x2=q.x2-cx,y2=q.y2-cy;if(Math.max(x1,x2)<-10||Math.min(x1,x2)>VW+10||Math.max(y1,y2)<-10||Math.min(y1,y2)>VH+10)return;
+  for(const [w,k] of [[9,'#0c0606'],[6,'#4a1408'],[4,'rgba(200,56,15,'+(.8+.2*p)+')'],[2,'#ffa03a']]){c.strokeStyle=k;c.lineWidth=w;c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke()}
+  if(q.c){const mx=(x1+x2)/2|0,my=(y1+y2)/2|0;c.fillStyle='#000';c.fillRect(mx-8,my-6,16,13);c.fillStyle='#5a5560';c.fillRect(mx-7,my-7,14,12);c.fillStyle='#7a7480';c.fillRect(mx-7,my-7,14,2);c.fillStyle='#3a3640';c.fillRect(mx-7,my+3,14,2);c.fillStyle='#4a4550';c.fillRect(mx-3,my-3,3,3)}});
+ GHP.forEach(h=>{const x=h.x-cx|0,y=h.y-cy|0;if(x<-20||x>VW+20||y<-20||y>VH+20)return;const W2=h.h?12:8,H2=h.h?6:3,n=h.h?14:7,cs=['#3a2a2c','#4a3638','#2a1c1e','#5a4446'];
+  for(let i=0;i<n;i++){const a=gHs(h.x+i,h.y),b=gHs(h.y,i+h.x);c.fillStyle=cs[i&3];c.fillRect((x-W2+a*W2*2)|0,(y-H2+b*H2*2)|0,2+(a*3|0),2+(b*2|0))}
+  c.fillStyle='rgba(0,0,0,.35)';c.fillRect(x-W2+2,y+H2,W2*2-4,2)})}
+function gorStump(x,y,s){const c=ctx;shadow(x,y,7);c.fillStyle='#1a100c';c.fillRect(x-4,y-8,8,10);c.fillStyle='#120a08';c.fillRect(x-4,y-8,2,10);c.fillStyle='#2e2018';c.fillRect(x-3,y-10,6,3);c.fillStyle='#0c0606';c.fillRect(x-1,y-9,2,1);c.fillStyle='#ff5a1a';c.fillRect(x+1,y-3,1,2);
+ if(s%5==0){c.fillStyle='#1a100c';c.fillRect(x-2,y-24,4,16);c.fillRect(x-6,y-20,4,2);c.fillRect(x+2,y-17,5,2);c.fillStyle='#120a08';c.fillRect(x-2,y-24,1,16);c.fillStyle='#ff5a1a';c.fillRect(x,y-14,1,2)}}
+function gorBruteGlow(){const c=ctx;c.save();c.globalAlpha=.2+.12*(.5+.5*Math.sin(T*5));c.fillStyle='#ff5a1a';c.beginPath();c.arc(0,-3,13,0,7);c.fill();c.restore()}
+function gorBruteOver(a,wk){const c=ctx;
+ c.fillStyle='#1a0c0c';c.fillRect(-5,-14,2,5);c.fillRect(3,-14,2,5);c.fillStyle='#ff7a2a';c.fillRect(-5,-16,1,3);c.fillRect(4,-16,1,3);c.fillStyle='#fff0b0';c.fillRect(-5,-17,1,1);c.fillRect(4,-17,1,1);
+ c.fillStyle='#17101a';c.fillRect(-7,-6,3,4);c.fillRect(4,-6,3,4);c.fillStyle='#ff5a1a';c.fillRect(-7,-6,3,1);c.fillRect(4,-6,3,1);
+ c.fillStyle='#ff5a1a';[[-2,-5],[-1,-4],[-1,-3],[0,-2],[0,-1],[-1,0],[-1,1],[2,-4],[2,-3],[3,-2],[3,-1],[3,0],[-3,-9],[-2,-8],[2,-9],[1,-8]].forEach(q=>c.fillRect(q[0],q[1],1,1));
+ c.fillStyle='#ffd070';c.fillRect(0,-2,1,1);c.fillRect(-1,0,1,1);c.fillRect(2,-3,1,1);
+ c.save();c.globalAlpha=.55;c.fillStyle='#ff6a1a';c.fillRect(-3,-9,3,3);c.fillRect(0,-9,3,3);c.restore();c.fillStyle='#fff0a0';c.fillRect(-2,-8,1,1);c.fillRect(1,-8,1,1);
+ const tx=-Math.cos(a)*9,ty=-Math.sin(a)*5+Math.sin(wk)*1.2,fl=Math.sin(T*14)*.8;c.fillStyle='#ff5a1a';c.fillRect(tx-1,ty-3+fl,3,3);c.fillStyle='#ffb050';c.fillRect(tx,ty-4+fl,1,2);
+ c.fillStyle='#ff9a3a';for(let i=0;i<4;i++){const t=(T*.7+i*.25)%1;c.fillRect(Math.sin(i*5)*7,-12-t*14,1,1)}}
+function gorTick(dt){if(!GOR()||!P)return;
+ if(P.bt>0&&!P.dead){P.bt-=dt;P.bq=(P.bq||0)-dt;if(P.bq<=0){P.bq=.5;hurtP(3)}burst(P.x+R(-3,3),P.y-6,1,30,'#ff8a20',0)}
+ const b=M[0];if(b&&b.boss&&b.hp>0){if(b._gx!=null&&onFis(b.x,b.y,6)){b.x=b._gx;b.y=b._gy;b.dash=0}else{b._gx=b.x;b._gy=b.y}}
+ gorFt-=dt;if(gorFt>0)return;gorFt=.4;
+ if(!P.dead&&onFis(P.x,P.y,5)){hurtP(6);P.bt=Math.max(P.bt||0,1.5)}
+ if(!mpCli())M.forEach(m=>{if(m.hp>0&&!m.boss&&!m.lesser&&onFis(m.x,m.y,5))hurt(m,10,0,'fire')});
+ if(fires.length&&GGR.length){let gf=fires.filter(f=>f.gf).length;GGR.forEach(g=>{if(g.b)return;for(const f of fires){if(D(g.x,g.y,f.x,f.y)<f.r+8){g.b=1;if(gf<40){gf++;fires.push({x:g.x,y:g.y,r:18,t:3.2,tk:.4,s:R(0,6),pd:5,gf:1})}break}}})}}
+{const _u=update;update=function(dt){_u(dt);try{gorTick(dt)}catch(e){}}}
+{const _k=kill;kill=function(m){const g=m&&m.gb&&m.hp>0;_k.apply(this,arguments);if(g)fires.push({x:m.x,y:m.y,r:28,t:2.5,tk:.3,s:Math.random()*6,pd:5,gf:1})}}
+
+// ---------- NYXARA'S BREACH: map changes (only when Nyxara is the boss; the tutorial has its own world) ----------
+// Ember Fog (cold ash ground, drifting fog + cinders, your sight and the horde's detection range both shrink, her fireballs get a glow),
+// Cursed Standing Stones (solid cover that hums; hiding within ~34px draws imps), Witch Fires (green braziers near the lair heal horde mobs; stand at one and press E to pour a Holy Water on it),
+// Cinder Rain (extra meteor strikes around the lair, through the existing hellfire system: red circle, impact, burning pool). Placed inside newGame, so the multiplayer seed keeps it identical.
+let nyxW=0,NSN=[],NWF=[],nyxRt=3,nyxFt=0;
+const NYX=()=>nyxW&&mode=='play'&&!(typeof TUTR!=='undefined'&&TUTR),nyxV=m=>NYX()?m:1;
+const NSP=(()=>{let sd=11;const rn=()=>(sd=(sd*16807)%2147483647)/2147483647;
+ const cv=(w,h,fn)=>{const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');x.imageSmoothingEnabled=false;fn(x,(col,a,b,cw,ch)=>{x.fillStyle=col;x.fillRect(a,b,cw,ch)});return c};
+ const puff=v=>cv(48,32,(x,r)=>{sd=v*17+5;const bl=[];for(let i=0;i<4;i++)bl.push([10+rn()*28,8+rn()*16,8+rn()*8,4+rn()*5]);
+  for(let y=0;y<32;y++)for(let X=0;X<48;X++){let d=0;bl.forEach(b=>d+=Math.exp(-(((X-b[0])**2)/(b[2]**2)+((y-b[1])**2)/(b[3]**2))));const dz=((X+y)&1)?.12:0,l=d+dz>1.15?3:d+dz>.75?2:d+dz>.4?1:0;if(l)r('rgba(130,110,150,'+(.14*l)+')',X,y,1,1)}
+  for(let i=0;i<6;i++)r(i%2?'#ff7a2a':'#ffb050',(6+rn()*36)|0,(4+rn()*22)|0,1,1)});
+ const rune=(r,x,y,c)=>{r(c,x,y,1,3);r(c,x+1,y+1,1,1);r(c,x-1,y+2,1,1)};
+ const stone=v=>cv(32,48,(x,r)=>{sd=v*9+1;r('#00000066',5,41,22,6);const sh=v==2?yy=>Math.round((44-yy)/9):()=>0;
+  for(let y=6;y<44;y++){const o=sh(y);if(v==1&&y<14&&((y*7)%5>2))continue;r('#4a4550',9+o,y,14,1);r('#6a6470',9+o,y,3,1);r('#2a2630',21+o,y,2,1)}
+  if(v!=1){r('#6a6470',8+sh(6),4,16,3);r('#2a2630',8+sh(6),7,16,1)}
+  r('#3a3640',6,42,20,3);r('#5a5560',6,42,20,1);for(let i=0;i<10;i++)r('#2a2630',10+((rn()*10)|0)+sh(22),10+((rn()*30)|0),1+(i%2),1);
+  const g='#b07aff';rune(r,14+sh(18),16,g);rune(r,17+sh(28),26,g);rune(r,13+sh(34),33,'#7a4ad0');r('#e6d4ff',15+sh(18),17,1,1);
+  if(v==1){r('#4a4550',3,39,4,3);r('#5a5560',24,40,5,2);r('#3a3640',8,38,3,2)}r('#4a6a3a',10,43,2,1);r('#4a6a3a',20,43,3,1)});
+ const braz=(f,out)=>cv(32,40,(x,r)=>{sd=f*7+2;r('#00000066',6,34,20,5);r('#1a1218',9,33,2,4);r('#1a1218',21,33,2,4);r('#1a1218',15,33,2,5);r('#2a2028',10,24,12,3);r('#1a1218',9,22,14,4);r('#3a3038',9,22,14,1);r('#0a0608',11,25,10,2);r('#2a2028',13,27,2,6);r('#2a2028',17,27,2,6);
+  if(out){r('#3a3030',12,21,8,2);r('#8a2a10',14,21,2,1);return}
+  r('rgba(60,255,120,.18)',4,6,24,22);[[12,10],[15,6],[18,9],[21,12],[14,12],[19,13]].forEach(([bx,hh],i)=>{const h=hh+((i*5+f*7)%7)-3;r('#0a1a0e',bx-1,22-h,4,h);r('#1a8a44',bx,22-h+1,3,h-2);r('#2bd66a',bx,22-h+2,2,h-5);r('#b8ffb0',bx,22-h+3,1,Math.max(2,h-8))});
+  for(let i=0;i<4;i++)r('#7dffa8',10+((rn()*12)|0),4+((rn()*8)|0),1,1)});
+ return{puff:[puff(1),puff(2),puff(3)],stone:[stone(0),stone(1),stone(2)],br:[0,1,2,3].map(f=>braz(f)),out:braz(0,1)}})();
+function nyxGround(){const g=ground.getContext('2d');g.fillStyle='rgba(26,10,44,.5)';g.fillRect(0,0,WW,WH);
+ for(let i=0;i<60;i++){g.fillStyle='rgba(0,0,0,.28)';g.beginPath();g.ellipse(R(0,WW),R(0,WH),R(30,90),R(14,40),0,0,7);g.fill()}
+ for(let i=0;i<46;i++){g.fillStyle='rgba(120,104,140,.13)';g.beginPath();g.ellipse(R(0,WW),R(0,WH),R(20,70),R(10,30),0,0,7);g.fill()}
+ for(let i=0;i<6000;i++){g.fillStyle=['#120a14','#1a1020','#2a2030','#33283a'][i&3];g.fillRect(R(0,WW),R(0,WH),R(1,3),1)}
+ for(let i=0;i<200;i++){g.fillStyle=Math.random()<.5?'#ff5a1a':'#ff9a3a';g.fillRect(R(0,WW)|0,R(0,WH)|0,1,1)}}
+function nyxMap(bb,sp){
+ const free=(x,y,pd,cd)=>x>20&&y>20&&x<WW-20&&y<WH-20&&!blds.some(b=>{const e=bExt(b);return x>e.x-pd&&x<e.x+e.w+pd&&y>e.y-pd&&y<e.y+e.h+pd})&&D(x,y,sp.x,sp.y)>cd&&exts.every(e=>D(x,y,e.x,e.y)>70)&&clues.every(c=>D(x,y,c.x,c.y)>60)&&!hit(x,y,16);
+ for(let n=0,t=0;n<14&&t<600;t++){const near=n<9,a=R(0,6.28),r=near?R(110,330):R(300,900),x=near?bb.cx+Math.cos(a)*r:R(60,WW-60),y=near?bb.cy+Math.sin(a)*r:R(60,WH-60);
+  if(!free(x,y,35,250)||NSN.some(q=>D(x,y,q.x,q.y)<70))continue;NSN.push({x,y,v:n%3,hc:0});W(x-7,y-4,14,8,1);n++}
+ for(let n=0,t=0;n<5&&t<400;t++){const a=R(0,6.28),r=R(100,280),x=bb.cx+Math.cos(a)*r,y=bb.cy+Math.sin(a)*r;
+  if(!free(x,y,30,220)||NSN.some(q=>D(x,y,q.x,q.y)<45)||NWF.some(q=>D(x,y,q.x,q.y)<90))continue;NWF.push({x,y,on:1,s:n,sm:0});W(x-5,y-3,10,6,1);n++}}
+function nyxGroundDraw(cx,cy){const t=T,c=ctx;
+ NSN.forEach(q=>{const x=q.x-cx,y=q.y-cy;if(x<-60||x>VW+60||y<-40||y>VH+40)return;for(let i=0;i<3;i++){const p=((t*.6+i/3)%1);c.strokeStyle='rgba(176,122,255,'+((1-p)*.55).toFixed(3)+')';c.lineWidth=1;c.beginPath();c.ellipse(x,y+1,6+p*26,2+p*11,0,0,7);c.stroke()}});
+ NWF.forEach(q=>{if(!q.on)return;const x=q.x-cx,y=q.y-cy;if(x<-60||x>VW+60||y<-40||y>VH+40)return;c.fillStyle='rgba(60,255,120,.10)';c.beginPath();c.ellipse(x,y,26,15,0,0,7);c.fill()})}
+function nyxStone(q,cx,cy){const x=q.x-cx,y=q.y-cy;if(x<-40||x>VW+40||y<-20||y>VH+60)return;ctx.drawImage(NSP.stone[q.v],(x-16)|0,(y-44)|0)}
+function nyxBrazier(q,cx,cy){const x=q.x-cx,y=q.y-cy;if(x<-40||x>VW+40||y<-20||y>VH+50)return;const sx=(x-16)|0,sy=(y-36)|0;
+ if(q.on)ctx.drawImage(NSP.br[(T*7|0)%4],sx,sy);else{ctx.drawImage(NSP.out,sx,sy);const a=Math.max(0,1-(T-q.sm)/6);for(let i=0;i<4;i++){ctx.fillStyle='rgba(150,140,150,'+(a*(.5-i*.1)).toFixed(3)+')';ctx.fillRect(sx+13+((i*5+(T*6|0))%6),sy+16-i*3-((T*10)%3|0),3,2)}}}
+function nyxFogDraw(){if(!NYX()||P.dead)return;const c=ctx,t=T;c.save();c.fillStyle='rgba(30,12,44,.16)';c.fillRect(0,0,VW,VH);
+ for(let i=0;i<9;i++){const p=NSP.puff[i%3],ww=VW+260,x=((gHs(i,1)*ww-cam.x*.4+t*(5+gHs(i,2)*7))%ww+ww)%ww-130,y=gHs(i,3)*VH-cam.y*.2;c.globalAlpha=.85;c.drawImage(p,x|0,y|0,144,96)}
+ c.globalAlpha=1;c.fillStyle='rgba(255,140,50,.55)';for(let i=0;i<40;i++){const x=(gHs(i,5)*VW+t*(6+gHs(i,6)*10))%VW,y=((gHs(i,7)*VH-t*(8+gHs(i,8)*12))%VH+VH)%VH;c.fillRect(x|0,y|0,1,1)}
+ c.restore()}
+function nyxTick(dt){if(!NYX()||!P)return;const b=M[0];
+ if(!mpCli()&&b&&b.boss&&b.hp>0&&!P.dead){nyxRt-=dt;if(nyxRt<=0){nyxRt=R(4.5,8);if(mets.length<10){for(let k=0;k<12;k++){const a=R(0,6.28),r=R(40,300),x=b.bb.cx+Math.cos(a)*r,y=b.bb.cy+Math.sin(a)*r;if(x<30||y<30||x>WW-30||y>WH-30||D(x,y,b.x,b.y)<90||noEv(x,y,MET_R+8))continue;mets.push({x,y,t:MET_T});if(mp.on)mpSend({t:'mt',x:+x.toFixed(1),y:+y.toFixed(1)});break}}}}
+ NSN.forEach(q=>{q.hc-=dt;if(!P.dead&&q.hc<=0&&D(P.x,P.y,q.x,q.y)<34){q.hc=3;noise(q.x,q.y,150)}});
+ NWF.forEach(w=>{if(w.on&&!P.dead&&!w.hint&&D(P.x,P.y,w.x,w.y)<34&&TC('tonic')>0){w.hint=1;say('Press E to pour a Holy Water on the witch fire',3)}});
+ nyxFt-=dt;if(nyxFt<=0){nyxFt=.5;if(!mpCli())NWF.forEach(w=>{if(w.on)M.forEach(m=>{if(m.hp>0&&m.hp<m.mh&&!m.boss&&!m.lesser&&D(m.x,m.y,w.x,w.y)<80)m.hp=Math.min(m.mh,m.hp+2)})})}}
+addEventListener('keydown',e=>{if(e.code!='KeyE'||!NYX()||!P||P.dead)return;const w=NWF.find(q=>q.on&&D(P.x,P.y,q.x,q.y)<34);if(!w)return;if(TC('tonic')<=0){say('You need Holy Water to snuff the witch fire',2.5);return}TS('tonic',TC('tonic')-1);fixSlot();w.on=0;w.sm=T;burst(w.x,w.y-6,14,60,'#7dffa8',0);say('The witch fire hisses out',3)});
+{const _bn=bmDraw;bmDraw=function(){_bn();nyxFogDraw()}}
+{const _un=update;update=function(dt){_un(dt);try{nyxTick(dt)}catch(e){}}}
+
+// ---------- MORDREK'S CHURCHYARD (his map): graves feed imps, the bell wakes the horde, choir stones hush imps but call Mordrek, bone drifts rattle ----------
+let morW=0,MGR=[],MBL=null,MCH=null,MBD=[],morBt=0,morCt=0,morBn=0;
+const MOR=()=>morW&&mode=='play'&&!(typeof TUTR!=='undefined'&&TUTR);
+const MSP=(()=>{let sd=23;const rn=()=>(sd=(sd*16807)%2147483647)/2147483647;
+ const cv=(w,h,fn)=>{const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');x.imageSmoothingEnabled=false;fn((col,a,b,cw,ch)=>{x.fillStyle=col;x.fillRect(a,b,cw,ch)});return c};
+ const hs=v=>cv(24,36,r=>{sd=v*13+3;r('#00000066',3,31,18,5);const w=v==1?8:14,x0=v==1?8:5;
+  if(v==1){r('#4a4a50',10,6,4,26);r('#4a4a50',5,12,14,4);r('#6a6a72',10,6,1,26);r('#2a2a30',13,6,1,26)}
+  else{for(let y=8;y<32;y++){r('#4a4a50',x0,y,w,1);r('#6a6a72',x0,y,2,1);r('#2a2a30',x0+w-2,y,2,1)}r('#4a4a50',x0+2,6,w-4,2);r('#6a6a72',x0+3,6,w-6,1);r('#2a2a30',x0+4,15+v*3,w-8,1);r('#2a2a30',x0+4,18+v*3,w-8,1)}
+  r('#3a3a40',3,31,18,3);r('#5a5a62',3,31,18,1);r('#3a5a30',4,33,3,1);r('#3a5a30',15,33,4,1);if(v==2){r('#2a2a30',x0+6,22,1,6);r('#2a2a30',x0+7,26,2,1)}});
+ const grave=()=>cv(44,28,r=>{r('#1c140e',4,8,36,16);r('#2c2018',2,10,40,13);r('#0a0606',9,12,26,10);r('#000',11,14,22,7);r('#3a2a1c',4,20,36,3);r('#4a3a28',6,9,8,1);r('#4a3a28',30,10,8,1);r('#6a3a1c',18,16,10,1);r('#8a4a22',19,15,6,1);r('rgba(255,70,30,.35)',14,14,16,5);r('#ff5a30',18,16,2,1);r('#ff5a30',25,16,2,1);r('#5a4430',33,22,6,2);r('#7a6444',33,22,6,1)});
+ const tower=()=>cv(56,104,r=>{r('#00000066',6,96,44,8);for(let y=28;y<98;y++){r('#4a4448',12,y,32,1);r('#6a646a',12,y,4,1);r('#2a2428',40,y,4,1);if(y%9==0)r('#2a2428',12,y,32,1)}
+  r('#3a3438',10,24,36,5);r('#5a545a',10,24,36,1);for(let y=12;y<24;y++){r('#4a4448',16,y,24,1)}r('#2a2428',14,12,28,2);r('#3a3438',14,10,28,3);r('#5a545a',22,4,12,6);r('#3a3438',24,2,8,4);r('#1a1418',22,24,12,22);r('#0a0608',24,26,8,18);
+  r('#b08a2a',22,30,12,12);r('#d8b44a',23,31,4,10);r('#8a6a1a',31,31,3,11);r('#e8d080',22,42,12,2);r('#6a4a10',26,44,4,3);r('#1a1418',23,60,10,36);r('#0a0608',25,64,6,32);r('#3a5a30',14,96,5,2);r('#3a5a30',36,95,6,3);r('#2a2428',12,28,32,1)});
+ const choir=v=>cv(28,48,r=>{sd=v*9+4;r('#00000066',4,42,20,6);for(let y=6;y<44;y++){const o=Math.round(Math.sin(y*.3+v)*1);r('#403c38',8+o,y,12,1);r('#6a6458',8+o,y,3,1);r('#201c18',18+o,y,2,1)}
+  r('#6a6458',7,4,14,3);r('#201c18',7,7,14,1);r('#201c18',11,14,6,5);r('#000',12,15,4,3);r('#e8e0a0',12,16,1,1);r('#e8e0a0',15,16,1,1);r('#000',12,22,4,4);r('#e8e0a0',13,23,2,2);
+  r('rgba(230,215,120,.18)',2,10,24,28);r('#363230',4,42,20,3);r('#5a5448',4,42,20,1);r('#3a5a30',6,44,3,1)});
+ const bones=v=>cv(44,22,r=>{sd=v*7+2;r('#00000055',3,15,38,5);for(let i=0;i<9;i++){const x=(3+rn()*34)|0,y=(6+rn()*9)|0,t=i%3;if(t==0){r('#d8d0b4',x,y,7,1);r('#a89c80',x,y+1,7,1);r('#d8d0b4',x-1,y-1,2,3);r('#d8d0b4',x+6,y-1,2,3)}else if(t==1){r('#e6dec4',x,y,5,5);r('#a89c80',x,y+4,5,1);r('#1a1410',x+1,y+1,1,2);r('#1a1410',x+3,y+1,1,2);r('#1a1410',x+2,y+3,1,1)}else{r('#d8d0b4',x,y,1,6);r('#d8d0b4',x+2,y,1,5);r('#d8d0b4',x+4,y+1,1,4);r('#a89c80',x,y+5,5,1)}}});
+ return{hs:[hs(0),hs(1),hs(2)],grave:grave(),tower:tower(),choir:[choir(0),choir(1),choir(2)],bones:[bones(0),bones(1)]}})();
+function morGround(){const g=ground.getContext('2d');g.fillStyle='rgba(18,28,22,.45)';g.fillRect(0,0,WW,WH);
+ for(let i=0;i<52;i++){g.fillStyle='rgba(0,0,0,.26)';g.beginPath();g.ellipse(R(0,WW),R(0,WH),R(30,90),R(14,40),0,0,7);g.fill()}
+ for(let i=0;i<5000;i++){g.fillStyle=['#10160f','#1a2018','#262c22','#2e2a20'][i&3];g.fillRect(R(0,WW),R(0,WH),R(1,3),1)}
+ for(let i=0;i<500;i++){const x=R(0,WW),y=R(0,WH);g.fillStyle='#2e3e22';g.fillRect(x,y,1,2);g.fillRect(x+2,y+1,1,2)}}
+function morMap(bb,sp){
+ const free=(x,y,pd,cd)=>x>30&&y>30&&x<WW-30&&y<WH-30&&!blds.some(b=>{const e=bExt(b);return x>e.x-pd&&x<e.x+e.w+pd&&y>e.y-pd&&y<e.y+e.h+pd})&&D(x,y,sp.x,sp.y)>cd&&exts.every(e=>D(x,y,e.x,e.y)>80)&&clues.every(c=>D(x,y,c.x,c.y)>60)&&!hit(x,y,18);
+ for(let n=0,t=0;n<14&&t<700;t++){const near=n<8,a=R(0,6.28),r=near?R(120,340):R(300,950),x=near?bb.cx+Math.cos(a)*r:R(60,WW-60),y=near?bb.cy+Math.sin(a)*r:R(60,WH-60);
+  if(!free(x,y,30,230)||MGR.some(q=>D(x,y,q.x,q.y)<110))continue;MGR.push({x,y,t:R(6,16)});n++}
+ for(let t=0;t<500&&!MBL;t++){const a=R(0,6.28),r=R(230,420),x=bb.cx+Math.cos(a)*r,y=bb.cy+Math.sin(a)*r;
+  if(!free(x,y,40,260)||MGR.some(q=>D(x,y,q.x,q.y)<70))continue;MBL={x,y,on:1,hp:60,rg:-1};W(x-16,y-10,32,14,1)}
+ for(let t=0;t<600&&!MCH;t++){const a=R(0,6.28),r=R(380,700),x=bb.cx+Math.cos(a)*r,y=bb.cy+Math.sin(a)*r,st=[];
+  for(let k=0;k<6;k++){const q=k/6*6.2832;st.push({x:x+Math.cos(q)*58,y:y+Math.sin(q)*34,v:k%3})}
+  if(!free(x,y,60,260)||MBL&&D(x,y,MBL.x,MBL.y)<160||MGR.some(q=>D(x,y,q.x,q.y)<110)||st.some(q=>!free(q.x,q.y,20,200)))continue;MCH={x,y,st,ht:0};st.forEach(q=>W(q.x-6,q.y-3,12,6,1))}
+ for(let n=0,t=0;n<9&&t<500;t++){const x=R(60,WW-60),y=R(60,WH-60);if(!free(x,y,25,200)||MBD.some(q=>D(x,y,q.x,q.y)<120)||MGR.some(q=>D(x,y,q.x,q.y)<60)||(MBL&&D(x,y,MBL.x,MBL.y)<80))continue;MBD.push({x,y,v:n&1,nt:0});n++}}
+function morGroundDraw(cx,cy){const c=ctx;
+ MBD.forEach(q=>{const x=q.x-cx,y=q.y-cy;if(x<-60||x>VW+60||y<-40||y>VH+40)return;c.drawImage(MSP.bones[q.v],(x-22)|0,(y-11)|0)});
+ MGR.forEach(q=>{const x=q.x-cx,y=q.y-cy;if(x<-60||x>VW+60||y<-40||y>VH+40)return;c.drawImage(MSP.grave,(x-22)|0,(y-14)|0)});
+ if(MCH){const x=MCH.x-cx,y=MCH.y-cy;if(x>-120&&x<VW+120&&y>-80&&y<VH+80){c.strokeStyle='rgba(230,215,120,'+(.25+.1*Math.sin(T*3)).toFixed(3)+')';c.lineWidth=1;c.beginPath();c.ellipse(x,y,70,40,0,0,7);c.stroke();for(let i=0;i<2;i++){const p=((T*.5+i/2)%1);c.strokeStyle='rgba(230,215,120,'+((1-p)*.4).toFixed(3)+')';c.beginPath();c.ellipse(x,y,20+p*52,12+p*30,0,0,7);c.stroke()}}}
+ if(MBL&&MBL.rg>=0){const x=MBL.x-cx,y=MBL.y-cy,p=MBL.rg/3;c.strokeStyle='rgba(216,180,74,'+((1-p)*.6).toFixed(3)+')';c.lineWidth=2;c.beginPath();c.ellipse(x,y,p*900,p*520,0,0,7);c.stroke()}}
+function morProps(L,cx,cy){
+ if(MBL)L.push([MBL.y,()=>{const x=MBL.x-cx,y=MBL.y-cy;if(x<-60||x>VW+60||y<-30||y>VH+130)return;ctx.drawImage(MSP.tower,(x-28)|0,(y-96)|0)}]);
+ if(MCH)MCH.st.forEach(q=>L.push([q.y,()=>{const x=q.x-cx,y=q.y-cy;if(x<-40||x>VW+40||y<-20||y>VH+60)return;ctx.drawImage(MSP.choir[q.v],(x-14)|0,(y-42)|0)}]))}
+function morTick(dt){if(!MOR()||!P)return;const b=M[0],awake=b&&b.boss&&b.hp>0&&b.st!='idle';
+ if(!mpCli()){
+  if(awake&&!P.dead){MGR.forEach(g=>{g.t-=dt;if(g.t>0)return;g.t=R(14,26);if(M.filter(m=>m.gi&&m.hp>0).length>=8||M.filter(m=>m.hp>0&&!m.boss).length>=90)return;if(D(g.x,g.y,P.x,P.y)>1100)return;const m=mkMob(g.x,g.y+4,'chase','imp');m.gi=1;M.push(m);burst(g.x,g.y,10,50,'#7a5a30',0)})}
+  if(MBL&&MBL.on&&awake&&!P.dead){morBt+=dt;if(MBL.rg>=0){MBL.rg+=dt;if(MBL.rg>3)MBL.rg=-1}
+   if(morBt>=60){morBt=0;MBL.rg=0;noise(MBL.x,MBL.y,900);shake=Math.max(shake,4);try{sfx.sigil(1)}catch(e){}say('The bell tolls. The horde wakes.',3)}
+   bul.forEach(q=>{if(q.l>0&&D(q.x,q.y,MBL.x,MBL.y-62)<14){MBL.hp-=q.d||10;q.l=0;burst(q.x,q.y,5,40,'#d8b44a',0);if(MBL.hp<=0){MBL.on=0;MBL.rg=-1;say('The bell cracks and falls silent',3.5)}}})}}
+ if(MCH&&!P.dead&&D(P.x,P.y,MCH.x,MCH.y)<75){MCH.ht-=dt;if(MCH.ht<=0){MCH.ht=3;if(!MCH.hint){MCH.hint=1;say('The choir hushes the imps near you, but Mordrek hears it',3.5)}if(!mpCli()&&b&&b.boss&&b.hp>0){b.st='chase';b.lt=0}}}
+ MBD.forEach(q=>{q.nt-=dt;if(!P.dead&&q.nt<=0&&D(P.x,P.y,q.x,q.y)<30&&(P.lmx===undefined||Math.hypot(P.x-P.lmx,P.y-P.lmy)>.3)){q.nt=.6;noise(q.x,q.y,170)}});P.lmx=P.x;P.lmy=P.y}
+function morFogDraw(){if(!MOR()||P.dead)return;const c=ctx;c.save();c.fillStyle='rgba(12,22,18,.14)';c.fillRect(0,0,VW,VH);c.restore()}
+{const _mb=bmDraw;bmDraw=function(){_mb();morFogDraw()}}
+{const _mu=update;update=function(dt){let sv=null;if(MOR()&&MCH&&P&&!P.dead&&D(P.x,P.y,MCH.x,MCH.y)<75)sv=M.filter(m=>m.hp>0&&!m.boss&&!m.lesser&&D(m.x,m.y,P.x,P.y)<260).map(m=>[m,m.x,m.y]);_mu(dt);if(sv)sv.forEach(([m,x,y])=>{m.x=x+(m.x-x)*.35;m.y=y+(m.y-y)*.35});try{morTick(dt)}catch(e){}}}
+
+// ---------- WORLD EVENT FREQUENCY: each of these happens in only some runs (decided from the map seed, so multiplayer agrees). Raise a number to see that event more often (0 = never, 1 = every run). Tithe is timed separately (first toll after ~130-210s, then every ~220-300s). ----------
+const EVCH={bm:.18,rain:.14,fog:.14,collapse:.14};
+const evOk=(k,o)=>{const sd=blds[0]?blds[0].x*.53+blds[0].y:1;return hs(sd+o)<EVCH[k]};
 // ---------- ACTIONS ----------
 function noise(x,y,r){lessNoiseSrc(x,y);M.forEach(m=>{if(m.lesser){if(m.hp>0&&D(m.x,m.y,x,y)<r&&lessOut(x,y)){m.sx=x;m.sy=y;m.hun=1;m.ht=T}return}if(m.hp>0&&!glLure(m)&&D(m.x,m.y,x,y)<r&&(!m.boss||D(m.x,m.y,x,y)<160)){m.st='chase';m.lt=0}})}
 function shoot(){if(P.cur>1){if(P.cd<=0){P.cd=.5;mouse.l=0;useSlotTool(P.cur-2)}return}const w=P.w[P.cur];if(!w&&P.cur<2){if(P.cd<=0&&P.mc<=0){P.cd=.5;melee()}return}if(w&&w.ml){if(P.cd<=0&&P.mc<=0){P.cd=w.ml.cd;stab(w);try{sfx.melee()}catch(e){}}return}if(!w||!w.d||P.rl>0||P.cd>0)return;if(P.mag[P.cur]<=0)return reload();if(w.dr){P.dw=(P.dw||0)+FD;return}if(w.gt&&(P.gj>0||(P.gsp||0)<.3))return;
@@ -1539,7 +1739,7 @@ function update(dt){
  if(P.dead){keys={};mouse.l=mouse.r=0;specTick(dt)}
  T+=dt;P.wd=Math.max(0,(P.wd||0)-dt);P.sb=Math.max(0,(P.sb||0)-dt);P.bw=Math.max(0,(P.bw||0)-dt);msgT-=dt;shake=Math.max(0,shake-dt*20);P.face=Math.atan2(mouse.y+cam.y-P.y,mouse.x+cam.x-P.x);
  const mx=(keys.KeyD?1:0)-(keys.KeyA?1:0),my=(keys.KeyS?1:0)-(keys.KeyW?1:0),mm=Math.hypot(mx,my),spr=keys.ShiftLeft&&!CAPS&&P.st>0&&mm&&!P.exh;   // no sprinting while tapped into the veil (Caps Lock)
- if(mm){const s=(spr?(P.sb>0?140:118):68)*dt/mm;mv(P,mx*s,my*s,4);P.wk+=dt*(spr?14:9);if(spr&&(P.sl-=dt)<=0){P.sl=.5;if(!(P.bw>0))noise(P.x,P.y,100)}}
+ if(mm){const s=(spr?(P.sb>0?140:118):68)*dt/mm;mv(P,mx*s,my*s,4);P.wk+=dt*(spr?14:9);if(spr&&(P.sl-=dt)<=0){P.sl=.5;if(!(P.bw>0))noise(P.x,P.y,GOR()?85:100)}}
  spPull(dt);
  P.st=cl(P.st+(spr&&!(P.sb>0)?-30:20)*dt,0,100);if(P.st<=0)P.exh=1;if(P.st>30)P.exh=0;
  P.cd-=dt;P.mc-=dt;P.hf-=dt;P.sa-=dt;P.lf-=dt;
@@ -1557,14 +1757,14 @@ function update(dt){
  const CLI=mpCli();for(const m of M){if(m.hp<=0||CLI)continue;if(m.lesser){roamLesser(m,dt);continue}TG=mpTgt(m);const sx0=m.x,sy0=m.y;m.ig=(m.ig||0)-dt;m.fl-=dt;m.cd-=dt;const d=D(m.x,m.y,TG.x,TG.y),a=Math.atan2(TG.y-m.y,TG.x-m.x),v=los(m.x,m.y,TG.x,TG.y);m.a=a;if(m.boss)m.st=inHouse(m.bb,TG.x,TG.y,0)?'chase':'idle';
   if(m.ty=='gleaner'&&m.st=='lure'){if(d<17&&!TG.dead)glReveal(m);continue}
   if(m.st=='idle'){m.wt-=dt;if(m.wt<=0){m.wa=R(0,6.28);m.wt=R(1,4);m.go=Math.random()<.6}if(m.go&&!m.boss){mv(m,Math.cos(m.wa)*20*dt,Math.sin(m.wa)*20*dt,5);m.wk+=dt*5}
-   if(m.boss){m.al=(m.al||0)-dt;const sp=m.al>0?62:34,h=m.al>0?a+Math.PI+Math.sin(T*3)*.5:m.wa,qx=m.x,qy=m.y;mv(m,Math.cos(h)*sp*dt,Math.sin(h)*sp*dt,9);m.wk+=dt*5;if(Math.hypot(m.x-qx,m.y-qy)<.3*sp*dt)m.wt=0}if(!m.boss&&((d<75&&v)||d<22)&&(m.ig||0)<=0){m.st='chase';m.lt=0}}
+   if(m.boss){m.al=(m.al||0)-dt;const sp=m.al>0?62:34,h=m.al>0?a+Math.PI+Math.sin(T*3)*.5:m.wa,qx=m.x,qy=m.y;mv(m,Math.cos(h)*sp*dt,Math.sin(h)*sp*dt,9);m.wk+=dt*5;if(Math.hypot(m.x-qx,m.y-qy)<.3*sp*dt)m.wt=0}if(!m.boss&&((d<(NYX()?52:75)&&v)||d<22)&&(m.ig||0)<=0){m.st='chase';m.lt=0}}
   else{m.lt=v?Math.max(0,(m.lt||0)-dt*2):(m.lt||0)+dt;if(m.boss||m.ty=='gleaner'||(m.ty=='spooler'&&m.sp>0)?0:(d>240||(m.lt>3&&d>110)||m.lt>6)){m.st='idle';m.lt=0;m.ig=2;m.wt=0}
    if(m.boss&&m.bh=='charge'){if(m.dash>0){m.dash-=dt;mv(m,Math.cos(m.da)*230*dt,Math.sin(m.da)*230*dt,9);if(!m.dh&&d<18){m.dh=1;hurtTG(35)}}
     else if(d>50&&d<200&&m.cd<=0&&v){m.dash=.55;m.da=a;m.dh=0;m.cd=3}
     else{mv(m,Math.cos(a)*62*dt,Math.sin(a)*62*dt,9);m.wk+=dt*7;if(d<20&&m.mc!==undefined&&m.mc<=0||d<20&&m.mc===undefined){m.mc=1;hurtTG(20)}}m.mc-=dt}
    else if(m.boss){const s=d<110?-70:d>150?70:0;mv(m,Math.cos(a)*s*dt,Math.sin(a)*s*dt,8);m.wk+=dt*8;
     if(m.cd<=0&&v&&d<320){m.cd=m.bh=='summon'?2:1.3;eb.push({x:m.x,y:m.y,vx:Math.cos(a)*140,vy:Math.sin(a)*140,l:3,o:m})}
-    if(m.bh=='summon'&&(m.sc=(m.sc===undefined?3:m.sc)-dt)<=0){m.sc=7;if(M.filter(q=>q.hp>0&&!q.boss).length<45){for(let i=0;i<3;i++){const nx=m.x+R(-24,24),ny=m.y+R(-24,24);if(!hit(nx,ny,6)){M.push(mkMob(nx,ny,'chase',Math.random()<.7?'imp':'skitter'));burst(nx,ny,8,60,'#ff7a1a',0)}}say(BOSS[boss].n+' calls the horde!',2)}}
+    if(m.bh=='summon'&&(m.sc=(m.sc===undefined?3:m.sc)-dt)<=0){m.sc=7;if(M.filter(q=>q.hp>0&&!q.boss).length<90){for(let i=0;i<3;i++){const nx=m.x+R(-24,24),ny=m.y+R(-24,24);if(!hit(nx,ny,6)){M.push(mkMob(nx,ny,'chase',Math.random()<.7?'imp':'skitter'));burst(nx,ny,8,60,'#ff7a1a',0)}}say(BOSS[boss].n+' calls the horde!',2)}}
     if(d<16&&(m.mc=(m.mc||0)-dt)<=0){m.mc=1;hurtTG(18)}}
    else mobAI(m,a,d,v,dt)}if(m.boss){if(m.st=='chase'&&D(m.x,m.y,sx0,sy0)<.2*dt*55&&d>26){m.sg=m.sg||1;if((m.sk=(m.sk||0)-dt)<=0){m.sk=1.2;m.sg=-m.sg}mv(m,Math.cos(a+1.57*m.sg)*70*dt,Math.sin(a+1.57*m.sg)*70*dt,9)}if(!inHouse(m.bb,m.x,m.y,0)){m.x=sx0;m.y=sy0}}}
  for(const b of bul){const n=Math.ceil(Math.hypot(b.vx,b.vy)*dt/4);b.l-=dt;for(let i=0;i<n&&b.l>0;i++){b.x+=b.vx*dt/n;b.y+=b.vy*dt/n;
@@ -2075,6 +2275,9 @@ function render(){
  ctx.drawImage(ground,cx,cy,VW,VH,0,0,VW,VH);
 
  ctx.drawImage(blood,cx,cy,VW,VH,0,0,VW,VH);
+ if(GOR())gorGroundDraw(cx,cy);
+ if(NYX())nyxGroundDraw(cx,cy);
+ if(MOR())morGroundDraw(cx,cy);
  exts.forEach(e=>{if(e.sealed)return;const x=e.x-cx,y=e.y-cy,near=D(P.x,P.y,e.x,e.y)<26;ctx.strokeStyle=`rgba(255,240,180,${.5+.3*Math.sin(T*3+e.k)})`;ctx.lineWidth=1.5;ctx.setLineDash([4,4]);ctx.lineDashOffset=-T*10;ctx.beginPath();ctx.arc(x,y,17,0,7);ctx.stroke();ctx.setLineDash([]);if(P.ep>0&&near){ctx.strokeStyle='#8fe0a0';ctx.lineWidth=3;ctx.beginPath();ctx.arc(x,y,24,-1.5708,-1.5708+6.2832*P.ep/EXD);ctx.stroke()}if(D(P.x,P.y,e.x,e.y)<170)tx(e.n+(P.ep>0?'':' - stand in the ring'),x,y-32,'#e8e0b0','center')});
  clues.forEach(c=>{if(c.got)return;const x=c.x-cx,y=c.y-cy;ctx.strokeStyle='rgba(255,70,40,'+(.6+.3*Math.sin(T*4))+')';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(x,y,6,0,7);ctx.moveTo(x-6,y);ctx.lineTo(x+6,y);ctx.moveTo(x,y-6);ctx.lineTo(x,y+6);ctx.stroke()});
  M.forEach(m=>{if(m.ns){const x=m.ns.x-cx|0,y=m.ns.y-cy|0;if(x>-50&&x<VW+50&&y>-40&&y<VH+40)drawNest(x,y)}});
@@ -2091,7 +2294,8 @@ function render(){
  const L=[];M.forEach(m=>{if(m.hp>0)L.push([m.y,()=>drawM(m,cx,cy)])});gibs.forEach(g=>L.push([g.y,()=>drawGib(g,cx,cy)]));rpDraw(L,cx,cy);
  if(!(RD&&RD.t>=TB))L.push([P.y,()=>{warden(px,py,P.face,0,P.wk,P.cur<2?(P.w[P.cur]?P.w[P.cur].k:'fists'):((P.ts[P.cur-2]||{}).k||'fists'),P.hf>0,P.cur!=1&&P.w[1]?P.w[1].k:null,P.sa>0?P.sa/.18:0,P.cur<2&&P.w[P.cur]?psk(P.cur):'',P.cur!=1&&P.w[1]?psk(1):'');if(P.sa>0){ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(px,py,16,P.face-1,P.face+1);ctx.stroke()}}]);
 scn.forEach(c=>{const x=c.x-cx|0,y=c.y-cy|0;if(x<-40||x>VW+40||y<-30||y>VH+30)return;L.push([c.y,()=>drawScn(c.k,x,y,c.f)])});
- trees.forEach(t=>L.push([t.y,()=>{shadow(t.x-cx,t.y-cy,7);ctx.fillStyle='#1c0e10';ctx.fillRect(t.x-cx-2,t.y-cy-6,4,8)}]));
+ trees.forEach(t=>L.push([t.y,()=>{if(GOR())return gorStump(t.x-cx,t.y-cy,t.x*7+t.y|0);if(MOR()){const x=t.x-cx,y=t.y-cy;if(x>-30&&x<VW+30&&y>-20&&y<VH+40)ctx.drawImage(MSP.hs[(t.x*7+t.y|0)%3],(x-12)|0,(y-32)|0);return}shadow(t.x-cx,t.y-cy,7);ctx.fillStyle='#1c0e10';ctx.fillRect(t.x-cx-2,t.y-cy-6,4,8)}]));
+ if(MOR())morProps(L,cx,cy);if(NYX()){NSN.forEach(q=>L.push([q.y,()=>nyxStone(q,cx,cy)]));NWF.forEach(q=>L.push([q.y,()=>nyxBrazier(q,cx,cy)]))}
  bombs.forEach(b=>L.push([b.y,()=>drawWpn('bomb',b.x-cx,b.y-cy-2,T*9,.7)]));
  lobs.forEach(b=>L.push([b.y,()=>drawWpn(b.k,b.x-cx,b.y-cy-2,T*11,.7)]));
  traps.forEach(tr=>L.push([tr.y,()=>{const x=tr.x-cx,y=tr.y-cy,dx=-Math.sin(tr.a)*9,dy=Math.cos(tr.a)*9,on=tr.ar<=0;ctx.strokeStyle=on?'rgba(230,90,90,.9)':'rgba(180,170,150,.5)';ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(x-dx,y-dy);ctx.lineTo(x+dx,y+dy);ctx.stroke();ctx.fillStyle='#3a342c';ctx.fillRect(x-dx-1.2,y-dy-1.2,2.4,2.4);ctx.fillRect(x+dx-1.2,y+dy-1.2,2.4,2.4);if(on&&Math.sin(T*8)>0){ctx.fillStyle='#ff5a3a';ctx.fillRect(x-.6,y-.6,1.2,1.2)}}]));flares.forEach(f=>L.push([f.y,()=>{drawWpn('flare',f.x-cx,f.y-cy,-1.2,.7);if(!fgOn()){ctx.fillStyle=`rgba(255,200,90,${.1+.05*Math.sin(T*10)})`;ctx.beginPath();ctx.arc(f.x-cx,f.y-cy,28+3*Math.sin(T*9),0,7);ctx.fill()}}]));
@@ -2099,13 +2303,13 @@ scn.forEach(c=>{const x=c.x-cx|0,y=c.y-cy|0;if(x<-40||x>VW+40||y<-30||y>VH+30)re
  if(P.wd>0)L.push([P.y+1,()=>{ctx.strokeStyle=`rgba(240,208,112,${.45+.3*Math.sin(T*8)})`;ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(px,py-3,15+Math.sin(T*6),0,7);ctx.stroke();ctx.fillStyle='rgba(240,208,112,.1)';ctx.fill()}]);
  L.sort((a,b)=>a[0]-b[0]).forEach(l=>l[1]());
  bul.concat(mpb).forEach(b=>{const c=BC[b.wk]||BC.pistol;ctx.strokeStyle=c[0];ctx.lineWidth=c[1];ctx.beginPath();ctx.moveTo(b.x-cx,b.y-cy);ctx.lineTo(b.x-cx-b.vx*c[2],b.y-cy-b.vy*c[2]);ctx.stroke()});
- eb.forEach(b=>{ctx.fillStyle='#ff5a10';ctx.beginPath();ctx.arc(b.x-cx,b.y-cy,3.5,0,7);ctx.fill();ctx.fillStyle='#ffe060';ctx.beginPath();ctx.arc(b.x-cx,b.y-cy,1.5,0,7);ctx.fill()});
+ eb.forEach(b=>{if(NYX()){ctx.fillStyle='rgba(255,110,30,'+(.18+.1*Math.sin(T*12))+')';ctx.beginPath();ctx.arc(b.x-cx,b.y-cy,9,0,7);ctx.fill()}ctx.fillStyle='#ff5a10';ctx.beginPath();ctx.arc(b.x-cx,b.y-cy,3.5,0,7);ctx.fill();ctx.fillStyle='#ffe060';ctx.beginPath();ctx.arc(b.x-cx,b.y-cy,1.5,0,7);ctx.fill()});
  parts.forEach(p=>{ctx.fillStyle=p.c;ctx.fillRect(p.x-cx|0,p.y-cy|0,2,2)});drops.forEach(d=>{ctx.fillStyle=d.gr?'#8ad03a':'#b01820';ctx.fillRect(d.x-cx|0,(d.y-cy-d.z)|0,2,2)});
- trees.forEach(t=>{const x=t.x-cx,y=t.y-cy-14;if(x<-30||x>VW+30||y<-30||y>VH+30)return;ctx.fillStyle='rgba(22,10,14,.9)';ctx.beginPath();ctx.moveTo(x,y-18);ctx.lineTo(x-10,y+8);ctx.lineTo(x+10,y+8);ctx.closePath();ctx.fill();ctx.fillStyle='rgba(150,36,20,.75)';ctx.beginPath();ctx.moveTo(x,y-18);ctx.lineTo(x-3,y-4);ctx.lineTo(x+3,y-4);ctx.closePath();ctx.fill()});
+ trees.forEach(t=>{if(GOR()||MOR())return;const x=t.x-cx,y=t.y-cy-14;if(x<-30||x>VW+30||y<-30||y>VH+30)return;ctx.fillStyle='rgba(22,10,14,.9)';ctx.beginPath();ctx.moveTo(x,y-18);ctx.lineTo(x-10,y+8);ctx.lineTo(x+10,y+8);ctx.closePath();ctx.fill();ctx.fillStyle='rgba(150,36,20,.75)';ctx.beginPath();ctx.moveTo(x,y-18);ctx.lineTo(x-3,y-4);ctx.lineTo(x+3,y-4);ctx.closePath();ctx.fill()});
  // darkness
  dx.globalCompositeOperation='source-over';dx.clearRect(0,0,VW,VH);dx.fillStyle='rgba(2,1,6,.985)';dx.fillRect(0,0,VW,VH);dx.globalCompositeOperation='destination-out';
- visLight(lx,ly,0,6.2832,38*bmv(.6)*fgv(.3),72,.95);visLight(lx,ly,fa-.4*bmv(.7),fa+.4*bmv(.7),300*bmv(.38)*fgv(.1),90,.92);
- clues.forEach(c=>{if(!c.got)light(c.x-cx,c.y-cy,26+3*Math.sin(T*6),.6)});items.forEach(it=>light(it.x-cx,it.y-cy,16,.5));scn.forEach(c=>light(c.x-cx,c.y-cy,30,.45));bombs.forEach(b=>light(b.x-cx,b.y-cy,40,.7));fires.forEach(f=>light(f.x-cx,f.y-cy,40,.65));if(!fgOn())flares.forEach(f=>light(f.x-cx,f.y-cy,150+6*Math.sin(T*9),.92));if(P.wd>0)light(P.x-cx,P.y-cy,38,.35);Object.values(mp.rp).forEach(r=>light(r.x-cx,r.y-cy,40,.6));exts.forEach(e=>{light(e.x-cx,e.y-cy,60,.55);light(e.lx-cx,e.ly-cy,55+5*Math.sin(T*9+e.k),.7)});blds.forEach(b=>b.gl.forEach(q=>{const x=q.x-cx,y=q.y-cy;if(x>-90&&x<VW+90&&y>-90&&y<VH+90)light(x,y,q.r*(1+.08*Math.sin(T*5+q.p)),q.a)}));if(P.lf>0)visLight(px,py,0,6.2832,150*fgv(.3),72,.7);
+ visLight(lx,ly,0,6.2832,38*bmv(.6)*fgv(.3)*nyxV(.85),72,.95);visLight(lx,ly,fa-.4*bmv(.7),fa+.4*bmv(.7),300*bmv(.38)*fgv(.1)*nyxV(.6),90,.92);
+ clues.forEach(c=>{if(!c.got)light(c.x-cx,c.y-cy,26+3*Math.sin(T*6),.6)});items.forEach(it=>light(it.x-cx,it.y-cy,16,.5));scn.forEach(c=>light(c.x-cx,c.y-cy,30,.45));if(GOR())GFS.forEach((q,i)=>{if(!q.c&&i%2==0)light(q.x1-cx,q.y1-cy,40,.6)});if(NYX()){NWF.forEach(q=>{if(q.on)light(q.x-cx,q.y-cy-8,48,.8)});eb.forEach(q=>light(q.x-cx,q.y-cy,22,.8))}bombs.forEach(b=>light(b.x-cx,b.y-cy,40,.7));fires.forEach(f=>light(f.x-cx,f.y-cy,40,.65));if(!fgOn())flares.forEach(f=>light(f.x-cx,f.y-cy,150+6*Math.sin(T*9),.92));if(P.wd>0)light(P.x-cx,P.y-cy,38,.35);Object.values(mp.rp).forEach(r=>light(r.x-cx,r.y-cy,40,.6));exts.forEach(e=>{light(e.x-cx,e.y-cy,60,.55);light(e.lx-cx,e.ly-cy,55+5*Math.sin(T*9+e.k),.7)});blds.forEach(b=>b.gl.forEach(q=>{const x=q.x-cx,y=q.y-cy;if(x>-90&&x<VW+90&&y>-90&&y<VH+90)light(x,y,q.r*(1+.08*Math.sin(T*5+q.p)),q.a)}));if(P.lf>0)visLight(px,py,0,6.2832,150*fgv(.3),72,.7);
  parts.forEach(p=>{if(!p.s&&p.c!='#aaa')light(p.x-cx,p.y-cy,14,.5)});
  rdLight();ctx.drawImage(dk,0,0);bmDraw();rdDraw();
  if(CAPS){M.forEach(m=>{if(m.hp>0&&D(m.x,m.y,P.x,P.y)<300){ctx.fillStyle='#ff2a3a';ctx.fillRect(m.x-cx-3,m.y-cy-9,2,2);ctx.fillRect(m.x-cx+1,m.y-cy-9,2,2)}});
@@ -2181,6 +2385,7 @@ function drawMap(){
   ctx.fillStyle='#ff8a2a';ctx.beginPath();ctx.arc(x,y,2.5,0,7);ctx.fill();
   ctx.font="700 12px Caveat,cursive";tx((LESSER[m.ty]||{}).n||'Lesser demon',x,y+19,'#ffa050','center');ctx.font="700 10px Caveat,cursive"});
  // you
+ if(mp.on)Object.entries(mp.rp).forEach(([id,r])=>{if(r.hp>0&&mpMate(+id)){const x=X(r.x),y=Y(r.y);ctx.fillStyle='rgba(90,160,255,'+(.25+.15*pulse)+')';ctx.beginPath();ctx.arc(x,y,8,0,7);ctx.fill();ctx.fillStyle='#5aa0ff';ctx.beginPath();ctx.arc(x,y,3.5,0,7);ctx.fill();ctx.strokeStyle='#cfe4ff';ctx.lineWidth=1;ctx.stroke();tx(hn(id),x,y-10,'#7ab8ff','center')}});   // teammates: blue dots on the map, always shown
  const px=X(P.x),py=Y(P.y),f=P.face;ctx.strokeStyle=`rgba(255,255,255,${.35+.4*pulse})`;ctx.lineWidth=1;ctx.beginPath();ctx.arc(px,py,6+3*pulse,0,7);ctx.stroke();
  ctx.fillStyle='#fff';ctx.beginPath();ctx.moveTo(px+Math.cos(f)*6,py+Math.sin(f)*6);ctx.lineTo(px+Math.cos(f+2.5)*4.5,py+Math.sin(f+2.5)*4.5);ctx.lineTo(px+Math.cos(f-2.5)*4.5,py+Math.sin(f-2.5)*4.5);ctx.closePath();ctx.fill();
  ctx.font="700 11px Caveat,cursive";tx('YOU',px,py-10,'#fff','center');
@@ -2521,6 +2726,82 @@ const RELAY_CF='wss://hellbreach-relay.hellbreach-relay-aus.workers.dev/ws';
 let relaySydOk=!/YOUR-APP/.test(RELAY_SYD),relaySydFails=0;
 const relayBase=ch=>ch==='lb'||!relaySydOk?RELAY_CF:RELAY_SYD;
 const MPMAX=6,MPWAIT=60,mp={on:0,me:0,n:1,rp:{},ic:0,cl:[],room:null,subs:[],seen:{},sc:0,uc:0,onS:null,id:Math.random().toString(36).slice(2,10)};let mpb=[],mpBy=null,mpST=0,mpOv=null,mpTimer=null,mpBusy=0;
+// TEAMS step 1: mp.team = my team {id,host,members}; mp.tm = {hunterId: teamId} for this match (from the 'start' message). Solo = a team of one.
+mp.team=null;mp.tm={};mp.tp={};mp.ids=[];   // mp.ids = hunter ids in match-index order (mp.rp and mp.me use the index)
+const mpMate=i=>{try{return !!(mp.ids[i]&&isMate(mp.ids[i]))}catch(e){return false}};   // is match hunter number i on my team?
+   // mp.tp = {hunterId:{nm,rd}} names and ready state of my teammates (filled in by the invite step)
+// TEAMS step 2: the 3 boxes across the top of the hub screen. Box 1 = the team host. Empty boxes say +Invite (clicking them is wired in step 3). A ready teammate's box turns green.
+function teamBar(){try{setTimeout(tmEnsure,0);const t=myTeam(),mem=t.members,pd=Object.values(mp.pend||{}),esc=x=>String(x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+ return '<div class=tbar>'+[0,1,2].map(i=>{const id=mem[i];if(id===undefined){const p=pd[i-mem.length];return p?'<div class="tbox emp" data-ts='+i+'>'+esc(p.nm)+'<small>Invited...</small></div>':'<div class="tbox emp" data-ts='+i+'>+<small>Invite</small></div>'}const me=id===mp.id,pr=me?{nm:pname,rd:id===t.host||mp.myrd?1:0}:(mp.tp[id]||{}),host=id===t.host;
+  return '<div class="tbox'+(me?' me':'')+(pr.rd&&!host?' rdy':'')+'" data-ts='+i+'><b>'+esc(pr.nm||(me?'You':'Hunter'))+'</b><small>'+(host?'Host':pr.rd?'Ready':'Not ready')+'</small></div>'}).join('')+'</div>'}catch(e){return ''}}
+// TEAMS step 3: invite by name -> accept -> roster. Invites and replies ride the shared 'hb1/search' channel as {t:'tm',...} (ignored by matchmaking);
+// the roster and leave/disband traffic use a team room 'hb1/room/tm<teamId>'. The host re-sends the roster every 3s; a member who hears nothing for 12s drops back to solo.
+mp.myrd=0;   // my own Ready Up state (members only; the host is always ready)
+mp.pend={};   // invites I sent: nameKey -> {nm,t}
+let tmC=null,tmIn=null,tmWait=null,tmRos=0,tmOv=null,tmTk=0;
+const tmKey=s=>cleanName(s).toLowerCase().replace(/[^a-z0-9]/g,'_'),tmRoom=id=>'hb1/room/tm'+id,tmEsc=x=>String(x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const tmRefresh=()=>{if(mode=='menu'&&scr=='hub')menu('')};
+function tmEnsure(){if(tmC||!pname)return;tmC=relayClient(['hb1/search']);tmC.on('message',tmMsg);tmC.on('error',()=>{});const t=myTeam();if(t.members.length>1)tmC.subscribe(tmRoom(t.id))}
+const tmSend=(topic,o)=>{if(!tmC||!tmC.connected)return false;o.t='tm';o.from=mp.id;tmC.publish(topic,JSON.stringify(o));return true};
+function tmClose(){if(tmOv){tmOv.remove();tmOv=null}}
+function tmOverlay(html,btns){tmClose();const o=tmOv=document.createElement('div');o.style.cssText='position:fixed;inset:0;z-index:99;background:rgba(6,2,4,.9);color:#e8e6d8;font:24px Caveat,monospace;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:12px';o.innerHTML=html;
+ const r=document.createElement('div');r.style.cssText='display:flex;gap:10px;flex-wrap:wrap;justify-content:center';btns.forEach(([l,f])=>{const b=document.createElement('button');b.textContent=l;b.onclick=f;r.appendChild(b)});o.appendChild(r);document.body.appendChild(o);return o}
+const tmReset=why=>{mp.myrd=0;mp.team=null;mp.tp={};mp.pend={};tmWait=null;tmRos=0;if(why)note=why;tmRefresh()};
+function tmRoster(){const t=myTeam();tmSend(tmRoom(t.id),{k:'ros',tid:t.id,host:t.host,mem:t.members.map(id=>({id,nm:id===mp.id?pname:(mp.tp[id]||{}).nm||'Hunter',rd:id===mp.id?1:(mp.tp[id]||{}).rd?1:0}))})}
+function tmAsk(){const t=myTeam();if(t.host!==mp.id||t.members.length+Object.keys(mp.pend).length>=3)return;
+ if(!pname)return tmOverlay('<div style="font-size:34px;color:#d06a5a">Name your hunter first</div><div>Friends find you by name, so set yours under Hunter Name.</div>',[['OK',tmClose]]);
+ const o=tmOverlay('<div style="font-size:34px;color:#d06a5a">Invite a hunter</div><div>Type their hunter name exactly as they set it.</div><input id=tmn type=text maxlength=14 autocomplete=off spellcheck=false style="font:28px Caveat,monospace;text-align:center"><div id=tmm style="font-size:20px;color:#ff8a7a;min-height:22px"></div>',
+  [['Invite',()=>{const v=cleanName(o.querySelector('#tmn').value),k=tmKey(v),m=o.querySelector('#tmm');
+   if(!v)return m.textContent='Type a name.';if(k==tmKey(pname))return m.textContent='That is you.';
+   if(mp.pend[k]||t.members.some(id=>tmKey((mp.tp[id]||{}).nm||'')==k))return m.textContent='Already invited or on your team.';
+   if(!tmC||!tmC.connected)return m.textContent='Connecting to the lobby... try again in a moment.';
+   mp.pend[k]={nm:v,t:Date.now()};tmSend('hb1/search',{k:'inv',fn:pname,to:k,tid:t.id,key:k});tmClose();tmRefresh()}],['Cancel',tmClose]]);
+ setTimeout(()=>{try{o.querySelector('#tmn').focus()}catch(e){}},50)}
+function tmShowInvite(){const i=tmIn;if(!i)return;tmOverlay('<div style="font-size:34px;color:#d06a5a">Team invite</div><div>'+tmEsc(i.fn)+' invites you to their team.</div>',[['Accept',tmAccept],['Decline',()=>tmDecline('dec')]])}
+function tmAccept(){const i=tmIn;tmIn=null;tmClose();if(!i)return;if(myTeam().members.length>1)return tmSend('hb1/search',{k:'busy',to:i.id,key:i.key});
+ tmWait={tid:i.tid,host:i.id,t:Date.now()};tmC&&tmC.subscribe(tmRoom(i.tid));tmSend('hb1/search',{k:'acc',to:i.id,key:i.key,nm:pname,tid:i.tid});
+ tmOverlay('<div style="font-size:30px">Joining '+tmEsc(i.fn)+'\'s team...</div>',[])}
+function tmDecline(k){const i=tmIn;tmIn=null;tmClose();if(i)tmSend('hb1/search',{k,to:i.id,key:i.key})}
+function tmMsg(topic,buf){let o;try{o=JSON.parse(buf.toString())}catch(e){return}if(!o||o.t!=='tm'||o.from===mp.id||typeof o.from!=='string')return;const t=myTeam(),me=mp.id;
+ if(o.k=='inv'){if(!pname||mode!='menu'||o.to!==tmKey(pname)||tmIn||tmWait)return;if(t.members.length>1)return tmSend('hb1/search',{k:'busy',to:o.from,key:o.key});tmIn={id:o.from,tid:String(o.tid).slice(0,16),fn:cleanName(o.fn)||'A hunter',key:o.key,t0:Date.now()};tmShowInvite();return}
+ if(o.to!==undefined&&o.to!==me)return;
+ if(o.k=='acc'){const p=mp.pend[o.key];if(!p||t.host!==me||t.members.length>=3||o.tid!==t.id)return;delete mp.pend[o.key];t.members.push(o.from);mp.tp[o.from]={nm:cleanName(o.nm)||p.nm,rd:0};tmC&&tmC.subscribe(tmRoom(t.id));tmRoster();tmRefresh()}
+ else if(o.k=='dec'||o.k=='busy'){const p=mp.pend[o.key];if(p){delete mp.pend[o.key];note=p.nm+(o.k=='dec'?' declined the invite.':' is already in a team.');tmRefresh()}}
+ else if(o.k=='ros'){const w=tmWait&&o.tid===tmWait.tid&&o.from===tmWait.host,mine=o.tid===t.id&&t.host===o.from;if(!w&&!mine||!Array.isArray(o.mem))return;
+  if(!o.mem.some(x=>x.id===me)){if(mine)tmReset('You were removed from the team.');return}
+  mp.team={id:o.tid,host:o.host,members:o.mem.map(x=>x.id)};mp.tp={};o.mem.forEach(x=>{if(x.id!==me)mp.tp[x.id]={nm:cleanName(x.nm),rd:x.rd?1:0}});tmWait=null;tmRos=Date.now();tmClose();tmRefresh()}
+ else if(o.k=='go'){if(o.tid===t.id&&t.host===o.from&&t.host!==me&&mode=='menu'&&mp.myrd&&cost()<=bank){bank-=cost();SAVE(1);newGame()}}
+ else if(o.k=='rd'){if(t.host===me&&o.tid===t.id&&t.members.includes(o.from)&&mp.tp[o.from]){mp.tp[o.from].rd=o.rd?1:0;tmRoster();tmRefresh()}}
+ else if(o.k=='lv'){if(t.host===me&&t.members.includes(o.from)){t.members=t.members.filter(id=>id!==o.from);delete mp.tp[o.from];tmRoster();tmRefresh()}}
+ else if(o.k=='dis'){if(o.tid===t.id&&t.host===o.from)tmReset('The team was disbanded.')}}
+function tmBox(i){const t=myTeam(),id=t.members[i];
+ if(id===undefined){if(t.host===mp.id)tmAsk();return}
+ if(id===mp.id){if(t.members.length<2)return;if(t.host===mp.id){if(confirm('Disband your team?')){tmSend(tmRoom(t.id),{k:'dis',tid:t.id});tmReset()}}else if(confirm('Leave the team?')){tmSend(tmRoom(t.id),{k:'lv',tid:t.id});tmReset()}return}
+ if(t.host===mp.id&&confirm('Remove '+((mp.tp[id]||{}).nm||'this hunter')+' from the team?')){t.members=t.members.filter(x=>x!==id);delete mp.tp[id];tmRoster();tmRefresh()}}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('.tbox[data-ts]');if(b&&mode=='menu')tmBox(+b.dataset.ts)});
+setInterval(()=>{try{tmTk++;const t=myTeam(),now=Date.now();
+ if(tmIn&&now-tmIn.t0>30000){tmDecline('dec')}
+ if(tmWait&&now-tmWait.t>8000){tmWait=null;tmClose();note='The team did not answer.';tmRefresh()}
+ let ch=0;for(const k in mp.pend)if(now-mp.pend[k].t>30000){delete mp.pend[k];ch=1}if(ch)tmRefresh();
+ if(t.host===mp.id&&t.members.length>1&&tmTk%3==0)tmRoster();
+ if(t.host!==mp.id&&tmRos&&mode=='menu'&&now-tmRos>12000)tmReset('The team went quiet and was dropped.')}catch(e){}},1000);
+// TEAMS step 4: only the host sees Enter the Breach (disabled until every teammate is ready); members get a Ready Up toggle. A ready member's box turns green.
+function teamGo(ok){try{const t=myTeam(),n=t.members.length;
+ if(n>1&&t.host!==mp.id)return '<button id=ru>'+(mp.myrd?'Not Ready':'Ready Up')+'</button><p class=msg style="font-size:20px">'+(mp.myrd?'You are ready. ':'Ready up when you are set. ')+'Waiting for '+tmEsc((mp.tp[t.host]||{}).nm||'the host')+' to enter the breach.</p>';
+ const w=n>1&&t.members.some(id=>id!==mp.id&&!(mp.tp[id]||{}).rd);return '<button id=go '+(ok&&!w?'':'disabled')+'>Enter the Breach</button>'+(w?'<p class=msg style="font-size:20px">Waiting for your team to ready up.</p>':'')}
+ catch(e){return '<button id=go '+(ok?'':'disabled')+'>Enter the Breach</button>'}}
+document.addEventListener('click',e=>{if(mode!='menu'||!(e.target.closest&&e.target.closest('#ru')))return;const t=myTeam();if(t.host===mp.id||t.members.length<2)return;if(!mp.myrd&&cost()>bank){note='You cannot afford this loadout.';tmRefresh();return}mp.myrd=mp.myrd?0:1;tmSend(tmRoom(t.id),{k:'rd',tid:t.id,rd:mp.myrd});tmRefresh()});
+setInterval(()=>{if(mode!='menu'){mp.myrd=0;Object.values(mp.tp).forEach(q=>q.rd=0)}},1000);   // ready states reset once a run starts, so everyone readies up again next time
+// TEAMS step 7: friendly fire. Hunter-vs-hunter damage already existed for every hunter (shots 'sh', melee and bombs 'hit'/'bx', all unconditional), so teammates can hurt each other.
+// New: every hit that came from another hunter stamps P.lh={p:hunter index,t:ms}; a death sends 'by' (the hunter whose hit was lethal) and 'lh' (the last hunter to hurt you in the past 5s).
+// mpKill(o,f) = the hunter index who killed hunter f, or null (monster, boss, environment). Step 8 uses it to taint the gear when the killer was a teammate.
+{const _hl=hurtP;hurtP=function(d,k){if(mp.on&&k&&k.p!=null&&k.p!==mp.me&&!P.dead)P.lh={p:k.p,t:Date.now()};_hl(d,k)}}
+const mpKill=(o,f)=>{const i=o&&o.by!=null?o.by:o&&o.lh;return i!=null&&i!==f?i:null};
+// TEAMS step 5: the host's Enter announces 'go' on the team room; every READY member then does the same as pressing Enter (pays the loadout, starts the search) and the whole team searches together.
+function tmGoAnnounce(){const t=myTeam();if(t.members.length>1&&t.host===mp.id)tmSend(tmRoom(t.id),{k:'go',tid:t.id})}
+
+const myTeam=()=>mp.team||(mp.team={id:mp.id,host:mp.id,members:[mp.id]}),teamOf=id=>mp.tm[id]||id,isMate=id=>id!==mp.id&&teamOf(id)===(mp.tm[mp.id]||myTeam().id);
+
 // Topic-compatible adapter over our own WebSocket relay, so existing game logic can stay unchanged.
 function relayChannel(topic){if(topic==='hb1/search')return 'search';if(topic.startsWith('hb1/room/'))return 'room-'+topic.slice('hb1/room/'.length);if(topic.startsWith('hb1/lb/'))return 'lb';return null}
 function relayTopicMatches(pattern,topic){const a=pattern.split('/'),b=topic.split('/');for(let i=0;i<a.length;i++){if(a[i]==='#')return true;if(i>=b.length||(a[i]!=='+'&&a[i]!==b[i]))return false}return a.length===b.length}
@@ -2559,7 +2840,7 @@ function mpHandle(o){const r=mp.rp,f=o.f,nm=hn(f);mp.ls[f]=Date.now();if(o.v!==4
  else if(o.t=='fl')flares.push({x:o.x,y:o.y,t:14,tk:99,dec:1,id:-1,hp:1});
  else if(o.t=='dead'){const q0=r[f];if(q0)try{gore({x:q0.x,y:q0.y,ty:'imp'},null,70,o.by!=null&&o.ws?o.ws:'melee',palFor(q0.sk));pool(q0.x,q0.y,18,8);splat(q0.x,q0.y,50,26)}catch(e){}const dr=bty&&bty.h===f;if(dr)bty={h:null,x:q0?q0.x:bty.x,y:q0?q0.y:bty.y};delete r[f];mp.out[f]=1;say(nm+' was slain'+(o.by!=null?' by '+(o.by==mp.me?'you':hn(o.by)):'')+'!'+(dr?' The bounty has dropped!':''),dr?6:4)}
  else if(o.t=='left'){const hb=bty&&bty.h===f;if(hb)bty=null;delete r[f];mp.out[f]=1;say(nm+' escaped'+(hb?' with the bounty!':'.'),hb?6:3)}}
-function mpStop(){mp.on=0;mp.room=null;mp.rp={};mp.onS=null;mpb=[];clearInterval(mpTimer);mp.cl.forEach(c=>{try{c.end(true)}catch(e){}});mp.cl=[]}
+function mpStop(){mp.tm={};mp.on=0;mp.room=null;mp.rp={};mp.onS=null;mpb=[];clearInterval(mpTimer);mp.cl.forEach(c=>{try{c.end(true)}catch(e){}});mp.cl=[]}
 function mpOverlay(txt){if(!mpOv){mpOv=document.createElement('div');mpOv.style.cssText='position:fixed;inset:0;z-index:99;background:rgba(6,2,4,.93);color:#e8e6d8;font:22px Caveat,monospace;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center';document.body.appendChild(mpOv)}mpOv.innerHTML='<div style="font-size:34px;color:#d06a5a">Entering the breach...</div><div>'+txt+'</div>'+(mp.cancel?'<button id="mpCancel" style="margin-top:10px;padding:8px 26px;font:22px Caveat,monospace;color:#e8e6d8;background:#3a1418;border:2px solid #d06a5a;border-radius:6px;cursor:pointer">Stop searching</button>':'');const cb=mpOv.querySelector('#mpCancel');if(cb)cb.onclick=()=>{if(mp.cancel)mp.cancel()}}
 // ---------- HUNTER ROSTER: shown for ~10s after the matchmaking countdown, before the match starts ----------
 const RSTIME=10;
@@ -2574,7 +2855,8 @@ function mpRoster(ros,me,cb){const ov=document.createElement('div');
  const h=document.createElement('div');h.style.cssText='font-size:40px;color:#d06a5a';h.textContent='Hunters Entering the Breach';
  const tm=document.createElement('div');tm.style.cssText='font-size:26px';
  const gr=document.createElement('div');gr.style.cssText='display:flex;flex-wrap:wrap;gap:14px;justify-content:center;max-width:1000px';
- ros.forEach((r,i)=>{const c=document.createElement('div');c.style.cssText='width:154px;border:2px solid '+(i==me?'#ffd9d0':'#e8e6d855')+';border-radius:8px 16px 6px 14px;background:'+(i==me?'#c0392b33':'#0006')+';padding:6px 6px 8px;box-sizing:border-box';
+ const tcn={},tcl=['#5aa0ff','#e0b040','#6be08a'];ros.forEach(r=>{tcn[r.tid]=(tcn[r.tid]||0)+1});let tci=0;const tcm={};ros.forEach(r=>{if(tcn[r.tid]>1&&!tcm[r.tid])tcm[r.tid]=tcl[tci++%3]});
+ ros.forEach((r,i)=>{const tc=tcm[r.tid],c=document.createElement('div');c.style.cssText='width:154px;border:'+(tc?'3':'2')+'px solid '+(tc||(i==me?'#ffd9d0':'#e8e6d855'))+';border-radius:8px 16px 6px 14px;background:'+(i==me?'#c0392b33':'#0006')+';padding:6px 6px 8px;box-sizing:border-box';
   const cv=document.createElement('canvas');cv.width=256;cv.height=288;cv.style.cssText='display:block;margin:0 auto;width:132px;height:149px;image-rendering:pixelated;border-radius:6px;background:radial-gradient(ellipse at 50% 80%,#4a1c18,#140808 78%)';mpPortrait(cv,r);
   const nm=document.createElement('div');nm.style.cssText='font-size:28px;line-height:1;margin:5px 0 3px;word-break:break-word;color:'+devCol(r.nm,'#f0e6d0');nm.textContent=r.nm+(i==me?' (you)':'');
   const ld=document.createElement('div');ld.style.cssText='font-size:18px;line-height:1.1;opacity:.88';
@@ -2583,20 +2865,25 @@ function mpRoster(ros,me,cb){const ov=document.createElement('div');
  ov.appendChild(h);ov.appendChild(gr);ov.appendChild(tm);document.body.appendChild(ov);
  const t0=Date.now(),upd=()=>{const l=Math.max(0,Math.ceil(RSTIME-(Date.now()-t0)/1000));tm.textContent='The descent begins in '+l+'s';return l};upd();
  const iv=setInterval(()=>{if(upd()<=0){clearInterval(iv);ov.remove();cb()}},250)}
-function mpSearch(go){if(mpBusy)return;mpBusy=1;mpStop();let done=0;const rs=()=>Math.random()*4294967296>>>0,t0=Date.now(),seen={},myP=mpProfile();
+function mpSearch(go){if(mpBusy)return;mpBusy=1;try{tmGoAnnounce()}catch(e){}mpStop();let done=0;const rs=()=>Math.random()*4294967296>>>0,t0=Date.now(),seen={},myP=mpProfile();
  const fin=(n,idx,seed,ros)=>{if(done)return;done=1;mpBusy=0;mp.cancel=null;clearInterval(mpTimer);clearTimeout(kill);if(mpOv){mpOv.remove();mpOv=null}if(n>1){if(ros){mpBusy=1;mpRoster(ros,idx,()=>{mpBusy=0;mp.on=1;mp.me=idx;mp.n=n;go(seed,n)});return}mp.on=1;mp.me=idx;mp.n=n}else mpStop();go(seed,n)};
  const kill=setTimeout(()=>fin(1,0,rs()),90000);
  const show=(n,rem)=>mpOverlay('Searching for hunters... '+n+'/'+MPMAX+'<br><small>The descent begins in '+Math.max(0,Math.ceil(rem))+'s, or when six hunters are gathered.</small><br><small style="opacity:.5">'+(relayBase('search')===RELAY_SYD?'Sydney':'Cloudflare')+' relay: '+mp.cl.filter(c=>c.connected).length+'/1</small>');
  
- const begin=o=>{if(done)return;if(o.bk&&BOSS[o.bk])boss=o.bk;const idx=o.m.indexOf(mp.id);if(o.m.length>1){mp.room=o.room;mp.subs.push('hb1/room/'+o.room);mp.cl.forEach(c=>c.connected&&c.subscribe('hb1/room/'+o.room))}mp.me=idx;fin(o.m.length,idx,o.seed,o.m.length>1?o.m.map((id,i)=>mpProf(id===mp.id?myP:o.pf&&o.pf[id],i)):null)};
+ const begin=o=>{if(done)return;if(o.bk&&BOSS[o.bk])boss=o.bk;mp.ids=Array.isArray(o.m)?o.m.slice(0,MPMAX):[];mp.tm=o.tm&&typeof o.tm=='object'?Object.fromEntries(Object.entries(o.tm).filter(([k,v])=>typeof v=='string').slice(0,MPMAX)):{};const idx=o.m.indexOf(mp.id);if(o.m.length>1){mp.room=o.room;mp.subs.push('hb1/room/'+o.room);mp.cl.forEach(c=>c.connected&&c.subscribe('hb1/room/'+o.room))}mp.me=idx;fin(o.m.length,idx,o.seed,o.m.length>1?o.m.map((id,i)=>{const r=mpProf(id===mp.id?myP:o.pf&&o.pf[id],i);r.tid=mp.tm[id]||id;return r}):null)};
  mp.cancel=()=>{if(done)return;done=1;mpBusy=0;mp.cancel=null;clearInterval(mpTimer);clearTimeout(kill);if(mpOv){mpOv.remove();mpOv=null}mpStop()};
  mp.subs=['hb1/search'];mpConnect();show(1,MPWAIT);
- mp.onS=o=>{if(done||o.id===mp.id)return;if(o.t=='start'){if(o.m.includes(mp.id))begin(o);else o.m.forEach(i=>delete seen[i]);return}const x=seen[o.id];seen[o.id]={st:x?x.st:Date.now()-o.age*1000,last:Date.now(),p:o.p}};
- mpTimer=setInterval(()=>{if(done)return;const now=Date.now();mpPub('hb1/search',{id:mp.id,age:(now-t0)/1000,p:myP});for(const i in seen)if(now-seen[i].last>6000)delete seen[i];
-  const all=[{id:mp.id,st:t0},...Object.entries(seen).map(([id,v])=>({id,st:v.st}))].sort((a,b)=>Math.abs(a.st-b.st)<1500?(a.id<b.id?-1:1):a.st-b.st),grp=all.slice(0,MPMAX),lead=grp[0],rem=MPWAIT-(now-lead.st)/1000;
+ mp.onS=o=>{if(done||o.id===mp.id||o.t=='tm')return;if(o.t=='start'){if(o.m.includes(mp.id))begin(o);else o.m.forEach(i=>delete seen[i]);return}const x=seen[o.id];seen[o.id]={st:x?x.st:Date.now()-o.age*1000,last:Date.now(),p:o.p,tid:typeof o.tid=='string'?o.tid.slice(0,16):o.id,ts:Math.max(1,Math.min(3,o.ts|0||1))}};
+ mpTimer=setInterval(()=>{if(done)return;const now=Date.now();mpPub('hb1/search',{id:mp.id,age:(now-t0)/1000,p:myP,tid:myTeam().id,ts:myTeam().members.length});for(const i in seen)if(now-seen[i].last>6000)delete seen[i];
+  // TEAMS step 5: group whole teams only. A team counts once all its members (heartbeat field ts) are searching; teams are added in order while they fit in MPMAX.
+  const tmOf=id=>id===mp.id?myTeam().id:((seen[id]||{}).tid||id),tsOf=id=>id===mp.id?myTeam().members.length:((seen[id]||{}).ts||1),tms={};
+  [{id:mp.id,st:t0},...Object.entries(seen).map(([id,v])=>({id,st:v.st}))].forEach(g=>{const k=tmOf(g.id),q=tms[k]||(tms[k]={ids:[],st:g.st,ts:1});q.ids.push(g.id);q.st=Math.min(q.st,g.st);q.ts=Math.max(q.ts,tsOf(g.id))});
+  const grp=[];Object.values(tms).filter(q=>q.ids.length>=q.ts).map(q=>({st:q.st,ids:q.ids.sort()})).sort((a,b)=>Math.abs(a.st-b.st)<1500?(a.ids[0]<b.ids[0]?-1:1):a.st-b.st).forEach(q=>{if(grp.length+q.ids.length<=MPMAX)q.ids.forEach(id=>grp.push({id,st:q.st}))});
+  if(!grp.length){show(0,MPWAIT);return}
+  const lead=grp[0],rem=MPWAIT-(now-lead.st)/1000;
   show(grp.length,rem);
-  if(lead.id===mp.id&&(grp.length>=MPMAX||rem<=0)){const o={t:'start',m:grp.map(g=>g.id),room:rs().toString(36),seed:rs(),bk:boss,pf:Object.fromEntries(grp.map(g=>[g.id,g.id===mp.id?myP:(seen[g.id]||{}).p||null]))};mpPub('hb1/search',o);begin(o)}},1000)}
-function rpDraw(L,cx,cy){Object.entries(mp.rp).forEach(([id,r])=>{if(r.hp<=0)return;L.push([r.y,()=>{const o=sel.skin;sel.skin=SKINS[r.sk]?r.sk:'warden';try{warden(r.x-cx,r.y-cy,r.a,0,r.wk,r.g,r.hf>0,r.h,r.sa,skv(r.g,r.gs),skv(r.h,r.hs))}finally{sel.skin=o}tx(hn(id),r.x-cx,r.y-cy-14,devCol(hn(id),'#d89090'),'center')}])})}
+  if(lead.id===mp.id&&(grp.length>=MPMAX||rem<=0)){const o={t:'start',m:grp.map(g=>g.id),room:rs().toString(36),seed:rs(),bk:boss,tm:Object.fromEntries(grp.map(g=>[g.id,tmOf(g.id)])),pf:Object.fromEntries(grp.map(g=>[g.id,g.id===mp.id?myP:(seen[g.id]||{}).p||null]))};mpPub('hb1/search',o);begin(o)}},1000)}
+function rpDraw(L,cx,cy){Object.entries(mp.rp).forEach(([id,r])=>{if(r.hp<=0)return;L.push([r.y,()=>{const o=sel.skin,mt=mpMate(+id);sel.skin=SKINS[r.sk]?r.sk:'warden';if(mt){ctx.save();ctx.shadowColor='#4aa0ff';ctx.shadowBlur=3}try{warden(r.x-cx,r.y-cy,r.a,0,r.wk,r.g,r.hf>0,r.h,r.sa,skv(r.g,r.gs),skv(r.h,r.hs))}finally{sel.skin=o;if(mt)ctx.restore()}tx(hn(id),r.x-cx,r.y-cy-14,mt?'#7ab8ff':devCol(hn(id),'#d89090'),'center')}])})}
 // ---------- SHARED MONSTERS ----------
 // One hunter (mp.host) runs every monster and every monster attack. The others only mirror it:
 // the host streams snapshots, and everyone else sends their damage / noise to the host.
@@ -2666,7 +2953,7 @@ const _ml=melee;melee=function(){_ml();if(!mp.on)return;for(const[id,q]of Object
 function mpDie(){const it=[],at=(t,o)=>it.push({t,x:P.x+R(-14,14),y:P.y+R(-14,14),...o});
   P.w.forEach((x,s)=>x&&at('wpn',{s,k:x.k,mg:P.mag[s],rs:0,...(psk(s)?{sk:psk(s)}:{})}));P.bag.forEach(o=>{if(TOOL[o.k]){for(let i=0;i<(o.n||1);i++)at(o.k=='tonic'||o.k=='bomb'?o.k:'tool',{k:o.k})}else at('wpn',{s:SID[o.k]?1:0,k:o.k,...(o.sk?{sk:o.sk}:{}),...(o.mg!==undefined?{mg:o.mg}:{}),...(o.rs!==undefined?{rs:o.rs}:{})})});
   for(let i=0;i<P.tn;i++)at('tonic');for(let i=0;i<P.bm;i++)at('bomb');XT.forEach(k=>{for(let i=0;i<(P.xt[k]||0);i++)at('tool',{k})});if(P.res.some(n=>n>0)){at('ammo');at('ammo')}if(P.carry>0)at('cash',{v:P.carry});
-  it.forEach(i=>{i.id='d'+mp.me+'_'+mp.ic++;mpSend({t:'dr',it:i})});mpSend({t:'dead',by:mpBy})}
+  it.forEach(i=>{i.id='d'+mp.me+'_'+mp.ic++;mpSend({t:'dr',it:i})});mpSend({t:'dead',by:mpBy,lh:P.lh&&Date.now()-P.lh.t<=5000?P.lh.p:null})}
 const _e3=end;end=function(w){if(mp.on){if(w)mpSend({t:'left'});else if(!P.dsent)mpDie();setTimeout(mpStop,500)}return _e3(w)};
 const _u3=update;update=function(dt){if(!mp.on)return _u3(dt);
  const ids=items.map(i=>i.id),bz=bombs.map(b=>({x:b.x,y:b.y,t:b.t}));
@@ -2719,7 +3006,7 @@ function lobLand(b){
 {const _u8=update;update=function(dt){_u8(dt);if(mode!='play')return;
  for(const tr of traps){tr.t-=dt;if(tr.ar>0){tr.ar-=dt;continue}if(M.some(m=>m.hp>0&&D(m.x,m.y,tr.x,tr.y)<(m.boss?16:12))||(P.hp>0&&D(P.x,P.y,tr.x,tr.y)<10)||(mp.on&&Object.values(mp.rp).some(q=>q.hp>0&&D(q.x,q.y,tr.x,tr.y)<10))){tr.t=0;burst(tr.x,tr.y,28,150,'#ff9a30',0);burst(tr.x,tr.y,10,90,'#6a0a10',1);shake=Math.max(shake,4);noise(tr.x,tr.y,260);M.forEach(m=>{if(m.hp>0&&D(m.x,m.y,tr.x,tr.y)<46)hurt(m,55,Math.atan2(m.y-tr.y,m.x-tr.x),'tripwire')});if(P.hp>0&&D(P.x,P.y,tr.x,tr.y)<46)hurtP(55,{s:'tripwire'});if(mp.on)for(const q of Object.values(mp.rp))if(q.hp>0&&D(q.x,q.y,tr.x,tr.y)<46)mpSend({t:'hit',to:q.id,d:55,k:'mob'})}}traps=traps.filter(t=>t.t>0);
  for(const b of lobs){b.m-=dt;b.x+=b.vx*dt;b.y+=b.vy*dt;if(hit(b.x,b.y,2)){b.x-=b.vx*dt;b.y-=b.vy*dt;b.m=0}if(b.m<=0){b.dead=1;lobLand(b)}}lobs=lobs.filter(b=>!b.dead);
- for(const f of fires){f.t-=dt;f.tk-=dt;if(f.tk<=0){f.tk=.5;if(!(f.mt&&mpCli()))M.forEach(m=>{if(m.hp>0&&D(m.x,m.y,f.x,f.y)<f.r+(m.boss?8:0))hurt(m,12,Math.atan2(m.y-f.y,m.x-f.x),'fire')});if(D(P.x,P.y,f.x,f.y)<f.r)hurtP(f.pd||5);burst(f.x+R(-f.r,f.r)*.7,f.y+R(-f.r,f.r)*.4,2,30,'#ff8a20',0)}}fires=fires.filter(f=>f.t>0);
+ for(const f of fires){f.t-=dt;f.tk-=dt;if(f.tk<=0){f.tk=.5;if(!((f.mt||f.gf)&&mpCli()))M.forEach(m=>{if(m.hp>0&&D(m.x,m.y,f.x,f.y)<f.r+(m.boss?8:0))hurt(m,12,Math.atan2(m.y-f.y,m.x-f.x),'fire')});if(D(P.x,P.y,f.x,f.y)<f.r)hurtP(f.pd||5);burst(f.x+R(-f.r,f.r)*.7,f.y+R(-f.r,f.r)*.4,2,30,'#ff8a20',0)}}fires=fires.filter(f=>f.t>0);
  for(const f of flares){f.t-=dt;f.tk-=dt;if(f.tk<=0){f.tk=2.5;if(!fgOn())noise(f.x,f.y,300)}if(!fgOn()&&Math.random()<dt*18)burst(f.x,f.y,1,40,'#ffd070',0)}flares=flares.filter(f=>f.t>0)}}
 // ---------- THE REAPER: a 60s timer. At zero a colossal winged demon takes you, one of 10 ways ----------
 // Test helpers: add ?timer=5 to shorten the clock, ?death=0..9 to force a specific death.
@@ -2858,24 +3145,25 @@ function rdDraw(){const Q=RD;if(!Q||!Q.O)return;const O=Q.O,t=Q.t,sc=SCR,px=Q.x-
  if(Q.fl!=null){const a=.55-(t-Q.fl)*2;if(a>0){ctx.fillStyle='rgba(255,230,200,'+a.toFixed(3)+')';ctx.fillRect(0,0,VW,VH)}}
  ctx.restore()}
 function rdHud(){if(P.dead)return;const tm=P.tm===undefined?RT0:P.tm,s=Math.ceil(tm),pl=.5+.5*Math.sin(T*(tm<=10?10:5)),col=RD?'#ff2a2a':tm<=10?'rgb(255,'+((60+pl*60)|0)+','+((60+pl*40)|0)+')':tm<=30?'#ffb040':'#e8e6d8';
- ctx.font='bold 8px monospace';tx(RD?'THE REAPER':'THE REAPER COMES IN',VW/2,12,'#a05050','center');ctx.font='bold 17px monospace';tx(RD?'TIME IS UP':Math.floor(s/60)+':'+String(s%60).padStart(2,'0'),VW/2,29,col,'center');if(EVN){ctx.font='bold 9px monospace';tx('BLOOD MOON  '+Math.ceil(EVN.dur-EVN.t)+'s',VW/2,40,'rgb(255,'+((50+pl*50)|0)+',60)','center')}ctx.font='bold 10px monospace'}
+ ctx.font='bold 8px monospace';tx(RD?'THE REAPER':'THE REAPER COMES IN',VW/2,12,'#a05050','center');ctx.font='bold 17px monospace';tx(RD?'TIME IS UP':Math.floor(s/60)+':'+String(s%60).padStart(2,'0'),VW/2,29,col,'center');if(EVN){ctx.font='bold 9px monospace';tx((EVN.t<5?'BLOOD MOON RISES IN  '+Math.ceil(5-EVN.t):'BLOOD MOON  '+Math.ceil(EVN.dur-EVN.t))+'s',VW/2,40,'rgb(255,'+((50+pl*50)|0)+',60)','center')}ctx.font='bold 10px monospace'}
 // ---------- RANDOM EVENTS (first one: the Blood Moon) ----------
 // ?event=bloodmoon starts it 3s into a run. Otherwise it strikes once at a random (but lobby-synced) moment.
 const inBl=(x,y,m)=>blds.some(b=>{const e=bExt(b);return x>e.x-m&&x<e.x+e.w+m&&y>e.y-m&&y<e.y+e.h+m});
 // events must never land inside a building or near its doors: extra-wide margin around every building (wings included)
 const EVM=44,noEv=(x,y,m)=>inBl(x,y,Math.max(m||0,EVM));
 const SAFEZ=95;let EVN=null;
-const bmf=()=>EVN?sg(EVN.t,0,2.5)*(1-sg(EVN.t,EVN.dur-2.5,EVN.dur)):0,bmv=m=>lp(1,m,bmf()),inSafe=o=>exts.some(e=>!e.sealed&&D(o.x,o.y,e.x,e.y)<SAFEZ);
+const bmOn=()=>!!EVN&&EVN.t>=5,bmf=()=>EVN?sg(EVN.t,5,7.5)*(1-sg(EVN.t,EVN.dur-2.5,EVN.dur)):0,bmv=m=>lp(1,m,bmf()),inSafe=o=>exts.some(e=>!e.sealed&&D(o.x,o.y,e.x,e.y)<SAFEZ);
 function evSpawn(n){let c=0,al=M.filter(m=>m.hp>0&&!m.boss).length;for(let i=0;i<n*14&&c<n&&al<80;i++){const a=R(0,6.28),r=R(230,560),c0=mp.on&&mp.pool&&mp.pool.length?mp.pool[(Math.random()*mp.pool.length)|0]:P,x=c0.x+Math.cos(a)*r,y=c0.y+Math.sin(a)*r;   // spread the extra horde around every hunter, not just the host
  if(x<40||y<40||x>WW-40||y>WH-40||hit(x,y,6)||noEv(x,y,10)||exts.some(e=>D(x,y,e.x,e.y)<170))continue;const m=mkMob(x,y,'chase');m.bm=1;M.push(m);burst(x,y,6,60,'#ff2a1a',0);c++;al++}}
 function evTick(dt){const el=RT0-P.tm;
- if(!EVN&&!mpCli()&&P.evp.length&&el>=P.evp[0][1]){const id=P.evp.shift()[0],al=M.filter(m=>m.hp>0&&!m.boss).length;EVN={P,id,t:0,dur:60,rt:.6,tg:al*2};shake=Math.max(shake,8);
-  if(!mpCli()){evSpawn(Math.min(al,80-al));if(mp.on)mpSend({t:'ev',k:'bm'})}banner('THE BLOOD MOON RISES','Every monster sprints and the hordes double. Only the extraction rings are safe.','#d02030');try{sfx.sigil(3)}catch(e){}}
+ if(!EVN&&!mpCli()&&P.evp.length&&el>=P.evp[0][1]){const id=P.evp.shift()[0],al=M.filter(m=>m.hp>0&&!m.boss).length;EVN={P,id,t:0,dur:30,rt:.6,tg:al*2};shake=Math.max(shake,3);
+  if(mp.on)mpSend({t:'ev',k:'bm'});banner('THE BLOOD MOON APPROACHES','The sky is turning red. In 5 seconds every monster sprints and the hordes double.','#d02030');try{sfx.sigil(1)}catch(e){}}
  if(!EVN)return;EVN.t+=dt;
- if(!mpCli()){EVN.rt-=dt;if(EVN.rt<=0){EVN.rt=.6;if(M.filter(m=>m.hp>0&&!m.boss).length<EVN.tg)evSpawn(2)}
+ if(!EVN.go&&EVN.t>=5){EVN.go=1;shake=Math.max(shake,8);try{sfx.sigil(3)}catch(e){}banner('THE BLOOD MOON RISES','Every monster sprints and the hordes double. Only the extraction rings are safe.','#d02030');if(!mpCli()){const al=M.filter(m=>m.hp>0&&!m.boss).length;evSpawn(Math.min(al,80-al))}}
+ if(!mpCli()&&EVN.go){EVN.rt-=dt;if(EVN.rt<=0){EVN.rt=.6;if(M.filter(m=>m.hp>0&&!m.boss).length<EVN.tg)evSpawn(2)}
   for(const m of M)if(m.hp>0&&!m.boss&&m.st=='idle'&&(mp.on&&mp.pool?mp.pool:[P]).some(q=>D(m.x,m.y,q.x,q.y)<230)){m.st='chase';m.lt=0}}
  if(EVN.t>=EVN.dur){EVN=null;say('The blood moon sets.',4)}}
-function bmDraw(){const a=bmf();if(a<=.01)return;ctx.save();
+function bmDraw(){const a=bmf();if(EVN&&EVN.t<5){ctx.save();ctx.fillStyle='rgba(160,0,14,'+(.06+.08*Math.abs(Math.sin(EVN.t*3))).toFixed(3)+')';ctx.fillRect(0,0,VW,VH);ctx.restore()}if(a<=.01)return;ctx.save();
  ctx.globalCompositeOperation='multiply';ctx.fillStyle='rgb(255,'+((255-150*a)|0)+','+((255-165*a)|0)+')';ctx.fillRect(0,0,VW,VH);
  ctx.globalCompositeOperation='source-over';ctx.fillStyle='rgba(140,0,12,'+(.2*a).toFixed(3)+')';ctx.fillRect(0,0,VW,VH);
  const g=ctx.createRadialGradient(VW/2,VH/2,90,VW/2,VH/2,400);g.addColorStop(0,'rgba(90,0,8,0)');g.addColorStop(1,'rgba(90,0,8,'+((.55+.12*Math.sin(T*4))*a).toFixed(3)+')');ctx.fillStyle=g;ctx.fillRect(0,0,VW,VH);
@@ -2886,10 +3174,10 @@ function bmDraw(){const a=bmf();if(a<=.01)return;ctx.save();
   if(b&&bd>SAFEZ){const an=Math.atan2(b.y-P.y,b.x-P.x),px=P.x-cam.x,py=P.y-cam.y,ax=px+Math.cos(an)*46,ay=py+Math.sin(an)*46;ctx.fillStyle='rgba(143,224,160,'+(.9*a).toFixed(3)+')';ctx.beginPath();ctx.moveTo(ax+Math.cos(an)*7,ay+Math.sin(an)*7);ctx.lineTo(ax+Math.cos(an+2.5)*6,ay+Math.sin(an+2.5)*6);ctx.lineTo(ax+Math.cos(an-2.5)*6,ay+Math.sin(an-2.5)*6);ctx.closePath();ctx.fill();tx(Math.round(bd/10)+'m',ax+Math.cos(an)*18,ay+Math.sin(an)*18+3,'#8fe0a0','center')}}
  ctx.font='bold 10px monospace';ctx.restore()}
 // blood moon rules: monsters sprint, are repelled by extraction rings, and cannot hurt anyone standing in one
-{const _mv=mv;mv=function(e,a,b,r){if(EVN&&e!==P&&e.mh){a*=1.9;b*=1.9;
+{const _mv=mv;mv=function(e,a,b,r){if(bmOn()&&e!==P&&e.mh){a*=1.9;b*=1.9;
   for(const x of exts){if(x.sealed)continue;const d0=D(e.x,e.y,x.x,x.y),d1=D(e.x+a,e.y+b,x.x,x.y);if(d0<SAFEZ){const an=Math.atan2(e.y-x.y,e.x-x.x),s=Math.hypot(a,b)+1.2;a=Math.cos(an)*s;b=Math.sin(an)*s;break}else if(d1<SAFEZ&&d1<d0){a=b=0;break}}}
  return _mv(e,a,b,r)}}
-{const _hp2=hurtP;hurtP=function(d,k){if(EVN&&k&&k.p==null&&k.s!='bomb'&&k.s!='tripwire'&&inSafe(P))return;_hp2(d,k)}}
+{const _hp2=hurtP;hurtP=function(d,k){if(bmOn()&&k&&k.p==null&&k.s!='bomb'&&k.s!='tripwire'&&inSafe(P))return;_hp2(d,k)}}
 // ---- hooks ----
 {const _hp=hurtP;hurtP=function(d,k){if(RD&&RD.P===P)return;_hp(d,k)}}
 addEventListener('keydown',e=>{if(RD&&mode=='play'&&(e.code=='KeyM'||e.code=='KeyI'||e.code=='Tab')){showMap=0;invOpen=0}});
@@ -2899,7 +3187,7 @@ addEventListener('keydown',e=>{if(RD&&mode=='play'&&(e.code=='KeyM'||e.code=='Ke
  if(P.tm===undefined){P.tm=RT0;banner('THE REAPER IS COMING','You have '+(RT0>=60?Math.floor(RT0/60)+' min'+(RT0%60?' '+RT0%60+' sec':''):RT0+' sec')+'. Extract before the timer runs out.','#c01824')}
  if(!P.dead&&!RD&&P.tm>0){const s0=Math.ceil(P.tm);P.tm=Math.max(0,P.tm-dt);if(P.tm<=10&&Math.ceil(P.tm)<s0)try{sfx.beat()}catch(e){}if(P.tm<=0)rdStart()}
  if(EVN&&EVN.P!==P)EVN=null;
- if(!P.evp)P.evp=[['bloodmoon',/^(tithe|collapse|rain|fog)$/.test(RQ.get('event')||'')?1e9:RQ.get('event')?3:lp(90,Math.max(120,RT0-180),hs(blds[0]?blds[0].x*.37+blds[0].y:1))]];
+ if(!P.evp)P.evp=[['bloodmoon',/^(tithe|collapse|rain|fog)$/.test(RQ.get('event')||'')?1e9:RQ.get('event')?3:(evOk('bm',23.3)?lp(150,Math.max(200,RT0-120),hs(blds[0]?blds[0].x*.37+blds[0].y:1)):1e9)]];
  if(!P.dead)evTick(dt);
  let fr=0;
  if(RD){const Q=RD;Q.t+=dt;if(Q.t>TB+RDUR[Q.k]+OUTD){Q.fm.hp=0;RD=null}else{const O=rdPose(Q);Q.O=O;rdEv(Q,O);if(Q.gone)O.vis=0;if(Q.t<TB)shake=Math.max(shake,1+5*sg(Q.t,0,TA));fr=!P.dead;if(fr)P.ep=0}}
@@ -2932,15 +3220,15 @@ function ttPay(){const c=[];for(let s=0;s<2;s++)if(P.w[s])c.push({t:'w',s,n:P.w[
   P.rl=0;fixSlot();ttVeil(k,o.n)}
  else banner('THE BREACH FINDS NOTHING','You carry nothing it wants. This time.','#a09080')}
 function ttTick(dt){if(!P||P.dead||RD){TTH=null;return}if(TTH&&TTH.P!==P)TTH=null;
- P.tt=(P.tt||0)+dt;if(P.ttn===undefined)P.ttn=RQ.get('event')=='tithe'?4:RQ.get('event')?1e9:R(55,85);
+ P.tt=(P.tt||0)+dt;if(P.ttn===undefined)P.ttn=RQ.get('event')=='tithe'?4:RQ.get('event')?1e9:R(220,320);
  if(!TTH){if(P.tt<P.ttn)return;if(P.tm<30){P.ttn=1e9;return}if(EVN||HFR||FOG)return;
   const s=ttSpot();if(!s){P.ttn=P.tt+8;return}TTH={P,x:s.x,y:s.y,t:0,h:0,w:0};shake=Math.max(shake,7);ttBell(.5,150);
   banner('THE BELL TOLLS','Hold the ward ring for 10s, or the Breach takes an item or half your bounty.','#d8c070');return}
  const T0=TTH;T0.t+=dt;const inn=D(P.x,P.y,T0.x,T0.y)<TT_R;T0.h=inn?T0.h+dt:Math.max(0,T0.h-dt*2);const left=TT_WIN-T0.t;
  if(inn&&Math.floor(T0.h)>Math.floor(T0.h-dt)&&T0.h<TT_HOLD)ttBell(.1,260);
  if(left<=8&&!T0.w){T0.w=1;ttBell(.3,170)}
- if(T0.h>=TT_HOLD){TTH=null;P.ttn=P.tt+R(100,140);ttBell(.3,330);burst(T0.x,T0.y,24,80,'#8fe0a0',0);banner('THE BREACH IS SATISFIED','The bell falls silent. You owe nothing.','#8fe0a0')}
- else if(left<=0){TTH=null;P.ttn=P.tt+R(100,140);ttBell(.55,110);ttPay()}}
+ if(T0.h>=TT_HOLD){TTH=null;P.ttn=P.tt+R(420,560);ttBell(.3,330);burst(T0.x,T0.y,24,80,'#8fe0a0',0);banner('THE BREACH IS SATISFIED','The bell falls silent. You owe nothing.','#8fe0a0')}
+ else if(left<=0){TTH=null;P.ttn=P.tt+R(420,560);ttBell(.55,110);ttPay()}}
 
 // ---- Tithe: bone vines tear through a veil crack, whip the hunter and drag an item back through
 let TTV=null;
@@ -3005,7 +3293,7 @@ function clSeal(e){e.sealed=1;P.ep=0;const ny=e.y<=61?-1:e.y>=WH-61?1:0,nx=ny?0:
  for(let i=0;i<10;i++){g.fillStyle='rgba(255,'+((90+R(0,80))|0)+',30,.8)';g.fillRect(vx+R(-22,22),vy+R(-16,16),2,2)}
  g.restore();fires.push({x:vx,y:vy,r:24,t:1e9,tk:1e9,s:R(0,6)})}
 function clTick(){if(!P||P.dead||RD||P.tm===undefined)return;const el=RT0-P.tm;
- if(P.clT===undefined){const sd=blds[0]?blds[0].x*.53+blds[0].y:1;P.clT=RQ.get('event')=='collapse'?3:lp(110,Math.max(160,RT0-170),hs(sd+3.1));P.clI=hs(sd+9.7)<.5?0:1}
+ if(P.clT===undefined){const sd=blds[0]?blds[0].x*.53+blds[0].y:1;P.clT=RQ.get('event')=='collapse'?3:(evOk('collapse',43.1)?lp(170,Math.max(230,RT0-120),hs(sd+3.1)):1e9);P.clI=hs(sd+9.7)<.5?0:1}
  if(P.clD||mpCli()||el<P.clT)return;const e=exts[P.clI]||exts[0];if(!e||exts.filter(x=>!x.sealed).length<2){P.clD=1;return}
  if(D(P.x,P.y,e.x,e.y)<70||P.ep>0||(mp.on&&Object.values(mp.rp).some(q=>q.hp>0&&D(q.x,q.y,e.x,e.y)<70))){P.clT=el+4;return}P.clD=1;clSeal(e);if(mp.on)mpSend({t:'ev',k:'cl',i:exts.indexOf(e)})}
 function clDraw(){if(P.dead)return;ctx.save();ctx.font='bold 9px monospace';for(const e of exts){if(!e.sealed)continue;const x=e.x-cam.x,y=e.y-cam.y;if(D(P.x,P.y,e.x,e.y)<190&&x>-60&&x<VW+60&&y>-60&&y<VH+60)tx(CLM[e.k]||'It burned.',x,y-34,'#ff8a6a','center')}ctx.restore();ctx.font='bold 10px monospace'}
@@ -3025,7 +3313,7 @@ function hfImpact(m){const near=D(P.x,P.y,m.x,m.y);shake=Math.max(shake,near<220
  if(fires.filter(f=>f.mt).length<30)fires.push({x:m.x,y:m.y,r:26,t:22,tk:.3,s:R(0,6),pd:9,mt:1})}
 function hfTick(dt){if(!P||P.dead||RD||P.tm===undefined){HFR=null;mets=[];return}if(HFR&&HFR.P!==P){HFR=null;mets=[]}
  const el=RT0-P.tm;
- if(P.hfT===undefined){const sd=blds[0]?blds[0].x*.53+blds[0].y:1;P.hfT=RQ.get('event')=='rain'?3:lp(120,Math.max(180,RT0-150),hs(sd+11.3))}
+ if(P.hfT===undefined){const sd=blds[0]?blds[0].x*.53+blds[0].y:1;P.hfT=RQ.get('event')=='rain'?3:(evOk('rain',29.9)?lp(180,Math.max(240,RT0-110),hs(sd+11.3)):1e9)}
  if(!HFR&&!mpCli()&&!P.hfD&&el>=P.hfT){if(P.tm<45)P.hfD=1;else if(!EVN&&!TTH&&!FOG){P.hfD=1;HFR={P,t:0,dur:45,rt:.4};if(mp.on)mpSend({t:'ev',k:'hf'});shake=Math.max(shake,6);banner('HELLFIRE RAIN','Red circles mark where the sky falls. Craters burn, and the fires choke corridors and doorways.','#ff6a2a');try{sfx.sigil(3)}catch(e){}}}
  if(HFR){HFR.t+=dt;if(HFR.t<HFR.dur){if(!mpCli()){HFR.rt-=dt;if(HFR.rt<=0){HFR.rt=R(.35,.75);if(mets.length<10){const t=hfTarget();if(t&&!noEv(t.x,t.y,MET_R+8)){mets.push({x:t.x,y:t.y,t:MET_T});if(mp.on)mpSend({t:'mt',x:+t.x.toFixed(1),y:+t.y.toFixed(1)})}}}}}else if(!mets.length){HFR=null;say('The rain of fire passes.',4)}}
  for(const m of mets){m.t-=dt;if(m.t<=0)hfImpact(m)}mets=mets.filter(m=>m.t>0)}
@@ -3043,7 +3331,7 @@ function hfDraw(){if(!mets.length||P.dead)return;ctx.save();for(const m of mets)
 let FOG=null;
 const fgOn=()=>!!FOG&&FOG.P===P,fgf=()=>fgOn()?sg(FOG.t,0,3)*(1-sg(FOG.t,FOG.dur-3,FOG.dur)):0,fgv=m=>lp(1,m,fgf());
 function fgTick(dt){if(!P||P.dead||RD||P.tm===undefined){FOG=null;return}if(FOG&&FOG.P!==P)FOG=null;const el=RT0-P.tm;
- if(P.fgT===undefined){const sd=blds[0]?blds[0].x*.53+blds[0].y:1;P.fgT=RQ.get('event')=='fog'?3:lp(130,Math.max(200,RT0-140),hs(sd+17.9))}
+ if(P.fgT===undefined){const sd=blds[0]?blds[0].x*.53+blds[0].y:1;P.fgT=RQ.get('event')=='fog'?3:(evOk('fog',37.7)?lp(190,Math.max(260,RT0-100),hs(sd+17.9)):1e9)}
  if(!FOG&&!mpCli()&&!P.fgD&&el>=P.fgT){if(P.tm<50)P.fgD=1;else if(!EVN&&!TTH&&!HFR){P.fgD=1;FOG={P,t:0,dur:45};if(mp.on)mpSend({t:'ev',k:'fg'});shake=Math.max(shake,4);
   banner('THE FOG ROLLS IN','You can barely see your own hands and flares die in it. The horde still senses you.','#b8c4cc');try{sfx.sigil(1)}catch(e){}}}
  if(FOG){FOG.t+=dt;if(FOG.t>=FOG.dur){FOG=null;say('The fog lifts.',4)}}}
@@ -3053,8 +3341,8 @@ function fgDraw(){const a=fgf();if(a<=.01||P.dead)return;ctx.save();const px=P.x
  ctx.restore();ctx.font='bold 10px monospace'}
 // ---- multiplayer: the host decides when each event starts, everyone else just obeys, so all hunters get the same hazard ----
 function mpEv(k,i){if(!mp.on||!P||P.dead||mode!='play'||!mpCli())return;
- if(k=='bm'){if(EVN)return;if(P.evp)P.evp=P.evp.filter(e=>e[0]!='bloodmoon');EVN={P,id:'bloodmoon',t:0,dur:60,rt:.6,tg:M.filter(m=>m.hp>0&&!m.boss).length*2};shake=Math.max(shake,8);
-  banner('THE BLOOD MOON RISES','Every monster sprints and the hordes double. Only the extraction rings are safe.','#d02030');try{sfx.sigil(3)}catch(e){}}
+ if(k=='bm'){if(EVN)return;if(P.evp)P.evp=P.evp.filter(e=>e[0]!='bloodmoon');EVN={P,id:'bloodmoon',t:0,dur:30,rt:.6,tg:M.filter(m=>m.hp>0&&!m.boss).length*2};shake=Math.max(shake,3);
+  banner('THE BLOOD MOON APPROACHES','The sky is turning red. In 5 seconds every monster sprints and the hordes double.','#d02030');try{sfx.sigil(1)}catch(e){}}
  else if(k=='hf'){if(HFR)return;P.hfD=1;HFR={P,t:0,dur:45,rt:.4};shake=Math.max(shake,6);banner('HELLFIRE RAIN','Red circles mark where the sky falls. Craters burn, and the fires choke corridors and doorways.','#ff6a2a');try{sfx.sigil(3)}catch(e){}}
  else if(k=='fg'){if(FOG)return;P.fgD=1;FOG={P,t:0,dur:45};shake=Math.max(shake,4);banner('THE FOG ROLLS IN','You can barely see your own hands and flares die in it. The horde still senses you.','#b8c4cc');try{sfx.sigil(1)}catch(e){}}
  else if(k=='cl'){P.clD=1;const e=exts[i];if(e&&!e.sealed)clSeal(e)}}
@@ -3062,7 +3350,7 @@ function mpEv(k,i){if(!mp.on||!P||P.dead||mode!='play'||!mpCli())return;
 function mpEvState(){const o=EVN||HFR||FOG;return[EVN?1:HFR?2:FOG?3:0,o?+o.t.toFixed(1):0,exts.reduce((a,e,i)=>(e.sealed&&a.push(i),a),[])]}
 function mpEvSync(s){if(!s||!mpCli()||!P||P.dead||mode!='play')return;const k=s[0],t=s[1],al=(o,t)=>{if(o&&Math.abs(o.t-t)>1)o.t=t};
  for(const i of s[2]||[]){const e=exts[i];if(e&&!e.sealed){P.clD=1;clSeal(e)}}
- if(k==1){if(!EVN&&P.evp&&P.evp.some(e=>e[0]=='bloodmoon')&&t<57){mpEv('bm');if(EVN)EVN.t=t}else al(EVN,t)}
+ if(k==1){if(!EVN&&P.evp&&P.evp.some(e=>e[0]=='bloodmoon')&&t<32){mpEv('bm');if(EVN)EVN.t=t}else al(EVN,t)}
  else if(k==2){if(!HFR&&!P.hfD&&t<43){mpEv('hf');if(HFR)HFR.t=t}else al(HFR,t)}
  else if(k==3){if(!FOG&&!P.fgD&&t<43){mpEv('fg');if(FOG)FOG.t=t}else al(FOG,t)}}
 {const _b3=bmDraw;bmDraw=function(){_b3();fgDraw()};
