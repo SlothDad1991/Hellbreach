@@ -20,6 +20,7 @@ h2{margin:6px 0;font-size:30px;border-bottom:2px dashed #e8e6d866}
 .chalk:hover{background:#ffffff10}
 .chalk.on{border-color:#ffd9d0;background:#c0392b33;border-radius:30px 10px 28px 12px}
 .chalk small{display:block;font-size:17px;opacity:.75}
+.wsb{display:grid;grid-template-columns:1fr 1fr;gap:2px 18px;margin-top:4px;clear:both}.wsr{display:flex;align-items:center;gap:6px;font-size:16px;line-height:1.1}.wsr b{width:64px;font-weight:400;opacity:.85}.wsr i{flex:1;min-width:40px;height:8px;background:#ffffff1f;border-radius:4px;overflow:hidden}.wsr u{display:block;height:100%;background:var(--chalk);border-radius:4px}.wsr em{width:80px;text-align:right;font-style:normal;white-space:nowrap}.opts p .wsb{grid-template-columns:1fr;gap:3px}.opts p .wsr{font-size:21px;gap:8px}.opts p .wsr i{height:11px}.opts p .wsr b{width:92px}.opts p .wsr em{width:100px}@media (max-width:520px){.wsb{grid-template-columns:1fr}}
 .foot{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;margin-top:10px;border-top:2px dashed #e8e6d866;padding-top:8px}
 button{font:700 30px 'Caveat',cursive;background:var(--red);color:#fff;border:3px solid #e8e6d8;border-radius:10px 24px 8px 20px;padding:2px 22px;cursor:pointer;transform:rotate(-1deg)}
 button:disabled{opacity:.35;cursor:not-allowed}
@@ -30,6 +31,18 @@ button:disabled{opacity:.35;cursor:not-allowed}
 .cap{font-size:20px;opacity:.85;padding:2px 0 4px}
 .lcol .chalk{font-size:30px;padding:6px 16px;margin:12px 0 0}.lbr{display:flex;gap:14px;align-items:baseline;border:2px solid #e8e6d855;border-radius:6px 14px 5px 12px;padding:4px 16px;margin:9px 0;font-size:30px;line-height:1.1;background:#0000002a}.lbr b{width:52px}.lbr .n{flex:1;word-break:break-word}.lbr .v{text-align:right}.lbr.you{border-color:#ffd9d0;background:#c0392b33}.achw{position:relative}.achg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 16px;margin-top:6px}.ach{border:2px solid #e8e6d855;border-radius:6px 14px 5px 12px;padding:6px 12px 8px;line-height:1.05;background:#0000002a}.ach.mx{border-color:#ffd23a99;background:#ffd23a14}.ach .an{display:flex;justify-content:space-between;align-items:baseline;font-size:26px}.ach .pips b{font-size:24px;margin-left:2px}.ach small{display:block;font-size:17px;opacity:.8}.ach .pr{opacity:.95}.ach .tl{font-size:15px;opacity:1;margin-top:2px}.ach .bar{height:8px;margin:5px 0 3px;border:1px solid #e8e6d855;border-radius:5px;background:#0006;overflow:hidden}.ach .bar i{display:block;height:100%}
 .ic{float:right;width:102px;height:54px;image-rendering:pixelated;margin:0 0 0 8px}.opts.list h2{margin-top:0}.opts.list .chalk{font-size:26px;padding:4px 14px;margin:8px 0}.opts .chalk{font-size:30px;padding:6px 16px;margin:12px 0}
+:root{--rtf:system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif}
+body.rt,body.rt *{font-family:var(--rtf)!important}
+body.rt h1,body.rt h2.lt,body.rt .tt-name,body.rt button.tt-btn,body.rt .risk h3,body.rt .ibox h3{font-family:'Pirata One','Caveat',cursive!important}
+#mc.ed{display:block!important;z-index:99990}
+#mc.ed .mcb{outline:2px dashed #ffd060;outline-offset:3px}
+#mc.ed .mcb.edsel{outline-style:solid;outline-color:#fff;background:rgba(255,208,96,.32)}
+#mc.ed #mcj::after{content:'MOVE';font-weight:700;font-size:15px;color:#e8e6d8e6}
+.risk{margin-top:12px;border:2px solid #e8e6d855;border-radius:6px 14px 6px 12px;background:#0000002a;padding:6px 14px 8px;font-size:23px;line-height:1.1;text-align:left}
+.risk h3{margin:0 0 4px;font-family:'Pirata One','Caveat',cursive;font-size:28px;font-weight:400;letter-spacing:1px;text-align:center}
+.risk .rr{display:flex;justify-content:space-between;gap:10px;margin-top:5px}.risk .rr b{font-weight:400;opacity:.9}
+.risk .bad{color:#ff8a7a}.risk .good{color:#8fe0a0}.risk small{display:block;opacity:.65;font-size:17px;line-height:1.05}
+.risk hr{border:0;border-top:1px dashed #e8e6d855;margin:7px 0 2px}
 .opts #go{width:100%;font-size:38px;padding:6px;margin:4px 0 8px}
 #pn{display:block;width:100%;box-sizing:border-box;font:400 34px 'Caveat','Comic Sans MS',cursive;color:var(--chalk);background:#00000055;border:2px solid #e8e6d888;border-radius:6px 14px 5px 12px;padding:6px 12px;margin:10px 0 14px;outline:none}#pn:focus{border-color:#ffa23c;box-shadow:0 0 12px #ff6a2a55}#pn::placeholder{color:#e8e6d855}
 .lore p,.lore li{font-size:22px;line-height:1.1;margin:4px 0}.lore ul{columns:2;padding-left:20px;margin:4px 0}
@@ -47,6 +60,12 @@ button:disabled{opacity:.35;cursor:not-allowed}
 .it{position:absolute;box-sizing:border-box;background:#7a1c1c66;border:1px solid #a03030aa;cursor:grab;touch-action:none;user-select:none}.slot .it{inset:0}
 .it b{position:absolute;right:3px;bottom:0;font-size:15px;color:#fff;pointer-events:none}
 .ghost{position:fixed;z-index:99;pointer-events:none;opacity:.92;background:#7a1c1c99;border:1px solid #ff6060}
+.ibox{margin-top:14px;min-height:150px;border:2px solid #e8e6d855;border-radius:6px 14px 6px 12px;padding:8px 14px;background:#0e0809aa;box-shadow:inset 0 0 18px #000;display:flex;gap:16px;align-items:flex-start}
+.ibox .ibi{flex:none;width:128px;height:96px;background:#140a0cc0;border:1px solid #e8e6d822;border-radius:4px}
+.ibox .ibt{flex:1;min-width:0}.ibox h3{margin:0;font-family:'Pirata One','Caveat',cursive;font-size:30px;letter-spacing:1px;color:#ffd9a0;font-weight:400;line-height:1}
+.ibox .ibk{font-size:18px;opacity:.7;margin:2px 0 4px}.ibox p{margin:4px 0;font-size:20px;line-height:1.15}.ibox .ibn{font-size:17px;color:#e0b040;margin-top:4px}
+.ibox .ibe{opacity:.55;font-size:22px;align-self:center;width:100%;text-align:center}
+.it.sel{outline:2px solid #ffd060;outline-offset:-2px;background:#a0303088}
 .hl{position:fixed;pointer-events:none;background:#40ff6040;border:1px solid #60ff80}.hl.no{background:#ff304040;border-color:#ff5060}
 .slate{position:relative;margin-top:8px;border:12px solid #5a3a22;border-radius:4px;background:radial-gradient(ellipse at 25% 10%,#2f3f39,#17211d 75%);box-shadow:inset 0 0 70px #000,0 6px 20px #000;padding:10px 16px 22px;min-height:360px}
 .slate::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:0;background:repeating-linear-gradient(115deg,#ffffff06 0 3px,transparent 3px 40px)}
@@ -122,6 +141,36 @@ button.tt-btn:active{transform:translateX(12px) scale(.98)}
 </style></head><body>
 <canvas id="g"></canvas><div id="menu"></div>
 <script>
+/* =====================================================================================================
+   NOTES: THINGS TO DO IN THE GAME (for future chats to follow; read this first, tick things off here when done)
+   -----------------------------------------------------------------------------------------------------
+   LESSER DEMONS TO ADD (Cerberus is the only one built so far). Agreed in a panel of 5 devs, 5 playtesters, 5 Goetia specialists.
+   Rules for every lesser demon: one clear sense, one clear tell, one clear counter. Follow the Cerberus pattern: LESSER[...] entry, mkX(x,y)
+   spawn function, a roam/behaviour function called from the update() mob loop, m.lesser=1, drawn in drawM, NEVER add to MOBS (pickMob() would
+   spawn it as a normal imp and MKS would sync it). Spawn on a roll at newGame (at most 1-2 per run), never inside the archdemon's building
+   (use lessOut / inHouse), keep multiplayer state seed-driven or host-owned (watch the desync), add mpReach for its reach, give each one a
+   Lesser Demon Lore entry (LORE tab 4), make them work for every player in multiplayer, and keep them OUT of the tutorial.
+   Easiest to build first: Botis, Raum, Vepar. Amy and Furfur reuse the sigil and exit code. Murmur and Phenex need hooks into death/gore.
+     1. Stolas, the Watcher Owl      - hunts by LIGHT (opposite of Cerberus, which hunts by sound). Muzzle flashes, flares and lit sigils draw it;
+                                       its screech wakes every imp nearby. Counter: stay dark, fight from cover, throw a flare to pull it away.
+     2. Furfur, the Liar Stag        - plants FALSE extraction rings that look real; standing in one summons imps instead of escaping.
+                                       Counter: real rings fill with a progress ticker, fake ones flicker.
+     3. Botis, the Buried Viper      - hides under the grass until you step over it, then strikes.
+                                       Counter: faint tell in the disturbed ground, a flare reveals it, tripwires trigger it early.
+     4. Raum, the Crow Thief         - swoops in, steals ground loot or a tool from the belt, flies off.
+                                       Counter: shoot it down to get everything back.
+     5. Murmur, the Corpse Choir     - necromancer heralded by trumpets; raises dead imps as husks near him.
+                                       Counter: kill him first, or gib corpses with a Blessed Charge or shotgun.
+     6. Phenex, the Ash Bird         - dies, then rises from its ash after about 20 seconds.
+                                       Counter: pour Holy Water on the ashes.
+     7. Vassago, the Finder          - hunts whoever is carrying the most cash (great for co-op arguments).
+                                       Counter: bank the cash by escaping, or kill it.
+     8. Amy, the Ash Archivist       - roams to burned sigils and snuffs them out, undoing progress.
+                                       Counter: guard the sigils, or kill her.
+     9. Vepar, the Rot-Mermaid       - her touch gives rot, a slow health drain that keeps ticking.
+                                       Counter: Holy Water cleanses it.
+     Next-round idea (not agreed yet): Sitri, the Disarmer - yanks the weapon out of your hands onto the ground (fits the backpack pickup rules).
+   ===================================================================================================== */
 const $=s=>document.querySelector(s),VW=640,VH=360,WW=2200,WH=1450;
 const cv=$('#g'),dk=document.createElement('canvas'),dx=dk.getContext('2d');let ctx=cv.getContext('2d');
 cv.width=dk.width=VW;cv.height=dk.height=VH;
@@ -145,7 +194,7 @@ const TOOL={tonic:{n:'Holy Water',c:20,d:'+50 HP (H) \u00b7 stacks to 3'},bomb:{
 const XT=['flask','flare','ward','tripwire'],XL=['Flask','Flare','Ward','Wire'],TKS=['tonic','bomb',...XT];
 TOOL.tripwire={n:'Tripwire',c:30,d:'plant a wire; anything that trips it \u2014 imps, rivals, even you \u2014 takes a blast (V) \u00b7 stacks to 3'};
 const BOSS={gorrath:{n:'Gorrath the Maw',i:'\u{1F525}',d:'Charging brute of the pit.',bh:'charge',hp:900,bo:450},nyxara:{n:'Nyxara, Cinder Witch',i:'\u{1F608}',d:'Hurls hellfire from afar.',bh:'ranged',hp:650,bo:400},mordrek:{n:'Mordrek the Choir-Eater',i:'\u{1F47F}',d:'Calls the horde to his side.',bh:'summon',hp:750,bo:500}};
-let bank=500,sel={skin:'plain',pri:'repeater',side:'pistol',tools:[{k:'tonic',n:2},null,null],bag:[]},boss='gorrath',mode='menu',walls=[],blds=[],trees=[],M=[],bul=[],eb=[],bombs=[],parts=[],clues=[],items=[],exts=[],P,cam={x:0,y:0},ground,blood,bx,keys={},mouse={x:320,y:180,l:0,r:0},msg='',msgT=0,shake=0,T=0,last=0,found=0,banished=0,corpse=null,bty=null,bn=null,mpHB=null,mpKB=null;
+let bank=500,sel={skin:'plain',pri:'repeater',side:'pistol',tools:[{k:'tonic',n:2},null,null],bag:[]},boss='gorrath',mode='menu',walls=[],blds=[],trees=[],M=[],bul=[],eb=[],bombs=[],parts=[],clues=[],items=[],scn=[],exts=[],P,cam={x:0,y:0},ground,blood,bx,keys={},mouse={x:320,y:180,l:0,r:0},msg='',msgT=0,shake=0,T=0,last=0,found=0,banished=0,corpse=null,bty=null,bn=null,mpHB=null,mpKB=null;
 const FAMS={hunter:{n:'The Hunter',d:'The plain issue kit. Always yours.',c:0,def:'plain'},warden:{n:'The Warden',d:'Hooded plague doctor. 5 variations.',c:1000,def:'warden'},
  knight:{n:'Iron Crusader',d:'Plate, plume and a visor slit. Walks like a wall.',c:900,def:'knight'},
  gun:{n:'Dusk Gunslinger',d:'Duster, bandana and a hat that has seen worse nights.',c:700,def:'gun'},
@@ -322,8 +371,28 @@ const mk=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;r
 // extra reserve magazines bought at the Ammo Depot before the breach (xa[0]=primary, xa[1]=sidearm)
 const XAMAX=5,PQMAX=10;let xa=[0,0],pq=1;
 const xaW=i=>{const w=i?SID[sel.side]:PRI[sel.pri];return w&&w.d?w:null},xaP=w=>2*Math.max(5,Math.round(w.c*.1)),xaN=i=>xaW(i)?xa[i]:0;
+// ---------- PRE-RUN RISK / REWARD READOUT (shown on the hub, under the hunter name) ----------
+const gearVal=k=>{const d=(k&&k!='none')?(PRI[k]||SID[k]||TOOL[k]):null;return d&&d.c?d.c:0};
+function riskBox(){const c=cost(),nm=[];let gv=0;
+ for(const k of[sel.pri,sel.side])if(k&&k!='none'){gv+=gearVal(k);nm.push((PRI[k]||SID[k]).n)}
+ for(const t of sel.tools)if(t){gv+=gearVal(t.k)*(t.n||1);nm.push(TOOL[t.k].n+' x'+(t.n||1))}
+ let bn=0;for(const o of sel.bag||[]){gv+=gearVal(o.k)*(TOOL[o.k]?(o.n||1):1);bn++}
+ if(bn)nm.push(bn+' backpack item'+(bn>1?'s':''));
+ const bs=Object.values(BOSS),lo=Math.min(...bs.map(b=>b.bo)),hi=Math.max(...bs.map(b=>b.bo)),bl=Object.values(BOSS).sort((a,b)=>a.bo-b.bo).map(b=>b.n.split(/[ ,]/)[0]+' $'+b.bo).join(' \u00b7 ');
+ return `<div class=risk><h3>Risk &amp; Reward</h3>
+<div class=rr><b>Entry cost</b><span>$${c}</span></div><small>${c?'Extra magazines, paid up front':'No extra magazines bought'}</small>
+<div class=rr><b>Gear you carry in</b><span>$${gv}</span></div><small>${nm.length?nm.join(', '):'Nothing equipped \u2014 fists and faith'}</small>
+<hr>
+<div class="rr bad"><b>If you die</b><span>\u2212$${c+gv}</span></div><small>Everything you carry is lost. Your stash and cash are safe.</small>
+<div class="rr good"><b>Bounty if you escape</b><span>+$${lo}\u2013$${hi}</span></div><small>${bl}. The demon is drawn at the breach. Banish it, then reach an exit with your gear and backpack. The Tithe can take half the bounty.</small>
+<div class=rr><b>Escape empty-handed</b><span>\u2212$${c}</span></div><small>You keep your gear, but not the entry cost.</small></div>`}
 const cost=()=>[0,1].reduce((a,i)=>a+(xaW(i)?xaN(i)*xaP(xaW(i)):0),0);
-const st=w=>w.d?`${w.d}${w.p>1?'x'+w.p:''} dmg · ${w.m} rounds`:'melee only';
+// Weapon stat bars used by the Gunsmith, the buy screen and the loadout pickers.
+// Every bar is scaled against a fixed ceiling, so weapons can be compared directly.
+const nzLabel=n=>n<=60?'Silent':n<=150?'Quiet':n<=300?'Loud':n<=400?'Very loud':'Deafening';
+const wbar=(lb,f,v,col)=>`<span class=wsr><b>${lb}</b><i><u style="width:${Math.round(cl(f,.04,1)*100)}%${col?';background:'+col:''}"></u></i><em>${v}</em></span>`;
+const st=w=>{if(!w.d)return 'melee only';const tot=w.d*w.p,dps=tot/w.r,rng=w.sp*(w.l||.7),nzc=w.nz<=150?'#6fcf6a':w.nz<=300?'#e0b040':'#e0583a';
+ return '<span class=wsb>'+wbar('Damage',tot/140,tot+(w.p>1?' ('+w.d+'×'+w.p+')':''))+wbar('DPS',dps/135,'~'+Math.round(dps))+wbar('Range',rng/500,Math.round(rng))+wbar('Accuracy',1-w.s/.25,'±'+(w.s*57.2958).toFixed(1)+'°')+wbar('Magazine',w.m/10,w.m)+wbar('Reload',1-(w.rl-1)/3,w.rl+'s')+wbar('Noise',w.nz/520,nzLabel(w.nz),nzc)+'</span>'};
 let scr='title';
 const LORE=[
  {t:'World Lore',sub:'What is left of the parish, pinned up by the last Wardens',e:[
@@ -501,7 +570,7 @@ function menu(m){try{if(scr=='lb')lbOpen();else lbClose()}catch(e){}try{const an
  else if(scr=='missions')body=`<div class=cols>${col('Ledgers',ledList())}${col((LEDGERS[mi]||LEDGERS[0]).t,ledStory())}</div><div class=foot><span>Active: ${ledFoot()}</span>${back}</div>`;
  else if(scr=='lore'){const S=LORE[lorTab]||LORE[0],op=lorOpen>=0&&lkHas(lorTab,lorOpen)?S.e[lorOpen]:null,nf=S.e.filter((q,i)=>lkHas(lorTab,i)).length;
   body=`<div class=slate><div class=tabs>${LORE.map((s,i)=>`<div class="tb ${i==lorTab?'on':''}" data-l=${i}>${s.t.replace(' Lore','')}</div>`).join('')}</div><h2 class=lt>${S.t}</h2><p class=sub>${op?'Folder open. Close it to pick another.':S.sub}</p>`+(op?`<div class=fopen><div class=ftab>${op[0]}</div><div class=fback><div class=fsheet><div class="pol sp"><canvas data-la="${lorTab}.${lorOpen}" width=224 height=126></canvas></div><h3>${op[0]}</h3><p>${op[1]}</p></div></div></div>`:`<div class=fds>${S.e.map((n0,i)=>{const kn=lkHas(lorTab,i);return `<div class="fd${kn?'':' lk'}" ${kn?'data-lo='+i:''} style="--r:${(((i*37)%7)-3)*.8}deg"><div class=ft></div><div class=fl>${kn?n0[0]:'???'}</div></div>`}).join('')}</div>`)+`</div><div class=foot><span>${nf} of ${S.e.length} folders found${op?'':' \u2014 click one to open it'}</span>${op?'<button data-lo=-1>\u2190 Close folder</button>':back}</div>`} else if(scr=='help')body=`<div class=lore><h2>Controls</h2><ul>${HELP.split(' \u00b7 ').map(l=>`<li>${l}</li>`).join('')}</ul></div><div class=foot><span></span>${back}</div>`;
- else body=`<div class=hub><div class=lcol><div class=stage><canvas id=pc width=256 height=288></canvas><div class=cap>${pname?pname+' \u2014 ':''}${PRI[sel.pri].n} \u00b7 ${SID[sel.side].n} \u00b7 ${tl}</div></div><div class=chalk data-v=name>Hunter Name<small>${pname||'Unnamed \u2014 tap to set'}</small></div></div><div class=opts><button id=go ${ok?'':'disabled'}>Enter the Breach</button>${ok?'':'<p class=msg style="font-size:20px">Can\'t afford this loadout.</p>'}<div class=chalk data-v=l_skin>Skins<small>${SKINS[sel.skin].n}</small></div><div class=chalk data-v=stash>Stash & Armory<small>${stash.length} items stored</small></div><div class=chalk data-v=missions>Ledgers<small>${ledSub()}</small></div><div class=chalk data-v=ach>Achievements<small>${achTotals()[0]} of ${achTotals()[1]} tiers earned</small></div><div class=chalk data-v=lore>Lore</div><div class=chalk data-v=lb>Leaderboard<small>Top 5 hunters on each board</small></div><div class=chalk data-v=title>Main Menu</div></div></div><div class=foot><span>Cash: $${bank} &nbsp;|&nbsp; Loadout: $${c}</span><span>Ledger: ${ledFoot()}</span></div>`;
+ else body=`<div class=hub><div class=lcol><div class=stage><canvas id=pc width=256 height=288></canvas><div class=cap>${pname?pname+' \u2014 ':''}${PRI[sel.pri].n} \u00b7 ${SID[sel.side].n} \u00b7 ${tl}</div></div><div class=chalk data-v=name>Hunter Name<small>${pname||'Unnamed \u2014 tap to set'}</small></div>${riskBox()}</div><div class=opts><button id=go ${ok?'':'disabled'}>Enter the Breach</button>${ok?'':'<p class=msg style="font-size:20px">Can\'t afford this loadout.</p>'}<div class=chalk data-v=l_skin>Skins<small>${SKINS[sel.skin].n}</small></div><div class=chalk data-v=stash>Stash & Armory<small>${stash.length} items stored</small></div><div class=chalk data-v=missions>Ledgers<small>${ledSub()}</small></div><div class=chalk data-v=ach>Achievements<small>${achTotals()[0]} of ${achTotals()[1]} tiers earned</small></div><div class=chalk data-v=lore>Lore</div><div class=chalk data-v=lb>Leaderboard<small>Top 5 hunters on each board</small></div><div class=chalk data-v=title>Main Menu</div></div></div><div class=foot><span>Cash: $${bank} &nbsp;|&nbsp; Loadout: $${c}</span><span>Ledger: ${ledFoot()}</span></div>`;
 ;const drawIcons=()=>document.querySelectorAll('canvas[data-ic]').forEach(c=>{const o=ctx;ctx=c.getContext('2d');try{ctx.clearRect(0,0,34,18);drawWpn(c.dataset.ic,5,9,0,1)}finally{ctx=o}});
  $('#menu').style.display='block';$('#menu').innerHTML=`<div class=board><i hidden></i><h1>\u2620 Hellbreach \u2620</h1>${m?`<p class=msg>${m}</p>`:''}${body}</div>`;drawIcons();if(scr=='name'){const pn=$('#pn');if(pn){const sv=()=>{const v=cleanName(pn.value);if(hasDev(v)&&!DEVAUTH)return;pname=v;SAVE()},
    cm=then=>{const v=cleanName(pn.value);if(!hasDev(v)||DEVAUTH){pname=v;SAVE();if(then)then();return}
@@ -810,9 +879,21 @@ function drawCerberus(x,y,a,fl,wk,sn){
 const CT={s:{a:()=>stash,c:SC,r:SR,e:'#sg'},b:{a:()=>sel.bag,c:4,r:4,e:'#bg'}};
 function stashBody(){const sl=(id,lab,w,h)=>{const it=slotGet(id);return `<div class=slot data-sl=${id} style="width:calc(var(--cs)*${w});height:calc(var(--cs)*${h})"><span>${lab}</span>${it?`<div class=it data-sl=${id} data-ik=${it.k}></div>`:''}</div>`};
  const grid=(arr,ct)=>arr.map((o,i)=>{const[w,h]=isz(o.k);return `<div class=it data-ct=${ct} data-g=${i} data-ik=${o.k} style="left:calc(var(--cs)*${o.x});top:calc(var(--cs)*${o.y});width:calc(var(--cs)*${w});height:calc(var(--cs)*${h})"></div>`}).join('');
- return `<div class=stw><div class=eq><h2>Gear</h2>${sl('p','Primary',4,2)}<div class=eqt>${sl('s','Sidearm',2,2)}${sl('t0','Tool',2,2)}${sl('t1','Tool',2,2)}${sl('t2','Tool',2,2)}</div><h2>Backpack <small>(16 squares)</small></h2><div class=sgrid id=bg style="--gc:4;--gr:4">${grid(sel.bag,'b')}</div><div class=sellz id=sz>Sell: drag an item here for half its shop price</div></div><div><h2>Stash</h2><div class=sgrid id=sg style="--gc:20;--gr:8">${grid(stash,'s')}</div></div></div><div class=foot><span>Cash: $${bank}</span><span style="opacity:.6">Shift-drag or right-click a stack to split it</span><button data-so=1>Auto-sort</button><button data-v=shop>Gunsmith</button>${back}</div>`}
-function stashInit(){$('#menu').querySelectorAll('.it').forEach(el=>{const k=el.dataset.ik,sid=el.dataset.sl,ct=el.dataset.ct,o=sid?slotGet(sid):CT[ct].a()[+el.dataset.g];el.appendChild(itemCv(k,el.offsetWidth*2,el.offsetHeight*2));if(TOOL[k]){const b=document.createElement('b');b.textContent='x'+(o.n||1);el.appendChild(b)}el.onpointerdown=e=>{if(e.button)return;startDrag(e,el,k,sid,ct,el.dataset.g,o)};if(!sid&&TOOL[k])el.oncontextmenu=e=>{e.preventDefault();splitOne(ct,o)}})}
+ return `<div class=stw><div class=eq><h2>Gear</h2>${sl('p','Primary',4,2)}<div class=eqt>${sl('s','Sidearm',2,2)}${sl('t0','Tool',2,2)}${sl('t1','Tool',2,2)}${sl('t2','Tool',2,2)}</div><h2>Backpack <small>(16 squares)</small></h2><div class=sgrid id=bg style="--gc:4;--gr:4">${grid(sel.bag,'b')}</div><div class=sellz id=sz>Sell: drag an item here for half its shop price</div></div><div><h2>Stash</h2><div class=sgrid id=sg style="--gc:20;--gr:8">${grid(stash,'s')}</div><div class=ibox id=ib></div></div></div><div class=foot><span>Cash: $${bank}</span><span style="opacity:.6">Shift-drag or right-click a stack to split it</span><button data-so=1>Auto-sort</button><button data-v=shop>Gunsmith</button>${back}</div>`}
+function stashInit(){$('#menu').querySelectorAll('.it').forEach(el=>{const k=el.dataset.ik,sid=el.dataset.sl,ct=el.dataset.ct,o=sid?slotGet(sid):CT[ct].a()[+el.dataset.g];el.appendChild(itemCv(k,el.offsetWidth*2,el.offsetHeight*2));if(TOOL[k]){const b=document.createElement('b');b.textContent='x'+(o.n||1);el.appendChild(b)}el.onpointerdown=e=>{if(e.button)return;pickInfo(k,el);startDrag(e,el,k,sid,ct,el.dataset.g,o)};if(!sid&&TOOL[k])el.oncontextmenu=e=>{e.preventDefault();splitOne(ct,o)}});renderInfo()}
 function splitOne(ct,o){if(!o||!TOOL[o.k]||(o.n||1)<2)return;for(const c of [ct,ct=='b'?'s':'b']){const C=CT[c],a=C.a(),f=spotIn(a,C.c,C.r,o.k);if(f){o.n--;a.push({k:o.k,x:f[0],y:f[1],n:1});SAVE();menu();return}}note='No room to split that stack.';menu()}
+// ---------- ITEM INFO: click an item in the stash (or hover/click in the in-game inventory) to see its stats ----------
+let selInfo=null;
+const itemDef=k=>(PRI[k]&&k!='none'?PRI[k]:SID[k]&&k!='none'?SID[k]:TOOL[k])||null;
+const itemType=k=>PRI[k]&&k!='none'?'Primary weapon':SID[k]&&k!='none'?'Sidearm':'Tool';
+const wNotes=w=>{const a=[];if(w.p>1)a.push('Fires '+w.p+' pellets per shot');if(w.m==1)a.push('Single shot \u2014 reload after every shot');if(w.nz<=60)a.push('Near-silent');return a};
+const wList=w=>{const tot=w.d*w.p;return[['Damage',tot+(w.p>1?' ('+w.d+'x'+w.p+')':'')],['Fire rate',(1/w.r).toFixed(1)+'/s'],['DPS','~'+Math.round(tot/w.r)],['Range',Math.round(w.sp*(w.l||.7))],['Accuracy','\u00b1'+(w.s*57.2958).toFixed(1)+'\u00b0'],['Magazine',w.m],['Reload',w.rl+'s'],['Noise',nzLabel(w.nz)]]};
+function pickInfo(k,el){selInfo=k;document.querySelectorAll('#menu .it.sel').forEach(x=>x.classList.remove('sel'));if(el)el.classList.add('sel');renderInfo()}
+function renderInfo(){const b=document.getElementById('ib');if(!b)return;const d=selInfo&&itemDef(selInfo);
+ if(!d){b.innerHTML='<div class=ibe>Click a weapon or item to inspect it.</div>';return}
+ const k=selInfo,wp=!TOOL[k];
+ b.innerHTML='<div class=ibi></div><div class=ibt><h3>'+d.n+'</h3><div class=ibk>'+itemType(k)+' \u00b7 shop price $'+d.c+' \u00b7 sells for $'+Math.floor(d.c/2)+'</div>'+(wp?st(d)+wNotes(d).map(x=>'<div class=ibn>'+x+'</div>').join(''):'<p>'+d.d+'</p>')+'</div>';
+ b.querySelector('.ibi').appendChild(itemCv(k,256,192))}
 let drg=null;
 const gRect=id=>{const g=$(id),r=g.getBoundingClientRect();return{l:r.left+g.clientLeft,t:r.top+g.clientTop,w:g.clientWidth,h:g.clientHeight}};
 function startDrag(e,el,k,sid,ct,gi,o){e.preventDefault();const[w,h]=isz(k),cs=$('#sg').clientWidth/SC,gh=document.createElement('div');gh.className='ghost';gh.style.width=w*cs+'px';gh.style.height=h*cs+'px';gh.appendChild(itemCv(k,w*64,h*64));document.body.appendChild(gh);
@@ -858,8 +939,23 @@ RS={};mis=ledgerTask();trees=[];M=[];bul=[];eb=[];bombs=[];lobs=[];fires=[];flar
  for(let i=0;i<32;i++){let x,y,t=0;do{const b=i<16?blds[i%blds.length]:null;x=b?b.cx+R(-b.w/3,b.w/3):R(60,WW-60);y=b?b.cy+R(-b.h/3,b.h/3):R(60,WH-60)}while((hit(x,y,6)||D(x,y,sp.x,sp.y)<350)&&t++<30);M.push(mkMob(x,y,'idle'))}
  // Lesser demon: Cerberus. Anywhere on the open map: never inside or beside any building (wings included), never near where players spawn (the camp).
  if(Math.random()<LESSER.cerberus.spawn){let x,y,t=0;do{x=R(80,WW-80);y=R(80,WH-80)}while((hit(x,y,16)||D(x,y,sp.x,sp.y)<500||blds.some(b=>{const e=bExt(b);return x>e.x-40&&x<e.x+e.w+40&&y>e.y-40&&y<e.y+e.h+40}))&&t++<300);if(t<=300)M.push(mkCerberus(x,y))}
- items=[];const pk=(x,y)=>{const q=Math.random();let it;if(q<.26)it={t:'ammo'};else if(q<.42)it={t:'tonic'};else if(q<.55)it={t:'bomb'};else if(q<.68)it={t:'tool',k:XT[R(0,XT.length)|0]};else{const s=Math.random()<.55?0:1,ks=Object.keys(s?SID:PRI).filter(k=>k!='none');it={t:'wpn',s,k:ks[R(0,ks.length)|0]}}it.x=x;it.y=y;items.push(it)};
- blds.forEach(b=>{for(let i=0;i<3;i++)pk(b.x+R(25,b.w-25),b.y+R(25,b.h-25))});for(let i=0;i<16;i++){const x=R(60,WW-60),y=R(60,WH-60);if(!hit(x,y,8))pk(x,y)}
+ items=[];scn=[];
+ // Loot odds unchanged (74% ammo roll), but every second ammo roll is skipped so only half the ammo piles spawn. Ammo is plentiful, tools are thinner, weapons are rare. fb=1 (a fallen hunter's pack) can carry a weapon more often.
+ let ac=0;const pk=(x,y,fb)=>{let q=Math.random();if(fb)q=Math.random()<.12?.99:Math.random()*.96;let it;if(q<.74){if(ac++&1)return;it={t:'ammo'}}else if(q<.82)it={t:'tonic'};else if(q<.89)it={t:'bomb'};else if(q<.96)it={t:'tool',k:XT[R(0,XT.length)|0]};else{const s=Math.random()<.55?0:1,ks=Object.keys(s?SID:PRI).filter(k=>k!='none');it={t:'wpn',s,k:ks[R(0,ks.length)|0]}}it.x=x;it.y=y;items.push(it)};
+ blds.forEach(b=>{for(let i=0;i<3;i++)pk(b.x+R(25,b.w-25),b.y+R(25,b.h-25))});
+ // Outdoor loot never lies bare on the grass: every pile sits at a supply site (wrecked cart, abandoned camp, fallen hunter, tarped cache)
+ const SK=['cart','camp','fallen','cache'],SG=g=>ground.getContext('2d');
+ for(let i=0,n=0;i<16&&n<400;n++){const x=R(60,WW-60),y=R(60,WH-60);
+  if(hit(x,y,16)||D(x,y,sp.x,sp.y)<140||exts.some(e=>D(x,y,e.x,e.y)<70)||clues.some(c=>D(x,y,c.x,c.y)<50)||scn.some(c=>D(x,y,c.x,c.y)<120)||blds.some(b=>{const e=bExt(b);return x>e.x-30&&x<e.x+e.w+30&&y>e.y-30&&y<e.y+e.h+30}))continue;
+  const k=SK[R(0,4)|0],f=R(0,1)<.5?1:-1,sc={x,y,k,f};scn.push(sc);i++;
+  const g=ground.getContext('2d');g.save();
+  if(k=='cart'){g.strokeStyle='rgba(20,10,8,.35)';g.lineWidth=2;for(const o of[-5,5]){g.beginPath();g.moveTo(x-46*f,y+o+4);g.quadraticCurveTo(x-20*f,y+o-3,x,y+o);g.stroke()}W(x-9,y-5,18,9,1)}
+  else if(k=='camp'){g.fillStyle='rgba(12,8,8,.45)';g.beginPath();g.ellipse(x+14*f,y+9,7,3.5,0,0,7);g.fill();g.fillStyle='rgba(30,20,16,.3)';g.beginPath();g.ellipse(x,y+4,22,11,0,0,7);g.fill();W(x-8,y-7,16,9,1)}
+  else if(k=='fallen'){g.fillStyle='rgba(90,8,14,.55)';g.beginPath();g.ellipse(x,y+3,15,7,0,0,7);g.fill();g.fillStyle='rgba(60,5,10,.5)';g.beginPath();g.ellipse(x+9*f,y+8,6,3,0,0,7);g.fill()}
+  else{g.fillStyle='rgba(20,12,8,.3)';g.beginPath();g.ellipse(x,y+4,16,8,0,0,7);g.fill();W(x-7,y-5,14,8,1)}
+  g.restore();
+  const m=k=='fallen'?2:k=='cache'?4:3;
+  for(let j=0;j<m;j++){const a=Math.PI*2*(j+R(0,.6))/m+(k=='camp'?.5:0);let ix=x+Math.cos(a)*R(16,22),iy=y+Math.sin(a)*R(12,17)+4;if(hit(ix,iy,6)){ix=x+R(-2,2)*f;iy=y+13}pk(ix,iy,k=='fallen')}}
  const pw=[sel.pri!='none'?PRI[sel.pri]:null,sel.side!='none'?SID[sel.side]:null];
  P={x:sp.x,y:sp.y,hp:100,st:100,w:pw,bag:(sel.bag||[]).map(o=>({...o})),cur:pw[0]?0:1,mag:pw.map(w=>w?w.m:0),res:pw.map((w,i)=>w?w.m*3+(w.d?(xa[i]|0)*w.m:0):0),rl:0,cd:0,mc:0,ts:Array.from({length:NTS},(_,i)=>{const t=sel.tools[i];return t&&TOOL[t.k]?{k:t.k,n:Math.min(MAXST,t.n||1)}:null}),wd:0,hf:0,wk:0,sl:0,carry:0,bp:0,ep:0,face:0,sa:0,nz:0,lf:0};tsBind(P);
  xa=[0,0];invOpen=0;mode='play';$('#menu').style.display='none';say('Burn 3 sigils to unseal the demon\'s door, then hunt it.'+(mis.t=='none'?'':' Ledger: '+tText(mis)+'.'),6)}
@@ -875,7 +971,7 @@ function kill(m){const fr=['flamer','fire','bomb','tripwire','flask'].includes(m
 function hurtP(d,k){if(P.dead)return;if(k)lastK=k;if(P.wd>0)d*=.4;P.hp-=d;P.hf=.25;shake=5;burst(P.x,P.y,8,80,'#a01018',1);spray(P.x,P.y,6,null,10+Math.min(14,d/3|0),110);splat(P.x,P.y,3,6);if(P.hp<=0)die()}
 function end(w){mode='menu';scr='hub';const lm=w?ledgerCommit():'';achCommit(w);try{lbPush()}catch(e){}if(w){bank+=P.carry;sel.pri=P.w[0]?P.w[0].k:'none';sel.side=P.w[1]?P.w[1].k:'none';sel.bag=P.bag;sel.tools=P.ts.map(x=>x?{k:x.k,n:x.n}:null);}else{sel.pri='none';sel.side='none';sel.bag=[];sel.tools=[null,null,null]}invOpen=0;genMissions();{const c=curL();mi=Math.max(0,LEDGERS.findIndex(l=>c&&l.id==c.id))}bank=Math.max(bank,120);SAVE();menu(w?(lm+(P.carry?`Escaped with the bounty! +$${P.carry}`:'You escaped... empty-handed.')):'You died. Everything your character carried is lost. Your stash is safe.'+(()=>{const r=RWD;RWD='';return r})())}
 addEventListener('keydown',e=>{if(e.code=='Tab'&&mode=='play')e.preventDefault();if(e.repeat)return;keys[e.code]=1;if(mode!='play')return;const c=e.code;if(P.dead){if(c=='Enter'||c=='KeyL')end(0);return}
- if(c=='KeyM'){showMap=!showMap;mouse.l=mouse.r=0}if(c=='KeyI'||c=='Tab'){ivd=null;invOpen=!invOpen;showMap=0;mouse.l=mouse.r=0;refocus()}if(c=='Escape')showMap=0;
+ if(c=='KeyM'){showMap=!showMap;mouse.l=mouse.r=0}if(c=='KeyI'||c=='Tab'){ivd=null;ivSel=null;invOpen=!invOpen;showMap=0;mouse.l=mouse.r=0;refocus()}if(c=='Escape')showMap=0;
  if(c=='KeyR')reload();if(c>='Digit1'&&c<='Digit'+(2+NTS))setSlot(+c[5]-1);
  if(c=='KeyH')useTonic();
  if(c=='KeyG')throwBomb();if(c=='KeyZ')useXT('flask');if(c=='KeyX')useXT('flare');if(c=='KeyC')useXT('ward');if(c=='KeyV')useXT('tripwire');
@@ -904,9 +1000,9 @@ function unbag(it){const i=P.bag.indexOf(it);if(i<0)return;const k=it.k;
  const s=SID[k]?1:0,w=(s?SID:PRI)[k],o=P.w[s];P.bag.splice(i,1);
  if(o&&!addTo(P.bag,4,4,o.k)){P.bag.splice(i,0,it);return say('No room to swap',2)}
  P.w[s]=w;P.mag[s]=w.m;P.res[s]=w.m*2;P.rl=0;P.cur=s}
-const IBX=180,IBY=68,GX=256,GY=146,GC=32,IVX=110,IVY=40,IVW=420,IVH=300;let ivd=null;
-function invClick(sh){for(let j=0;j<2+NTS;j++){const x=IBX+j*57;if(mouse.x>x&&mouse.x<x+53&&mouse.y>IBY&&mouse.y<IBY+50){const it=eqItem(j);if(!it)return;const z=isz(it.k);ivd={eq:j,o:it,sp:!!(sh&&j>=2&&(it.n||1)>1),shift:sh,sx:mouse.x,sy:mouse.y,dx:z[0]*GC/2,dy:z[1]*GC/2,mv:0};return}}
- const o=invHit();if(o)ivd={o,sp:!!(sh&&TOOL[o.k]&&(o.n||1)>1),sx:mouse.x,sy:mouse.y,dx:mouse.x-(GX+o.x*GC),dy:mouse.y-(GY+o.y*GC),mv:0}}
+const IBX=180,IBY=68,GX=256,GY=146,GC=32,IVX=110,IVY=40,IVW=420,IVH=300;let ivd=null,ivSel=null;
+function invClick(sh){for(let j=0;j<2+NTS;j++){const x=IBX+j*57;if(mouse.x>x&&mouse.x<x+53&&mouse.y>IBY&&mouse.y<IBY+50){const it=eqItem(j);if(!it)return;ivSel=it.k;const z=isz(it.k);ivd={eq:j,o:it,sp:!!(sh&&j>=2&&(it.n||1)>1),shift:sh,sx:mouse.x,sy:mouse.y,dx:z[0]*GC/2,dy:z[1]*GC/2,mv:0};return}}
+ const o=invHit();if(o)ivSel=o.k,ivd={o,sp:!!(sh&&TOOL[o.k]&&(o.n||1)>1),sx:mouse.x,sy:mouse.y,dx:mouse.x-(GX+o.x*GC),dy:mouse.y-(GY+o.y*GC),mv:0}}
 function invHit(){for(const o of P.bag){const z=isz(o.k);if(mouse.x>GX+o.x*GC&&mouse.x<GX+(o.x+z[0])*GC&&mouse.y>GY+o.y*GC&&mouse.y<GY+(o.y+z[1])*GC)return o}return null}
 const invOut=()=>mouse.x<IVX||mouse.x>IVX+IVW||mouse.y<IVY||mouse.y>IVY+IVH;
 function bagDrop(o){const i=P.bag.indexOf(o);if(i<0)return;P.bag.splice(i,1);const c=TOOL[o.k]?Math.max(1,o.n||1):1;for(let j=0;j<c;j++)ttToss(ttGround(o.k));say('Dropped '+ttName(o.k)+(c>1?' x'+c:''),2)}
@@ -930,6 +1026,15 @@ function invRelease(){const d=ivd;ivd=null;if(!d||!invOpen)return;if(d.eq!==unde
  if(t.wj!==undefined){unbag(o);return}
  if(t.mg){const mv=d.sp?1:Math.min(MAXST-t.mg.n,o.n||1);t.mg.n+=mv;o.n-=mv;if(o.n<=0)P.bag.splice(P.bag.indexOf(o),1);return}
  if(!t.ok)return;if(d.sp){o.n--;P.bag.push({k:o.k,x:t.gx,y:t.gy,n:1})}else{o.x=t.gx;o.y=t.gy}}
+function invHoverKey(){if(ivd&&ivd.mv)return ivd.o.k;for(let j=0;j<2+NTS;j++){const x=IBX+j*57;if(mouse.x>x&&mouse.x<x+53&&mouse.y>IBY&&mouse.y<IBY+50){const it=eqItem(j);if(it)return it.k}}const o=invHit();return o?o.k:null}
+function invWrap(s,n){const o=[];let l='';for(const w of String(s).split(' ')){if((l+' '+w).trim().length>n){o.push(l);l=w}else l=(l+' '+w).trim()}if(l)o.push(l);return o}
+function drawInfoBox(){const bx=392,by=134,bw=134,bh=150;ctx.fillStyle='#14080a';ctx.fillRect(bx,by,bw,bh);ctx.strokeStyle='#555';ctx.lineWidth=1;ctx.strokeRect(bx+.5,by+.5,bw,bh);
+ const k=invHoverKey()||ivSel,d=k&&itemDef(k);
+ if(!d){tx('Hover or click',bx+bw/2,by+68,'#777','center');tx('an item to inspect',bx+bw/2,by+80,'#777','center');return}
+ let y=by+13;tx(d.n,bx+5,y,'#c8a050');y+=11;tx(itemType(k),bx+5,y,'#888');y+=12;
+ if(TOOL[k]){for(const l of invWrap(d.d,21)){tx(l,bx+5,y,'#ddd');y+=11}y+=3;tx('Value $'+d.c,bx+5,y,'#aaa');return}
+ for(const[a,b]of wList(d)){tx(a,bx+5,y,'#aaa');tx(String(b),bx+bw-5,y,a=='Noise'?(d.nz<=150?'#6fcf6a':d.nz<=300?'#e0b040':'#e0583a'):'#fff','right');y+=11}
+ y+=2;tx('Value $'+d.c,bx+5,y,'#888')}
 function invItem(k,x,y,W,H){const[l,cx,h]=SPX[k]||[10,5,5],sc=Math.min(W*.86/l,H*.8/h);drawWpn(k,x+W/2-cx*sc,y+H/2-.5*sc,0,sc)}
 function drawInv(){ctx.fillStyle='rgba(0,0,0,.7)';ctx.fillRect(0,0,VW,VH);ctx.fillStyle='#1c1418';ctx.fillRect(IVX,IVY,IVW,IVH);ctx.strokeStyle='#e8e6d8';ctx.lineWidth=1;ctx.strokeRect(IVX+.5,IVY+.5,IVW,IVH);ctx.font='bold 10px monospace';
  tx('INVENTORY',320,58,'#e8e6d8','center');const L=['Primary','Sidearm','Tool 1','Tool 2','Tool 3'],ks=[P.w[0]&&P.w[0].k,P.w[1]&&P.w[1].k,...P.ts.map(x=>x&&x.k)],ns=[0,0,...P.ts.map(x=>x?x.n:0)];
@@ -943,14 +1048,15 @@ function drawInv(){ctx.fillStyle='rgba(0,0,0,.7)';ctx.fillRect(0,0,VW,VH);ctx.fi
   if(!out&&(t.mg||t.inb)){ctx.fillStyle=t.ok?'#40c06055':'#c0302055';ctx.fillRect(GX+t.gx*GC,GY+t.gy*GC,t.w*GC,t.h*GC)}
   const x=mouse.x-ivd.dx,y=mouse.y-ivd.dy;ctx.globalAlpha=.85;ctx.fillStyle='#7a1c1c';ctx.fillRect(x+1,y+1,z[0]*GC-2,z[1]*GC-2);invItem(o.k,x,y,z[0]*GC,z[1]*GC);if(TOOL[o.k])tx('x'+(ivd.sp?1:o.n),x+z[0]*GC-3,y+z[1]*GC-3,'#fff','right');ctx.globalAlpha=1;
   if(out)tx('Release to drop',mouse.x,mouse.y-8,'#ff8a70','center')}
- tx('Drag gear or tools between slots and backpack. Click to stow.',320,292,'#bbb','center');tx('Drag items to rearrange. Drag outside the window or right-click to drop.',320,305,'#bbb','center');tx('Shift-drag moves one from a stack. Click a backpack item to equip it.',320,318,'#bbb','center');tx('The backpack comes home if you escape.  Tab: close',320,331,'#bbb','center')}
+ drawInfoBox();tx('Drag gear or tools between slots and backpack. Click to stow.',320,292,'#bbb','center');tx('Drag items to rearrange. Drag outside the window or right-click to drop.',320,305,'#bbb','center');tx('Shift-drag moves one from a stack. Click a backpack item to equip it.',320,318,'#bbb','center');tx('The backpack comes home if you escape.  Tab: close',320,331,'#bbb','center')}
 function refocus(){try{window.focus();cv.focus({preventScroll:true})}catch(e){}}
 cv.tabIndex=0;cv.style.outline='none';addEventListener('blur',()=>{keys={}});
 function setSlot(i){if(!has(i))return say('Slot empty',1.5);P.cur=i;P.rl=0}
 function fixSlot(){if(!has(P.cur)){const f=[0,1,2,3,4].find(has);P.cur=f===undefined?0:f}}
 function useTonic(){if(P.tn<=0)return;if(P.hp>=100)return say('Already healthy',1.5);P.tn--;P.hp=Math.min(100,P.hp+50);burst(P.x,P.y,10,40,'#c03040',0);fixSlot()}
 function throwBomb(){if(P.bm<=0)return;P.bm--;const a=Math.atan2(mouse.y+cam.y-P.y,mouse.x+cam.x-P.x),d=Math.min(170,D(P.x,P.y,mouse.x+cam.x,mouse.y+cam.y));bombs.push({x:P.x,y:P.y,vx:Math.cos(a)*d/.4,vy:Math.sin(a)*d/.4,t:1.5,m:.4});fixSlot()}
-function takeW(it){const s=it.s,w=(s?SID:PRI)[it.k];if(P.w[s]===w){P.res[s]+=w.m*2;say('+ammo ('+w.n+')',2)}else{if(P.w[s])items.push({t:'wpn',s,k:P.w[s].k,x:P.x+R(-6,6),y:P.y+R(-6,6)});keys.KeyE=0;P.w[s]=w;P.mag[s]=w.m;P.res[s]=w.m*2;P.rl=0;P.cur=s;say('Picked up '+w.n,3)}it.got=1}
+// holding a weapon in that slot already: a new one never swaps. It goes into the backpack if there is room, otherwise it stays on the ground.
+function takeW(it){const s=it.s,w=(s?SID:PRI)[it.k];if(P.w[s]===w){P.res[s]+=w.m*2;say('+ammo ('+w.n+')',2)}else if(P.w[s]){keys.KeyE=0;if(!addTo(P.bag,4,4,it.k)){say('Backpack is full',2);return}say('Picked up '+w.n+' (backpack)',3)}else{keys.KeyE=0;P.w[s]=w;P.mag[s]=w.m;P.res[s]=w.m*2;P.rl=0;P.cur=s;say('Picked up '+w.n,3)}it.got=1}
 addEventListener('wheel',e=>{if(mode!='play')return;const d=e.deltaY>0?1:1+NTS;for(let k=1;k<=2+NTS;k++){const n=(P.cur+d*k)%(2+NTS);if(has(n)){P.cur=n;P.rl=0;break}}e.preventDefault()},{passive:false});
 addEventListener('mousemove',e=>{const r=cv.getBoundingClientRect(),s=Math.min(r.width/VW,r.height/VH);mouse.x=(e.clientX-r.left-(r.width-VW*s)/2)/s;mouse.y=(e.clientY-r.top-(r.height-VH*s)/2)/s;if(ivd)invMove()});
 cv.addEventListener('mousedown',e=>{if(P&&P.dead&&mode=='play'){if(e.button==0&&mouse.x>VW/2-62&&mouse.x<VW/2+62&&mouse.y>VH-64&&mouse.y<VH-42)end(0);return}if(invOpen){if(e.button==0)invClick(e.shiftKey);else if(e.button==2){const o=invHit();if(o)bagDrop(o)}return}if(e.button==0)mouse.l=1;if(e.button==2)mouse.r=1});addEventListener('mouseup',e=>{if(e.button==0&&ivd){invMove();invRelease()}if(e.button==0)mouse.l=0;if(e.button==2)mouse.r=0});cv.addEventListener('contextmenu',e=>e.preventDefault());
@@ -1097,6 +1203,12 @@ function genExits(){const g=ground.getContext('2d');exts.forEach((e,k)=>{e.k=k;e
  g.restore();e.lx=vx+(hz?(k?22:34):0);e.ly=vy+(hz?0:(k?22:34));if(!hz){e.lx=vx;e.ly=vy+(k?22:34)}else{e.lx=vx+(k?22:34);e.ly=vy}
  fG(g,e.lx,e.ly,30,'rgba(255,200,90,.35)')})}
 // ---------- RENDER ----------
+function drawScn(k,x,y,f){const r=(a,b,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(x+a*f-(f<0?w:0),y+b,w,h)},cr=(a,b,s)=>{r(a,b,s,s,'#5a3a20');r(a,b,s,1,'#7a5430');r(a+s/2|0,b,1,s,'#3a2414');r(a,b+s-1,s,1,'#2a1a0e')};
+ if(k=='cart'){shadow(x,y+2,16);ctx.strokeStyle='#2a1a10';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x-9*f,y+1,6,0,7);ctx.stroke();ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x-9*f,y-5);ctx.lineTo(x-9*f,y+7);ctx.moveTo(x-15*f,y+1);ctx.lineTo(x-3*f,y+1);ctx.stroke();r(-6,-8,18,9,'#4a2e1c');r(-6,-8,18,2,'#6a4428');r(-6,-3,18,1,'#2a1a0e');cr(1,-14,7);r(9,-12,4,4,'#8a7a50');r(-16,6,10,2,'#3a2414')}
+ else if(k=='camp'){shadow(x,y+3,18);ctx.fillStyle='#3a3224';ctx.beginPath();ctx.moveTo(x,y-14);ctx.lineTo(x-14,y+4);ctx.lineTo(x+14,y+4);ctx.closePath();ctx.fill();ctx.fillStyle='#262015';ctx.beginPath();ctx.moveTo(x,y-14);ctx.lineTo(x-4*f,y+4);ctx.lineTo(x+4*f,y+4);ctx.closePath();ctx.fill();ctx.strokeStyle='#6a5a3a';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x,y-14);ctx.lineTo(x-14,y+4);ctx.moveTo(x,y-14);ctx.lineTo(x+14,y+4);ctx.stroke();
+  r(10,5,8,2,'#2a1c1c');r(11,4,2,1,'#6a6a6a');r(14,4,2,1,'#6a6a6a');r(12,3,2,1,'#3a3030');r(-18,6,10,3,'#5a2a2a');r(-18,6,10,1,'#7a4a3a')}
+ else if(k=='fallen'){shadow(x,y+2,12);r(-9,-1,16,6,'#2a2030');r(-9,-1,16,2,'#3a3045');r(7,-2,5,5,'#c8a888');r(-2,-6,8,6,'#5a4020');r(-2,-6,8,1,'#7a5a30');r(-10,3,6,2,'#6a0c14');r(-14,-2,6,1,'#9a9a9a');r(-15,-3,1,3,'#6a5030')}
+ else{shadow(x,y+2,14);cr(-7,-6,7);cr(1,-6,7);cr(-3,-12,7);ctx.fillStyle='#2e3a2a';ctx.beginPath();ctx.moveTo(x-10,y-4);ctx.lineTo(x-4,y-16);ctx.lineTo(x+8,y-14);ctx.lineTo(x+11,y);ctx.closePath();ctx.globalAlpha=.9;ctx.fill();ctx.globalAlpha=1;ctx.strokeStyle='#1a2418';ctx.stroke();r(-12,2,5,5,'#7a6a40');r(8,2,4,5,'#8a7a50')}}
 function shadow(x,y,r){ctx.fillStyle='rgba(0,0,0,.4)';ctx.beginPath();ctx.ellipse(x,y+3,r,r*.45,0,0,7);ctx.fill()}
 function human(x,y,a,body,hat,fl,wk,gun){shadow(x,y,6);const b=Math.sin(wk)*1.5;ctx.fillStyle='#1d1a24';ctx.fillRect(x-3,y+2+b,2,4);ctx.fillRect(x+1,y+2-b,2,4);
  ctx.fillStyle=fl?'#fff':body;ctx.fillRect(x-4,y-6,8,9);ctx.fillStyle='#000';ctx.fillRect(x-4,y,8,1);ctx.fillStyle=fl?'#fff':'#d8b898';ctx.fillRect(x-2,y-10,4,4);
@@ -1309,6 +1421,7 @@ function render(){
  drawSeals(cx,cy);
  const L=[];M.forEach(m=>{if(m.hp>0)L.push([m.y,()=>drawM(m,cx,cy)])});gibs.forEach(g=>L.push([g.y,()=>drawGib(g,cx,cy)]));rpDraw(L,cx,cy);
  if(!(RD&&RD.t>=TB))L.push([P.y,()=>{warden(px,py,P.face,0,P.wk,P.cur<2?(P.w[P.cur]?P.w[P.cur].k:'fists'):((P.ts[P.cur-2]||{}).k||'fists'),P.hf>0,P.cur!=1&&P.w[1]?P.w[1].k:null,P.sa>0?P.sa/.18:0);if(P.sa>0){ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(px,py,16,P.face-1,P.face+1);ctx.stroke()}}]);
+scn.forEach(c=>{const x=c.x-cx|0,y=c.y-cy|0;if(x<-40||x>VW+40||y<-30||y>VH+30)return;L.push([c.y,()=>drawScn(c.k,x,y,c.f)])});
  trees.forEach(t=>L.push([t.y,()=>{shadow(t.x-cx,t.y-cy,7);ctx.fillStyle='#1c0e10';ctx.fillRect(t.x-cx-2,t.y-cy-6,4,8)}]));
  bombs.forEach(b=>L.push([b.y,()=>drawWpn('bomb',b.x-cx,b.y-cy-2,T*9,.7)]));
  lobs.forEach(b=>L.push([b.y,()=>drawWpn(b.k,b.x-cx,b.y-cy-2,T*11,.7)]));
@@ -1323,7 +1436,7 @@ function render(){
  // darkness
  dx.globalCompositeOperation='source-over';dx.clearRect(0,0,VW,VH);dx.fillStyle='rgba(2,1,6,.985)';dx.fillRect(0,0,VW,VH);dx.globalCompositeOperation='destination-out';
  visLight(lx,ly,0,6.2832,38*bmv(.6)*fgv(.3),72,.95);visLight(lx,ly,fa-.4*bmv(.7),fa+.4*bmv(.7),300*bmv(.38)*fgv(.1),90,.92);
- clues.forEach(c=>{if(!c.got)light(c.x-cx,c.y-cy,26+3*Math.sin(T*6),.6)});items.forEach(it=>light(it.x-cx,it.y-cy,16,.5));bombs.forEach(b=>light(b.x-cx,b.y-cy,40,.7));fires.forEach(f=>light(f.x-cx,f.y-cy,40,.65));if(!fgOn())flares.forEach(f=>light(f.x-cx,f.y-cy,150+6*Math.sin(T*9),.92));if(P.wd>0)light(P.x-cx,P.y-cy,38,.35);Object.values(mp.rp).forEach(r=>light(r.x-cx,r.y-cy,40,.6));exts.forEach(e=>{light(e.x-cx,e.y-cy,60,.55);light(e.lx-cx,e.ly-cy,55+5*Math.sin(T*9+e.k),.7)});blds.forEach(b=>b.gl.forEach(q=>{const x=q.x-cx,y=q.y-cy;if(x>-90&&x<VW+90&&y>-90&&y<VH+90)light(x,y,q.r*(1+.08*Math.sin(T*5+q.p)),q.a)}));if(P.lf>0)visLight(px,py,0,6.2832,150*fgv(.3),72,.7);
+ clues.forEach(c=>{if(!c.got)light(c.x-cx,c.y-cy,26+3*Math.sin(T*6),.6)});items.forEach(it=>light(it.x-cx,it.y-cy,16,.5));scn.forEach(c=>light(c.x-cx,c.y-cy,30,.45));bombs.forEach(b=>light(b.x-cx,b.y-cy,40,.7));fires.forEach(f=>light(f.x-cx,f.y-cy,40,.65));if(!fgOn())flares.forEach(f=>light(f.x-cx,f.y-cy,150+6*Math.sin(T*9),.92));if(P.wd>0)light(P.x-cx,P.y-cy,38,.35);Object.values(mp.rp).forEach(r=>light(r.x-cx,r.y-cy,40,.6));exts.forEach(e=>{light(e.x-cx,e.y-cy,60,.55);light(e.lx-cx,e.ly-cy,55+5*Math.sin(T*9+e.k),.7)});blds.forEach(b=>b.gl.forEach(q=>{const x=q.x-cx,y=q.y-cy;if(x>-90&&x<VW+90&&y>-90&&y<VH+90)light(x,y,q.r*(1+.08*Math.sin(T*5+q.p)),q.a)}));if(P.lf>0)visLight(px,py,0,6.2832,150*fgv(.3),72,.7);
  parts.forEach(p=>{if(!p.s&&p.c!='#aaa')light(p.x-cx,p.y-cy,14,.5)});
  rdLight();ctx.drawImage(dk,0,0);bmDraw();rdDraw();
  if(CAPS){M.forEach(m=>{if(m.hp>0&&D(m.x,m.y,P.x,P.y)<300){ctx.fillStyle='#ff2a3a';ctx.fillRect(m.x-cx-3,m.y-cy-9,2,2);ctx.fillRect(m.x-cx+1,m.y-cy-9,2,2)}});
@@ -1652,7 +1765,7 @@ const _kill=kill;kill=function(m){if(m._dead)return;m._dead=1;_kill(m);sfx.mob(m
 const _hp=hurtP;hurtP=function(d,k){_hp(d,k);if(P.hp>0)sfx.pain()};
 const _tb=throwBomb;throwBomb=function(){const b=P.bm;_tb();if(P.bm<b)sfx.thr()};
 const _ut=useTonic;useTonic=function(){const n=P.tn;_ut();if(P.tn<n)sfx.heal()};
-const _tw=takeW;takeW=function(it){_tw(it);sfx.equip()};
+const _tw=takeW;takeW=function(it){const g=it.got;_tw(it);if(it.got&&!g)sfx.equip()};
 const _ng=newGame;newGame=function(){_ng();sfx.init();sfx.amb()};
 const _end=end;end=function(w){const r=_end(w);sfx.stop();w?sfx.escape():sfx.death();return r};
 let cpT=0,exT=0,hbT=0;
@@ -1687,12 +1800,17 @@ addEventListener('keydown',e=>{if(e.code=='KeyN'&&!e.repeat&&mode=='play')say(sf
 }
 // ---------- MULTIPLAYER: PeerJS matchmaking (lobby hosts claim fixed peer ids), star topology, victim-authoritative PvP ----------
 // ---------- MULTIPLAYER: Cloudflare Durable Object WebSocket relay; no MQTT brokers ----------
-const RELAY_URL='wss://hellbreach-relay.hellbreach-relay-aus.workers.dev/ws';
+// Relays: lobby + match traffic uses the Sydney relay once RELAY_SYD is filled in (see hellbreach-relay/README.md).
+// If it can't be reached twice in a row, everything falls back to the Cloudflare relay. The leaderboard always uses Cloudflare.
+const RELAY_SYD='wss://YOUR-APP.fly.dev/ws';
+const RELAY_CF='wss://hellbreach-relay.hellbreach-relay-aus.workers.dev/ws';
+let relaySydOk=!/YOUR-APP/.test(RELAY_SYD),relaySydFails=0;
+const relayBase=ch=>ch==='lb'||!relaySydOk?RELAY_CF:RELAY_SYD;
 const MPMAX=6,MPWAIT=60,mp={on:0,me:0,n:1,rp:{},ic:0,cl:[],room:null,subs:[],seen:{},sc:0,uc:0,onS:null,id:Math.random().toString(36).slice(2,10)};let mpb=[],mpBy=null,mpST=0,mpOv=null,mpTimer=null,mpBusy=0;
 // Topic-compatible adapter over our own WebSocket relay, so existing game logic can stay unchanged.
 function relayChannel(topic){if(topic==='hb1/search')return 'search';if(topic.startsWith('hb1/room/'))return 'room-'+topic.slice('hb1/room/'.length);if(topic.startsWith('hb1/lb/'))return 'lb';return null}
 function relayTopicMatches(pattern,topic){const a=pattern.split('/'),b=topic.split('/');for(let i=0;i<a.length;i++){if(a[i]==='#')return true;if(i>=b.length||(a[i]!=='+'&&a[i]!==b[i]))return false}return a.length===b.length}
-function relayClient(initialTopics=[]){const c={_ev:{},_socks:{},_subs:[],_ended:false,on(ev,fn){(this._ev[ev]||(this._ev[ev]=[])).push(fn);return this},_emit(ev,...args){(this._ev[ev]||[]).forEach(fn=>{try{fn(...args)}catch(e){}})},get connected(){return Object.values(this._socks).some(w=>w.readyState===WebSocket.OPEN)},subscribe(topics){(Array.isArray(topics)?topics:[topics]).forEach(t=>{if(!this._subs.includes(t))this._subs.push(t);const ch=relayChannel(t);if(ch)this._open(ch)});Object.entries(this._socks).forEach(([ch,w])=>{if(w.readyState===WebSocket.OPEN)try{w.send(JSON.stringify({__hb_control:'subscribe',topics:this._subs.filter(t=>relayChannel(t)===ch)}))}catch(e){}});return this},publish(topic,payload){const ch=relayChannel(topic);if(!ch)return this;let w=this._socks[ch];if(!w||w.readyState!==WebSocket.OPEN){this._open(ch);return this}try{w.send(JSON.stringify({__hb_topic:topic,__hb_payload:String(payload)}))}catch(e){}return this},_open(ch){if(this._ended)return;const old=this._socks[ch];if(old&&(old.readyState===WebSocket.OPEN||old.readyState===WebSocket.CONNECTING))return;let w;try{w=new WebSocket(RELAY_URL+'?ch='+encodeURIComponent(ch))}catch(e){this._emit('error',e);return}this._socks[ch]=w;w.addEventListener('open',()=>{if(this._ended)return;this._emit('connect');const topics=this._subs.filter(t=>relayChannel(t)===ch);if(topics.length)try{w.send(JSON.stringify({__hb_control:'subscribe',topics}))}catch(e){}});w.addEventListener('message',ev=>{let m;try{m=JSON.parse(ev.data)}catch(e){return}if(typeof m.__hb_topic!=='string'||typeof m.__hb_payload!=='string')return;if(this._subs.some(t=>relayTopicMatches(t,m.__hb_topic)))this._emit('message',m.__hb_topic,m.__hb_payload)});w.addEventListener('error',e=>this._emit('error',e));w.addEventListener('close',()=>{if(this._socks[ch]===w)delete this._socks[ch];if(!this._ended){this._emit('close');setTimeout(()=>this._open(ch),2500)}})},end(){this._ended=true;Object.values(this._socks).forEach(w=>{try{w.close()}catch(e){}});this._socks={};return this}};c.subscribe(initialTopics);return c}
+function relayClient(initialTopics=[]){const c={_ev:{},_socks:{},_subs:[],_ended:false,on(ev,fn){(this._ev[ev]||(this._ev[ev]=[])).push(fn);return this},_emit(ev,...args){(this._ev[ev]||[]).forEach(fn=>{try{fn(...args)}catch(e){}})},get connected(){return Object.values(this._socks).some(w=>w.readyState===WebSocket.OPEN)},subscribe(topics){(Array.isArray(topics)?topics:[topics]).forEach(t=>{if(!this._subs.includes(t))this._subs.push(t);const ch=relayChannel(t);if(ch)this._open(ch)});Object.entries(this._socks).forEach(([ch,w])=>{if(w.readyState===WebSocket.OPEN)try{w.send(JSON.stringify({__hb_control:'subscribe',topics:this._subs.filter(t=>relayChannel(t)===ch)}))}catch(e){}});return this},publish(topic,payload){const ch=relayChannel(topic);if(!ch)return this;let w=this._socks[ch];if(!w||w.readyState!==WebSocket.OPEN){this._open(ch);return this}try{w.send(JSON.stringify({__hb_topic:topic,__hb_payload:String(payload)}))}catch(e){}return this},_open(ch){if(this._ended)return;const old=this._socks[ch];if(old&&(old.readyState===WebSocket.OPEN||old.readyState===WebSocket.CONNECTING))return;let w,base=relayBase(ch),up=0,bf=0;const bad=()=>{if(bf||this._ended||base!==RELAY_SYD)return;bf=1;if(++relaySydFails>=2){relaySydOk=false;try{console.warn('Sydney relay unreachable, using Cloudflare relay')}catch(e){}}};try{w=new WebSocket(base+'?ch='+encodeURIComponent(ch))}catch(e){this._emit('error',e);return}this._socks[ch]=w;const tmo=base===RELAY_SYD?setTimeout(()=>{if(up)return;bad();try{w.close()}catch(e){}if(this._socks[ch]===w){delete this._socks[ch];if(!this._ended)setTimeout(()=>this._open(ch),500)}},4000):0;w.addEventListener('open',()=>{if(this._socks[ch]!==w){try{w.close()}catch(e){}return}up=1;clearTimeout(tmo);if(base===RELAY_SYD)relaySydFails=0;if(this._ended)return;this._emit('connect');const topics=this._subs.filter(t=>relayChannel(t)===ch);if(topics.length)try{w.send(JSON.stringify({__hb_control:'subscribe',topics}))}catch(e){}});w.addEventListener('message',ev=>{let m;try{m=JSON.parse(ev.data)}catch(e){return}if(typeof m.__hb_topic!=='string'||typeof m.__hb_payload!=='string')return;if(this._subs.some(t=>relayTopicMatches(t,m.__hb_topic)))this._emit('message',m.__hb_topic,m.__hb_payload)});w.addEventListener('error',e=>this._emit('error',e));w.addEventListener('close',()=>{clearTimeout(tmo);if(!up)bad();if(this._socks[ch]===w)delete this._socks[ch];if(!this._ended){this._emit('close');setTimeout(()=>this._open(ch),2500)}})},end(){this._ended=true;Object.values(this._socks).forEach(w=>{try{w.close()}catch(e){}});this._socks={};return this}};c.subscribe(initialTopics);return c}
 const mpMB=a=>()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
 function mpPub(topic,o){const s=JSON.stringify(o);mp.cl.forEach(c=>c.connected&&c.publish(topic,s))}
 function mpSend(o){if(!mp.on||!mp.room)return;if(P&&P.dead&&!P.dsending)return;o.f=mp.me;o.v=4;o.u=mp.id+(mp.uc++);mpPub('hb1/room/'+mp.room,o)}
@@ -1749,7 +1867,7 @@ function mpRoster(ros,me,cb){const ov=document.createElement('div');
 function mpSearch(go){if(mpBusy)return;mpBusy=1;mpStop();let done=0;const rs=()=>Math.random()*4294967296>>>0,t0=Date.now(),seen={},myP=mpProfile();
  const fin=(n,idx,seed,ros)=>{if(done)return;done=1;mpBusy=0;mp.cancel=null;clearInterval(mpTimer);clearTimeout(kill);if(mpOv){mpOv.remove();mpOv=null}if(n>1){if(ros){mpBusy=1;mpRoster(ros,idx,()=>{mpBusy=0;mp.on=1;mp.me=idx;mp.n=n;go(seed,n)});return}mp.on=1;mp.me=idx;mp.n=n}else mpStop();go(seed,n)};
  const kill=setTimeout(()=>fin(1,0,rs()),90000);
- const show=(n,rem)=>mpOverlay('Searching for hunters... '+n+'/'+MPMAX+'<br><small>The descent begins in '+Math.max(0,Math.ceil(rem))+'s, or when six hunters are gathered.</small><br><small style="opacity:.5">Cloudflare relay: '+mp.cl.filter(c=>c.connected).length+'/1</small>');
+ const show=(n,rem)=>mpOverlay('Searching for hunters... '+n+'/'+MPMAX+'<br><small>The descent begins in '+Math.max(0,Math.ceil(rem))+'s, or when six hunters are gathered.</small><br><small style="opacity:.5">'+(relayBase('search')===RELAY_SYD?'Sydney':'Cloudflare')+' relay: '+mp.cl.filter(c=>c.connected).length+'/1</small>');
  
  const begin=o=>{if(done)return;if(o.bk&&BOSS[o.bk])boss=o.bk;const idx=o.m.indexOf(mp.id);if(o.m.length>1){mp.room=o.room;mp.subs.push('hb1/room/'+o.room);mp.cl.forEach(c=>c.connected&&c.subscribe('hb1/room/'+o.room))}mp.me=idx;fin(o.m.length,idx,o.seed,o.m.length>1?o.m.map((id,i)=>mpProf(id===mp.id?myP:o.pf&&o.pf[id],i)):null)};
  mp.cancel=()=>{if(done)return;done=1;mpBusy=0;mp.cancel=null;clearInterval(mpTimer);clearTimeout(kill);if(mpOv){mpOv.remove();mpOv=null}mpStop()};
@@ -2229,151 +2347,13 @@ function mpEvSync(s){if(!s||!mpCli()||!P||P.dead||mode!='play')return;const k=s[
 
 // ---------- MAIN MENU: animated title artwork + Play / Tutorial ----------
 const TT_ITEMS=[{l:'Play',v:'hub'},{l:'Tutorial',v:'tut'}]; // add more main-menu entries here
-const kc=k=>`<span class=kc>${k}</span>`;
-const TUT=[
- {t:'The Hunt',sub:'Every raid has one goal: kill the demon and walk out alive',e:[
-  ['1. Gear up',"At camp, pick your skin, loadout and stash, then press <b>Enter the Breach</b>. A loadout costs cash up front, so choose what you can afford.",'loot'],
-  ['2. Burn the sigils',"Find and burn <b>3 sigils</b> hidden around the ruined parish. Walk up to one and press "+kc('E')+". Loot the buildings as you search.",'flare'],
-  ['3. Kill the demon',"Then hunt the archdemon that sits in the Breach. Its minions will swarm you, so keep moving and keep shooting.",'moon'],
-  ['4. Banish & escape',"Hold "+kc('E')+" on the corpse for 5 seconds to banish it and claim the bounty. It is noisy work. Then reach a glowing <b>exit ring</b>. The bounty only pays if you extract alive.",'reaper']]},
- {t:'Move & Fight',sub:'Aim with the mouse, keep your distance, never stop moving',e:[
-  ['Move',kc('W')+kc('A')+kc('S')+kc('D')+" to move. Hold "+kc('Shift')+" to sprint, but sprinting costs stamina.",'walk'],
-  ['Shoot',"Aim with the <b>mouse</b>, hold <b>left click</b> to fire, and press "+kc('R')+" to reload. Watch your magazine. Shotguns hit hard up close.",'shoot'],
-  ['Melee',"<b>Right click</b> swings in close quarters. It saves ammo when an imp gets inside your guard.",'melee'],
-  ['Switch weapons',"Scroll the <b>mouse wheel</b> or press "+kc('1')+" to "+kc('5')+" to swap between weapons and tools.",'shotgun,tonic']]},
- {t:'Tools',sub:'Stack up to 3 of each. Pick one with 1-5 or the mouse wheel, then left click',e:[
-  ['Holy Water',"Heals <b>50 HP</b>. It does nothing at full health, so save it for when it hurts.",'tonic'],
-  ['Blessed Charge',"A big explosion. Great for clearing a doorway full of imps, bad for standing next to.",'bomb'],
-  ['Hellfire Flask',"Throws a burning pool that lasts 5 seconds. Block a corridor and let them run through it.",'flask'],
-  ['Flare & Ward',"The flare lights the dark and <b>lures imps</b>. Saint's Ward cuts damage by 60% for 10 seconds. The tripwire plants a blast trap, and "+kc('Caps Lock')+" taps into the veil.",'flare,ward']]},
- {t:'Survive',sub:'The Breach is not fair. Know its tricks',e:[
-  ['Loot everything',"Weapons, ammo and tools sit in the buildings. Press "+kc('E')+" to loot. "+kc('Tab')+" opens your inventory and the backpack survives your escape.",'loot'],
-  ['Read the map',kc('M')+" opens the map. Exit rings are the only safe ground, so learn where they are before you need them.",'map'],
-  ['Random events',"The <b>Blood Moon</b> sends monsters sprinting, the <b>Fog</b> blinds you, <b>Hellfire Rain</b> falls where red circles mark, and the <b>Bell</b> demands a toll.",'moon'],
-  ['Time runs out',"Wait too long and <b>the Reaper</b> comes and nothing escapes it. Press "+kc('N')+" to toggle ambient sound.",'reaper']]}
-];
-let tutP=0,TART=null;
-function icoSpecial(k){const c=document.createElement('canvas');c.width=c.height=48;c.style.cssText='width:48px;height:48px;image-rendering:pixelated;display:block';
- const x=c.getContext('2d'),o=ctx,sk=sel.skin;ctx=x;sel.skin='warden';
- try{if(k=='walk'||k=='shoot'||k=='melee'){x.save();x.translate(k=='walk'?24:18,32);x.scale(1.6,1.6);warden(0,0,.15,0,k=='walk'?1.3:0,k=='shoot'?'shotgun':k=='melee'?'fists':null,0,null,k=='melee'?1:0);x.restore()}
-  else if(k=='loot'){x.fillStyle='rgba(0,0,0,.4)';x.beginPath();x.ellipse(24,41,16,4,0,0,7);x.fill();fR(x,8,16,32,24,'#6a4326');fR(x,8,16,32,3,'#8a5a32');fR(x,8,28,32,2,'#3a2512');fR(x,8,16,3,24,'#4a2e18');fR(x,37,16,3,24,'#4a2e18');fR(x,22,22,4,6,'#c8a050');fR(x,23,24,2,2,'#2a1c10')}
-  else if(k=='map'){fR(x,0,0,48,48,'#120d12');for(const b of [[4,4,16,12],[26,6,18,14],[6,28,14,14],[28,30,16,12]]){fR(x,b[0],b[1],b[2],b[3],'#241a20');x.strokeStyle='rgba(232,230,216,.3)';x.strokeRect(b[0]+.5,b[1]+.5,b[2]-1,b[3]-1)}
-   x.strokeStyle='rgba(176,36,36,.9)';x.lineWidth=1;x.beginPath();x.moveTo(12,10);x.lineTo(34,13);x.lineTo(13,35);x.lineTo(36,36);x.stroke();x.strokeStyle='#e05a5a';x.lineWidth=2;x.beginPath();x.moveTo(31,33);x.lineTo(41,43);x.moveTo(41,33);x.lineTo(31,43);x.stroke()}
-  else if(k=='moon'){const g=x.createRadialGradient(24,24,6,24,24,24);g.addColorStop(0,'rgba(255,80,30,.55)');g.addColorStop(1,'rgba(255,80,30,0)');x.fillStyle=g;x.fillRect(0,0,48,48);x.fillStyle='#c0392b';x.beginPath();x.arc(24,24,14,0,7);x.fill();x.fillStyle='#e8643a';x.beginPath();x.arc(20,19,9,0,7);x.fill();x.fillStyle='rgba(70,6,8,.45)';for(const q of [[18,26,4],[29,20,3],[27,31,3]]){x.beginPath();x.arc(q[0],q[1],q[2],0,7);x.fill()}}
-  else if(k=='reaper'){x.fillStyle='#14101a';x.beginPath();x.moveTo(24,3);x.lineTo(7,45);x.lineTo(41,45);x.closePath();x.fill();x.strokeStyle='#3a2a44';x.lineWidth=1;x.stroke();fS(x,24,25,2.2)}}
- finally{ctx=o;sel.skin=sk}return c}
-function tutIcons(root){root.querySelectorAll('.ico').forEach(el=>{const ks=(el.dataset.ic||'').split(',').filter(Boolean);
- if(ks.length==1&&['walk','shoot','melee','loot','map','moon','reaper'].includes(ks[0]))el.appendChild(icoSpecial(ks[0]));
- else ks.forEach(k=>{const d=document.createElement('div');d.style.cssText='width:48px;height:'+(ks.length>1?24:48)+'px';d.appendChild(itemCv(k,48,ks.length>1?24:48));el.appendChild(d)})})}
-// ---- The Hunt: six animated panels, drawn with the same sprites the raids use
-const SBS=[
- ['Load in','Gear up at camp, then step into the breach. Your loadout is paid for up front.'],
- ['Burn 3 sigils','Find the glowing red sigils hidden in the ruins. Walk up and press E to burn each one.'],
- ['Find the archdemon','The demon\'s lair is sealed until the third sigil is burned. Then its door opens and the lair shows as a red X on your map. Press M to open it.'],
- ['Kill it','Keep moving and keep shooting. Its minions will swarm you while you work.'],
- ['Banish the corpse','Hold E on the body for 5 seconds. It is loud, so expect company.'],
- ['Extract alive','Stand in a glowing exit ring until it carries you off. The bounty only pays if you live.']];
-const sbHTML=()=>`<div class=sbd>${SBS.map((s,i)=>`<div class=sbc><canvas class=sbv></canvas><h3><span class=sbn>${i+1}</span>${s[0]}</h3><p>${s[1]}</p></div>`).join('')}</div>`;
-function tutArt(root){
- const cs=[...root.querySelectorAll('canvas.sbv')],W=224,H=126,TAU=Math.PI*2,DUR=[7.4,7.8,7.4,7.4,7.6,7.6],BO=BOSS.mordrek.bo,BN=BOSS.mordrek.n;
- const xs=cs.map(k=>{k.width=W;k.height=H;const x=k.getContext('2d');x.imageSmoothingEnabled=false;return x});
- const mkc=()=>{const o=document.createElement('canvas');o.width=W;o.height=H;return o};
- const gnd=mkc(),vg=mkc();
- {const q=gnd.getContext('2d');fR(q,0,0,W,H,'#2a1b1d');for(let i=0;i<W*H/60;i++)fR(q,R(0,W)|0,R(0,H)|0,R(1,3)|0,1,['#1f1214','#3b2024','#2f2a30','#170c0e'][i%4]);
-  q.fillStyle='rgba(0,0,0,.05)';for(let y=0;y<H;y+=16)for(let x=0;x<W;x+=16)if((x+y)/16%2==0)q.fillRect(x,y,16,16);
-  for(let i=0;i<4;i++){let x=R(0,W),y=R(0,H),a=R(0,6.28);const p=[[x,y]];for(let k=0;k<6;k++){a+=R(-.9,.9);x+=Math.cos(a)*R(12,28);y+=Math.sin(a)*R(12,28);p.push([x,y])}
-   for(const [w,c] of [[5,'rgba(255,70,10,.08)'],[2,'rgba(255,100,20,.2)'],[1,'rgba(255,190,80,.5)']]){q.strokeStyle=c;q.lineWidth=w;q.beginPath();p.forEach((v,k)=>k?q.lineTo(v[0],v[1]):q.moveTo(v[0],v[1]));q.stroke()}}
-  const v=vg.getContext('2d'),rg=v.createRadialGradient(W/2,H/2,H*.35,W/2,H/2,W*.62);rg.addColorStop(0,'rgba(2,0,4,0)');rg.addColorStop(1,'rgba(2,0,4,.6)');v.fillStyle=rg;v.fillRect(0,0,W,H)}
- const lp=(a,b,u)=>a+(b-a)*cl(u,0,1),es=u=>{u=cl(u,0,1);return u*u*(3-2*u)};
- const HS=1.5,hunter=(x,y,a,wk)=>{ctx.save();ctx.translate(x,y);ctx.scale(HS,HS);warden(0,0,a,0,wk,'shotgun',0,null,0);ctx.restore()};
- const hud=s=>{ctx.font='bold 8px monospace';tx(s,6,12,'#d8c890')};
- const pts=(x,y,t,n,sp,col,seed,life,gv)=>{if(t<0||t>life)return;ctx.globalAlpha=1-t/life;ctx.fillStyle=col;for(let i=0;i<n;i++){const a=hs(i*3.1+seed)*TAU,v=(.3+hs(i+seed*7)*.7)*sp;ctx.fillRect((x+Math.cos(a)*v*t)|0,(y+Math.sin(a)*v*t+(gv||0)*t*t)|0,2,2)}ctx.globalAlpha=1};
- const key=(x,y,on)=>{ctx.fillStyle='#2b1d12';ctx.fillRect(x-6,y-6,12,13);ctx.fillStyle=on?'#ffd9d0':'#e8dcc0';ctx.fillRect(x-5,y-5,10,on?10:9);ctx.font='bold 8px monospace';ctx.textAlign='center';ctx.fillStyle='#2b1d12';ctx.fillText('E',x,y+3)};
- const glow=(x,y,r,col)=>{ctx.save();ctx.globalCompositeOperation='lighter';const gg=ctx.createRadialGradient(x,y,1,x,y,r);gg.addColorStop(0,col);gg.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=gg;ctx.fillRect(x-r,y-r,2*r,2*r);ctx.restore()};
- const sig=(x,y)=>{ctx.strokeStyle='rgba(255,70,40,'+(.6+.3*Math.sin(T*4))+')';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(x,y,6,0,7);ctx.moveTo(x-6,y);ctx.lineTo(x+6,y);ctx.moveTo(x,y-6);ctx.lineTo(x,y+6);ctx.stroke();glow(x,y,24,'rgba(255,60,30,.4)')};
- const corpse=(x,y,s)=>{ctx.fillStyle='rgba(20,5,8,.8)';ctx.beginPath();ctx.ellipse(x,y,16*s,9*s,0,0,7);ctx.fill();ctx.fillStyle='#7a0c14';ctx.fillRect(x-3*s,y-s,6*s,2*s)};
- const bossAt=(x,y,s,o)=>{ctx.save();ctx.translate(x,y);ctx.scale(s,s);drawM(Object.assign({x:0,y:0,boss:1,bh:'summon',fl:0,st:'idle',a:Math.PI,wk:0,hp:1,mh:1},o),0,0);ctx.restore()};
- const flash=(x,y,a,f)=>{ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.globalAlpha=Math.min(1,f*1.4);ctx.fillStyle='#ff8a20';ctx.beginPath();ctx.moveTo(-1,0);ctx.lineTo(7*f+3,-4);ctx.lineTo(14*f+5,0);ctx.lineTo(7*f+3,4);ctx.closePath();ctx.fill();ctx.fillStyle='#ffe9a0';ctx.fillRect(0,-1.5,8*f+3,3);ctx.restore();glow(x+10,y,40,'rgba(255,170,70,'+(.5*f)+')')};
- const S=[];
- // 1. load in
- S[0]=t=>{const rx=178,ry=68;glow(rx,ry,50,'rgba(255,60,30,.45)');ctx.lineWidth=2;ctx.strokeStyle='rgba(255,110,50,.9)';ctx.setLineDash([5,4]);ctx.lineDashOffset=-t*14;ctx.beginPath();ctx.arc(rx,ry,22,0,7);ctx.stroke();ctx.setLineDash([]);
-  ctx.lineWidth=1;ctx.strokeStyle='rgba(255,190,110,.7)';ctx.beginPath();ctx.arc(rx,ry,14+Math.sin(t*4)*1.5,0,7);ctx.stroke();
-  ['shotgun','revolver','bomb'].forEach((k,i)=>{const x=8+i*24;ctx.fillStyle='#241c24';ctx.fillRect(x,22,20,20);ctx.strokeStyle='#666';ctx.lineWidth=1;ctx.strokeRect(x+.5,22.5,19,19);drawWpn(k,x+5,34,0,.85)});
-  const run=t<4.3,hx=run?lp(-8,150,t/4.2):lp(150,172,(t-4.3)/1.1);
-  if(t<5.5){ctx.globalAlpha=run?1:cl(1-(t-4.3)/1.1,0,1);hunter(hx,76,0,run?t*10:0);ctx.globalAlpha=1}
-  if(t>4.3)pts(rx,ry,t-4.3,10,40,'#ffb060',2,1.2,0);
-  hud(t<5.5?'Gear up, then enter the breach':'Sigils 0/3 (E to burn)')};
- // 2. burn sigils
- const SG=[[56,46],[118,96],[178,52]],ST=[14,100],T0=.3,SP=2.2,TR=1.1,BU=1.2;
- S[1]=t=>{const k=cl(Math.floor((t-T0)/SP),0,2),lc=t-T0-k*SP,pv=k==0?ST:[SG[k-1][0]-9,SG[k-1][1]+7],tg=[SG[k][0]-9,SG[k][1]+7];
-  let hx,hy,walk=0;if(t<T0){hx=ST[0];hy=ST[1]}else if(lc<TR){const u=es(lc/TR);hx=lp(pv[0],tg[0],u);hy=lp(pv[1],tg[1],u);walk=1}else{hx=tg[0];hy=tg[1]}
-  let n=0;SG.forEach((s,i)=>{const b=T0+i*SP+BU;if(t<b)sig(s[0],s[1]);else{n++;ctx.fillStyle='rgba(0,0,0,.35)';ctx.beginPath();ctx.ellipse(s[0],s[1],7,4,0,0,7);ctx.fill();pts(s[0],s[1],t-b,14,50,'#d8c890',i+1,.8,50)}});
-  const fa=Math.atan2(SG[k][1]-hy,SG[k][0]-hx),kb=T0+k*SP+BU;hunter(hx,hy,fa,walk?t*10:0);
-  if(t>=T0+k*SP+TR&&t<kb+.35)key(hx,hy-36,t>=kb-.1);
-  hud('Sigils '+n+'/3 (E to burn)')};
- // 3. the map
- const MB=[[18,18,50,34],[88,12,46,30],[150,18,56,36],[28,74,38,34],[100,76,48,34],[168,80,46,30]],MP=[[42,34],[46,90],[112,28]],LAIR=[190,98];
- S[2]=t=>{fR(ctx,0,0,W,H,'#120d12');ctx.strokeStyle='rgba(232,230,216,.05)';ctx.lineWidth=1;for(let x=0;x<W;x+=16){ctx.beginPath();ctx.moveTo(x+.5,0);ctx.lineTo(x+.5,H);ctx.stroke()}for(let y=0;y<H;y+=16){ctx.beginPath();ctx.moveTo(0,y+.5);ctx.lineTo(W,y+.5);ctx.stroke()}
-  MB.forEach(b=>{ctx.fillStyle='#241a20';ctx.fillRect(b[0],b[1],b[2],b[3]);ctx.strokeStyle='rgba(232,230,216,.28)';ctx.strokeRect(b[0]+.5,b[1]+.5,b[2],b[3])});
-  const shown=cl(Math.floor((t-.5)/.8)+1,0,3),pl=[...MP.slice(0,shown)];
-  if(t>2.9){const u=es((t-2.9)/.8);pl.push([lp(MP[2][0],LAIR[0],u),lp(MP[2][1],LAIR[1],u)])}
-  ctx.strokeStyle='rgba(176,36,36,.85)';ctx.lineWidth=1;ctx.beginPath();pl.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.stroke();
-  MP.slice(0,shown).forEach(p=>{ctx.strokeStyle='rgba(255,90,60,.9)';ctx.beginPath();ctx.arc(p[0],p[1],4,0,7);ctx.moveTo(p[0]-4,p[1]);ctx.lineTo(p[0]+4,p[1]);ctx.moveTo(p[0],p[1]-4);ctx.lineTo(p[0],p[1]+4);ctx.stroke()});
-  const pu=.5+.5*Math.sin(t*5);
-  if(t>3.7){const x=LAIR[0],y=LAIR[1];ctx.strokeStyle='rgba(224,80,90,'+(.6+.4*pu)+')';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,9+pu*2,0,7);ctx.moveTo(x-6,y-6);ctx.lineTo(x+6,y+6);ctx.moveTo(x+6,y-6);ctx.lineTo(x-6,y+6);ctx.stroke();ctx.font='bold 8px monospace';tx('Archdemon lair',x-8,y-16,'#ff7a6a','center')}
-  if(t>4.2){const u=es((t-4.2)/2.6),a=[ [14,112],MP[0],MP[1],MP[2],LAIR ],seg=u*4,i=Math.min(3,Math.floor(seg)),f=seg-i,x=lp(a[i][0],a[i+1][0],f),y=lp(a[i][1],a[i+1][1],f);
-   ctx.strokeStyle='rgba(232,230,216,'+(.7-.4*pu)+')';ctx.lineWidth=1;ctx.beginPath();ctx.arc(x,y,4+pu*3,0,7);ctx.stroke();ctx.fillStyle='#e8e6d8';ctx.beginPath();ctx.arc(x,y,2.5,0,7);ctx.fill()}
-  hud(t<3.7?'Sigils '+shown+'/3 (E to burn)':'Hunt '+BN+' (red X)');ctx.font='bold 8px monospace';tx('MAP  [M]',6,H-6,'#8a8478','left')};
- // 4. the kill
- const HT=[.9,1.65,2.4,3.15,3.9,4.65];
- S[3]=t=>{const hit=HT.filter(h=>h<=t),n=hit.length,dead=n==6,since=n?t-hit[n-1]:9,rc=Math.max(0,1-since*5),bx=lp(178,150,t/4.6),by=68,hx=52-rc*1.5,hy=76;
-  hunter(hx,hy,0.02,0);
-  if(!dead)bossAt(bx,by,1.6,{st:'chase',hp:100-n*100/6,mh:100,fl:since<.08?1:0,wk:t*4});else{corpse(bx,by,1.6)}
-  HT.forEach((h,i)=>{if(t>=h&&t<h+.12){const mz=[hx+16.6*HS,hy-3*HS];ctx.strokeStyle='#ff9a40';ctx.lineWidth=1.2;for(let j=0;j<3;j++){ctx.beginPath();ctx.moveTo(mz[0],mz[1]);ctx.lineTo(bx-6+hs(i*5+j)*6,by-12+hs(i*7+j)*14);ctx.stroke()}flash(mz[0],mz[1],0,1-(t-h)/.12)}
-   pts(bx,by-14,t-h,i==5?18:7,i==5?110:60,'#b01820',i+2,i==5?1:.5,i==5?160:0)});
-  if(dead)tx('It falls!',bx,by-34,'#ff6a3a','center');
-  hud(dead?'Banish the corpse (hold E)':'Hunt '+BN+' (red X)')};
- // 5. banish
- S[4]=t=>{const cx=118,cy=78,hx=88,hy=84,p=cl((t-.8)/5,0,1),done=t>=5.8;
-  if(!done){corpse(cx,cy,1.6);ctx.strokeStyle='#d8c890';ctx.lineWidth=1;ctx.beginPath();ctx.arc(cx,cy,24,0,6.28*p);ctx.stroke();
-   if(t>.8)for(let k=0;k<3;k++){const ph=((t-.8)*.6+k/3)%1;ctx.globalAlpha=(1-ph)*.3;ctx.strokeStyle='#d8c890';ctx.beginPath();ctx.arc(cx,cy,ph*90,0,7);ctx.stroke();ctx.globalAlpha=1}}
-  else{pts(cx,cy-6,t-5.8,24,70,'#e0b040',4,1,40);ctx.font='bold 8px monospace';ctx.globalAlpha=cl(1.6-(t-5.8)/1.2,0,1);tx('Banished! +$'+BO,cx,cy-30-(t-5.8)*6,'#e0b040','center');ctx.globalAlpha=1}
-  [[232,64,3.4],[236,98,4.1]].forEach(([x0,y0,st])=>{if(t<st)return;const u=Math.min(1,(t-st)/3.2),x=lp(x0,168,u),y=lp(y0,y0<80?72:92,u);ctx.save();ctx.translate(x,y);ctx.scale(1.4,1.4);drawMob({ty:'imp',a:Math.PI,wk:t*9,fl:0},0,0,false);ctx.restore()});
-  hunter(hx,hy,0,0);if(t>.4&&t<5.9)key(hx,hy-40,t>.8);
-  if(!done&&t>.8){ctx.font='bold 8px monospace';tx(Math.ceil(5-5*p)+'s',cx,cy+22,'#d8c890','center')}
-  hud(done?'Reach extraction!':'Banish the corpse (hold E)')};
- // 6. extract
- S[5]=t=>{const ex=176,ey=66,run=t<3.2,x=run?lp(-8,ex-4,t/3.2):ex-4,p=cl((t-3.4)/3,0,1),gone=t>6.4;
-  ctx.strokeStyle='rgba(255,240,180,'+(.5+.3*Math.sin(t*3))+')';ctx.lineWidth=1.5;ctx.setLineDash([4,4]);ctx.lineDashOffset=-t*10;ctx.beginPath();ctx.arc(ex,ey,17,0,7);ctx.stroke();ctx.setLineDash([]);glow(ex,ey,34,'rgba(255,230,150,.25)');
-  if(t>3.4&&!gone){ctx.strokeStyle='#8fe0a0';ctx.lineWidth=3;ctx.beginPath();ctx.arc(ex,ey,24,-1.5708,-1.5708+6.2832*p);ctx.stroke()}
-  ctx.font='bold 8px monospace';tx('Order Wagon',ex,ey-32,'#e8e0b0','center');
-  if(!gone){ctx.globalAlpha=1;hunter(x,ey+8,0,run?t*10:0);tx('$'+BO,x,ey-14,'#e0b040','center')}
-  else{pts(ex,ey,t-6.4,16,50,'#8fe0a0',6,1,0);ctx.globalAlpha=cl((t-6.4)*3,0,1);tx('Extracted! Bounty paid.',W/2,34,'#8fe0a0','center');ctx.globalAlpha=1}
-  hud(gone?'You made it out alive':'Reach extraction!')};
- let alive=1,t0=performance.now();
- function frame(now){if(!alive||!root.isConnected)return;requestAnimationFrame(frame);if(document.hidden)return;
-  const o=ctx,oT=T,sk=sel.skin;sel.skin='warden';
-  try{cs.forEach((k,i)=>{const t=((now-t0)/1000)%DUR[i];ctx=xs[i];T=t;ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';ctx.setLineDash([]);ctx.textAlign='left';
-   if(i!=2)ctx.drawImage(gnd,0,0);S[i](t);ctx.globalAlpha=1;ctx.drawImage(vg,0,0)})}
-  finally{ctx=o;T=oT;sel.skin=sk}}
- requestAnimationFrame(frame);
- return{stop(){alive=0}}}
-function tutShow(){
- const S=TUT[tutP],M=$('#menu');
- if(TART){TART.stop();TART=null}
- M.classList.remove('ttl');M.style.display='block';
- M.innerHTML=`<div class=board><h1>\u2620 Tutorial \u2620</h1><div class="slate tut"><div class=tabs>${TUT.map((s,i)=>`<div class="tb ${i==tutP?'on':''}" data-tp=${i}>${s.t}</div>`).join('')}</div><h2 class=lt>${S.t}</h2><p class=sub>${S.sub}</p><div class=notes>${S.e.map((n,i)=>`<div class="nt ${i%2?'ch':'pp'}" style="--r:${(((i*37)%7)-3)*.55}deg"><div class="pol sp"><div class=ico data-ic="${n[2]}"></div></div><h3>${n[0]}</h3><p>${n[1]}</p></div>`).join('')}</div></div><div class=foot><button data-v=title>\u2190 Main Menu</button><span class=hint style="margin:0">Page ${tutP+1} of ${TUT.length}</span><span><button data-tp=${tutP-1} ${tutP==0?'disabled':''}>\u2190 Prev</button> <button data-tp=${tutP+1>=TUT.length?'play':tutP+1}>${tutP+1>=TUT.length?'Play':'Next \u2192'}</button></span></div></div>`;
- tutIcons(M);
- if(tutP==0){const nb=M.querySelector('.notes');if(nb){nb.outerHTML=sbHTML();TART=tutArt(M)}}
- M.scrollTop=0}
+let TART=null;
 function titleShow(){
  const M=$('#menu');M.classList.add('ttl');M.style.display='block';
  M.innerHTML=`<canvas id=ta></canvas><div class=ttv></div><div class=tt-wrap><div class=tt-logo><h1 class=tt-name>Hellbreach</h1><p class=tt-tag>Burn the sigils. Banish the demon. Walk out alive.</p></div><div class=tt-btns>${TT_ITEMS.map(i=>`<button class=tt-btn data-v=${i.v}>${i.l}</button>`).join('')}</div></div>`;
  if(TART)TART.stop();TART=titleArt($('#ta'))}
-{const _m=menu;menu=function(m){if(scr=='title'){titleShow();return}if(scr=='tut'){tutShow();return}
+{const _m=menu;menu=function(m){if(scr=='title'){titleShow();return}
   $('#menu').classList.remove('ttl');if(TART){TART.stop();TART=null}_m(m)}}
-$('#menu').addEventListener('click',e=>{const t=e.target.closest('[data-tp]');if(!t||t.disabled)return;e.stopImmediatePropagation();
- if(t.dataset.tp=='play'){scr='hub';tutP=0}else tutP=+t.dataset.tp;menu()},true);
 addEventListener('keydown',e=>{if(mode!='menu'||scr!='title')return;const bs=[...document.querySelectorAll('.tt-btn')];if(!bs.length)return;
  const i=bs.indexOf(document.activeElement);
  if(e.code=='ArrowDown'||e.code=='KeyS'){bs[(i+1)%bs.length].focus();e.preventDefault()}
@@ -2535,7 +2515,7 @@ function titleArt(cv){
  requestAnimationFrame(ts=>{last=ts;loop(ts)});
  return{stop(){alive=0;removeEventListener('resize',onR)},step(n,dt){for(let i=0;i<n;i++)step(dt||1/60);frame()}}}
 
-menu();requestAnimationFrame(loop);
+requestAnimationFrame(loop);
 
 // ---------- MENU AUDIO: soft eerie drone + sparse music-box bells while in the menus, quiet ghostly clicks ----------
 const MUS=(()=>{let ac,mst,dly,nb,on=0,tm=null,nextB=0,nextH=0;const off=()=>{try{return localStorage.getItem('bh_amb')=='0'}catch(e){return 0}};
@@ -2674,6 +2654,39 @@ function chCheat(txt){if(!devOK())return;try{const a=txt.slice(1).trim().toLower
 let INPUT='pc';try{const v=localStorage.getItem('bh_input');INPUT=v=='mobile'||v=='pc'?v:((window.matchMedia&&matchMedia('(pointer:coarse)').matches)?'mobile':'pc')}catch(e){}
 TT_ITEMS.push({get l(){return 'Input: '+(INPUT=='mobile'?'Mobile':'PC')},v:'inp'});
 const MC={root:null,mx:0,my:0,mag:0,aa:0,am:.6,fire:0,punch:0,spr:0};
+// ---- touch control layout + bindings (saved in localStorage 'bh_mc'; edited from Main Menu > Input > Customize touch controls) ----
+const MC_SMALL=['mce','mcr','mcw','mch','mcm','mcg','mct'],MC_ALL=['mcj','mcl','mcf','mcp',...MC_SMALL],MC_BASE={mcj:132,mcl:84,mcf:68,mcp:60,mce:36,mcr:36,mcw:36,mch:36,mcm:36,mcg:36,mct:36};
+const MC_DEFA={mce:'interact',mcr:'reload',mcw:'swap',mch:'heal',mcm:'map',mcg:'bag',mct:'chat'};
+const MACT={
+ interact:{n:'Interact / loot (E)',l:'E',d:()=>{keys.KeyE=1},u:()=>{keys.KeyE=0}},
+ reload:{n:'Reload',l:'R',d:()=>reload()},
+ swap:{n:'Swap weapon',l:'\u21c4',d:()=>{for(let k=1;k<=2+NTS;k++){const n=(P.cur+k)%(2+NTS);if(has(n)){P.cur=n;P.rl=0;break}}}},
+ heal:{n:'Heal (Holy Water)',l:'+',d:()=>useTonic()},
+ map:{n:'Map',l:'M',d:()=>{showMap=!showMap;mouse.l=mouse.r=0}},
+ bag:{n:'Inventory',l:'\u2630',d:()=>{ivd=null;invOpen=!invOpen;showMap=0;mouse.l=mouse.r=0;refocus()}},
+ chat:{n:'Chat',l:'\u2709',d:()=>{const t=prompt('Chat message:');if(t){CHAT.txt=String(t);chSend()}}},
+ charge:{n:'Blessed Charge (G)',l:'G',d:()=>throwBomb()},
+ flask:{n:'Hellfire Flask (Z)',l:'Z',d:()=>useXT('flask')},
+ flare:{n:'Signal Flare (X)',l:'X',d:()=>useXT('flare')},
+ ward:{n:"Saint's Ward (C)",l:'C',d:()=>useXT('ward')},
+ wire:{n:'Tripwire (V)',l:'V',d:()=>useXT('tripwire')},
+ none:{n:'Hidden (no button)',l:''}};
+let MCFG={s:1,o:1,p:{},a:{...MC_DEFA}};
+try{const v=JSON.parse(localStorage.getItem('bh_mc')||'null');if(v&&typeof v=='object'){MCFG.s=Math.min(1.6,Math.max(.6,+v.s||1));MCFG.o=Math.min(1,Math.max(.3,+v.o||1));
+ if(v.p&&typeof v.p=='object')for(const k in v.p){const q=v.p[k];if(MC_ALL.includes(k)&&Array.isArray(q)&&q.length==2&&isFinite(q[0])&&isFinite(q[1]))MCFG.p[k]=[+q[0],+q[1]]}
+ if(v.a&&typeof v.a=='object')for(const k of MC_SMALL)if(MACT[v.a[k]])MCFG.a[k]=v.a[k]}}catch(e){}
+const mcSave=()=>{try{localStorage.setItem('bh_mc',JSON.stringify(MCFG))}catch(e){}};
+const mcFire=(id,dn)=>{const a=MACT[MCFG.a[id]];if(!a)return;if(dn){if(a.d)a.d()}else if(a.u)a.u()};
+// default centre of each control (px) - the original layout
+function mcDef(id,W,H){if(id=='mcj')return[88,H-88];const bx=W-64,by=H-60;if(id=='mcl')return[bx,by];if(id=='mcf')return[W-151,H-75];if(id=='mcp')return[W-79,H-147];
+ const k=MC_SMALL.indexOf(id),th=(175+100*k/(MC_SMALL.length-1))*Math.PI/180;return[bx+146*Math.cos(th),by+146*Math.sin(th)]}
+function mcApply(){if(!MC.root)return;const W=innerWidth,H=innerHeight,sc=MCFG.s;MC.root.style.opacity=MCFG.o;
+ for(const id of MC_ALL){const el=MC.root.querySelector('#'+id);if(!el)continue;const sz=MC_BASE[id]*sc,h=sz/2,p=MCFG.p[id];let c=p?[p[0]*W,p[1]*H]:mcDef(id,W,H);c=[Math.min(W-h,Math.max(h,c[0])),Math.min(H-h,Math.max(h,c[1]))];
+  Object.assign(el.style,{position:'fixed',left:(c[0]-h)+'px',top:(c[1]-h)+'px',right:'auto',bottom:'auto',width:sz+'px',height:sz+'px'});
+  const b=el.querySelector('b');if(b)b.style.fontSize=(17*Math.min(1.3,Math.max(.75,sc)))+'px';
+  if(MC_SMALL.includes(id)){const a=MACT[MCFG.a[id]]||MACT.none;if(b)b.textContent=a.l;el.style.display=(a===MACT.none&&!MC.edit)?'none':'flex'}}}
+addEventListener('resize',()=>mcApply());addEventListener('orientationchange',()=>setTimeout(mcApply,200));
+
 // mobile auto-attack: aim at a demon for 1s and the game fires at it (punches if it is close)
 const AT={t:0,tg:null,mode:0},AT_DELAY=1,AT_RANGE=230;
 function setInput(v){INPUT=v;try{localStorage.setItem('bh_input',v)}catch(e){}if(v=='mobile')mcBuild();mcSync()}
@@ -2707,13 +2720,7 @@ function mcBuild(){if(MC.root)return;
  mcStick(q('#mcl'),(x,y,m)=>{if(m>.06){MC.aa=Math.atan2(y,x)}MC.am=m},()=>{});
  mcStick(q('#mcf'),(x,y,m)=>{MC.fire=1;if(m>.06)MC.aa=Math.atan2(y,x);MC.am=Math.max(.5,m)},()=>{MC.fire=0});
  mcStick(q('#mcp'),(x,y,m)=>{MC.punch=1;if(m>.06)MC.aa=Math.atan2(y,x);MC.am=Math.max(.5,m)},()=>{MC.punch=0});
- mcBtn(q('#mce'),act(()=>{keys.KeyE=1}),()=>{keys.KeyE=0});
- mcBtn(q('#mcr'),act(reload));
- mcBtn(q('#mcw'),act(()=>{for(let k=1;k<=2+NTS;k++){const n=(P.cur+k)%(2+NTS);if(has(n)){P.cur=n;P.rl=0;break}}}));
- mcBtn(q('#mch'),act(useTonic));
- mcBtn(q('#mcm'),act(()=>{showMap=!showMap;mouse.l=mouse.r=0}));
- mcBtn(q('#mcg'),act(()=>{ivd=null;invOpen=!invOpen;showMap=0;mouse.l=mouse.r=0;refocus()}));
- mcBtn(q('#mct'),act(()=>{const t=prompt('Chat message:');if(t){CHAT.txt=String(t);chSend()}}))}
+ for(const id of MC_SMALL)mcBtn(q('#'+id),()=>{if(mode=='play'&&P&&!P.dead)mcFire(id,1)},()=>mcFire(id,0));mcApply()}
 function mcSync(){if(INPUT=='mobile'&&!MC.root)mcBuild();if(!MC.root)return;const on=INPUT=='mobile'&&mode=='play'&&P&&!P.dead;MC.root.style.display=on?'block':'none';if(!on){MC.mx=MC.my=MC.mag=0;MC.fire=MC.punch=MC.spr=0}}
 setInterval(mcSync,120);if(INPUT=='mobile')mcBuild();
 if(typeof scr!='undefined'&&scr=='title'&&mode=='menu')menu();
@@ -2759,7 +2766,281 @@ function mcAuto(dt){let tg=null,near=0;
 ['mousedown','mousemove','mouseup'].forEach(ev=>addEventListener(ev,e=>{if(INPUT!='mobile'||mode!='play'||!P||invOpen||showMap||P.dead)return;e.stopImmediatePropagation()},true));
 // the Input screen on the main menu
 function inpShow(){const M=$('#menu');M.classList.remove('ttl');M.style.display='block';if(TART){TART.stop();TART=null}
- M.innerHTML=`<div class=board><h1>☠ Input ☠</h1><p class=msg style="font-size:22px;margin:6px 0 10px">Choose how you want to play</p><div class=cols style="grid-template-columns:1fr 1fr"><div class="chalk ${INPUT=='pc'?'on':''}" data-inp=pc>PC<small>Keyboard and mouse. WASD to move, mouse to aim and fire, right click to punch.</small></div><div class="chalk ${INPUT=='mobile'?'on':''}" data-inp=mobile>Mobile<small>Touch screen. A movement circle on the left; Look, Fire and Punch circles on the right, plus small buttons for interact, reload, swap, heal, map, bag and chat. Best in landscape.</small></div></div><div class=foot><span>Selected: ${INPUT=='mobile'?'Mobile':'PC'}</span><button data-v=title>← Back</button></div></div>`}
+ M.innerHTML=`<div class=board><h1>☠ Input ☠</h1><p class=msg style="font-size:22px;margin:6px 0 10px">Choose how you want to play</p><div class=cols style="grid-template-columns:1fr 1fr"><div class="chalk ${INPUT=='pc'?'on':''}" data-inp=pc>PC<small>Keyboard and mouse. WASD to move, mouse to aim and fire, right click to punch.</small></div><div class="chalk ${INPUT=='mobile'?'on':''}" data-inp=mobile>Mobile<small>Touch screen. A movement circle on the left; Look, Fire and Punch circles on the right, plus small buttons for interact, reload, swap, heal, map, bag and chat. Best in landscape.</small></div></div><div class=cols style="grid-template-columns:1fr 1fr;margin-top:10px"><div class="chalk ${textClear()?'':'on'}" data-txt=hand>Text: Handwritten<small>The chalkboard handwriting font.</small></div><div class="chalk ${textClear()?'on':''}" data-txt=clear>Text: Clear<small>A plain, easy-to-read font. Best on small screens.</small></div></div><div class=cols style="grid-template-columns:1fr;margin-top:10px"><div class=chalk data-mcedit=1>Customize touch controls<small>Move and resize the buttons, change their opacity and choose what each small button does.</small></div></div><div class=foot><span>Selected: ${INPUT=='mobile'?'Mobile':'PC'}</span><button data-v=title>← Back</button></div></div>`}
 {const _mi=menu;menu=function(m){if(scr=='inp'){inpShow();return}_mi(m)}}
 $('#menu').addEventListener('click',e=>{const t=e.target.closest('[data-inp]');if(!t)return;setInput(t.dataset.inp);menu()});
+
+// ---------- NOISE INDICATOR: a HUD meter for how loud you are, plus rings on the ground showing how far each of your noises carries ----------
+const NZ={v:0,rings:[]},NZMAX=520,nzCol=r=>r<=150?'#6fcf6a':r<=300?'#e0b040':'#e0583a';
+{const _n=noise;noise=function(x,y,r){
+ if(typeof P!=='undefined'&&P&&!P.dead&&r>0&&!(typeof mpFx!=='undefined'&&mpFx)&&D(P.x,P.y,x,y)<26){NZ.v=Math.max(NZ.v,r);if(r!==100||(typeof TUTR!=='undefined'&&TUTR)){NZ.rings.push({x,y,r,t:1.1,m:1.1});if(NZ.rings.length>8)NZ.rings.shift()}}   // r=100 is the sprint step: its ring only shows in the tutorial
+ return _n.apply(this,arguments)}}
+{const _u=update;update=function(dt){_u(dt);NZ.v=Math.max(0,NZ.v-160*dt);for(const g of NZ.rings)g.t-=dt;NZ.rings=NZ.rings.filter(g=>g.t>0)}}
+{const _ng=newGame;newGame=function(){NZ.v=0;NZ.rings=[];_ng.apply(this,arguments)}}
+// rings (world space, drawn after the darkness so they stay visible)
+{const _bd=bmDraw;bmDraw=function(){_bd();if(!NZ.rings.length||!P||P.dead)return;ctx.save();ctx.lineWidth=1.5;
+ for(const g of NZ.rings){const a=Math.max(0,g.t/g.m),p=1-a,rad=g.r*Math.min(1,p*3.2);if(rad<2)continue;ctx.globalAlpha=Math.min(.55,.55*a);ctx.strokeStyle=nzCol(g.r);ctx.beginPath();ctx.arc(g.x-cam.x,g.y-cam.y,rad,0,7);ctx.stroke()}
+ ctx.restore()}}
+// meter (screen space, above the health bar)
+{const _r=render;render=function(){_r.apply(this,arguments);if(mode!='play'||!P||P.dead)return;
+ const v=NZ.v,f=Math.min(1,v/NZMAX),x=8,y=VH-37;ctx.save();ctx.font='bold 8px monospace';ctx.fillStyle='#000a';ctx.fillRect(x,y,104,8);
+ ctx.fillStyle=v>1?nzCol(v):'#445';ctx.fillRect(x+1,y+1,102*f,6);
+ ctx.fillStyle='#ffffff55';for(const t of[150,300]){ctx.fillRect(x+1+Math.round(102*t/NZMAX),y,1,8)}
+ tx('NOISE',x+1,y-3,'#a89c80');tx(v>8?nzLabel(v):'Silent',x+108,y+7,v>8?nzCol(v):'#778');ctx.restore()}}
+
+// ---------- MOBILE POLISH: readable text option + touch-control editor ----------
+const RT_FAM="system-ui,'Segoe UI',Roboto,Arial,sans-serif";
+function textClear(){let v=null;try{v=localStorage.getItem('bh_text')}catch(e){}return v?v=='clear':INPUT=='mobile'}
+function applyText(){document.body.classList.toggle('rt',textClear())}
+{const d=Object.getOwnPropertyDescriptor(CanvasRenderingContext2D.prototype,'font');
+ Object.defineProperty(CanvasRenderingContext2D.prototype,'font',{configurable:true,enumerable:d.enumerable,get:d.get,set(v){if(typeof v=='string'&&v.indexOf('Caveat')>-1&&document.body.classList.contains('rt'))v=v.replace(/Caveat.*$/,RT_FAM);d.set.call(this,v)}})}
+{const _si=setInput;setInput=function(v){_si(v);applyText()}}
+applyText();
+$('#menu').addEventListener('click',e=>{const t=e.target.closest('[data-txt],[data-mcedit]');if(!t)return;
+ if(t.dataset.txt){try{localStorage.setItem('bh_text',t.dataset.txt)}catch(_){}applyText();menu();return}
+ if(t.dataset.mcedit)mcEdit()});
+function mcEdit(){if(MC.edit)return;mcBuild();MC.edit=1;MC.sel=null;MC.root.classList.add('ed');$('#menu').style.visibility='hidden';mcApply();
+ const p=document.createElement('div');p.id='mcpanel';
+ p.style.cssText="position:fixed;z-index:99995;top:6px;left:50%;transform:translateX(-50%);width:min(560px,94vw);box-sizing:border-box;background:rgba(14,8,10,.95);color:#eee;border:2px solid #e8e6d8aa;border-radius:10px;padding:8px 12px;font-size:14px;line-height:1.25;text-align:left;touch-action:manipulation";
+ const bs="font-size:15px;font-weight:600;padding:5px 16px;transform:none;border-radius:8px;border:2px solid #e8e6d8;color:#fff;background:#8a2a2a;cursor:pointer";
+ p.innerHTML='<b style="font-size:16px">Customize touch controls</b><div style="opacity:.75;margin:2px 0 6px">Drag any circle to move it. Tap a small button to choose what it does.</div>'
+  +'<div style="display:grid;grid-template-columns:auto 1fr auto;gap:4px 10px;align-items:center"><span>Size</span><input id=mcsz type=range min=60 max=160 step=5><span id=mcszv style="min-width:3em;text-align:right"></span><span>Opacity</span><input id=mcop type=range min=30 max=100 step=5><span id=mcopv style="min-width:3em;text-align:right"></span></div>'
+  +'<div style="margin:8px 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span id=mcst style="opacity:.85">Tap a button to select it</span><select id=mcsel disabled style="font-size:14px;flex:1;min-width:150px;padding:3px">'+Object.keys(MACT).map(k=>'<option value='+k+'>'+MACT[k].n+'</option>').join('')+'</select></div>'
+  +'<div style="display:flex;gap:8px;justify-content:flex-end"><button id=mcrs style="'+bs+'">Reset</button><button id=mcdn style="'+bs+'">Done</button></div>';
+ document.body.appendChild(p);
+ const q=x=>p.querySelector(x),lab=id=>id=='mcj'?'Movement stick':id=='mcl'?'Look stick':id=='mcf'?'Fire':id=='mcp'?'Punch':'Small button';
+ const sync=()=>{q('#mcsz').value=Math.round(MCFG.s*100);q('#mcszv').textContent=Math.round(MCFG.s*100)+'%';q('#mcop').value=Math.round(MCFG.o*100);q('#mcopv').textContent=Math.round(MCFG.o*100)+'%'};
+ const pick=id=>{MC.sel=id;MC.root.querySelectorAll('.mcb').forEach(x=>x.classList.toggle('edsel',x.id==id));const sm=MC_SMALL.includes(id),sl=q('#mcsel');
+  q('#mcst').textContent=lab(id)+(sm?':':' \u2014 drag to move');sl.disabled=!sm;sl.style.display=sm?'':'none';if(sm)sl.value=MCFG.a[id]};
+ sync();q('#mcsel').style.display='none';
+ q('#mcsz').oninput=e=>{MCFG.s=e.target.value/100;sync();mcApply()};q('#mcsz').onchange=mcSave;
+ q('#mcop').oninput=e=>{MCFG.o=e.target.value/100;sync();mcApply()};q('#mcop').onchange=mcSave;
+ q('#mcsel').onchange=e=>{if(MC.sel&&MC_SMALL.includes(MC.sel)){MCFG.a[MC.sel]=e.target.value;mcApply();mcSave()}};
+ q('#mcrs').onclick=()=>{MCFG={s:1,o:1,p:{},a:{...MC_DEFA}};mcSave();sync();mcApply();if(MC.sel)pick(MC.sel)};
+ q('#mcdn').onclick=()=>{MC.edit=0;MC.sel=null;MC.root.classList.remove('ed');MC.root.querySelectorAll('.edsel').forEach(x=>x.classList.remove('edsel'));p.remove();$('#menu').style.visibility='';MC.root.removeEventListener('pointerdown',cap,true);mcApply();mcSync()};
+ // while editing, controls are dragged instead of used
+ const cap=e=>{if(!MC.edit)return;e.stopImmediatePropagation();e.preventDefault();const el=e.target.closest('.mcb');if(!el)return;pick(el.id);
+  const W=innerWidth,H=innerHeight,r0=el.getBoundingClientRect(),ox=r0.left+r0.width/2-e.clientX,oy=r0.top+r0.height/2-e.clientY,sx=e.clientX,sy=e.clientY,pid=e.pointerId;let moved=0;
+  const mv=ev=>{if(ev.pointerId!==pid)return;if(Math.hypot(ev.clientX-sx,ev.clientY-sy)>6)moved=1;if(moved){MCFG.p[el.id]=[(ev.clientX+ox)/W,(ev.clientY+oy)/H];mcApply()}};
+  const up=ev=>{if(ev.pointerId!==pid)return;removeEventListener('pointermove',mv);removeEventListener('pointerup',up);removeEventListener('pointercancel',up);if(moved)mcSave()};
+  addEventListener('pointermove',mv);addEventListener('pointerup',up);addEventListener('pointercancel',up)};
+ MC.root.addEventListener('pointerdown',cap,true)}
+
+// ---------- GUIDED FIRST RUN: a short playable tutorial (replaces reading the pages) ----------
+// Main Menu > Tutorial drops you into a calm sandbox: no demons hunting you, no random events, no Reaper timer, you cannot die, and nothing is saved
+// (your stash, cash and loadout are never touched). Lessons live in TLESS; each has a title, instruction, init, tick (return true when done) and an optional mark.
+// Step 1 ships lessons 1-4 (move, sprint, shoot, reload). Later steps just append lessons to TLESS.
+let TUTR=null;
+const tutDone=()=>{try{return localStorage.getItem('bh_tutdone')=='1'}catch(e){return false}};
+const tutAsked=()=>{try{return localStorage.getItem('bh_tutask')=='1'}catch(e){return true}};
+const tutMark=k=>{try{localStorage.setItem(k,'1')}catch(e){}};
+function tutAsk(){if(tutDone()||tutAsked()||document.getElementById('tutask'))return;
+ const d=document.createElement('div');d.id='tutask';d.style.cssText='position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:rgba(8,3,5,.82)';
+ d.innerHTML='<div style="max-width:380px;margin:16px;padding:22px 24px;background:#140a0e;border:2px solid #e8e6d899;border-left:7px solid #ff3a1a;color:#f3e6d0;font:15px/1.45 monospace;text-align:center"><div style="font:400 32px/1.1 \'Pirata One\',cursive;letter-spacing:.06em;margin-bottom:10px">First time in the breach?</div><p style="margin:0 0 16px">Take the short hands-on tutorial: move, fight, loot, stay quiet, then a full hunt from sigil to escape.</p><button class=tt-btn data-a=go style="width:100%;margin-bottom:10px;font-size:26px">Start tutorial</button><button class=tt-btn data-a=no style="width:100%;font-size:20px">Skip for now</button></div>';
+ d.addEventListener('click',e=>{const a=e.target.closest('[data-a]');if(!a)return;e.stopPropagation();tutMark('bh_tutask');d.remove();if(a.dataset.a=='go'){scr='tutplay';menu()}});
+ document.body.appendChild(d)}
+TT_ITEMS.splice(1,1,{get l(){return tutDone()?'Tutorial \u2713':'Tutorial'},v:'tutplay'});
+const TXH=/^(Sigils \d|Hunt |Banish the|Reach extraction|Grab the dropped|PEACE|Ledger|THE REAPER|TIME IS UP|\d+:\d\d$)/;
+{const _tx=tx;tx=function(s){if(TUTR&&typeof s=='string'&&TXH.test(s))return;return _tx.apply(this,arguments)}}
+const tMob=()=>INPUT=='mobile';
+const tBtn=(a,fb)=>{for(const id of MC_SMALL)if(MCFG.a[id]==a&&MACT[a])return 'the '+MACT[a].l+' button';return fb};
+function tutSpot(x,y,d0,d1){for(let i=0;i<300;i++){const a=Math.random()*6.2832,d=d0+Math.random()*(d1-d0),px=x+Math.cos(a)*d,py=y+Math.sin(a)*d;
+  if(px<50||py<50||px>WW-50||py>WH-50)continue;if(!hit(px,py,10)&&los(x,y,px,py))return{x:px,y:py}}
+ return{x:cl(x+d0,60,WW-60),y:y}}
+const TLESS=[
+ {t:'Move',
+  d:()=>tMob()?'Drag the left circle to walk to the glowing ring.':'Use W A S D to walk to the glowing ring.',
+  init:S=>{S.wp=tutSpot(P.x,P.y,150,230)},
+  tick:S=>D(P.x,P.y,S.wp.x,S.wp.y)<18,
+  mark:S=>S.wp},
+ {t:'Sprint',
+  d:()=>tMob()?'Push the stick all the way out, or double-tap and hold it, to sprint to the next ring. Sprinting is louder: watch the NOISE bar.':'Hold Shift while moving to sprint to the next ring. Sprinting is louder: watch the NOISE bar.',
+  init:S=>{S.wp=tutSpot(P.x,P.y,260,340);S.sp=0},
+  tick:(S,dt)=>{if(S.v>95)S.sp+=dt;return S.sp>.6&&D(P.x,P.y,S.wp.x,S.wp.y)<18},
+  mark:S=>S.wp},
+ {t:'Shoot',
+  d:()=>tMob()?'Drag the FIRE circle toward the imp. Or hold your aim on it for a second and the game fires for you.':'Aim with the mouse and hold left click to shoot the imp. Keep your distance.',
+  init:S=>{const p=tutSpot(P.x,P.y,170,230);S.m=mkMob(p.x,p.y,'idle','imp');M.push(S.m);S.red=1},
+  tick:S=>S.m.hp<=0,
+  mark:S=>S.m.hp>0?S.m:null},
+ {t:'Reload',
+  d:()=>tMob()?'Your magazine is almost empty. Tap '+tBtn('reload','the reload button')+' to reload.':'Your magazine is almost empty. Press R to reload.',
+  init:S=>{P.cur=0;P.mag[0]=1;S.seen=0},
+  tick:S=>{if(P.rl>0)S.seen=1;return S.seen&&P.rl<=0&&P.mag[0]>1}}
+];
+function tutNext(){const S=TUTR;S.i++;S.ok=0;S.red=0;S.keepHp=0;P.hp=100;S.t0=S.t||0;if(S.i>=TLESS.length){S.fin=4.5;return}TLESS[S.i].init(S)}
+function tutStart(){
+ if(TUTR)return;
+ try{mpStop()}catch(e){}
+ if(typeof TART!='undefined'&&TART){TART.stop();TART=null}
+ // run the normal world generation, but make the multiplayer search answer instantly with 'just you' so it never goes online
+ const _ms=mpSearch;mpSearch=function(go){go(Math.random()*4294967296>>>0,1)};
+ try{newGame()}finally{mpSearch=_ms}
+ M=M.filter(m=>m.boss);   // no wandering imps and no Cerberus; the sealed demon far away stays put
+ P.w=[PRI.repeater,SID.pistol];P.mag=[PRI.repeater.m,SID.pistol.m];P.res=[PRI.repeater.m*3,SID.pistol.m*3];P.bag=[];P.cur=0;
+ P.ts=[{k:'tonic',n:2},null,null];tsBind(P);P.tm=1e9;tutCalm();CHEAT.god=1;msg='';msgT=0;invOpen=0;showMap=0;
+ TUTR={i:-1,ok:0,fin:0,v:0,lx:P.x,ly:P.y,red:0};tutNext();
+ const b=document.createElement('button');b.id='tutx';b.textContent='Exit tutorial';
+ b.style.cssText="position:fixed;z-index:60;top:8px;right:8px;font:600 14px system-ui,sans-serif;padding:5px 12px;transform:none;border-radius:8px;border:2px solid #e8e6d8;background:rgba(138,42,42,.9);color:#fff;cursor:pointer;touch-action:manipulation";
+ b.onclick=()=>tutFinish('quit');b.onpointerup=()=>tutFinish('quit');document.body.appendChild(b)}
+function tutFinish(how){if(!TUTR)return;if(how=='done')tutMark('bh_tutdone');TUTR=null;CHEAT.god=0;const b=document.getElementById('tutx');if(b)b.remove();
+ mode='menu';scr='title';invOpen=0;showMap=0;keys={};mouse.l=mouse.r=0;msg='';msgT=0;menu()}
+function tutTick(dt){const S=TUTR;S.v=Math.hypot(P.x-S.lx,P.y-S.ly)/Math.max(dt,.001);S.lx=P.x;S.ly=P.y;S.t=(S.t||0)+dt;if(P.st<35)P.st=35;if(!S.keepHp)P.hp=100;
+ if(S.fin>0){S.fin-=dt;if(S.fin<=0)tutFinish('done');return}
+ if(S.ok>0){S.ok-=dt;if(S.ok<=0)tutNext();return}
+ if(S.sent)tPin(S.sent);const L=TLESS[S.i];if(L&&L.tick(S,dt))S.ok=1.3}
+// tutorial is a calm sandbox: wipe every random event (blood moon, tithe, fog, rain, hellfire, collapse) the same way the Peace ending does
+function tutCalm(){EVN=null;TTH=null;FOG=null;HFR=null;mets=[];if(P){P.evp=[];P.hfD=1;P.fgD=1;P.clD=1;P.ttn=1e9}}
+{const _u=update;update=function(dt){_u(dt);if(TUTR&&P&&mode=='play'){P.tm=1e9;tutCalm();TUTR.upd=1;tutTick(dt)}}}
+{const _e=end;end=function(w){if(TUTR){if(w){if((TLESS[TUTR.i]||{}).ex){TUTR.exd=1;try{sfx.escape()}catch(e){}say('You made it out alive!',3)}P.ep=0;return}tutFinish('quit');return}return _e.apply(this,arguments)}}
+{const _m=menu;menu=function(m){if(scr=='tutplay'){scr='title';tutStart();return}_m.apply(this,arguments)}}
+// objective panel (screen space) and target marker (world space)
+function tutHud(){const S=TUTR;if(!P)return;ctx.save();const x=6,y=6,w=300,L=TLESS[S.i];
+ if(invOpen&&L){const cx=110,cw=420,ls=invWrap(L.d(),68).slice(0,2),ok=S.ok>0;ctx.fillStyle='rgba(14,8,10,.96)';ctx.fillRect(cx,2,cw,37);ctx.strokeStyle=ok?'#6fcf6a':'#e8e6d8aa';ctx.lineWidth=1;ctx.strokeRect(cx+.5,2.5,cw,37);
+  ctx.font='bold 9px monospace';tx('TUTORIAL '+(S.i+1)+'/'+TLESS.length+'  '+L.t+(ok?'  \u2713':''),cx+6,13,ok?'#8fe0a0':'#ffd9a0');ctx.font='bold 10px monospace';ls.forEach((l,i)=>tx(l,cx+6,24+i*11,'#e8e6d8'));ctx.restore();return}
+ if(!L){const ls=invWrap('You know the whole hunt: sigils, the lair, the banish and the escape. Back to the menu in a moment.',46),h=34+ls.length*12+8;
+  ctx.fillStyle='rgba(14,8,10,.94)';ctx.fillRect(x,y,w,h);ctx.strokeStyle='#6fcf6a';ctx.strokeRect(x+.5,y+.5,w,h);ctx.font='bold 9px monospace';tx('TUTORIAL',x+8,y+12,'#a89c80');ctx.font='bold 13px monospace';tx('Basics complete \u2713',x+8,y+27,'#8fe0a0');ctx.font='bold 10px monospace';ls.forEach((l,i)=>tx(l,x+8,y+41+i*12,'#e8e6d8'));ctx.restore();return}
+ const ls=invWrap(L.d(),46),h=34+ls.length*12+8,ok=S.ok>0;
+ ctx.fillStyle='rgba(14,8,10,.94)';ctx.fillRect(x,y,w,h);ctx.strokeStyle=ok?'#6fcf6a':'#e8e6d8aa';ctx.lineWidth=1;ctx.strokeRect(x+.5,y+.5,w,h);
+ ctx.font='bold 9px monospace';tx('TUTORIAL  '+(S.i+1)+'/'+TLESS.length,x+8,y+12,'#a89c80');
+ for(let i=0;i<TLESS.length;i++){ctx.fillStyle=i<S.i||(i==S.i&&ok)?'#6fcf6a':i==S.i?'#ffd060':'#555';ctx.fillRect(x+w-8-(TLESS.length-i)*8,y+6,6,6)}
+ ctx.font='bold 13px monospace';tx(L.t+(ok?'  \u2713':''),x+8,y+27,ok?'#8fe0a0':'#ffd9a0');
+ ctx.font='bold 10px monospace';ls.forEach((l,i)=>tx(l,x+8,y+41+i*12,'#e8e6d8'));ctx.restore()}
+// the inventory dims the whole screen after render(), which greyed out the tutorial panel: draw it again on top
+{const _di=drawInv;drawInv=function(){_di.apply(this,arguments);if(TUTR&&mode=='play'&&P)tutHud()}}
+// Heal lesson: the Reaper flies across the sky and breathes fire on the player (this is what hurts you; nothing else damages you in the tutorial)
+function tutFlyDraw(){const S=TUTR;if(!S||!P||mode!='play'||S.ok>0)return;const L=TLESS[S.i];if(!L||L.t!='Heal'||!S.fly||S.fly.done)return;
+ const F=S.fly,sc=.38,px=P.x-cam.x,py=P.y-cam.y,rx=F.x,ry=Math.max(95,Math.min(py-130,VH-170));
+ ctx.save();
+ ctx.fillStyle='rgba(50,0,8,'+(.28*sg(F.t,0,.8)).toFixed(3)+')';ctx.fillRect(0,0,VW,VH);
+ ctx.fillStyle='rgba(0,0,0,.35)';ctx.beginPath();ctx.ellipse(rx,py+8,60,20,0,0,7);ctx.fill();
+ demon(rx,ry,sc,{fa:1,jaw:F.fire>0?.9:0,fire:F.fire,gulp:0,lh:[-92,-12],rh:[92,-12],cl:.4,vb:0,vic:null,tgt:[(px-rx)/sc,(py-ry)/sc],hd:null,spike:null});
+ if(F.fire>0){ctx.globalCompositeOperation='lighter';const g=ctx.createRadialGradient(px,py,2,px,py,46);g.addColorStop(0,'rgba(255,200,80,'+(.7*F.fire).toFixed(3)+')');g.addColorStop(1,'rgba(255,70,10,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(px,py,46,0,7);ctx.fill();ctx.globalCompositeOperation='source-over'}
+ ctx.restore()}
+{const _r=render;render=function(){_r.apply(this,arguments);if(TUTR&&mode=='play'){const S=TUTR,n=performance.now(),dt=Math.min(.1,(n-(S.pn||n))/1000);S.pn=n;if(!S.upd)tutTick(dt);S.upd=0;tutFlyDraw();tutHud()}}}
+{const _b=bmDraw;bmDraw=function(){_b();if(!TUTR||!P||mode!='play')return;const S=TUTR,L=TLESS[S.i];if(!L||!L.mark||S.ok>0)return;let ts=L.mark(S);if(!ts)return;ts=[].concat(ts).filter(Boolean);if(!ts.length)return;
+ ctx.save();ctx.lineWidth=2;
+ ts.forEach((t,ti)=>{const x=t.x-cam.x,y=t.y-cam.y,pl=.5+.5*Math.sin(T*4),rd=t.red!==undefined?t.red:S.red,col=rd?'255,90,70':'255,208,96',r0=rd?20:16;
+  ctx.strokeStyle='rgba('+col+','+(.55+.4*pl).toFixed(2)+')';ctx.beginPath();ctx.arc(x,y,r0+3*pl,0,7);ctx.stroke();
+  ctx.strokeStyle='rgba('+col+',.35)';ctx.beginPath();ctx.arc(x,y,r0+9+3*pl,0,7);ctx.stroke();
+  const d=D(P.x,P.y,t.x,t.y);if(ti==0&&d>70){const a=Math.atan2(t.y-P.y,t.x-P.x),px=P.x-cam.x,py=P.y-cam.y,ax=px+Math.cos(a)*44,ay=py+Math.sin(a)*44;ctx.fillStyle='rgba('+col+',.9)';ctx.beginPath();ctx.moveTo(ax+Math.cos(a)*7,ay+Math.sin(a)*7);ctx.lineTo(ax+Math.cos(a+2.4)*6,ay+Math.sin(a+2.4)*6);ctx.lineTo(ax+Math.cos(a-2.4)*6,ay+Math.sin(a-2.4)*6);ctx.closePath();ctx.fill()}});
+ ctx.restore()}}
+
+// ---- step 2: combat lessons (wave, melee, swap weapons, heal, throw a charge) ----
+{const _h=hurt;hurt=function(m,d,a,k){if(TUTR&&k=='melee'&&m&&m.ty=='imp')TUTR.mh=(TUTR.mh|0)+1;return _h.apply(this,arguments)}}
+function tutImp(x,y,st){const m=mkMob(x,y,st||'idle','imp');if(st=='chase')m.lt=0;M.push(m);return m}
+const tAlive=a=>a.filter(m=>m.hp>0),tNear=a=>tAlive(a).sort((p,q)=>D(P.x,P.y,p.x,p.y)-D(P.x,P.y,q.x,q.y))[0]||null;
+TLESS.push(
+ {t:'A pack',
+  d:()=>tMob()?'Imps hunt in packs. Keep moving, shoot them all, and reload when you run low.':'Imps hunt in packs. Keep moving with W A S D, shoot them all, and press R when you run low.',
+  init:S=>{S.red=1;S.ms=[0,1,2].map(()=>{const p=tutSpot(P.x,P.y,210,270);return tutImp(p.x,p.y,'chase')})},
+  tick:S=>!tAlive(S.ms).length,
+  mark:S=>tNear(S.ms)},
+ {t:'Melee',
+  d:()=>tMob()?'An imp got inside your guard. Drag the PUNCH circle toward it and hit it twice. Punching saves ammo.':'An imp got inside your guard. Right click to punch it twice. Punching saves ammo.',
+  init:S=>{S.red=1;S.mh=0;const sp=()=>{const p=tutSpot(P.x,P.y,100,130);S.m=tutImp(p.x,p.y,'chase')};S.sp=sp;sp()},
+  tick:S=>{if(S.m.hp<=0&&S.mh<2)S.sp();return S.mh>=2&&S.m.hp<=0},
+  mark:S=>S.m.hp>0?S.m:null},
+ {t:'Swap weapons',
+  d:()=>tMob()?'Tap '+tBtn('swap','the swap button')+' to draw your pistol.':'Press 2, or scroll the mouse wheel, to draw your pistol.',
+  init:S=>{P.cur=0},
+  tick:S=>P.cur==1},
+ {t:'Heal',
+  d:()=>{const F=TUTR&&TUTR.fly;if(F&&!F.done)return 'The Reaper is making a pass overhead, and it breathes fire. Hold on, this is going to hurt.';return tMob()?'You are hurt. Tap '+tBtn('heal','the heal button')+' to drink Holy Water. It heals 50 HP.':'You are hurt. Press H to drink Holy Water. It heals 50 HP. (You can also pick it with 3 and left click.)'},
+  init:S=>{S.keepHp=1;P.cur=0;S.fly={t:0,dur:5.8,x:-260,bs:null,fire:0,done:0};try{say('Something is circling overhead...',3)}catch(e){}},
+  tick:(S,dt)=>{const F=S.fly;
+   if(!F.done){F.t+=dt;F.x=lp(-260,VW+260,sg(F.t,.8,F.dur));const px=P.x-cam.x;
+    if(F.bs==null&&F.t>.8&&Math.abs(F.x-px)<110){F.bs=F.t;try{rdV('snarl')}catch(e){}}
+    F.fire=F.bs!=null?sg(F.t,F.bs,F.bs+.25)*(1-sg(F.t,F.bs+.95,F.bs+1.2)):0;
+    if(F.fire>.2){P.hp=Math.max(40,P.hp-70*dt);shake=Math.max(shake,4);burst(P.x,P.y,1,40,'#ff8a20',0)}
+    if(F.t>=F.dur){F.done=1;P.hp=Math.min(P.hp,40)}}
+   return !!F.done&&P.hp>=85}},
+ {t:'Blessed Charge',
+  d:()=>tMob()?'Tap '+tBtn('swap','the swap button')+' until the Charge is selected, then drag FIRE toward the pack. It explodes after a moment, so get clear.':'Aim at the pack and press G to throw a Blessed Charge. It explodes after a moment, so get clear.',
+  init:S=>{S.red=1;P.cur=0;TS('bomb',2);const c=tutSpot(P.x,P.y,190,230);S.c=c;S.ms=[];
+   for(const o of[[0,0],[14,8],[-14,10]]){let x=c.x+o[0],y=c.y+o[1];if(hit(x,y,8)){x=c.x;y=c.y}S.ms.push(tutImp(x,y,'idle'))}S.bl=bombs.length;S.th=0},
+  tick:S=>{if(!S.th&&bombs.length>S.bl)S.th=S.t;return S.th&&(!tAlive(S.ms).length||S.t-S.th>3.5)},
+  mark:S=>tAlive(S.ms).length?S.c:null}
+);
+{const _lk=lk;lk=function(){if(TUTR)return;return _lk.apply(this,arguments)}}   // tutorial kills must not unlock (and save) lore notes
+
+// ---------- RELOAD RING: a ring around the player that fills as the reload completes ----------
+const RLR={pr:0,pm:0,f:0};
+{const _u=update;update=function(dt){_u(dt);if(P&&mode=='play'){const w=P.cur<2?P.w[P.cur]:null;
+  if(RLR.pr>0&&P.rl<=0&&w&&P.mag[P.cur]>RLR.pm)RLR.f=.25;RLR.pr=P.rl;RLR.pm=P.cur<2?P.mag[P.cur]:0;if(RLR.f>0)RLR.f-=dt}}}
+{const _b=bmDraw;bmDraw=function(){_b();if(!P||P.dead||mode!='play')return;const w=P.cur<2?P.w[P.cur]:null,rl=w&&w.rl&&P.rl>0,fl=RLR.f>0;if(!rl&&!fl)return;
+ const x=P.x-cam.x,y=P.y-cam.y,R=15,a0=-Math.PI/2,p=rl?Math.min(1,Math.max(0,1-P.rl/w.rl)):1;ctx.save();ctx.lineWidth=2.5;ctx.lineCap='round';
+ ctx.strokeStyle='rgba(255,255,255,.2)';ctx.beginPath();ctx.arc(x,y,R,0,7);ctx.stroke();
+ ctx.strokeStyle=fl?'rgba(140,255,160,'+Math.min(1,RLR.f*5).toFixed(2)+')':'rgba(255,208,96,.95)';ctx.beginPath();ctx.arc(x,y,R,a0,a0+p*Math.PI*2);ctx.stroke();ctx.restore()}}
+
+// ---- step 3: loot and inventory lessons (loot a weapon, grab supplies, open the bag, equip from the backpack, close it) ----
+const tKey=(a,pc)=>tMob()?tBtn(a,'the '+a+' button'):pc;
+TLESS.push(
+ {t:'Loot a weapon',
+  d:()=>tMob()?'Walk onto the glowing weapon and tap '+tBtn('interact','the E button')+' to pick it up. Your hands are full, so it goes into your backpack.':'Walk onto the glowing weapon and press E to pick it up. Your hands are full, so it goes into your backpack.',
+  init:S=>{const p=tutSpot(P.x,P.y,140,190);S.it={t:'wpn',s:0,k:'shotgun',x:p.x,y:p.y};items.push(S.it)},
+  tick:S=>!!S.it.got,
+  mark:S=>S.it.got?null:S.it},
+ {t:'Supplies',
+  d:()=>'Ammo and tools are picked up just by walking over them. Grab all three drops.',
+  init:S=>{const c=tutSpot(P.x,P.y,140,190);S.its=[];for(const [t,k,o] of [['ammo',0,[0,0]],['tonic',0,[24,6]],['tool','flask',[-22,12]]]){let x=c.x+o[0],y=c.y+o[1];if(hit(x,y,8)){x=c.x;y=c.y}const it={t,x,y};if(k)it.k=k;items.push(it);S.its.push(it)}},
+  tick:S=>S.its.every(i=>i.got),
+  mark:S=>S.its.find(i=>!i.got)||null},
+ {t:'Inventory',
+  d:()=>'Open your inventory with '+tKey('bag','Tab')+'. Gear and tools sit in the slots at the top, and your backpack is the grid below them.',
+  init:S=>{},
+  tick:S=>!!invOpen},
+ {t:'Equip',
+  d:()=>invOpen?'A spare Exorcist Rifle is in your backpack. '+(tMob()?'Tap':'Click')+' it to equip it. The weapon in your hands goes into the pack.':'Open your inventory again with '+tKey('bag','Tab')+' to continue.',
+  init:S=>{if(!P.bag.some(o=>o.k=='rifle'))addTo(P.bag,4,4,'rifle',1)},
+  tick:S=>!!(P.w[0]&&P.w[0].k=='rifle')},
+ {t:'Close the bag',
+  d:()=>'Close the inventory with '+tKey('bag','Tab')+'. Escape alive and you keep everything you carry, backpack included. Die and it is all lost.',
+  init:S=>{},
+  tick:S=>S.t-S.t0>2.2&&!invOpen}
+);
+
+// ---- step 4: noise and stealth lessons (sneak past, gunfire is loud, quiet weapons) ----
+// sleeping imps are pinned in place until something wakes them (idle imps wake from noise, or when you get within ~75px in sight)
+const tPin=m=>{if(m&&m.hp>0&&m.st=='idle'){m.wt=99;m.go=0;m.ig=0}};
+TLESS.push(
+ {t:'Stay quiet',
+  d:()=>TUTR.fail?'It heard you! Put it down, then try again. Walk, do not sprint or shoot.':(tMob()?'A sleeping imp is nearby. Walk to the ring without sprinting or shooting. Watch your NOISE bar: noise wakes it.':'A sleeping imp is nearby. Walk to the ring without sprinting (Shift) or shooting. Watch your NOISE bar: noise wakes it.'),
+  init:S=>{S.wp=tutSpot(P.x,P.y,240,300);S.fail=0;const mx=(P.x+S.wp.x)/2,my=(P.y+S.wp.y)/2,dx=S.wp.x-P.x,dy=S.wp.y-P.y,L=Math.hypot(dx,dy)||1,px=-dy/L,py=dx/L;
+   const cs=[];for(const sg of[1,-1])for(const off of[95,105,120])cs.push({x:mx+px*off*sg,y:my+py*off*sg});
+   let pos=cs.find(c=>!hit(c.x,c.y,8))||cs[0];S.pos=pos;S.mk=()=>{S.m=mkMob(pos.x,pos.y,'idle','imp');M.push(S.m)};S.mk()},
+  tick:S=>{const m=S.m;tPin(m);if(m.hp<=0){S.fail=0;S.mk();return false}if(m.st!='idle'){S.fail=1;return false}S.fail=0;return D(P.x,P.y,S.wp.x,S.wp.y)<18},
+  mark:S=>[S.wp,S.m.hp>0?{x:S.m.x,y:S.m.y,red:1}:null]},
+ {t:'Gunfire is loud',
+  d:()=>'Quiet is safe, gunfire is not. Fire one shot and watch the ring: everything inside it hears you. The imp will come, so finish it.',
+  init:S=>{P.cur=0;P.res[0]=Math.max(P.res[0],15);P.mag[0]=Math.max(P.mag[0],3);const p=tutSpot(P.x,P.y,190,230);S.m=mkMob(p.x,p.y,'idle','imp');M.push(S.m);S.woke=0;S.red=1},
+  tick:S=>{tPin(S.m);return S.m.hp<=0},
+  mark:S=>S.m.hp>0?S.m:null},
+ {t:'Go silent',
+  d:()=>tMob()?'Tap '+tBtn('swap','the swap button')+' to draw the silent Whisper Pistol. Kill both sleeping imps. Its shots barely carry, so the second stays asleep.':'Press 2 to draw the silent Whisper Pistol. Kill both sleeping imps. Its shots barely carry, so the second one stays asleep.',
+  init:S=>{const w=SID.whisper;P.w[1]=w;P.mag[1]=w.m;P.res[1]=w.m*3;P.cur=0;S.red=1;const a=tutSpot(P.x,P.y,150,190),ang=Math.atan2(a.y-P.y,a.x-P.x);
+   let bx=a.x+Math.cos(ang)*130,by=a.y+Math.sin(ang)*130;if(hit(bx,by,8)){bx=a.x+Math.cos(ang+1.5)*130;by=a.y+Math.sin(ang+1.5)*130;if(hit(bx,by,8)){bx=a.x;by=a.y+30}}
+   S.ms=[mkMob(a.x,a.y,'idle','imp'),mkMob(bx,by,'idle','imp')];S.ms.forEach(m=>M.push(m))},
+  tick:S=>{S.ms.forEach(tPin);return S.ms.every(m=>m.hp<=0)},
+  mark:S=>S.ms.filter(m=>m.hp>0)}
+);
+
+TLESS.push(
+ {t:'Burn a sigil',d:()=>tMob()?'Walk onto the red sigil and hold '+tBtn('interact','the E button')+' to burn it. Real hunts have three, hidden in the ruins.':'Walk onto the red sigil and press E to burn it. Real hunts have three, hidden in the ruins.',
+  init:S=>{M=M.filter(m=>m.boss);found=0;const p=tutSpot(P.x,P.y,140,190);clues=[{x:p.x,y:p.y,got:0}];S.c=clues[0]},
+  tick:S=>found>=1,mark:S=>S.c.got?null:S.c},
+ {t:'Read the map',d:()=>showMap?"The red X is the archdemon's lair, revealed once all three sigils are burned. Close the map with "+tKey('map','M')+' to continue.':'Three burned sigils reveal the lair. Open the map with '+tKey('map','M')+' and find the red X.',
+  init:S=>{found=3;const c0=clues[0],a=tutSpot(P.x,P.y,300,600),b=tutSpot(P.x,P.y,300,600);clues=[c0,{x:a.x,y:a.y,got:1},{x:b.x,y:b.y,got:1}];S.seen=0;banner('THE LAIR IS REVEALED','Three burned sigils reveal where the archdemon waits. Check your map [M].','#ff6a3a')},
+  tick:S=>{if(showMap)S.seen=1;return S.seen&&!showMap}},
+ {t:'Banish the demon',d:()=>'The archdemon has fallen. Stand on the corpse and hold '+tBtn('interact','the E button')+' for 5 seconds. It is loud and company will come, so keep holding.',
+  init:S=>{const p=tutSpot(P.x,P.y,170,220),B=M[0];if(B){B.hp=-1;B.x=p.x;B.y=p.y}corpse={x:p.x,y:p.y};banished=0;P.bp=0;bty=null;pool(p.x,p.y,24,10);splat(p.x,p.y,60,30);S.c=p;S.sp=0;
+   let best=null,bd=-1;for(const q of [[80,80],[WW-80,80],[80,WH-80],[WW-80,WH-80]]){const r=tutSpot(q[0],q[1],0,60),d=D(r.x,r.y,p.x,p.y);if(d>bd){bd=d;best=r}}
+   S.sent=tutImp(best.x,best.y,'idle')},
+  tick:S=>{if(!S.sp&&P.bp>1.2){S.sp=1;for(let i=0;i<2;i++){const q=tutSpot(P.x,P.y,230,280);tutImp(q.x,q.y,'chase')}}return banished},
+  mark:S=>banished?null:S.c},
+ {t:'Extract',ex:1,d:()=>'Reach the glowing exit ring and stand inside it until the ring fills (10 seconds). The bounty only pays if you leave alive.',
+  init:S=>{M=M.filter(m=>m.boss||m===S.sent);const p=tutSpot(P.x,P.y,200,260);const e={x:p.x,y:p.y,k:0,n:'Order Wagon',lx:p.x,ly:p.y};exts.push(e);S.ex=e;S.exd=0},
+  tick:S=>S.exd,mark:S=>S.exd?null:S.ex}
+);
+menu();tutAsk(); // first render last, so every menu entry and wrapper above is in place
 </script></body></html>
