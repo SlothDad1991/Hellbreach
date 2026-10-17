@@ -161,7 +161,7 @@ button.tt-btn:active{transform:translateX(12px) scale(.98)}
    Lore pictures (bs() in loreArt) and the title-screen cutscene (drawBoss in titleArt) call drawM, so they pick up the new art automatically.
    The boss health bar was raised to y-42 to clear the taller sprites. Boss corpses: drawBossCorpse(x,y,boss) (gory heap per archdemon, called from the dead-mob loop in the world draw). The minimap X is unchanged.
    -----------------------------------------------------------------------------------------------------
-   LESSER DEMONS TO ADD (Cerberus is the only one built so far). Agreed in a panel of 5 devs, 5 playtesters, 5 Goetia specialists.
+   LESSER DEMONS TO ADD (Cerberus, Raum and Vepar are built so far). Agreed in a panel of 5 devs, 5 playtesters, 5 Goetia specialists.
    Rules for every lesser demon: one clear sense, one clear tell, one clear counter. Follow the Cerberus pattern: LESSER[...] entry, mkX(x,y)
    spawn function, a roam/behaviour function called from the update() mob loop, m.lesser=1, drawn in drawM, NEVER add to MOBS (pickMob() would
    spawn it as a normal imp and MKS would sync it). Spawn on a roll at newGame (at most 1-2 per run), never inside the archdemon's building
@@ -174,7 +174,7 @@ button.tt-btn:active{transform:translateX(12px) scale(.98)}
                                        Counter: real rings fill with a progress ticker, fake ones flicker.
      3. Botis, the Buried Viper      - hides under the grass until you step over it, then strikes.
                                        Counter: faint tell in the disturbed ground, a flare reveals it, tripwires trigger it early.
-     4. Raum, the Crow Thief         - swoops in, steals ground loot or a tool from the belt, flies off.
+     4. Raum, the Crow Thief [BUILT] - swoops in, steals ground loot or a tool from the belt, flies off.
                                        Counter: shoot it down to get everything back.
      5. Murmur, the Corpse Choir     - necromancer heralded by trumpets; raises dead imps as husks near him.
                                        Counter: kill him first, or gib corpses with a Grenade or shotgun.
@@ -184,7 +184,7 @@ button.tt-btn:active{transform:translateX(12px) scale(.98)}
                                        Counter: bank the cash by escaping, or kill it.
      8. Amy, the Ash Archivist       - roams to burned sigils and snuffs them out, undoing progress.
                                        Counter: guard the sigils, or kill her.
-     9. Vepar, the Rot-Mermaid       - her touch gives rot, a slow health drain that keeps ticking.
+     9. Vepar, the Rot-Mermaid [BUILT] - her touch gives rot, a slow health drain that keeps ticking.
                                        Counter: Holy Water cleanses it.
      Next-round idea (not agreed yet): Sitri, the Disarmer - yanks the weapon out of your hands onto the ground (fits the backpack pickup rules).
    -----------------------------------------------------------------------------------------------------
@@ -193,7 +193,7 @@ button.tt-btn:active{transform:translateX(12px) scale(.98)}
    (lost on death, kept on a clean escape). To BURN it: use it (left click from its tool slot) and stand still for 3s. Moving or taking damage cancels it; the burn smoke makes a little noise (a tell).
    Effects are either timers on P (like P.sb / P.bw) or world objects (fires, NOISE) that reuse the flare / noisemaker sync messages. Rule: every totem has an upside AND a catch; none is a strict upgrade.
    New totem recipe: key in TOT, a TOOL row with tot:1, ISZ / SPX / TL entries, a sprite in drawWpn, an entry in TOTD (the effect), and tot:[a,b] on that demon's LESSER row. dropTotems() does the rest.
-   BUILT: the system plus Cerberus (muzzle, pyre). The other nine demons are not built yet: add their totems when each demon is built. (No lore blurbs for totems unless the owner asks.)
+   BUILT: the system plus Cerberus (muzzle, pyre), Raum (magpie, thief) and Vepar (pearl, undertow). The other demons are not built yet: add their totems when each demon is built. (No lore blurbs for totems unless the owner asks.)
    Plan table: demon | totem (key) | when burned | catch | cost (S small, M medium)
      Cerberus | Hound's Muzzle (muzzle)    BUILT | 60s: all your noise (gunfire, sprint, steps) at half radius | none | S
      Cerberus | Pyre of the Pack (pyre)     BUILT | totem keeps burning 10s as a loud decoy fire that lures imps and hunters | you must be well away from it | M
@@ -203,8 +203,8 @@ button.tt-btn:active{transform:translateX(12px) scale(.98)}
      Furfur   | Honest Ring                      | exit hold time 10s -> 7s for the run, fake rings are marked | does nothing special if there is no Furfur | M
      Botis    | Shed Skin                        | marks every hidden / disguised thing on the map for the run | none | S
      Botis    | Viper Fang                       | your next 15 hits poison (5 dmg/s for 4s) | needs a new poison effect (the Blowpipe could reuse it) | M
-     Raum     | Magpie Feather                   | 40s loot magnet: ground loot within ~120px flies to you | none | S
-     Raum     | Thief's Hands                    | your next 3 tool uses cost nothing | none | S
+     Raum     | Magpie Feather (magpie)  BUILT   | 40s loot magnet: ground loot within ~120px flies to you | none | S
+     Raum     | Thief's Hands (thief)    BUILT   | your next 3 tool uses cost nothing | none | S
      Murmur   | Grave Dust                       | sets every corpse within ~250px alight; they hurt imps and cannot be raised | the fire can burn you | M
      Murmur   | Choir Note                       | a dirge halves the speed of imps within ~250px for 6s | the trumpets are loud | M
      Phenex   | Ash Feather                      | the next time you would die this run you rise at 40% health with a 3s ward | one use, and you must burn it before you die | M
@@ -213,9 +213,52 @@ button.tt-btn:active{transform:translateX(12px) scale(.98)}
      Vassago  | Finder's Fee                     | carried bounty +30% at once | every lesser demon knows where you are for 20s | M
      Amy      | Archivist's Quill                | sigils burn in half the time for 90s | the smoke is visible | S
      Amy      | Index Page                       | marks all sigils on the map, and burned sigils cannot be snuffed out | none | M
-     Vepar    | Brine Pearl                      | cures rot / bleed and regenerates ~40 health over 20s | you stand still for the burn | M
-     Vepar    | Undertow                         | a puddle slows everything inside by 60% for 10s | it slows you too | M
+     Vepar    | Brine Pearl (pearl)     BUILT    | cures rot / bleed and regenerates ~40 health over 20s | you stand still for the burn | M
+     Vepar    | Undertow (undertow)     BUILT    | a puddle slows everything inside by 60% for 10s | it slows you too | M
    Sitri (not agreed as a demon yet) has no totems planned.
+   -----------------------------------------------------------------------------------------------------
+   TO DO NEXT: DEATH ANIMATION AUDIT: check that every weapon has an appropriate kill animation, and that every monster has an appropriate death animation for what killed it.
+     1. List every damage source: each primary and sidearm (PRI / SID), each tool that hurts (Grenade, Molotov, Tripwire, Caltrops, Salt gun, Stake...), plus fire, bomb, bloat blast, meteor, rot, and anything newer.
+     2. For each source, kill one of every monster type (imp, skitter, bloat, vine, brute, spooler, gleaner, the three archdemons, Cerberus, Raum, Vepar) and look at the death. The reaction (GS[src]: fly, bolt, char, pop, mush, vap, none...) must fit the cause:
+        a shotgun blast should not look like a burn, a flame should char, a bomb should gib, a stake or blade should not blow the body apart.
+     3. Look for gaps: weapons that only borrow another weapon's GS entry (Batch 2 borrows), weapons with no GS entry (they fall back to the generic fly/fall), lesser demons (their corpse is a plain ellipse
+        and they ignore the weapon's death style), bosses, and status deaths (rot, poison). Write down each gap, then add or fix the GS entry or the corpse drawing.
+     4. Keep multiplayer in mind: the death style is chosen from the killing source, so remote kills must pass the same src.
+   TO IMPLEMENT IN THE FUTURE: THE MAP CHANGES (the two lists below, bosses and lesser demons, are the detail): the map should change depending on the archdemon (each of Gorrath, Nyxara and Mordrek gets its own look and layout), and lesser demons should change the map as well
+     (for example a Vepar breach floods low ground with brine, a Raum breach puts nests and bones around). Not designed yet. Keep generation seed-driven so multiplayer stays in sync, and hook in at
+     genGround / newGame and where the lesser demons are spawned (LESSER_MK).
+   TO IMPLEMENT IN THE FUTURE: BOSS MAP EFFECTS (brainstormed by the 15-voice panel, Oct 18; none built yet). Read as: what the breach looks like and how the ground plays when each archdemon is the one sealed in the lair.
+   Rules: every effect has an upside AND a catch for the hunter; all of it is placed from the seed (multiplayer stays in sync); sigils, exits and the lair must stay reachable; keep it out of the tutorial.
+     Gorrath, the Maw (fire, charging brute):
+       Scorched Parish   - burnt ground and charred stumps instead of leafy trees: fewer hiding places and long open sightlines, which a charger loves. Ash drifts muffle footsteps a little (small upside).
+       Magma Fissures    - glowing cracks cut across the map with a few stone crossings. They light the dark (you can see enemies near them) but burn anything that steps in, and a charging Gorrath cannot cross them either.
+       Broken Walls      - buildings start with smashed walls and rubble heaps: new shortcuts and cover, but also new doors for the horde.
+       Grass Fire        - Molotovs, flamers and meteors spread fire through dry grass for a few seconds. It clears the horde and also corners you.
+     Nyxara, Cinder Witch (ranged hellfire):
+       Ember Fog         - drifting cinders and low ash fog cut sight range for everyone. Easier to sneak, harder to spot her ranged shots; her fireballs glow so they can be read.
+       Cursed Standing Stones - ruined pillars scattered around the lair give cover from her fire, but each one hums and draws the eyes of nearby imps when you hide behind it.
+       Witch Fires       - green-black braziers that burn on their own near the lair. Standing near one slowly heals imps; putting one out (Holy Water) removes the buff.
+       Cinder Rain       - the meteor strikes (already in the game) come more often near the lair and leave burning pools; the red warning circle stays so it is always dodgeable.
+     Mordrek, the Choir-Eater (summoner, calls the horde):
+       Churchyard        - graves, headstones and walled plots. Cover and narrow lanes for you, but some open graves push out an imp now and then while Mordrek is awake.
+       Bell Tower        - a bell tolls every minute and wakes imps within a wide radius (a loud global tell). Shooting out the bell silences it for the run.
+       Choir Stones      - a ring of stones hums the choir. While you stand in it imps nearby hesitate, but the hum is loud and carries to Mordrek.
+       Bone Drifts       - ribs and skulls pile up on the ground and rattle when walked through, so crossing them makes noise (a Cerberus magnet).
+   Open questions: do effects stack with the lesser demons' map changes, do any of them replace the current random trees and ruins, and how much does the layout change versus just the look (props, tint, particles).
+   TO IMPLEMENT IN THE FUTURE: LESSER DEMON MAP EFFECTS (brainstormed by the 15-voice panel, Oct 18; none built yet). They must work on top of the boss effects above, so they are kept SMALL and LOCAL:
+   a lesser demon marks its own territory (a patch of roughly 250-400px around its den or along the route it roams), while the boss owns the whole map's look, weather and big terrain.
+   Channel split so they never fight: the BOSS owns palette, fog, weather and big landmarks; a LESSER owns ground surface (sound or slow), small props, light pools and map markers.
+   If a lesser's patch collides with a boss feature, the boss feature wins (place the boss layer first) and the lesser patch moves or shrinks. Same rules as before: upside AND catch, seed-driven, stays out of the tutorial.
+     Cerberus  - Gravel and Moss: patches of loud gravel and patches of soft moss near its roaming routes. Gravel makes your steps carry (it hears them), moss keeps you quiet. Catch: the moss is in the open and the gravel is the shortcut.
+     Raum      - Crow Roost: dead trees and fence posts with feathers beneath, and a few glittering trinkets left in plain sight as bait. Free loot, but Raum is watching it. (Its nest is built already.)
+     Vepar     - Brine Flats: low ground turns to shallow brine pools with a green slick. They slow anything wading through them by about 30% and leave wet footprints, but they also put out fires (a grass fire from Gorrath stops at the water). Her stain trail is built already.
+     Stolas    - Lantern Grove: hanging lamps and a few lit sigils make pools of light, and the rest of its patch is deep shadow. Light shows you the horde but draws the owl; the dark is safe from it but blind. Lanterns cut through Nyxara's ember fog.
+     Furfur    - Mirage Rings: extra exit-style rings in its patch that the map shows like real ones until you get close, plus hoof prints and antler shrines. Real rings fill with a ticker, fake ones flicker (already the counter).
+     Botis     - Tall Grass: dense knee-high grass patches that hide whatever is in them, hunters included (stealth upside), with shed snake skins at the edge as a tell. A flare or fire clears it, and fire here spreads fast.
+     Murmur    - Coffin Row: a road lined with open coffins, each holding a husk that rises when its trumpet sounds. Gib or burn the coffins first. Different from Mordrek's graves: graves feed imps, coffins are pre-placed raise targets.
+     Phenex    - Ash Heaps: small heaps of grey ash and a few scorched feather circles. Each one is a spot it could rise from; Holy Water on a heap clears it. Looks different from Gorrath's burnt ground (heaps and feathers, not scorched earth).
+     Vassago   - Toll Gates: rope barriers and bounty posts along the roads. Pay a coin toll to pass quietly or sneak around; the posts show a faint trail of where cash carriers walked, which tells him where to hunt.
+     Amy       - Archive Ruins: toppled shelves and loose pages that act as low walls and block sight, ash footprints, and rings of burned glyphs around sigil sites. Pages rustle when you cross them (a small noise).
    -----------------------------------------------------------------------------------------------------
    HORDE MOBS (the rank-and-file tier: MOBS table, drawMob, mobAI, Horde Lore tab 1). Brainstormed by the same panel. Unlike lesser demons these live in MOBS.
    If a horde mob must never be picked by pickMob(), give it w:0 and place it by hand (that is how the Gleaner works). New MOBS keys go at the END
@@ -338,13 +381,17 @@ const SKINS={plain:{f:'hunter',c:0,pl:1,n:'Plain Hunter',d:'Drab coat, bare face
  wolf:{f:'wolf',v:'wolf',c:800,n:'Wolfhide Stalker',d:'Pelt, paint and fangs. The wild hunts the breach.',coat:'#6a5a4a',coat2:'#9a8a74',hood:'#4a3e32',mask:'#d8b890',beak:'',eye:'#ffd040',eyeg:'#ffb000',rune:'#c02020',band:'#3a2a1c'},
  reaper:{f:'reaper',v:'reaper',c:0,led:1,mys:1,ep:1,n:'The Reaper',d:'Horns, wings, an ember where its heart should be, and a grin that never closes. How it is earned is not written anywhere.',coat:'#2a0b14',coat2:'#4a1626',hood:'#3c131e',mask:'#d8cca8',beak:'',eye:'#ffe060',eyeg:'#ffa020',rune:'#ff7a1a',band:'#6e1630'}};
 const TOOL={tonic:{n:'Holy Water',c:20,d:'+50 HP \u00b7 stacks to 3'},bomb:{n:'Grenade',c:25,d:'big boom \u00b7 stacks to 3'},flask:{n:'Molotov',c:35,d:'burning pool, 5s \u00b7 stacks to 3'},flare:{n:'Flare',c:20,d:'lights the dark, lures imps \u00b7 stacks to 3'},ward:{n:"Ward",c:40,d:'-60% damage for 10s \u00b7 stacks to 3'}};
-const XT=['flask','flare','ward','tripwire','saltline','noisemaker','chalk','stamtonic','bootwraps'],TOT=['muzzle','pyre'],XL=['Molotov','Flare','Ward','Wire','Salt Line','Noisemaker','Chalk Circle','Stamina Tonic','Boot Wraps'],TKS=['tonic','bomb',...XT];
+const XT=['flask','flare','ward','tripwire','saltline','noisemaker','chalk','stamtonic','bootwraps'],TOT=['muzzle','pyre','magpie','thief','pearl','undertow'],XL=['Molotov','Flare','Ward','Wire','Salt Line','Noisemaker','Chalk Circle','Stamina Tonic','Boot Wraps'],TKS=['tonic','bomb',...XT];
 TOOL.saltline={n:'Salt Line',c:30,d:'lay a line of salt imps will not cross for 8s; bosses and ranged attackers ignore it \u00b7 stacks to 3'};
 TOOL.noisemaker={n:'Noisemaker',c:20,d:'thrown, clatters on landing and lures the horde for 7s \u00b7 stacks to 3'};
 TOOL.stamtonic={n:'Stamina Tonic',c:25,d:'8s of free sprinting and a faster run \u00b7 stacks to 3'};
 TOOL.bootwraps={n:'Boot Wraps',c:30,d:'15s of silent sprinting \u00b7 stacks to 3'};
 TOOL.muzzle={n:"Hound's Muzzle",c:60,tot:1,d:'totem: burn it (stand still 3s) and your noise is halved for 60s \u00b7 stacks to 3'};
 TOOL.pyre={n:'Pyre of the Pack',c:60,tot:1,d:'totem: burn it (stand still 3s) and it keeps burning 10s as a loud decoy fire that lures imps and hunters \u00b7 stacks to 3'};
+TOOL.magpie={n:'Magpie Feather',c:60,tot:1,d:'totem: burn it (stand still 3s) and loose loot within 120px flies to you for 40s \u00b7 stacks to 3'};
+TOOL.thief={n:"Thief's Hands",c:60,tot:1,d:'totem: burn it (stand still 3s) and your next 3 tool uses cost nothing \u00b7 stacks to 3'};
+TOOL.pearl={n:'Brine Pearl',c:60,tot:1,d:'totem: burn it (stand still 3s) to cure rot and regain ~40 health over 20s \u00b7 stacks to 3'};
+TOOL.undertow={n:'Undertow',c:60,tot:1,d:'totem: burn it (stand still 3s) and a puddle slows everything inside by 60% for 10s, you too \u00b7 stacks to 3'};
 TOOL.chalk={n:'Chalk Circle',c:45,d:'a 6s circle melee attackers and the horde cannot enter; shots still land \u00b7 stacks to 3'};
 TOOL.tripwire={n:'Tripwire',c:30,d:'plant a wire; anything that trips it \u2014 imps, rivals, even you \u2014 takes a blast (V) \u00b7 stacks to 3'};
 const BOSS={gorrath:{n:'Gorrath the Maw',i:'\u{1F525}',d:'Charging brute of the pit.',bh:'charge',hp:900,bo:450},nyxara:{n:'Nyxara, Cinder Witch',i:'\u{1F608}',d:'Hurls hellfire from afar.',bh:'ranged',hp:650,bo:400},mordrek:{n:'Mordrek the Choir-Eater',i:'\u{1F47F}',d:'Calls the horde to his side.',bh:'summon',hp:750,bo:500}};
@@ -358,7 +405,7 @@ const FAMS={hunter:{n:'The Hunter',d:'The plain issue kit. Always yours.',c:0,de
 const pit=q=>q.t=='f'?FAMS[q.k]:q.t=='w'?(SID[q.k]||PRI[q.k]||TOOL[q.k]):SKINS[q.k];
 let pname='';const cleanName=v=>String(v==null?'':v).replace(/[^\w .'\-]/g,'').replace(/\s+/g,' ').trim().slice(0,14);
 let LS={},AST={},ANT={},RS={},AL=null,shopScr='shop',wsConf=null,traps=[],own=['hunter','plain'],curFam='hunter',note='',pend=null,stash=[],invOpen=0;
-const ISZ={rifle:[4,2],shotgun:[4,2],repeater:[3,2],crossbow:[3,2],pistol:[2,2],revolver:[2,2],tonic:[1,1],bomb:[2,1],pepperbox:[3,2],musket:[4,2],flamer:[3,2],handcannon:[2,2],whisper:[2,2],flask:[1,1],flare:[1,1],ward:[1,1],tripwire:[1,1],saltline:[1,1],noisemaker:[1,1],chalk:[1,1],gatling:[4,2],blunderbuss:[4,2],longbow:[4,2],sprayer:[3,2],mortar:[3,2],sixshooter:[2,2],dartpistol:[2,2],stake:[2,1],carbine:[3,2],sawnoff:[3,2],pump:[4,2],lever:[3,2],drum:[3,2],repxbow:[3,2],fowling:[4,2],derringer:[2,1],pocketrev:[2,2],navyrev:[2,2],scatterpistol:[2,2],dragoon:[2,2],sling:[2,1],saltgun:[4,2],stamtonic:[1,1],bootwraps:[1,1],muzzle:[1,1],pyre:[1,1]},SC=20,SR=8,MAXST=3,NTS=6,EXD=10/* seconds standing in an exit ring to escape */,isz=k=>ISZ[k]||[1,1];
+const ISZ={rifle:[4,2],shotgun:[4,2],repeater:[3,2],crossbow:[3,2],pistol:[2,2],revolver:[2,2],tonic:[1,1],bomb:[2,1],pepperbox:[3,2],musket:[4,2],flamer:[3,2],handcannon:[2,2],whisper:[2,2],flask:[1,1],flare:[1,1],ward:[1,1],tripwire:[1,1],saltline:[1,1],noisemaker:[1,1],chalk:[1,1],gatling:[4,2],blunderbuss:[4,2],longbow:[4,2],sprayer:[4,2],mortar:[3,2],sixshooter:[2,2],dartpistol:[2,2],stake:[2,1],carbine:[3,2],sawnoff:[3,2],pump:[4,2],lever:[3,2],drum:[3,2],repxbow:[3,2],fowling:[4,2],derringer:[2,1],pocketrev:[2,2],navyrev:[2,2],scatterpistol:[2,2],dragoon:[2,2],sling:[2,1],saltgun:[4,2],stamtonic:[1,1],bootwraps:[1,1],muzzle:[2,1],pyre:[2,1],magpie:[2,1],thief:[2,1],pearl:[2,1],undertow:[2,1]},SC=20,SR=8,MAXST=3,NTS=6,EXD=10/* seconds standing in an exit ring to escape */,isz=k=>ISZ[k]||[1,1];
 const fitsIn=(arr,C,R_,x,y,w,h,ex)=>x>=0&&y>=0&&x+w<=C&&y+h<=R_&&!arr.some(o=>{if(o===ex)return 0;const z=isz(o.k);return x<o.x+z[0]&&x+w>o.x&&y<o.y+z[1]&&y+h>o.y});
 const spotIn=(arr,C,R_,k,ex)=>{const[w,h]=isz(k);for(let y=0;y<=R_-h;y++)for(let x=0;x<=C-w;x++)if(fitsIn(arr,C,R_,x,y,w,h,ex))return[x,y];return null};
 const addTo=(arr,C,R_,k,n)=>{if(TOOL[k]){const t=arr.find(o=>o.k==k&&o.n<MAXST);if(t){t.n=Math.min(MAXST,t.n+(n||1));return 1}}const f=spotIn(arr,C,R_,k);if(!f)return 0;arr.push({k,x:f[0],y:f[1],n:n||(TOOL[k]?1:0)});return 1};
@@ -373,7 +420,7 @@ const accepts=(id,k,src)=>id=='p'?!!(PRI[k]&&k!='none'):id=='s'?!!(SID[k]&&k!='n
 const slotGet=id=>id=='p'?(sel.pri!='none'?{k:sel.pri,sk:sel.sk.p}:null):id=='s'?(sel.side!='none'?{k:sel.side,sk:sel.sk.s}:null):sel.tools[+id[1]]||null;
 const slotSet=(id,it)=>{if(id=='p'){sel.pri=it?it.k:'none';sel.sk.p=it?skv(it.k,it.sk):''}else if(id=='s'){sel.side=it?it.k:'none';sel.sk.s=it?skv(it.k,it.sk):''}else sel.tools[+id[1]]=it?{k:it.k,n:it.n||1}:null};
 const dsc=k=>{if(TOOL[k])return TOOL[k].d;const w=SID[k]||PRI[k];return st(w)+(w.nt?'<br><i>'+w.nt.join(' \u00b7 ')+'</i>':'')};
-const SPX={rifle:[21,6.5,6],shotgun:[20,5,6],repeater:[19,5.5,7],crossbow:[19,5.5,17],pistol:[10,3,6],revolver:[17,6,7],tonic:[9,4.5,5],bomb:[12,6,5],pepperbox:[15,6,7],musket:[24,7,6],flamer:[21,6.5,7],handcannon:[16,5.5,7],whisper:[15,6,6],flask:[11,5.5,5],flare:[13,6,4],ward:[10,4,8],gatling:[24,8,12],blunderbuss:[19,7,6],longbow:[16,6,19],sprayer:[16,6,7],mortar:[17,6,8],sixshooter:[16,5,6],dartpistol:[14,5,6],stake:[19,6,4],saltline:[11,4,8],noisemaker:[13,5,5],chalk:[12,4,10],carbine:[18,6,6],sawnoff:[15,5,6],pump:[22,5.5,6],lever:[22,5.5,8],drum:[22,5.5,9],repxbow:[19,5.5,17],fowling:[28,6,6],derringer:[9,3,5],pocketrev:[14,5,6],navyrev:[19,6,7],scatterpistol:[15,6,6],dragoon:[19,6,7],sling:[12,9,10],saltgun:[22,5,6],stamtonic:[10,5,5],bootwraps:[12,5,5],muzzle:[10,5,5],pyre:[10,6,6]};
+const SPX={rifle:[21,6.5,6],shotgun:[20,5,6],repeater:[19,5.5,7],crossbow:[19,5.5,17],pistol:[10,3,6],revolver:[17,6,7],tonic:[9,4.5,5],bomb:[12,6,5],pepperbox:[15,6,7],musket:[24,7,6],flamer:[21,6.5,7],handcannon:[16,5.5,7],whisper:[15,6,6],flask:[11,5.5,5],flare:[13,6,4],ward:[10,4,8],gatling:[24,8,12],blunderbuss:[19,7,6],longbow:[16,6,19],sprayer:[20.5,4.2,7],mortar:[17,6,8],sixshooter:[16,5,6],dartpistol:[14,5,6],stake:[19,6,4],saltline:[11,4,8],noisemaker:[13,5,5],chalk:[12,4,10],carbine:[18,6,6],sawnoff:[15,5,6],pump:[22,5.5,6],lever:[22,5.5,8],drum:[22,5.5,9],repxbow:[19,5.5,17],fowling:[28,6,6],derringer:[9,3,5],pocketrev:[14,5,6],navyrev:[19,6,7],scatterpistol:[15,6,6],dragoon:[19,6,7],sling:[12,9,10],saltgun:[22,5,6],stamtonic:[10,5,5],bootwraps:[12,5,5],muzzle:[15.5,-.3,6],pearl:[15.5,-.3,6],undertow:[15.5,-.3,6],pyre:[9,0,9],magpie:[15.6,0,6],thief:[13,.5,6]};
 function itemCv(k,W,H,sk){const c=document.createElement('canvas');c.width=W;c.height=H;c.style.cssText='width:100%;height:100%;image-rendering:pixelated;pointer-events:none';const[l,cx,h]=SPX[k]||[10,5,5],sc=Math.min(W*.86/l,H*.8/h),o=ctx;ctx=c.getContext('2d');try{drawWpn(k,W/2-cx*sc,H/2-.5*sc,0,sc,sk)}finally{ctx=o}return c}
 const SAVE=run=>{try{localStorage.setItem('bh_save',JSON.stringify({nm:pname,bank,own,led:LS,al:AL,skin:sel.skin,sk:sel.sk,stash:STB[0],stx:[STB[1],STB[2],STB[3]],stu:stUn.slice(1),pri:sel.pri,side:sel.side,bag:sel.bag,tools:sel.tools,ast:AST,ant:ANT,run:run?1:0}))}catch(e){}};
 try{const d=JSON.parse((localStorage.getItem('bh_save')||'null').replace(/"smg"/g,'"pepperbox"'));if(d&&Array.isArray(d.own)){own=[...new Set(['hunter','plain',...d.own.filter(k=>FAMS[k]||SKINS[k]||WSKINS[k])])];bank=Math.max(120,d.bank|0);if(d.led)LS=d.led;if(d.ast&&typeof d.ast=='object'){for(const k in d.ast){const v=+d.ast[k];if(isFinite(v)&&v>=0)AST[k]=v}}if(d.ant&&typeof d.ant=='object'){for(const k in d.ant){const v=d.ant[k]|0;if(v>0&&v<4)ANT[k]=v}}AL=d.al||null;sel.skin=SKINS[d.skin]&&own.includes(d.skin)?d.skin:'plain';sel.wsk={};sel.sk={p:'',s:''};const lw=d.sk?{}:(d.wsk&&typeof d.wsk=='object'?d.wsk:{}),lsk=k=>{const id=lw[k];return WSKINS[id]&&WSKINS[id].k==k&&own.includes(id)?id:''};pname=cleanName(d.nm);
@@ -604,7 +651,11 @@ const LORE=[
  {t:'Lesser Demon Lore',sub:'Rare beasts that prowl the whole parish, bound to no breach',e:[
   ['Lesser Demons',"Not every horror in the parish answers to an archdemon. Some were simply left behind when the veil tore: single, rare, and bound to no breach. They roam the whole parish, but even they will not set foot in an archdemon's lair. Whatever sits in there, they fear it more than you."],
   ['The Cerberus Hound',"A great black hound with three heads and not one working eye. Milky pits, old scars, nothing more. It does not need sight. It hears a cocked gun, a boot on gravel, a held breath let go. Where the sound is, the hound goes. An ember mane burns along its spine, so you will see it long before it knows you are there."],
-  ['Hold Your Breath',"Sound is all it has, so give it none. Stop dead near the hound and it loses you. It will pad right past, sniffing, and go on roaming. Move, fire or run and it is on you in seconds. Do not run from it. Freeze, let it pass, then slip away."]]}
+  ['Hold Your Breath',"Sound is all it has, so give it none. Stop dead near the hound and it loses you. It will pad right past, sniffing, and go on roaming. Move, fire or run and it is on you in seconds. Do not run from it. Freeze, let it pass, then slip away."],
+  ['Raum, the Crow Thief',"It was a crow once, or something wore the shape of one. Now it is the size of a hound, skinned raw about the eyes, and its beak is black with old blood. Raum does not eat what it kills. It hoards. Rings still on the fingers, teeth pulled from jaws, a lantern lifted from a dying hand. Whatever you carry that glitters, it has already priced. It circles high above the breach in the smoke, and when it drops, you hear the wings only after your belt is lighter. They say its nest is a ribcage, and that the heap inside is still warm."],
+  ['Mind Your Belt',"Raum takes from the ground and from your belt, never from the pack on your back. Do not chase it. Listen for the laughing caw, and look up before you look down. A crow shot out of the air spills everything it stole, so keep a gun ready. If it flies off clean, the nest keeps your tools, and the nest does not give back."],
+  ['Vepar, the Rot-Mermaid',"She came up out of the drowned parish with her hair full of kelp and her ribs full of eels. Where her tail should be there is only a stack of rotting coils, and she hauls herself across the ground on them, slow and wet and patient. She is blind to nothing and in no hurry. Cut a hunter and she smells it from across the field. One touch and the rot gets in. It does not hurt at first. It just keeps taking."],
+  ['Clean Water',"Do not run from her, walk. She is slower than any hunter, and a slick green stain on the ground will tell you she has passed. Stay healthy and she barely notices you. If she touches you, the rot ticks on until it runs out, so drink Holy Water at once: it closes the wound and flushes the rot clean. Better still, shoot her from a distance and never let her get close."]]}
 ];
 let lorTab=0,lorOpen=-1;
 // ---------- LORE PICTURES: static scenes drawn with the game's own sprites ----------
@@ -663,7 +714,11 @@ function loreArt(){document.querySelectorAll('canvas[data-la]').forEach(c=>{cons
  else if(ta==4){[
   ()=>{cb(150,84,1.5,Math.PI,0);mb('imp',34,44,1.1,0);mb('imp',62,102,1.1,0);eyes(24,76);dk(.7,112,70,120)},
   ()=>{gl(100,80,80,'rgba(255,90,30,.28)');cb(100,80,3.2,0,.6);dk(.85,112,70,120)},
-  ()=>{ring(60,104,24);hu(60,98,0,1.5);txt('Hold still',60,52,'#d8c890');cb(170,88,1.5,Math.PI,.5)}][ti]()}
+  ()=>{ring(60,104,24);hu(60,98,0,1.5);txt('Hold still',60,52,'#d8c890');cb(170,88,1.5,Math.PI,.5)},
+  ()=>{gl(112,60,70,'rgba(255,90,30,.2)');dk(.6,112,70,120);drawRaum(112,96,{a:0,wk:1,z:30},0,3.2)},
+  ()=>{hu(56,100,-.7,1.5,'rifle');drawRaum(160,72,{a:0,wk:2,z:26},0,2);txt('Shoot it down',64,40,'#d8c890')},
+  ()=>{gl(112,100,64,'rgba(60,140,100,.22)');dk(.6,112,70,120);drawVepar(112,104,{a:0,wk:1,hp:1},0,3)},
+  ()=>{hu(50,100,0,1.5);drawVepar(170,100,{a:0,wk:2,hp:1},0,1.6);txt('Holy Water cures rot',70,40,'#d8c890')}][ti]()}
  else{[
   ()=>{hu(50,96,0,1.5,'rifle');hu(112,92,0,1.5,'shotgun');hu(174,96,0,1.5,'repeater')},
   ()=>{g.save();g.translate(112,126);g.scale(5,5);warden(0,0,0,0,0,'fists',0,null,0);g.restore()},
@@ -679,7 +734,8 @@ function loreArt(){document.querySelectorAll('canvas[data-la]').forEach(c=>{cons
  }catch(e){fR(g,0,0,W,H,'#000')}finally{ctx=o;T=oT;sel.skin=sk}})}
 // ---------- LORE DISCOVERY: notes stay "???" until the hunter meets them in the breach ----------
 let LKS=new Set,lkQ=0;try{LKS=new Set(JSON.parse(localStorage.getItem('bh_lore')||'[]'))}catch(e){}
-const lkHas=(t,i)=>LKS.has(t+'.'+i);
+// A verified DEV name (devOK: DEV in the name AND the dev password entered) sees every folder as found. View only: nothing is saved to LKS, so real progress and the Lorekeeper achievement are untouched.
+const lkHas=(t,i)=>devOK()||LKS.has(t+'.'+i);
 function lk(t,i,quiet){const k=t+'.'+i;if(LKS.has(k))return;LKS.add(k);if(!quiet)lkQ++;try{localStorage.setItem('bh_lore',JSON.stringify([...LKS]))}catch(e){}}
 function loreTick(){
  if(!P||mode!='play')return;
@@ -695,7 +751,7 @@ function loreTick(){
  for(const e of exts){if(e.sealed)continue;const d=D(px,py,e.x,e.y);if(d<90)lk(0,9);if(d<26)lk(2,7)}
  const bi={gorrath:1,nyxara:2,mordrek:3}[boss],MK={imp:1,skitter:2,bloat:3,vine:4,brute:5,spooler:9};
  for(const m of M){if(m.hp<=0)continue;const d=D(m.x,m.y,px,py);
-  if(m.lesser){if(d<260){lk(4,0);lk(4,1)}if(d<110)lk(4,2)}else if(m.boss){if(d<260){lk(2,0);if(bi)lk(2,bi)}}else if(d<190&&!glLure(m)){lk(1,0);if(m.ty=='gleaner'){lk(1,7);lk(1,8)}else if(MK[m.ty]){lk(1,MK[m.ty]);if(m.ty=='spooler'&&m.sp>=2)lk(1,10)}}}
+  if(m.lesser){const lo=(LESSER[m.ty]||{}).lore||[4,1];if(d<260){lk(4,0);lk(lo[0],lo[1])}if(d<110)lk(lo[0],lo[1]+1)}else if(m.boss){if(d<260){lk(2,0);if(bi)lk(2,bi)}}else if(d<190&&!glLure(m)){lk(1,0);if(m.ty=='gleaner'){lk(1,7);lk(1,8)}else if(MK[m.ty]){lk(1,MK[m.ty]);if(m.ty=='spooler'&&m.sp>=2)lk(1,10)}}}
  if(corpse){lk(2,0);if(bi)lk(2,bi);lk(2,5)}
  if(banished||bty)lk(2,6);
  if(found>=1){lk(3,2);lk(2,4)}
@@ -1027,13 +1083,162 @@ const LESSER={
   still:1,         // a player who stops moving near it is not attacked; it keeps roaming
   tot:['muzzle','pyre'], // totems it can drop (see LESSER DEMON TOTEMS in the notes)
   lore:[4,1]       // LORE tab 4 (Lesser Demon Lore), entry 1; entry 2 'Hold Your Breath' is its stand-still tip
+ },
+ raum:{n:'Raum, the Crow Thief',i:'\u{1F426}',d:'Flying crow demon. Dives out of the sky to steal tools from your belt and loot from the ground.',
+  hp:90,           // placeholder tuning
+  sp:62,dsp:210,fsp:170,alt:15, // wander speed / dive speed / flee speed / flying height (px above its shadow)
+  sm:520,cd:28,    // sight range for victims / seconds between thefts
+  spawn:1,
+  tot:['magpie','thief'], // totems it can drop
+  lore:[4,3]       // LORE tab 4 entry 3; entry 4 'Mind Your Belt' is its tip
+ },
+ vepar:{n:'Vepar, the Rot-Mermaid',i:'\u{1F9DC}',d:'Slow drowned mermaid that drags herself across the parish. Her touch gives rot, a drain that keeps ticking.',
+  hp:260,          // placeholder tuning
+  sp:24,hsp:46,    // crawl speed / dragging-hunt speed (hunter walk is 68, so she can always be outrun)
+  r:13,rg:24,      // collision radius / touch reach
+  dm:6,cd:2.2,rot:12, // touch damage / seconds between touches / seconds of rot each touch adds (stacks, capped at 30s; rot drains 2 HP per second)
+  sm:210,sb:540,bh:70, // she notices a hunter within sm px; within sb px if the hunter is below bh health (she smells blood)
+  lk:700,          // loses you beyond this many px
+  spawn:1,
+  tot:['pearl','undertow'], // totems it can drop
+  lore:[4,5]       // LORE tab 4 entry 5; entry 6 'Clean Water' is its tip
  }
 };
-const LESSER_MK={cerberus:(x,y)=>mkCerberus(x,y)};   // spawn functions for every built lesser demon; newGame picks from these
+const LESSER_MK={cerberus:(x,y)=>mkCerberus(x,y),raum:(x,y)=>mkRaum(x,y),vepar:(x,y)=>mkVepar(x,y)};   // spawn functions for every built lesser demon; newGame picks from these, and each one also gets a /<name> force-spawn cheat (see spawnLesser)
 let LESSER_MAP=0;   // 1 = show lesser demons on the map (testing; the /lesserdemon cheat turns it on)
 const mkCerberus=(x,y)=>{const o=LESSER.cerberus;return{x,y,hp:o.hp,mh:o.hp,st:'roam',wt:0,cd:0,fl:0,wk:0,a:R(0,6.28),ty:'cerberus',lesser:1,hx:x,hy:y,hr:0}};
+// ---------- RAUM, THE CROW THIEF (lesser demon) ----------
+// Flies (m.z = height above its shadow). States (m.rs, mirrored to m.st; hurt() overwrites m.st with 'chase', raumAI puts it back):
+//   circ  = wander the parish; once its theft cooldown (m.cd) is up it picks a VICTIM (a hunter with tools on the belt, or loose tool/ammo/cash on the ground
+//           within sight range o.sm), orbits it for a few seconds (the tell: shadow circling + cawing), then
+//   dive  = stoops on the victim at dive speed; on contact (<14px) it grabs: a random belt stack, or the ground item.
+//   flee  = flies the loot (kept in m.loot) straight to its NEST (m.ns) and drops it there as ground items (raumDeposit). No nest: old behaviour, flies off and keeps it.
+//           Back in circ it orbits the nest while its theft cooldown runs (and dives at anyone near a nest holding loot), then roams for the next victim.
+// Counter: shoot it down, or raid the nest (any hunter can). Death spills m.loot back onto the ground (dropRaumLoot, in the totems block). Never touches the backpack. Never enters the archdemon's building.
+// Multiplayer: the host runs the AI. Host's own belt / ground loot are taken directly; a remote hunter gets {t:'rst'} and answers {t:'rsl'} with what was taken.
+const mkRaum=(x,y)=>{const o=LESSER.raum;return{x,y,hp:o.hp,mh:o.hp,st:'circ',rs:'circ',wt:0,cd:R(8,18),fl:0,wk:0,a:R(0,6.28),ty:'raum',lesser:1,hx:x,hy:y,hr:0,z:o.alt,loot:[]}};
+function raumPick(m,o){let best=null,bd=o.sm;
+ for(const q of lessTgts()){if(!lessOut(q.x,q.y))continue;const d=D(m.x,m.y,q.x,q.y);if(d<bd&&(q!==P||P.ts.some(Boolean))){bd=d;best={q}}}
+ for(const it of items){if(it.got||it.nest||(it.t!='tool'&&it.t!='ammo'&&it.t!='cash')||!lessOut(it.x,it.y))continue;const d=D(m.x,m.y,it.x,it.y)+60;if(d<bd){bd=d;best={it}}}
+ return best}
+function raumGrab(m,v){m.gt=T;
+ if(v.it){const it=v.it;items=items.filter(i=>i!==it);m.loot.push(Object.assign({},it,{id:undefined,got:0}));burst(it.x,it.y,8,60,'#1c1424',0);say('Raum snatches loot off the ground!',3);return}
+ const q=v.q;
+ if(q===P){const ks=[];P.ts.forEach((x,i)=>{if(x)ks.push(i)});if(!ks.length){say('Raum finds nothing to steal and shrieks.',2.5);return}
+  const j=ks[R(0,ks.length)|0],x=P.ts[j];P.ts[j]=null;fixSlot();m.loot.push({t:'tool',k:x.k,ct:x.n});
+  say('Raum snatches your '+TOOL[x.k].n+(x.n>1?' x'+x.n:'')+'! Shoot it down.',4);shake=Math.max(shake,4);burst(P.x,P.y,10,80,'#1c1424',0)}
+ else if(mp.on&&q&&q.id!==undefined){if(m.id===undefined)m.id=mpNewId();mpSend({t:'rst',to:q.id,i:m.id})}}
+function raumAI(m,dt){const o=LESSER.raum,lt=lessTgts();m.fl-=dt;m.cd-=dt;if(m.st=='chase')m.st=m.rs;
+ m.sn=m.rs=='dive'?2:(m.rs=='circ'&&m.tq)?1:0;m.wk+=dt*(m.rs=='dive'?16:m.rs=='flee'?13:9);
+ const tz=m.rs=='dive'?0:m.rs=='flee'?o.alt+8:o.alt+Math.sin(T*2+m.x*.01)*2;m.z+=(tz-m.z)*Math.min(1,dt*(m.rs=='dive'?6:3));
+ const steer=(tx,ty,sp,tr,free)=>{let da=Math.atan2(ty-m.y,tx-m.x)-m.a;da=Math.atan2(Math.sin(da),Math.cos(da));m.a+=Math.max(-tr*dt,Math.min(tr*dt,da));
+  const nx=m.x+Math.cos(m.a)*sp*dt,ny=m.y+Math.sin(m.a)*sp*dt;if(!free&&!lessOut(nx,ny)){m.a+=3*dt;return 1}
+  m.x=cl(nx,40,WW-40);m.y=cl(ny,40,WH-40);return 0};
+ const tpos=v=>v.q?[v.q.x,v.q.y]:[v.it.x,v.it.y],gone=v=>v.q?(!(v.q.hp>0)||v.q.dead||!lessOut(v.q.x,v.q.y)):(v.it.got||!items.includes(v.it));
+ if(!lessOut(m.x,m.y)){steer(m.hx,m.hy,o.fsp,5,1);return}   // somehow inside the archdemon's building: fly back out
+ if(m.rs=='circ'){
+  if(m.tq){const v=m.tq;if(gone(v)){m.tq=null;m.cd=Math.max(m.cd,3)}
+   else{const[tx,ty]=tpos(v);m.oa+=dt*1.5*m.od;steer(tx+Math.cos(m.oa)*130,ty+Math.sin(m.oa)*130,o.sp*1.6,3.5,1);m.ct-=dt;if(m.ct<=0){m.rs='dive';m.dtm=0;m.sn=2}}}
+  else if(m.ns&&m.cd>0){m.na=(m.na||0)+dt*.6;m.gc=(m.gc||0)-dt;   // cooling down: ride the air over the nest, fall on anyone who goes digging in it
+   steer(m.ns.x+Math.cos(m.na)*110,m.ns.y+Math.sin(m.na)*110,o.sp*1.3,3,1);
+   if(m.gc<=0&&nestLoot(m)){const g=lt.find(q=>lessOut(q.x,q.y)&&D(q.x,q.y,m.ns.x,m.ns.y)<110&&(q!==P||P.ts.some(Boolean)));
+    if(g){m.tq={q:g};m.oa=Math.atan2(m.y-g.y,m.x-g.x);m.od=Math.random()<.5?1:-1;m.ct=R(1.2,1.8);m.gc=9}}}
+  else{m.wt-=dt;if(m.wx===undefined||m.wt<=0||D(m.x,m.y,m.wx,m.wy)<30){for(let i=0;i<30;i++){const x=R(80,WW-80),y=R(80,WH-80);if(lessOut(x,y)){m.wx=x;m.wy=y;break}}m.wt=R(8,16)}
+   if(steer(m.wx,m.wy,o.sp,2.2))m.wt=0;
+   m.sT=(m.sT||0)-dt;if(m.cd<=0&&m.sT<=0){m.sT=.6;const v=raumPick(m,o);if(v){const[tx,ty]=tpos(v);m.tq=v;m.oa=Math.atan2(m.y-ty,m.x-tx);m.od=Math.random()<.5?1:-1;m.ct=R(2.6,4)}}}}
+ else if(m.rs=='dive'){m.dtm=(m.dtm||0)+dt;const v=m.tq;
+  if(!v||gone(v)||m.dtm>3.2){m.tq=null;m.rs='flee';m.ft=0;m.cd=6;return}
+  const[tx,ty]=tpos(v);steer(tx,ty,o.dsp,7,1);
+  if(D(m.x,m.y,tx,ty)<14){raumGrab(m,v);m.tq=null;m.rs='flee';m.ft=0;m.cd=o.cd}}
+ else if(m.ns){m.ft=(m.ft||0)+dt;steer(m.ns.x,m.ns.y,o.fsp,4.5,0);   // carry the haul straight home
+  if(D(m.x,m.y,m.ns.x,m.ns.y)<36){raumDeposit(m);m.rs='circ';m.wx=undefined;m.na=Math.atan2(m.y-m.ns.y,m.x-m.ns.x)}
+  else if(m.ft>30){m.rs='circ';m.wx=undefined}}
+ else{m.ft=(m.ft||0)+dt;let nd=1e9,nq=null;for(const q of lt){const d=D(m.x,m.y,q.x,q.y);if(d<nd){nd=d;nq=q}}
+  const away=(nq?Math.atan2(m.y-nq.y,m.x-nq.x):m.a)+Math.sin(T*3)*.5,edge=m.x<150||m.x>WW-150||m.y<150||m.y>WH-150;
+  steer(edge?WW/2:m.x+Math.cos(away)*200,edge?WH/2:m.y+Math.sin(away)*200,o.fsp,4,0);
+  if(m.ft>10||nd>760){m.rs='circ';m.wx=undefined}}
+ m.st=m.rs}
+// ---- RAUM'S NEST: a ribcage with a heap in it. Spawns with each Raum (host picks the spot; clients get it in the snapshot as m.ns).
+// A theft is flown straight here and dropped as ordinary ground items flagged nest:1 (Raum never re-steals them). ANY hunter can walk in and take the pile;
+// raking through it makes noise (nestTick), and while Raum is on cooldown it circles overhead and dives at anyone near a nest that holds loot.
+function placeNest(m,from){let x,y,t=0;const far=(x,y)=>M.some(o=>o!==m&&o.ns&&D(x,y,o.ns.x,o.ns.y)<500);
+ do{const an=R(0,6.28),r=R(260,820);x=cl(m.x+Math.cos(an)*r,100,WW-100);y=cl(m.y+Math.sin(an)*r,100,WH-100)}
+ while((hit(x,y,30)||!lessOut(x,y)||(from&&D(x,y,from.x,from.y)<450)||far(x,y)||blds.some(b=>{const e=bExt(b);return x>e.x-50&&x<e.x+e.w+50&&y>e.y-50&&y<e.y+e.h+50}))&&t++<400);
+ m.ns=t>400?{x:Math.round(m.x),y:Math.round(m.y)}:{x:Math.round(x),y:Math.round(y)};   // fallback: nest where it stands (that spot was already open ground)
+ m.x=m.hx=m.ns.x;m.y=m.hy=m.ns.y;m.na=R(0,6.28)}   // it starts out circling its own nest, so the nest is findable
+const nestLoot=m=>m.ns&&items.some(i=>i.nest&&!i.got&&D(i.x,i.y,m.ns.x,m.ns.y)<60);
+function raumDeposit(m){if(!m.ns||!m.loot||!m.loot.length)return;
+ for(const l of m.loot){const n=l.ct||1;for(let i=0;i<n;i++){const it=Object.assign({},l);delete it.ct;it.id=undefined;it.got=0;it.nest=1;let x,y,t=0;
+  do{x=m.ns.x+R(-17,17);y=m.ns.y+R(-8,9)}while(hit(x,y,4)&&t++<10);it.x=x;it.y=y;items.push(it)}}
+ m.loot=[];burst(m.ns.x,m.ns.y,12,60,'#e8c860',0);
+ if(P&&D(P.x,P.y,m.ns.x,m.ns.y)<700)say("Raum drops its haul in the nest. It's yours if you can take it.",3.5)}
+function nestTick(){if(!P||P.dead)return;const nc=items.reduce((a,i)=>a+(i.nest&&!i.got?1:0),0);
+ if(P.nc!==undefined&&nc<P.nc&&M.some(m=>m.ns&&D(P.x,P.y,m.ns.x,m.ns.y)<45)){noise(P.x,P.y,150);say('The heap clatters as you rake through the nest',2.5)}P.nc=nc}
+function drawNest(x,y){const r=(a,b,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(x+a|0,y+b|0,w,h)};
+ ctx.fillStyle='rgba(8,3,6,.55)';ctx.beginPath();ctx.ellipse(x,y+3,28,13,0,0,7);ctx.fill();
+ ctx.lineCap='round';for(let i=0;i<3;i++){ctx.strokeStyle=i?'#a8a088':'#d9ccb0';ctx.lineWidth=i?1.2:2.2;ctx.beginPath();ctx.ellipse(x,y+1-i*.5,25-i*6,19-i*5,0,Math.PI,2*Math.PI);ctx.stroke()}ctx.lineCap='butt';   // ribs arching over the heap
+ r(-17,-4,34,9,'#1c1418');r(-13,-6,26,4,'#2c2036');
+ [[-14,-3,'#d9ccb0',3,1],[-9,-5,'#f0c850',2,2],[-4,-1,'#a8a088',3,1],[3,-4,'#d9ccb0',2,3],[8,-2,'#9a9aa6',2,2],[12,-4,'#f0c850',2,2],[-6,2,'#8a0c18',3,1],[1,1,'#d9ccb0',3,1],[10,1,'#a8a088',2,2],[-12,2,'#f0c850',2,2],[5,-6,'#9a9aa6',2,1]].forEach(b=>r(b[0],b[1],b[3],b[4],b[2]));
+ for(let i=0;i<16;i++){const a=i*.393+.2,tx=Math.cos(a)*24,ty=Math.sin(a)*11;if(ty>-2)r(tx-2,ty-1+(i&1),5,2,i%3?'#2a1c1c':'#3a2a24')}   // twigs and rags on the near rim
+ ctx.globalCompositeOperation='lighter';ctx.fillStyle='rgba(255,110,30,'+(.11+.05*Math.sin(T*3))+')';ctx.beginPath();ctx.ellipse(x,y-1,18,8,0,0,7);ctx.fill();ctx.globalCompositeOperation='source-over'}   // still warm
+const RAUM_ART="................................|..............K...K.............|.............KBK.KBK............|............KBKKKKKBK...........|KK...........KKBBBKK..........KK|WWKK.........KYBBBYK........KKWW|KWWWKKK.....KBOBBBOBK....KKKWWWK|KBBBWWWKK...KBBBBBBBK..KKWWWBBBK|KBBBBBWWWKKKKBBBBBBBKKKWWWBBBBBK|KBRBBBBBBWWWKKWWWWWKWWWBBBBBBRBK|KBBrBBBBBBBWWKBWwWBWWBBBBBBBrBBK|.KBBBBBPPPPPPBBWwWBBPPPPPBBBBBK.|KBPPPPPPBBBPPBfKwWfBPBBBPPPPPPBK|KBBBKBBBBPPPPBBFwFBBPPPBBBBKBBBK|KBBBBBPPPBBPBBffwffBBBBPPPBBBBBK|KBBBBPPBBBPPPBFFRFFBPPBBBPPBBBBK|KBBKBBBBBPPBPBffRffBBPPBBBBBKBBK|BBBBBBBBBPBBPBBFFFBBBBPBKBBBBBBB|KBBBBBBKPBBPBKBFFFBBPBBPKBBBBBBK|.KBBBBKKBBBPKKbBFBbKPBBBKKBBBBK.|.KBBBBK.KKBPKKbKBKbKPBKK.KBBBBK.|..KBBBK.KBBPKKbKKKbKPBBK.KBBBK..|..KBBK...KBKKbK...KbKBK...KBBK..|...KBK....K.KbKKKKKbKK....KBK...|....K......KSSKWWWKSSK.....K....|..........KSSWWWWWWWSSK.........|...........KWWKOWKOWWK..........|...........KWWKKWKKWWK..........|...........KRWWWKWWWWK..........|............KwKwKwKwRK..........|...........KRwKwKwKwK...........|............KK.K.K.K............",RAUM_PAL={K:'#0a0408',B:'#1c1424',b:'#2c2036',P:'#463858',r:'#8a0c18',R:'#c01828',F:'#6a2230',f:'#a8404a',W:'#e0d8c0',w:'#a8a088',O:'#ff7a1a',Y:'#f0c850',S:'#9a9aa6'};
+let RAUM_IMG=null;
+function raumImg(){if(RAUM_IMG)return RAUM_IMG;const c=document.createElement('canvas');c.width=c.height=32;const g=c.getContext('2d');
+ RAUM_ART.split('|').forEach((r,y)=>[...r].forEach((ch,x)=>{if(ch!=='.'){g.fillStyle=RAUM_PAL[ch];g.fillRect(x,y,1,1)}}));return RAUM_IMG=c}
+// x,y = screen position of its shadow; m.z lifts the body; ks = scale. Wings beat by squashing the sprite; hit flash = brightness.
+function drawRaum(x,y,m,f,ks){const k=ks||1.25,z=m.z||0,fl=Math.sin(m.wk||0),img=raumImg();ctx.save();
+ ctx.fillStyle='rgba(0,0,0,.35)';ctx.beginPath();ctx.ellipse(x,y+2,Math.max(5,13*k*(1-z/90)),4.5*k/1.25,0,0,7);ctx.fill();
+ ctx.translate(x,y-z-6*k/1.25);ctx.rotate(Math.cos(m.a||0)*.12);ctx.scale(k,k*(1+.1*fl));ctx.imageSmoothingEnabled=false;if(f)ctx.filter='brightness(2.6)';
+ ctx.drawImage(img,-16,-16);ctx.filter='none';
+ ctx.globalCompositeOperation='lighter';ctx.fillStyle='rgba(255,110,30,.28)';ctx.beginPath();ctx.arc(-1.5,-9.5,3.6,0,7);ctx.arc(2.5,-9.5,3.6,0,7);ctx.fill();
+ ctx.restore()}
+// ---------- VEPAR, THE ROT-MERMAID (lesser demon) ----------
+// Slow drowned mermaid (32x32 'Eel coil' sprite). SENSE: she smells blood, so a hunter below 70 HP (or already rotting) is noticed from far off (o.sb); a healthy one only from close by (o.sm).
+// TELL: she drags herself along with a wet slop and leaves a slick green stain behind her. COUNTER: she is slower than a walking hunter, so outrun her; Holy Water cleanses the rot.
+// ROT (P.rot = seconds left): each touch adds o.rot seconds (cap 30) and rot drains 2 HP/s until it runs out or is cleansed (Holy Water, Brine Pearl). See rotTick in the totems block.
+// States: roam -> hunt (drag toward the prey) -> bite (touch) | exit (pushed into the archdemon's building: walk back out). Hurting her makes her turn on the nearest hunter for 10s.
+// Multiplayer: host runs the AI; the touch goes through hurtTG, so a remote hunter gets {t:'hit'} and the hurtP wrapper on their side applies the rot.
+const VEPAR_ART="................................|.........K..KKKKKKKK.K..........|........KgKKgGGgGGgGKgK.........|.....K...KGGGgGGGGGgGGK...K.....|....KWK.KGgGGRRWWWWGGGGK.KWK....|...KWK..KGGGWRrWWWWWGGgK..KWK...|...KKWKKGGGGWRWWWWWWGGGGKKWKK...|..KWKKWKGgGWWOKWWWOKWGGGKWKKWK..|...KWKwWGGGWWKOWWWKOWGGgWwKWK...|....K.KwWdGGwWWKKWWwGdGWwK.K....|......KdwWGgWWWWWWWWgdWwGK......|.......KGwWGGKWKWKWGGWwdK.......|.......KGdwWGwwwwwwGWwGdK.......|.......KGdGwGGGGGGGGwdGdK.......|.......KGdGBBBBrrBBBBdGdK.......|........KdGKWWWRRWWWKdGK........|........KdGKBBBRRBBBKdGK........|........KdGKWWWrrWWWKdGK........|.........KGtBBBRRBBBTdK.........|........KTTTBBBRRBBBTTTK........|.......KtUTTTTTTTTUTTTUKK.......|......KUUUUUUUUUUUUUUUUUUK......|....KKUUUUUUUUUUUUUUUUUUUUK.....|...KtUUUUUUUUUUUUUUUUUUUUUUK....|...KKUUUUUUUUUUUUUUUUUUUUUUKK...|..KUUUUUUUUUUUUUUUURUUUUUUUUUK..|.KUUUUUUURUUUUUUUUUUUUUUUUUUUUK.|.KUUUUUUUUUUUUUUUUUUUUUUUUUUUUK.|.KUUUURUUUUUUUUUUUUUUUURUUUUUUK.|..KKUUUUUUUUUUUUUUUUUUUUUUUUKK..|....KKUUUUUUUUUUUUUUUUUUUUKK....|......KKKKKKUUUUUUUUKKKKKK......",VEPAR_PAL={K:'#080a0c',G:'#3a5a22',g:'#587a30',d:'#26401a',W:'#e0d8c0',w:'#a8a088',O:'#ff7a1a',Y:'#f0c850',R:'#a01018',r:'#5a0a10',T:'#2f6060',t:'#5a9a90',U:'#183a3a',B:'#1c2a2c',b:'#324a48'};
+let VEPAR_IMG=null;
+function veparImg(){if(VEPAR_IMG)return VEPAR_IMG;const c=document.createElement('canvas');c.width=c.height=32;const g=c.getContext('2d');
+ VEPAR_ART.split('|').forEach((r,y)=>[...r].forEach((ch,x)=>{if(ch!=='.'){g.fillStyle=VEPAR_PAL[ch];g.fillRect(x,y,1,1)}}));return VEPAR_IMG=c}
+const mkVepar=(x,y)=>{const o=LESSER.vepar;return{x,y,hp:o.hp,mh:o.hp,st:'roam',wt:0,cd:0,fl:0,wk:0,a:R(0,6.28),ty:'vepar',lesser:1,hx:x,hy:y,hr:0}};
+// x,y = screen position of her base. The coils sway; she leans toward whoever she is touching.
+function drawVepar(x,y,m,f,ks){const k=ks||1.5,img=veparImg(),sw=Math.sin((m.wk||0)*.9),ls=(m.sn||0)>1?.08:0;
+ if(m.hp>0&&m.x!==undefined){if(m._tx===undefined){m._tx=m.x;m._ty=m.y}const dd=Math.hypot(m.x-m._tx,m.y-m._ty);if(dd>14){if(dd<80)pool(m.x,m.y+2,6,3,1);m._tx=m.x;m._ty=m.y}}
+ ctx.save();ctx.fillStyle='rgba(0,0,0,.4)';ctx.beginPath();ctx.ellipse(x,y+4,13*k/1.5*1.5,4.6*k/1.5,0,0,7);ctx.fill();
+ ctx.translate(x,y+6);ctx.rotate(sw*.04+ls*Math.cos(m.a||0));ctx.scale(k,k*(1+.025*Math.sin((m.wk||0)*1.3)));ctx.imageSmoothingEnabled=false;if(f)ctx.filter='brightness(2.6)';
+ ctx.drawImage(img,-16,-32);ctx.filter='none';
+ ctx.globalCompositeOperation='lighter';ctx.fillStyle='rgba(255,110,30,.3)';ctx.beginPath();ctx.arc(-2.4,-24.5,2.6,0,7);ctx.arc(2.4,-24.5,2.6,0,7);ctx.fill();
+ ctx.restore()}
+function veparAI(m,dt){const o=LESSER.vepar,out=lessOut;m.fl-=dt;m.cd-=dt;m.sn=0;
+ if(m.st=='chase'){m.st='hunt';m.ag=T+10}
+ const turn=(tx,ty,tr)=>{let da=Math.atan2(ty-m.y,tx-m.x)-m.a;da=Math.atan2(Math.sin(da),Math.cos(da));m.a+=Math.max(-tr*dt,Math.min(tr*dt,da))};
+ const go=(tx,ty,sp,free)=>{turn(tx,ty,2.6);const st=sp*dt,nx=Math.cos(m.a)*st,ny=Math.sin(m.a)*st;if(!free&&!out(m.x+nx*6,m.y+ny*6))return 2;
+  const qx=m.x,qy=m.y;mv(m,nx,ny,o.r);if(!free&&!out(m.x,m.y)){m.x=qx;m.y=qy;return 2}
+  m.wk+=dt*sp*.1;if(Math.hypot(m.x-qx,m.y-qy)<.3*st){if((m.stk=(m.stk||0)+dt)>.8){m.stk=0;return 1}}else m.stk=0;return 0};
+ const pick=()=>{for(let i=0;i<40;i++){const x=R(80,WW-80),y=R(80,WH-80);if(!hit(x,y,o.r)&&out(x,y)){m.wx=x;m.wy=y;break}}m.wt=R(14,28);m.stk=0};
+ // pushed or knocked into the archdemon's building: walk back out
+ if(!out(m.x,m.y)){if(m.st!='exit'){m.st='exit';m.xt=0;m.stk=0;lessExit(m,o)}
+  m.xt+=dt;const r=go(m.ex,m.ey,o.hsp,1);if(r==1&&m.xt>.6&&!hit(m.ex,m.ey,o.r)){m.x=m.ex;m.y=m.ey}return}
+ if(m.st=='exit'){m.st='roam';pick()}
+ // notice prey: close by, or far off if it is bleeding / rotting; anyone who hurt her is prey for a few seconds
+ let prey=null,pd=1e9;
+ for(const q of lessTgts()){if(!out(q.x,q.y))continue;const d=D(m.x,m.y,q.x,q.y),bl=q.hp<o.bh||(q===P&&P.rot>0),rg=T<(m.ag||0)?o.lk:bl?o.sb:o.sm;if(d<rg&&d<pd){prey=q;pd=d}}
+ if(m.pr&&(!(m.pr.hp>0)||m.pr.dead||!out(m.pr.x,m.pr.y)||D(m.x,m.y,m.pr.x,m.pr.y)>o.lk))m.pr=null;
+ if(prey&&(!m.pr||pd<D(m.x,m.y,m.pr.x,m.pr.y)-40))m.pr=prey;
+ if(m.pr){const q=m.pr,d=D(m.x,m.y,q.x,q.y);
+  if(d<o.rg+8){m.st='bite';turn(q.x,q.y,9);m.sn=m.cd>o.cd-.3?2.6:1.4;
+   if(m.cd<=0){TG=q;MCUR=m;hurtTG(o.dm);m.cd=o.cd;m.sn=2.6}return}
+  m.st='hunt';m.sn=1;if(go(q.x,q.y,o.hsp,0)==2)m.pr=null;return}
+ // roam: crawl between waypoints, now and then lie still
+ m.st='roam';m.wt=(m.wt||0)-dt;
+ if(m.wx===undefined||m.wt<=0||D(m.x,m.y,m.wx,m.wy)<16)pick();
+ m.rst=(m.rst===undefined?R(7,14):m.rst)-dt;if(m.rst<=0){m.rst=R(7,14);m.rl=R(2,3.5)}
+ if((m.rl||0)>0){m.rl-=dt;return}
+ if(go(m.wx,m.wy,o.sp,0))pick()}
 // Hit test that matches the drawn sprite (1.5x): oval body plus the three heads out front. Used by bullets and melee.
-function cerbHit(m,x,y,pad){pad=pad||0;const k=1.5,dx=x-m.x,dy=y-m.y,c=Math.cos(m.a||0),sn=Math.sin(m.a||0),lx=(dx*c+dy*sn)/k,ly=(-dx*sn+dy*c)/k,p=pad/k;
+function cerbHit(m,x,y,pad){pad=pad||0;if(m.ty=='vepar')return((x-m.x)/(15+pad))**2+((y-(m.y-14))/(22+pad))**2<1;if(m.ty=='raum')return Math.hypot(x-m.x,y-(m.y-(m.z||0)-5))<12+pad;const k=1.5,dx=x-m.x,dy=y-m.y,c=Math.cos(m.a||0),sn=Math.sin(m.a||0),lx=(dx*c+dy*sn)/k,ly=(-dx*sn+dy*c)/k,p=pad/k;
  if((lx/(14+p))**2+(ly/(8+p))**2<1)return true;
  for(let i=-1;i<=1;i++){if(Math.hypot(lx-((i?15:18.5)+2),ly-i*6.2)<6.5+p)return true}return false}
 // Cerberus AI (hunts by SOUND via noise(); judges stillness by watching every player's movement + noises). States (m.st): roam -> hunt (noise() sets m.hun/sx/sy) -> sniff (stops, sweeps its heads) -> roam again.
@@ -1051,7 +1256,7 @@ const lessNoiseSrc=(x,y)=>{let b=null,bd=28;for(const q of lessTgts()){const d=D
 function lessExit(m,o){let best=null,bd=1e9;
  for(let i=0;i<24;i++){const c=Math.cos(i*Math.PI/12),s=Math.sin(i*Math.PI/12);for(let r=12;r<=500&&r<bd;r+=12){const x=m.x+c*r,y=m.y+s*r;if(x<80||y<80||x>WW-80||y>WH-80)break;if(lessOut(x,y)&&!hit(x,y,o.r)){bd=r;best=[x,y];break}}}
  m.ex=best?best[0]:m.hx;m.ey=best?best[1]:m.hy}
-function roamLesser(m,dt){m.fl-=dt;m.cd-=dt;const o=LESSER[m.ty],out=lessOut;m.sn=0;
+function roamLesser(m,dt){if(m.ty=='raum')return raumAI(m,dt);if(m.ty=='vepar')return veparAI(m,dt);m.fl-=dt;m.cd-=dt;const o=LESSER[m.ty],out=lessOut;m.sn=0;
  const pick=()=>{for(let i=0;i<40;i++){const x=R(80,WW-80),y=R(80,WH-80);if(!hit(x,y,o.r)&&out(x,y)){m.wx=x;m.wy=y;break}}m.wt=R(12,25);m.stk=0};
  const turn=(tx,ty,tr)=>{let da=Math.atan2(ty-m.y,tx-m.x)-m.a;da=Math.atan2(Math.sin(da),Math.cos(da));m.a+=Math.max(-tr*dt,Math.min(tr*dt,da))};
  // Walk toward (tx,ty). Returns 0 ok, 1 stuck on a wall/tree, 2 the step would enter the building. free=1 skips the building check (exit state).
@@ -1203,7 +1408,7 @@ RS={};mis=ledgerTask();trees=[];M=[];bul=[];eb=[];bombs=[];lobs=[];fires=[];flar
  for(let i=0;i<32;i++){let x,y,t=0;do{const b=i<16?blds[i%blds.length]:null;x=b?b.cx+R(-b.w/3,b.w/3):R(60,WW-60);y=b?b.cy+R(-b.h/3,b.h/3):R(60,WH-60)}while((hit(x,y,6)||D(x,y,sp.x,sp.y)<350)&&t++<30);M.push(mkMob(x,y,'idle'))}
  // Lesser demon: Cerberus. Anywhere on the open map: never inside or beside any building (wings included), never near where players spawn (the camp).
  // Lesser demons: always at least 1, and a 50% chance of a second. Each is picked from the built types in LESSER_MK (add new ones there).
- {const mks=Object.keys(LESSER_MK),ld=[];for(let n=0,c=Math.random()<.5?2:1;n<c;n++){let x,y,t=0;do{x=R(80,WW-80);y=R(80,WH-80)}while((hit(x,y,16)||D(x,y,sp.x,sp.y)<500||ld.some(l=>D(x,y,l.x,l.y)<500)||blds.some(b=>{const e=bExt(b);return x>e.x-40&&x<e.x+e.w+40&&y>e.y-40&&y<e.y+e.h+40}))&&t++<300);if(t<=300){const m=LESSER_MK[mks[R(0,mks.length)|0]](x,y);ld.push(m);M.push(m)}}}
+ {const mks=Object.keys(LESSER_MK),ld=[];for(let n=0,c=Math.random()<.5?2:1;n<c;n++){let x,y,t=0;do{x=R(80,WW-80);y=R(80,WH-80)}while((hit(x,y,16)||D(x,y,sp.x,sp.y)<500||ld.some(l=>D(x,y,l.x,l.y)<500)||blds.some(b=>{const e=bExt(b);return x>e.x-40&&x<e.x+e.w+40&&y>e.y-40&&y<e.y+e.h+40}))&&t++<300);if(t<=300){const m=LESSER_MK[mks[R(0,mks.length)|0]](x,y);if(m.ty=='raum')placeNest(m,sp);ld.push(m);M.push(m)}}}
  items=[];scn=[];
  // Loot odds unchanged (74% ammo roll), but every second ammo roll is skipped so only half the ammo piles spawn. Ammo is plentiful, tools are thinner, weapons are rare. fb=1 (a fallen hunter's pack) can carry a weapon more often.
  let ac=0;const pk=(x,y,fb)=>{let q=Math.random();if(fb)q=Math.random()<.12?.99:Math.random()*.96;let it;if(q<.74){if(ac++&1)return;it={t:'ammo'}}else if(q<.82)it={t:'tonic'};else if(q<.89)it={t:'bomb'};else if(q<.96)it={t:'tool',k:XT[R(0,XT.length)|0]};else{const s=Math.random()<.55?0:1,ks=Object.keys(s?SID:PRI).filter(k=>k!='none');it={t:'wpn',s,k:ks[R(0,ks.length)|0]}}{const sl=WSK[it.t=='wpn'||it.t=='tool'?it.k:it.t=='tonic'||it.t=='bomb'?it.t:''];if(sl&&sl.length&&Math.random()<.1)it.sk=sl[R(0,sl.length)|0].id}it.x=x;it.y=y;items.push(it)};
@@ -1242,7 +1447,7 @@ addEventListener('keydown',e=>{if(e.code=='Tab'&&mode=='play')e.preventDefault()
 addEventListener('keyup',e=>keys[e.code]=0);
 // Tool slots: NTS free-form slots, any tool in any slot. P.tn / P.bm / P.xt.<kind> stay available as live accessors over them.
 const TC=k=>P.ts.reduce((a,x)=>a+(x&&x.k==k?x.n:0),0),TS=(k,n)=>{n=Math.max(0,Math.min(MAXST,n|0));let i=P.ts.findIndex(x=>x&&x.k==k);if(i<0){if(n<=0)return;i=P.ts.indexOf(null);if(i<0)return;P.ts[i]={k,n};return}if(n<=0)P.ts[i]=null;else P.ts[i].n=n};
-const TL={tonic:'Water',bomb:'Charge',flask:'Flask',flare:'Flare',ward:'Ward',tripwire:'Wire',saltline:'Salt',noisemaker:'Noise',chalk:'Chalk',stamtonic:'Stam',bootwraps:'Wraps',muzzle:'Muzzle',pyre:'Pyre'};
+const TL={tonic:'Water',bomb:'Charge',flask:'Flask',flare:'Flare',ward:'Ward',tripwire:'Wire',saltline:'Salt',noisemaker:'Noise',chalk:'Chalk',stamtonic:'Stam',bootwraps:'Wraps',muzzle:'Muzzle',pyre:'Pyre',magpie:'Magpie',thief:'Hands',pearl:'Pearl',undertow:'Tide'};
 function tsBind(p){const df=(o,k,t)=>Object.defineProperty(o,k,{get:()=>TC(t),set:v=>TS(t,v),enumerable:true,configurable:true});df(p,'tn','tonic');df(p,'bm','bomb');const x={};XT.concat(TOT).forEach(k=>df(x,k,k));p.xt=x}
 function useSlotTool(j){const x=P.ts[j];if(!x)return;if(x.k=='tonic')useTonic();else if(x.k=='bomb')throwBomb();else useXT(x.k)}
 function giveTool(k){const nm=TOOL[k].n,have=P.ts.some(x=>x&&x.k==k);if(have&&TC(k)>=MAXST){say(nm+' is maxed (3)',1.5);return 0}if(have||P.ts.includes(null)){TS(k,TC(k)+1);say('+'+nm,2);return 1}if(addTo(P.bag,4,4,k,1)){say('+'+nm+' (backpack, tool slots full)',2.5);return 1}say('All '+NTS+' tool slots are full',1.5);return 0}
@@ -1315,7 +1520,7 @@ function drawInv(){ctx.fillStyle='rgba(0,0,0,.7)';ctx.fillRect(0,0,VW,VH);ctx.fi
 function refocus(){try{window.focus();cv.focus({preventScroll:true})}catch(e){}}
 cv.tabIndex=0;cv.style.outline='none';addEventListener('blur',()=>{keys={}});
 function setSlot(i){if(!has(i))return say('Slot empty',1.5);P.cur=i;P.rl=0}
-function fixSlot(){if(!has(P.cur)){const f=[0,1,2,3,4].find(has);P.cur=f===undefined?0:f}}
+function fixSlot(){if(!has(P.cur)){const f=Array.from({length:2+NTS},(_,i)=>i).find(has);P.cur=f===undefined?0:f}}
 function useTonic(){if(P.tn<=0)return;if(P.hp>=100)return say('Already healthy',1.5);P.tn--;P.hp=Math.min(100,P.hp+50);burst(P.x,P.y,10,40,'#c03040',0);fixSlot()}
 function throwBomb(){if(P.bm<=0)return;P.bm--;const a=Math.atan2(mouse.y+cam.y-P.y,mouse.x+cam.x-P.x),d=Math.min(170,D(P.x,P.y,mouse.x+cam.x,mouse.y+cam.y));bombs.push({x:P.x,y:P.y,vx:Math.cos(a)*d/.4,vy:Math.sin(a)*d/.4,t:1.5,m:.4});fixSlot()}
 // every gun on the ground is its own gun: it takes an empty slot or goes to the backpack. Its ammo stacks into the reserve you already carry; a dropped gun keeps only the rounds that were loaded in it. It goes into the backpack if there is room, otherwise it stays on the ground.
@@ -1533,6 +1738,10 @@ function drawWpn(k,hx,hy,a,sc,sk){const sid=sk||'',W=sid&&WSKINS[sid]&&WSKINS[si
  else if(k=='bootwraps'){r(-3,-1.8,6,3.6,'#8a6a40');r(-3,-1.8,6,.8,'#b08a58');r(3,-1.2,5,2.4,'#6a4a2a');r(-1,-2,.8,4,'#e8e0c8');r(1.6,-2,.8,4,'#e8e0c8');r(4,-1.2,.8,2.4,'#e8e0c8');r(6,-1.2,.8,2.4,'#e8e0c8')}
  else if(k=='muzzle'){r(-4,-2,8,4,'#2d2224');r(-4,-2,8,.8,'#6b5252');r(-1,-2.8,1.6,5.6,'#9a9aa6');r(4,-1.2,3.4,2.4,'#d9ccb0');r(4,-1.2,3.4,.7,'#f0e6cc');r(-6.4,.2,2.4,.8,'#8a8a96');r(-8,-.4,1.6,1.4,'#8a8a96')}
  else if(k=='pyre'){r(-4,-.9,8,1.8,'#d9ccb0');r(-1,-3.6,2,7.2,'#d9ccb0');r(-4,-.9,8,.5,'#f0e6cc');r(-3.4,-3,1.6,1.4,'#c8b898');r(2,1.6,1.6,1.4,'#c8b898');if(Math.sin(performance.now()/70)>-.3)r(-.8,-5.4,1.8,2,'#ff7a1a');r(-.3,-4.8,.8,1,'#ffe070')}
+ else if(k=='magpie'){r(-7,-.6,13,1.2,'#1c1424');r(-6,-1.8,9,1.2,'#2c2036');r(-5,.6,9,1.2,'#2c2036');r(-4,-2.6,5,.8,'#3a5a7a');r(-3,1.8,4,.8,'#3a7a6a');r(-7.6,-.3,1.6,.6,'#d9ccb0');r(5,-1.5,3,3,'#f0c850');r(5,-1.5,3,.7,'#fff0a0');r(6,-.3,1,.8,'#a87820')}
+ else if(k=='thief'){r(-5,-2,7,4,'#2c2036');r(-5,-2,7,.8,'#463858');r(-6.4,-1.6,1.4,3.2,'#8a0c18');r(2,-2.2,4,1,'#2c2036');r(2,-.8,5,1,'#2c2036');r(2,.6,4.5,1,'#2c2036');r(2,2,3.5,1,'#2c2036');r(6,-2.2,1,.7,'#e0d8c0');r(7,-.8,1,.7,'#e0d8c0');r(6.5,.6,1,.7,'#e0d8c0');r(5.5,2,1,.7,'#e0d8c0');r(0,-2,1.4,4,'#f0c850')}
+ else if(k=='pearl'){r(-5,-2.4,10,4.8,'#2f6060');r(-5,-2.4,10,.9,'#5a9a90');r(-5,1.6,10,.8,'#183a3a');r(-2.4,-1.6,4.8,3.2,'#e8f0e8');r(-2.4,-1.6,4.8,.8,'#fff');r(-1.4,-.8,1.4,1.4,'#fff');r(1.4,.2,1,1,'#a8c8c0');r(-6.4,-.5,1.4,1,'#d9ccb0');r(5,-.5,1.4,1,'#d9ccb0')}
+ else if(k=='undertow'){r(-5,-1.2,10,2.4,'#183a3a');r(-4,-2.2,8,.8,'#2f6060');r(-3,1.2,7,1.4,'#2f6060');r(-5,-.2,10,.8,'#5a9a90');r(-3,-.6,2,1.2,'#a8d8d0');r(2,.2,2,.8,'#a8d8d0');r(-.6,-3.6,1.2,1.4,'#5a9a90');r(5.6,-.6,1.4,1.2,'#d9ccb0')}
  if(W&&PIP[k]){const p=PIP[k];ctx.globalAlpha=.7+.3*Math.sin(performance.now()/350);ctx.fillStyle='#ff5a1e';for(let n=0;n<3;n++)ctx.fillRect(p[0]+n*1.6,p[1],.8,.8);ctx.globalAlpha=1}
  ctx.restore()}
 const BC={pepperbox:['#ffd860',1.5,.022],musket:['#fff6c0',1.8,.04],flamer:['#ff8a20',3,.025],handcannon:['#ffd860',2,.022],whisper:['#c8d0e0',1,.02],rifle:['#fff6c0',1.6,.03],shotgun:['#ff9a40',1.2,.012],repeater:['#ffe070',1.2,.018],crossbow:['#e8ecff',1.4,.045],pistol:['#ffe9a0',1.2,.014],revolver:['#ffd860',1.8,.02],gatling:['#ffe070',1.3,.02],blunderbuss:['#ffb050',1.3,.012],longbow:['#e8e0c0',1.6,.05],sprayer:['#8ad0ff',3.2,.03],sixshooter:['#ffd860',1.8,.02],dartpistol:['#7be07b',1.2,.03],carbine:['#fff6c0',1.5,.028],sawnoff:['#ff9a40',1.3,.012],pump:['#ff9a40',1.2,.012],lever:['#ffe070',1.2,.016],drum:['#ffe070',1.2,.018],repxbow:['#e8ecff',1.4,.045],fowling:['#ffb050',1.3,.014],derringer:['#e8d8a0',1,.012],pocketrev:['#ffd860',1.4,.016],navyrev:['#ffd860',1.5,.018],scatterpistol:['#ff9a40',1.2,.012],dragoon:['#ffd860',2,.022],sling:['#cfc8b8',1.4,.05],saltgun:['#f0eee0',1.2,.012]};
@@ -1842,6 +2051,8 @@ function drawM(m,cx,cy){const x=m.x-cx,y=m.y-cy;if(x<-30||x>VW+30||y<-44||y>VH+4
  if(m.boss&&m.bh=='charge')drawGorrath(x,y,m.a,f,m.wk);
  else if(m.boss&&m.bh=='ranged')drawNyxara(x,y,m.a,f);
  else if(m.boss)drawMordrek(x,y,m.a,f);
+ else if(m.lesser&&m.ty=='raum')drawRaum(x,y,m,f);
+ else if(m.lesser&&m.ty=='vepar')drawVepar(x,y,m,f);
  else if(m.lesser){ctx.save();ctx.translate(x,y);ctx.scale(1.5,1.5);drawCerberus(0,0,m.a,f,m.wk,m.sn||0);ctx.restore()}
  else drawMob(m,x,y,f);
  if(m.boss&&m.st=='chase'){ctx.fillStyle='#000a';ctx.fillRect(x-16,y-42,32,4);ctx.fillStyle='#b01c1c';ctx.fillRect(x-15,y-41,30*m.hp/m.mh,2)}}
@@ -1866,6 +2077,7 @@ function render(){
  ctx.drawImage(blood,cx,cy,VW,VH,0,0,VW,VH);
  exts.forEach(e=>{if(e.sealed)return;const x=e.x-cx,y=e.y-cy,near=D(P.x,P.y,e.x,e.y)<26;ctx.strokeStyle=`rgba(255,240,180,${.5+.3*Math.sin(T*3+e.k)})`;ctx.lineWidth=1.5;ctx.setLineDash([4,4]);ctx.lineDashOffset=-T*10;ctx.beginPath();ctx.arc(x,y,17,0,7);ctx.stroke();ctx.setLineDash([]);if(P.ep>0&&near){ctx.strokeStyle='#8fe0a0';ctx.lineWidth=3;ctx.beginPath();ctx.arc(x,y,24,-1.5708,-1.5708+6.2832*P.ep/EXD);ctx.stroke()}if(D(P.x,P.y,e.x,e.y)<170)tx(e.n+(P.ep>0?'':' - stand in the ring'),x,y-32,'#e8e0b0','center')});
  clues.forEach(c=>{if(c.got)return;const x=c.x-cx,y=c.y-cy;ctx.strokeStyle='rgba(255,70,40,'+(.6+.3*Math.sin(T*4))+')';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(x,y,6,0,7);ctx.moveTo(x-6,y);ctx.lineTo(x+6,y);ctx.moveTo(x,y-6);ctx.lineTo(x,y+6);ctx.stroke()});
+ M.forEach(m=>{if(m.ns){const x=m.ns.x-cx|0,y=m.ns.y-cy|0;if(x>-50&&x<VW+50&&y>-40&&y<VH+40)drawNest(x,y)}});
  items.forEach(it=>{const x=it.x-cx|0,y=it.y-cy|0;if(x<-10||x>VW+10||y<-10||y>VH+10)return;shadow(x,y,4);
   if(it.t=='wpn'){drawWpn(it.k,x-6,y,-.3,.8,it.sk)}
   else if(it.t=='ammo'){ctx.fillStyle='#6a5030';ctx.fillRect(x-4,y-3,8,6);ctx.fillStyle='#e0b040';ctx.fillRect(x-3,y-2,2,3);ctx.fillRect(x,y-2,2,3)}
@@ -1962,6 +2174,7 @@ function drawMap(){
  if(bty){let wx=null,wy=null,lb='';if(bty.h===mp.me){wx=P.x;wy=P.y;lb='Bounty (you)'}else if(bty.h==null){const c=items.find(i=>i.t=='cash'&&D(i.x,i.y,bty.x,bty.y)<40);wx=c?c.x:bty.x;wy=c?c.y:bty.y;lb='Bounty (dropped)'}else{const r=mp.rp[bty.h];if(r){wx=r.x;wy=r.y;lb='Bounty - '+hn(bty.h)}}
   if(wx!=null){const x=X(wx),y=Y(wy);ctx.fillStyle=`rgba(224,176,64,${.14+.12*pulse})`;ctx.beginPath();ctx.arc(x,y,15+4*pulse,0,7);ctx.fill();ctx.strokeStyle=`rgba(224,176,64,${.7+.3*pulse})`;ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,8+2*pulse,0,7);ctx.stroke();ctx.fillStyle='#e0b040';ctx.beginPath();ctx.arc(x,y,4.5,0,7);ctx.fill();ctx.fillStyle='#4a3020';ctx.fillRect(x-.6,y-2.8,1.2,5.6);ctx.font="700 12px Caveat,cursive";tx(lb,x,y+(bty.h===mp.me?24:21),'#f0c850','center');ctx.font="700 10px Caveat,cursive"}}
  // Lesser demons (Cerberus etc.) on the map, live position. Hidden for now: set LESSER_MAP=1 to show them again
+ M.forEach(m=>{if(!LESSER_MAP||!m.ns)return;const x=X(m.ns.x),y=Y(m.ns.y);ctx.strokeStyle='rgba(216,200,144,.85)';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(x,y,5,0,7);ctx.stroke();ctx.font="700 11px Caveat,cursive";tx('Nest',x,y+15,'#d8c890','center');ctx.font="700 10px Caveat,cursive"});
  M.forEach(m=>{if(!LESSER_MAP||!m.lesser||m.hp<=0)return;const x=X(m.x),y=Y(m.y);
   ctx.fillStyle=`rgba(255,120,30,${.14+.12*pulse})`;ctx.beginPath();ctx.arc(x,y,13+3*pulse,0,7);ctx.fill();
   ctx.strokeStyle=`rgba(255,140,50,${.7+.3*pulse})`;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x,y-7);ctx.lineTo(x+7,y);ctx.lineTo(x,y+7);ctx.lineTo(x-7,y);ctx.closePath();ctx.stroke();
@@ -2051,6 +2264,7 @@ const gur=(o,t,r,d)=>{O(o,t,d,{f:78*r,f2:48,g:.45,a:.12,fm:22,fmf:10});for(let i
 const roarB=(o,t,r,L)=>{growl(o,t,.9*L,85*r,48*r,{rough:27,form:[210,430],g:.7,dist:6});O(o,t,.9*L,{f:58,f2:36,g:.7});N(o,t,.7*L,{type:'lowpass',f:650,f2:150,g:.22,a:.05})};
 const cackle=(o,t,n)=>{for(let i=0;i<n;i++){O(o,t+i*.16,.14,{type:'sawtooth',f:520+i*35,f2:960+i*25,g:.22,a:.01,fm:50,fmf:24,dist:3});N(o,t+i*.16,.1,{type:'bandpass',f:1800,q:2,g:.12,a:.01})}};
 // ---- monster voices ----
+const caw=(o,t,r,d)=>{O(o,t,d,{type:'sawtooth',f:1050*r,f2:560*r,g:.28,a:.012,fm:110,fmf:42,dist:5});O(o,t,d*.9,{type:'square',f:520*r,f2:300*r,g:.12,a:.01});N(o,t,d*.8,{type:'bandpass',f:1700*r,f2:900,q:2,g:.16,a:.01})};
 const V={
  imp:{
   alert(o,t,r){O(o,t,.4,{type:'sawtooth',f:620*r,f2:1500*r,g:.16,a:.02,fm:110,fmf:34,dist:4});growl(o,t,.36,300*r,160*r,{rough:90,form:[800,2200],g:.4,dist:9})},
@@ -2099,6 +2313,20 @@ const V={
   sniff(o,t,r){for(let i=0;i<3;i++)N(o,t+i*.13+R(0,.03),.09,{type:'bandpass',f:2200*r,f2:3600,q:1.6,g:.22,a:.02});N(o,t+.45,.3,{type:'lowpass',f:900,f2:300,g:.1,a:.1})},
   die(o,t,r){for(let i=0;i<3;i++){const d=i*.13,k=[1,1.25,.8][i];O(o,t+d,.55,{type:'sawtooth',f:780*k*r,f2:160*k,g:.2,a:.01,fm:60,fmf:14,dist:3});growl(o,t+d,.7,260*k*r,60,{rough:40,form:[650,1400],g:.3,dist:8})}
    N(o,t,.35,{type:'lowpass',f:1600,f2:200,g:.45,a:.002});O(o,t+.5,.4,{f:68,f2:24,g:.8});N(o,t+.5,.35,{type:'lowpass',f:500,f2:90,g:.5,a:.002})}}
+ ,vepar:{
+  alert(o,t,r){growl(o,t,1.2,95*r,58*r,{rough:30,form:[300,700],g:.4,dist:6});for(let i=0;i<5;i++)N(o,t+i*.09,.06,{type:'bandpass',f:500+R(-100,100),f2:900,q:3,g:.15,a:.01})},
+  roar(o,t,r){growl(o,t,1.4,170*r,70*r,{rough:40,form:[400,1000],g:.38,dist:8});O(o,t,1,{type:'sawtooth',f:560*r,f2:190*r,g:.12,a:.04,fm:50,fmf:8,dist:4});N(o,t,1,{type:'bandpass',f:900,f2:400,q:1.2,g:.16,a:.05})},
+  snarl(o,t,r){for(let i=0;i<4;i++)N(o,t+i*.1,.07,{type:'bandpass',f:420+R(-80,80)+i*70,f2:800,q:3.4,g:.2,a:.01});growl(o,t,.6,90*r,60*r,{rough:25,form:[280,620],g:.2,dist:4})},
+  idle(o,t,r){growl(o,t,1.8,82*r,55*r,{rough:18,form:[260,560],g:.28,dist:3});for(let i=0;i<4;i++)N(o,t+.3+i*.2,.06,{type:'bandpass',f:600+R(-120,120),f2:1000,q:3,g:.1,a:.01})},
+  sniff(o,t,r){},
+  die(o,t,r){growl(o,t,2.2,150*r,40,{rough:30,form:[300,600],g:.5,dist:6});O(o,t,1.6,{type:'sawtooth',f:420*r,f2:60,g:.2,a:.02,fm:40,fmf:6});N(o,t,1.8,{type:'lowpass',f:900,f2:90,g:.5,a:.01});for(let i=0;i<8;i++)N(o,t+.4+i*.14,.07,{type:'bandpass',f:500+R(-100,200),f2:900,q:3,g:.18,a:.01})}}
+ ,raum:{
+  alert(o,t,r){caw(o,t,r,.32);caw(o,t+.34,r*.93,.38)},
+  roar(o,t,r){O(o,t,.9,{type:'sawtooth',f:1500*r,f2:620*r,g:.22,a:.02,fm:140,fmf:38,dist:8});N(o,t,.8,{type:'bandpass',f:2400,f2:1100,q:1.4,g:.25,a:.02});O(o,t+.05,.7,{type:'square',f:700*r,f2:330*r,g:.1,a:.02})},
+  snarl(o,t,r){for(let i=0;i<4;i++)caw(o,t+i*.15,r*(1+i*.05),.13)},
+  idle(o,t,r){caw(o,t,r*.9,.38)},
+  sniff(o,t,r){},
+  die(o,t,r){O(o,t,.7,{type:'sawtooth',f:1300*r,f2:180,g:.3,a:.01,fm:120,fmf:30,dist:6});N(o,t,.5,{type:'bandpass',f:1800,f2:300,q:1,g:.3,a:.01});N(o,t+.05,.3,{type:'lowpass',f:2000,f2:200,g:.4,a:.002})}}
 };
 const spat=(x,y,rg)=>{const d=Math.hypot(P.x-x,P.y-y);if(d>rg)return null;return{g:Math.max(.04,Math.pow(1-d/rg,1.3)),pan:cl((x-P.x)/240,-.85,.85),oc:!los(P.x,P.y,x,y)}};
 function mob(m,kind){
@@ -2146,6 +2374,25 @@ function cerb(m,dt){if(!ac)return;
  if(m.cd>m._cd+.4)snap(m);
  const k0=Math.floor(m._wk/1.57),k1=Math.floor(m.wk/1.57);if(k1!=k0&&Math.abs(k1-k0)<4)paw(m,hot);
  m._p=m.st;m._wk=m.wk;m._cd=m.cd}
+function slop(m,hard){if(!ready())return;const sp=spat(m.x,m.y,hard?520:420);if(!sp)return;const o=bus(hard?1:.75,.15,sp),t=ac.currentTime+.003;
+ N(o,t,hard?.3:.22,{type:'lowpass',f:700,f2:180,g:hard?.55:.4,a:.004});N(o,t+.02,.12,{type:'bandpass',f:900+R(-200,200),f2:420,q:2.6,g:.2,a:.003});O(o,t,.12,{f:90,f2:50,g:.3,a:.002})}
+function vepar(m,dt){if(!ac)return;const d=Math.hypot(P.x-m.x,P.y-m.y);
+ if(d>700||m.hp<=0||m._wk===undefined){m._wk=m.wk;m._p=m.st;m._cd=m.cd;return}
+ const hot=m.st=='hunt'||m.st=='bite',was=m._p=='hunt'||m._p=='bite';
+ if(hot&&!was&&T-(m._at||-9)>4){m._at=T;m.vt=R(2.5,4);mob(m,'roar');if(d<220)shake=Math.max(shake,2)}
+ m.vt=(m.vt===undefined?R(2,5):m.vt)-dt;if(m.vt<=0){m.vt=hot?R(2.5,4):R(6,11);mob(m,hot?'snarl':'idle')}
+ if(m.cd>m._cd+.4)slop(m,1);
+ const k0=Math.floor(m._wk/2.2),k1=Math.floor(m.wk/2.2);if(k1!=k0&&Math.abs(k1-k0)<4)slop(m,0);
+ m._p=m.st;m._wk=m.wk;m._cd=m.cd}
+function raum(m,dt){if(!ac)return;const d=Math.hypot(P.x-m.x,P.y-m.y),s=m.st=='chase'?(m.rs||'circ'):m.st;
+ if(d>760||m.hp<=0||m._p===undefined){m._p=s;m._wk=m.wk;m._sn=m.sn||0;if(m._p===undefined||d>760||m.hp<=0)return}
+ if((m.sn||0)>=1&&m._sn<1&&T-(m._at||-9)>3){m._at=T;mob(m,'alert')}
+ if(s=='dive'&&m._p!='dive'){mob(m,'roar');if(d<220)shake=Math.max(shake,3)}
+ if(s=='flee'&&m._p=='dive')mob(m,'snarl');
+ m.vt=(m.vt===undefined?R(3,8):m.vt)-dt;if(m.vt<=0){m.vt=R(7,14);if(Math.random()<.7)mob(m,'idle')}
+ const k0=Math.floor(m._wk/3.14),k1=Math.floor(m.wk/3.14);
+ if(k1!=k0&&Math.abs(k1-k0)<4&&d<300){const sp=spat(m.x,m.y,300);if(sp){const o=bus(.5,.05,sp),t=ac.currentTime+.003;N(o,t,.09,{type:'lowpass',f:700,f2:200,g:.35,a:.003});N(o,t+.02,.05,{type:'bandpass',f:1500,q:1,g:.08,a:.002})}}
+ m._p=s;m._wk=m.wk;m._sn=m.sn||0}
 function bow(){const o=bus(.7,.3),t=ac.currentTime+.003,pf=R(.93,1.08);
  O(o,t,.4,{type:'triangle',f:260*pf,f2:130,g:.5,a:.001,fm:25,fmf:55});O(o,t,.25,{type:'sawtooth',f:520,f2:260,g:.12,a:.001});
  N(o,t,.1,{type:'bandpass',f:2800,q:1.2,g:.6,a:.001});N(o,t+.03,.3,{type:'bandpass',f:1500,f2:600,q:1,g:.25,a:.02});O(o,t,.12,{f:90,f2:50,g:.5})}
@@ -2219,7 +2466,7 @@ function toggle(){ambOn=!ambOn;try{localStorage.setItem('bh_amb',ambOn?'1':'0')}
 function clatter(x,y){if(!ready())return;const sp=spat(x,y,600);if(!sp)return;const o=bus(.9,.3,sp),t=ac.currentTime;for(let i=0;i<7;i++)clk(o,t+i*.07+R(0,.03),R(1400,3200),.7);N(o,t,.35,{type:'bandpass',f:2400,q:1.5,g:.3,a:.002})}
 function jam(){if(!ready())return;const o=bus(.8,.1),t=ac.currentTime;clk(o,t,900,.9);clk(o,t+.09,600,.8);O(o,t,.1,{f:140,f2:60,g:.4})}
 function twang(){if(!ready())return;const o=bus(.5,.15),t=ac.currentTime;N(o,t,.12,{type:'highpass',f:2500,g:.25,a:.001});O(o,t,.18,{f:520,f2:300,g:.18,a:.002})}
-return{clatter,jam,twang,cerb,init,gun,dry,reload,melee,hit,mob,pain,death,escape,beat,heal,thr,bomb,equip,pick,sigil,chant,banish,bonus,ext,fire,dash,summon,vine,amb:ambStart,stop:ambStop,tick:ambTick,toggle}})();
+return{clatter,jam,twang,cerb,raum,vepar,init,gun,dry,reload,melee,hit,mob,pain,death,escape,beat,heal,thr,bomb,equip,pick,sigil,chant,banish,bonus,ext,fire,dash,summon,vine,amb:ambStart,stop:ambStop,tick:ambTick,toggle}})();
 
 // ---- hook the sounds into the game ----
 {
@@ -2255,7 +2502,7 @@ update=function(dt){
  for(const m of M){if(m.hp<=0)continue;
   if(m.ty=='vine'){if(m.fi&&!m._fi)sfx.vine(m,0);if(m.lf&&m.lf!==m._lf)sfx.vine(m,1);m._fi=m.fi;m._lf=m.lf}
   if(glLure(m)){m._p=m.st;continue}
-  if(m.lesser){sfx.cerb(m,dt);continue}
+  if(m.lesser){if(m.ty=='raum')sfx.raum(m,dt);else if(m.ty=='vepar')sfx.vepar(m,dt);else sfx.cerb(m,dt);continue}
   const d=D(m.x,m.y,P.x,P.y);if(d>(m.boss?900:460)){m._p=m.st;continue}
   if(m.st=='chase'&&m._p!='chase'){if(T-(m._at||-9)>(m.boss?8:3)){m._at=T;m.vt=R(2,4);sfx.mob(m,'alert')}}
   else{m.vt=(m.vt===undefined?R(1,4):m.vt)-dt;
@@ -2362,9 +2609,9 @@ const MKS=Object.keys(MOBS);let mpFx=0,mpNP=0,mpPT=0;
 const mpCli=()=>mp.on&&mp.host!=mp.me;
 const MPDELAY=150,MPPDELAY=80;   // ms: how far behind the host monsters are drawn so there are always two snapshots to blend
 // bite validation: how far a monster can really reach, plus a small allowance for network delay
-const MPLAG=40,mpReach=m=>m.lesser?LESSER.cerberus.rg+8:m.boss?48:m.ty=='vine'?140:m.ty=='brute'?20:14;
+const MPLAG=40,mpReach=m=>m.lesser?((LESSER[m.ty]&&LESSER[m.ty].rg)||LESSER.cerberus.rg)+8:m.boss?48:m.ty=='vine'?140:m.ty=='brute'?20:14;
 const mpNewId=()=>mp.mid=(mp.mid||1000)+1;
-const CST=['roam','hunt','sniff','bite','exit'];   // Cerberus states, sent as an index
+const CST=['roam','hunt','sniff','bite','exit','circ','dive','flee'];   // Cerberus states, sent as an index
 function mpTgt(m){if(!mp.on)return P;let pl=mp.pool||[P];if(m.boss){const i=pl.filter(q=>inHouse(m.bb,q.x,q.y,0));if(i.length)pl=i}
  let b=pl[0],bd=1e9;for(const q of pl){const d=D(m.x,m.y,q.x,q.y);if(d<bd){bd=d;b=q}}return b}
 let MCUR=null;{const _t0=mpTgt;mpTgt=function(m){MCUR=m;return _t0(m)}}
@@ -2384,8 +2631,8 @@ function mpPause(dt){const k=keys,l=mouse.l,r=mouse.r;keys={};mouse.l=mouse.r=0;
 function mpSendSnap(){const full=(++mp.fc)%8==0,pl=[P,...Object.values(mp.rp)].filter(q=>q.hp>0),m=[],k=[];
  for(const x of M){if(x.id===undefined)x.id=mpNewId();if(x.hp<=0){k.push(x.id);continue}
   if(!full&&!x.boss&&x.st!='chase'&&!pl.some(q=>D(q.x,q.y,x.x,x.y)<450))continue;
-  const e=[x.id,+x.x.toFixed(1),+x.y.toFixed(1),Math.ceil(x.hp),+(x.a||0).toFixed(2),+(x.wk||0).toFixed(1),x.st=='chase'?1:0,x.fl>0?1:0,x.boss?-1:x.lesser?-2:MKS.indexOf(x.ty||'imp')];
-  if(x.boss)e.push([x.dash>0?1:0]);else if(x.lesser)e.push([Math.max(0,CST.indexOf(x.st)),+(x.sn||0).toFixed(1),+Math.max(0,x.cd||0).toFixed(2)]);else if(x.ty=='spooler')e.push([x.sp||0,+(x.la||0).toFixed(2),+(x.ft||0).toFixed(2),x.hk===undefined?-1:x.hk,+Math.max(0,x.wu||0).toFixed(2)]);else if(x.ty=='vine')e.push([x.fi?1:0,+Math.max(0,(x.lw||0)-T).toFixed(2),+(x.la||0).toFixed(2),+Math.max(0,(x.lf||0)-T).toFixed(2)]);
+  const e=[x.id,+x.x.toFixed(1),+x.y.toFixed(1),Math.ceil(x.hp),+(x.a||0).toFixed(2),+(x.wk||0).toFixed(1),x.st=='chase'?1:0,x.fl>0?1:0,x.boss?-1:x.lesser?(x.ty=='raum'?-3:x.ty=='vepar'?-4:-2):MKS.indexOf(x.ty||'imp')];
+  if(x.boss)e.push([x.dash>0?1:0]);else if(x.lesser)e.push([Math.max(0,CST.indexOf(x.ty=='raum'&&x.st=='chase'?x.rs:x.st)),+(x.sn||0).toFixed(1),+Math.max(0,x.cd||0).toFixed(2),+(x.z||0).toFixed(1),x.ns?Math.round(x.ns.x):null,x.ns?Math.round(x.ns.y):null]);else if(x.ty=='spooler')e.push([x.sp||0,+(x.la||0).toFixed(2),+(x.ft||0).toFixed(2),x.hk===undefined?-1:x.hk,+Math.max(0,x.wu||0).toFixed(2)]);else if(x.ty=='vine')e.push([x.fi?1:0,+Math.max(0,(x.lw||0)-T).toFixed(2),+(x.la||0).toFixed(2),+Math.max(0,(x.lf||0)-T).toFixed(2)]);
   m.push(e)}
  mpSend({t:'ms',ts:Date.now(),ep:mp.ep,q:++mp.sq,fu:full?1:0,es:full?mpEvState():undefined,m,k,kb:(()=>{const b=M.find(x=>x.boss);return b&&b.hp<=0&&b.lh!=null?b.lh:undefined})(),e:eb.map(b=>[+b.x.toFixed(1),+b.y.toFixed(1),+b.vx.toFixed(0),+b.vy.toFixed(0),+b.l.toFixed(2)])})}
 function mpGetSnap(o){const f=o.f;if(!(o.ep>mp.ep||(o.ep==mp.ep&&f<=mp.host)))return;if(o.ep==mp.ep&&f==mp.host&&o.q<=mp.sq)return;
@@ -2394,12 +2641,12 @@ function mpGetSnap(o){const f=o.f;if(!(o.ep>mp.ep||(o.ep==mp.ep&&f<=mp.host)))re
  const hk=o.ep+':'+f,dly=Date.now()-(o.ts||Date.now());if(mp.rk!==hk||mp.ro===undefined){mp.rk=hk;mp.ro=dly;for(const m of M)m.buf=null}else if(dly<mp.ro)mp.ro=dly;else mp.ro+=(dly-mp.ro)*.02;const sts=o.ts||0;
  const by=new Map(M.map(m=>[m.id,m]));
  for(const e of o.m){let m=by.get(e[0]);if(e[0]>mp.mid)mp.mid=e[0];
-  if(!m){if(e[8]==-2)m=mkCerberus(e[1],e[2]);else if(e[8]<0)continue;else m=mkMob(e[1],e[2],'chase',MKS[e[8]]);m.id=e[0];M.push(m);by.set(m.id,m)}
+  if(!m){if(e[8]==-2)m=mkCerberus(e[1],e[2]);else if(e[8]==-3)m=mkRaum(e[1],e[2]);else if(e[8]==-4)m=mkVepar(e[1],e[2]);else if(e[8]<0)continue;else m=mkMob(e[1],e[2],'chase',MKS[e[8]]);m.id=e[0];M.push(m);by.set(m.id,m)}
   // full snapshots are the truth: if the host lists it alive, it is alive here too (bosses excluded, they have a corpse state)
   if(m.hp<=0){if(o.fu&&!m.boss&&e[3]>0){m.hp=e[3];m._dead=0;m._pd=0;m.gx=undefined;mp.fx=(mp.fx||0)+1}else continue}
   if(m.gx===undefined||Math.hypot(e[1]-m.x,e[2]-m.y)>80){m.x=e[1];m.y=e[2];m.buf=null}
   m.gx=e[1];m.gy=e[2];if(sts){const b=m.buf||(m.buf=[]);if(!b.length||sts>b[b.length-1].t){b.push({t:sts,x:e[1],y:e[2]});if(b.length>8)b.shift()}}m.hp=e[3];if(e[3]>.5)m._pd=0;m.a=e[4];m.st=e[6]?'chase':'idle';if(e[7])m.fl=.1;
-  const x=e[9];if(x){if(m.boss)m.dash=x[0];else if(m.lesser){m.st=CST[x[0]]||'roam';m.sn=x[1];m.cd=x[2]}else if(m.ty=='spooler'){if(!(T<(m.cl||0))){m.sp=x[0];m.hk=x[3]}m.la=x[1];m.ft=x[2];m.wu=x[4];if(m.sp!=3)m.hkd=0}else{m.fi=x[0];m.lw=T+x[1];m.la=x[2];if(x[3]>0){if(!(m.lf>T))m.lf=T+x[3]}else m.lf=0}}}
+  const x=e[9];if(x){if(m.boss)m.dash=x[0];else if(m.lesser){m.st=CST[x[0]]||'roam';m.sn=x[1];m.cd=x[2];if(x[3]!==undefined){m.z=x[3];m.rs=m.st}if(x[4]!=null&&x[5]!=null)m.ns={x:x[4],y:x[5]}}else if(m.ty=='spooler'){if(!(T<(m.cl||0))){m.sp=x[0];m.hk=x[3]}m.la=x[1];m.ft=x[2];m.wu=x[4];if(m.sp!=3)m.hkd=0}else{m.fi=x[0];m.lw=T+x[1];m.la=x[2];if(x[3]>0){if(!(m.lf>T))m.lf=T+x[3]}else m.lf=0}}}
  for(const id of o.k){const m=by.get(id);if(m&&m.hp>0){mpFx=1;try{kill(m)}finally{mpFx=0}}}
  // ...and anything alive here that a full snapshot does not list is a ghost: drop it
  if(o.fu){const have=new Set(o.m.map(e=>e[0])),n0=M.length;M=M.filter(m=>m.hp<=0||m.boss||m.id===undefined||have.has(m.id));mp.fx=(mp.fx||0)+n0-M.length}
@@ -3112,16 +3359,30 @@ const CHEATS={
  collapse:['seal one extraction point',()=>{if(PC.on)return;P.clD=0;P.clT=0}],
  time:['set seconds before the Reaper (/time 30)',a=>{P.tm=Math.max(1,parseInt(a[0])||60)}],
  reaper:['summon the Reaper now',()=>{if(!RD)P.tm=.05}],
- lesserdemon:['spawn a lesser demon if none is alive, and show lesser demons on the map',()=>{if(mp.on&&mpCli()){say('Host only',2);return}
-  if(!M.some(m=>m.lesser&&m.hp>0)){let x,y,t=0;do{const a=R(0,6.28),r=R(300,600);x=cl(P.x+Math.cos(a)*r,80,WW-80);y=cl(P.y+Math.sin(a)*r,80,WH-80)}while((hit(x,y,16)||blds.some(b=>{const e=bExt(b);return x>e.x-40&&x<e.x+e.w+40&&y>e.y-40&&y<e.y+e.h+40}))&&t++<300);
-   if(t>300){say('No open ground found, try again',2);return}M.push(mkCerberus(x,y))}
-  LESSER_MAP=1}]
+ lesserdemon:['list the lesser demons spawned this breach and show them on the map (/lesserdemon spawn [name] [count] adds some; every demon also has its own /name cheat, e.g. /raum)',a=>{
+  if(a[0]=='spawn'){spawnLesser(LESSER_MK[a[1]]?a[1]:'cerberus',parseInt(a[2])||1);return}
+  const ls=M.filter(m=>m.lesser);LESSER_MAP=1;
+  if(!ls.length){say('No lesser demons spawned this breach',5);return}
+  const dir=['E','SE','S','SW','W','NW','N','NE'];
+  say('Lesser demons this breach ('+ls.length+'): '+ls.map(m=>{const o=LESSER[m.ty],an=Math.atan2(m.y-P.y,m.x-P.x),d=dir[Math.round(an/(Math.PI/4)+8)%8];return (o?o.n:m.ty)+' - '+(m.hp>0?'alive, '+Math.round(D(m.x,m.y,P.x,P.y))+'px '+d:'dead')}).join(' | '),9)}]
 };
+// Force-spawn a lesser demon near the player (host only; /cerberus, /raum ... each take an optional count, max 5). Raum also gets its nest.
+function spawnLesser(ty,n){if(mp.on&&mpCli()){say('Host only',2);return}
+ n=Math.min(5,Math.max(1,n|0));let made=0;
+ for(let i=0;i<n;i++){let x,y,t=0;do{const an=R(0,6.28),r=R(300,600);x=cl(P.x+Math.cos(an)*r,80,WW-80);y=cl(P.y+Math.sin(an)*r,80,WH-80)}while((hit(x,y,16)||blds.some(b=>{const e=bExt(b);return x>e.x-40&&x<e.x+e.w+40&&y>e.y-40&&y<e.y+e.h+40}))&&t++<300);
+  if(t>300)continue;const nm=LESSER_MK[ty](x,y);if(nm.ty=='raum')placeNest(nm,P);M.push(nm);made++}
+ if(!made){say('No open ground found, try again',2);return}LESSER_MAP=1;say('Spawned: '+LESSER[ty].n+(made>1?' x'+made:''),2.5)}
+// One force-spawn cheat per built lesser demon, registered from LESSER_MK (a new demon added there gets its /name cheat automatically).
+Object.keys(LESSER_MK).forEach(ty=>{CHEATS[ty]=['force-spawn '+LESSER[ty].n+' near you (/'+ty+' [count], host only)',a=>spawnLesser(ty,parseInt(a[0])||1)]});
 function chCheat(txt){if(!devOK())return;try{const a=txt.slice(1).trim().toLowerCase().split(/\s+/),k=a.shift();
  if(k=='help'||k=='cheats'||k==''){say('Cheats: '+Object.keys(CHEATS).map(c=>'/'+c).join(' '),9);return}
  const c=CHEATS[k];if(!c){say('Unknown cheat: /'+k+'  (try /help)',2.5);return}
  if(P.dead){say('Cheats need you alive',2);return}
- c[1](a);if(mp.on&&CHBC.includes(k))mpSend({t:'cheat',k,a:a.slice(0,3)});if(k!='god'&&k!='tools'&&k!='help')say('Cheat: /'+k,1.5)}catch(e){say('Cheat failed',2)}}
+ c[1](a);if(mp.on&&CHBC.includes(k))mpSend({t:'cheat',k,a:a.slice(0,3)});if(k!='god'&&k!='tools'&&k!='help'&&!LESSER_MK[k])say('Cheat: /'+k,1.5)}catch(e){say('Cheat failed',2)}}
+{const _rh=mpHandle;mpHandle=function(o){
+ if(o&&o.t=='rst'){if(mode=='play'&&P&&!P.dead){const ks=[];P.ts.forEach((x,i)=>{if(x)ks.push(i)});if(ks.length){const j=ks[R(0,ks.length)|0],x=P.ts[j];P.ts[j]=null;fixSlot();say('Raum snatches your '+TOOL[x.k].n+'! Shoot it down.',4);shake=Math.max(shake,4);mpSend({t:'rsl',i:o.i,k:x.k,n:x.n})}else say('Raum finds nothing to steal and shrieks.',2.5)}return}
+ if(o&&o.t=='rsl'){if(!mpCli()){const m=M.find(q=>q.id===o.i);if(m&&m.hp>0&&m.loot&&TOOL[o.k])m.loot.push({t:'tool',k:o.k,ct:Math.max(1,Math.min(MAXST,o.n|0))})}return}
+ _rh(o)}}
 {const _mc=mpHandle;mpHandle=function(o){if(o&&o.t=='cheat'&&CHBC.includes(o.k)&&mode=='play'&&P&&!P.dead&&hasDev(hn(o.f))){try{CHEATS[o.k][1](Array.isArray(o.a)?o.a.map(x=>String(x).slice(0,8)):[])}catch(e){}}_mc(o)}}
 {const _hc=hurtP;hurtP=function(d,k){if(CHEAT.god&&!(k&&k.s=='reaper'))return;_hc(d,k)}}
 {const _ncs=newGame;newGame=function(){CHEAT.god=0;LESSER_MAP=0;_ncs()}}
@@ -3526,17 +3787,56 @@ menu();tutAsk(); // first render last, so every menu entry and wrapper above is 
 const TOTD={
  muzzle:()=>{P.hm=60;burst(P.x,P.y,12,50,'#8a7a6a',0);say("Hound's Muzzle: your noise is halved for 60s",3.5);try{sfx.heal()}catch(e){}},
  pyre:()=>{const x=P.x,y=P.y;fires.push({x,y,r:20,t:10,tk:99,s:Math.random()*6});NOISE.push({x,y,t:10,tk:0,own:1});burst(x,y,16,80,'#ff7a1a',0);shake=Math.max(shake,3);try{sfx.thr()}catch(e){}
-  if(mp.on){mpSend({t:'ff',x:+x.toFixed(1),y:+y.toFixed(1)});mpSend({t:'nmk',x:+x.toFixed(1),y:+y.toFixed(1)})}say('The Pyre of the Pack burns: every hunter is drawn to it',4)}};
+  if(mp.on){mpSend({t:'ff',x:+x.toFixed(1),y:+y.toFixed(1)});mpSend({t:'nmk',x:+x.toFixed(1),y:+y.toFixed(1)})}say('The Pyre of the Pack burns: every hunter is drawn to it',4)},
+ magpie:()=>{P.mg=40;burst(P.x,P.y,14,60,'#1c1424',0);say('Magpie Feather: loose loot flies to you for 40s',3.5);try{sfx.heal()}catch(e){}},
+ thief:()=>{P.th=3;burst(P.x,P.y,12,50,'#e8c860',0);say("Thief's Hands: your next 3 tool uses are free",3.5);try{sfx.heal()}catch(e){}}};
 function startBurn(k){if(P.dead)return;if(P.bn)return say('Already burning a totem',1.5);P.bn={k,t:0,x:P.x,y:P.y,hp:P.hp,nz:0};say('Burning the '+TOOL[k].n+'... stand still',2.5)}
-function totemTick(dt){P.hm=Math.max(0,(P.hm||0)-dt);const b=P.bn;if(!b)return;
+function totemTick(dt){P.hm=Math.max(0,(P.hm||0)-dt);nestTick();
+ if((P.mg||0)>0){P.mg-=dt;if(!P.dead)for(const it of items){if(it.t=='wpn'||it.got)continue;const d=D(P.x,P.y,it.x,it.y);if(d<120&&d>4){const q=Math.min(d,150*dt)/d;it.x+=(P.x-it.x)*q;it.y+=(P.y-it.y)*q}}}
+ const b=P.bn;if(!b)return;
  if(P.dead||D(P.x,P.y,b.x,b.y)>3||P.hp<b.hp-.01||TC(b.k)<=0){P.bn=null;if(!P.dead)say('The burn was interrupted',2);return}
  b.t+=dt;if((b.nz-=dt)<=0){b.nz=1;noise(P.x,P.y,120)}if(Math.random()<dt*14)burst(P.x+R(-3,3),P.y-6,1,18,'#4a3c3c',0);
  if(b.t>=3){P.bn=null;P.xt[b.k]--;fixSlot();TOTD[b.k]()}}
 function dropTotems(m){const o=LESSER[m.ty],ks=o&&o.tot;if(!ks||!ks.length)return;const a=ks[R(0,ks.length)|0],give=[a];if(ks.length>1&&Math.random()<.2)give.push(ks.find(k=>k!=a));
  give.forEach((k,i)=>items.push({t:'tool',k,x:m.x+(i?9:-4),y:m.y+7}));burst(m.x,m.y+6,10,60,'#d8c890',0);say(o.n+' drops '+(give.length>1?'two totems':'a totem')+'.',4)}
-{const _k=kill;kill=function(m){const first=m&&m.lesser&&!m.tdr;_k(m);if(first&&!mpCli()){m.tdr=1;try{dropTotems(m)}catch(e){}}}}
+function dropRaumLoot(m){if(m.ty!='raum'||!m.loot||!m.loot.length)return;
+ for(const l of m.loot){const n=l.ct||1;for(let i=0;i<n;i++){const it=Object.assign({},l);delete it.ct;it.id=undefined;it.got=0;it.x=m.x+R(-16,16);it.y=m.y+R(-12,14);items.push(it)}}
+ m.loot=[];burst(m.x,m.y,16,80,'#e8c860',0);say('Raum spills everything it stole!',4)}
+{const _ust=useSlotTool;useSlotTool=function(j){const x=P.ts[j],k=x&&x.k,n0=x?x.n:0;_ust(j);
+ if((P.th||0)>0&&k&&!(TOOL[k]&&TOOL[k].tot)){const c=P.ts[j]&&P.ts[j].k==k?P.ts[j].n:0;if(c<n0){if(P.ts[j])P.ts[j].n=n0;else P.ts[j]={k,n:n0};P.th--;say("Thief's Hands: free use ("+P.th+" left)",2)}}}}
+{const _k=kill;kill=function(m){const first=m&&m.lesser&&!m.tdr;_k(m);if(first&&!mpCli()){m.tdr=1;try{dropRaumLoot(m)}catch(e){}try{dropTotems(m)}catch(e){}}}}
 {const _n=noise;noise=function(x,y,r){if(P&&P.hm>0&&x===P.x&&y===P.y)r*=.5;return _n(x,y,r)}}
 {const _w=weaponTick;weaponTick=function(dt){_w(dt);if(P)totemTick(dt)}}
+/* ---- VEPAR: rot status + her two totems (Brine Pearl, Undertow) ----
+   Rot: P.rot = seconds left. Vepar's touch adds time (hurtP wrapper below, so it also works for remote hunters hit through {t:'hit'}); rot drains 2 HP per second.
+   Cures: Holy Water (useTonic wrapper) and the Brine Pearl totem. P.pr = Brine Pearl regeneration seconds (+2 HP/s).
+   Undertow: UT = brine puddles (ellipse r x r*.62) that slow anything inside by 60% (mv wrapper): mobs, Vepar, rivals, and you. Shared in multiplayer with {t:'utw'}. */
+let UT=[];
+const inUT=(x,y)=>UT.some(u=>{const dx=(x-u.x)/u.r,dy=(y-u.y)/(u.r*.62);return dx*dx+dy*dy<1});
+TOTD.pearl=()=>{P.rot=0;P.pr=20;burst(P.x,P.y,16,60,'#e8f0e8',0);say('Brine Pearl: the rot is cleansed and you regain health for 20s',3.5);try{sfx.heal()}catch(e){}};
+TOTD.undertow=()=>{const x=P.x,y=P.y;UT.push({x,y,r:46,t:10});burst(x,y,18,70,'#4a8a84',0);shake=Math.max(shake,2);try{sfx.thr()}catch(e){}
+ if(mp.on)mpSend({t:'utw',x:+x.toFixed(1),y:+y.toFixed(1)});say('Undertow: the ground turns to brine. Everything inside is slowed',4)};
+function rotTick(dt){for(const u of UT)u.t-=dt;UT=UT.filter(u=>u.t>0);
+ if(P.dead){P.rot=0;P.pr=0;return}
+ if((P.pr||0)>0){P.pr-=dt;if(P.hp<100&&P.hp>0)P.hp=Math.min(100,P.hp+2*dt)}
+ if(!((P.rot||0)>0)){P.rot=0;return}
+ P.rot-=dt;P.rz=(P.rz||0)-dt;if(Math.random()<dt*6)burst(P.x+R(-5,5),P.y-4,1,20,'#6a8a30',0);
+ if(P.rz<=0){P.rz=.5;if(!CHEAT.god){P.hp-=1;if(P.hp<=0){lastK=P.rm&&P.rm.hp>0?{m:P.rm,s:'melee'}:null;die()}}}}
+{const _wv=weaponTick;weaponTick=function(dt){_wv(dt);if(P)rotTick(dt)}}
+{const _hv=hurtP;hurtP=function(d,k){const h0=P.hp,d0=P.dead;_hv(d,k);
+ if(k&&k.m&&k.m.ty=='vepar'&&k.s=='melee'&&!d0&&!P.dead&&P.hp<h0){P.rot=Math.min(30,(P.rot||0)+LESSER.vepar.rot*(P.wd>0?.4:1));P.rm=k.m;P.rz=Math.max(P.rz||0,.5);burst(P.x,P.y,10,50,'#6a8a30',0);say("Vepar's touch: you are rotting! Drink Holy Water.",3.5)}}}
+{const _ut=useTonic;useTonic=function(){const r=P.rot>0;
+ if(r&&P.tn>0&&P.hp>=100&&!P.dead){P.tn--;P.rot=0;burst(P.x,P.y,10,40,'#7ad04a',0);fixSlot();say('Holy Water cleanses the rot',2.5);try{sfx.heal()}catch(e){}return}
+ const n=P.tn;_ut();if(r&&P.tn<n){P.rot=0;say('Holy Water cleanses the rot',2.5)}}}
+{const _mu=mv;mv=function(e,a,b,r){if(UT.length&&e&&e.x!==undefined&&inUT(e.x,e.y)){a*=.4;b*=.4}return _mu(e,a,b,r)}}
+{const _rh=mpHandle;mpHandle=function(o){if(o&&o.t=='utw'){UT.push({x:o.x,y:o.y,r:46,t:10});return}_rh(o)}}
+{const _ng=newGame;newGame=function(){UT=[];return _ng.apply(this,arguments)}}
+{const _bd=bmDraw;bmDraw=function(){_bd();if(!P||mode!='play'||P.dead)return;const cx=cam.x,cy=cam.y;ctx.save();
+ for(const u of UT){const al=Math.min(1,u.t/1.5),x=u.x-cx,y=u.y-cy;ctx.fillStyle=`rgba(30,90,90,${.35*al})`;ctx.beginPath();ctx.ellipse(x,y,u.r,u.r*.62,0,0,7);ctx.fill();
+  ctx.lineWidth=1.2;ctx.strokeStyle='rgb(140,210,200)';for(let i=0;i<2;i++){const q=(T*.6+i*.5)%1;ctx.globalAlpha=(1-q)*al*.7;ctx.beginPath();ctx.ellipse(x,y,u.r*q,u.r*.62*q,0,0,7);ctx.stroke()}ctx.globalAlpha=1}
+ if(P.rot>0){const g=ctx.createRadialGradient(VW/2,VH/2,140,VW/2,VH/2,380);g.addColorStop(0,'rgba(60,110,20,0)');g.addColorStop(1,`rgba(70,120,20,${.3+.1*Math.sin(T*4)})`);ctx.fillStyle=g;ctx.fillRect(0,0,VW,VH)}
+ ctx.font='bold 9px monospace';let yy=84;if(P.rot>0){tx('ROT '+Math.ceil(P.rot)+'s - drink Holy Water',8,yy,'#9ad84a');yy+=11}if(P.pr>0)tx('PEARL '+Math.ceil(P.pr)+'s',8,yy,'#cfe8e0');
+ ctx.restore()}}
 /* ===================== WEAPON BATCH 1 =====================
    Gatling Gun, Blunderbuss, Longbow, Holy Sprayer, Hand Mortar | Six-Shooter, Dart Pistol, Stake | Salt Line, Noisemaker, Chalk Circle
    Shared STATUS system on mobs: m.stt={slow,stun,sleep,blind} (seconds left). Resolved on the host only; clients send {t:'sts'}.
