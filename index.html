@@ -21,6 +21,7 @@ h2{margin:6px 0;font-size:30px;border-bottom:2px dashed #e8e6d866}
 .chalk:hover{background:#ffffff10}
 .chalk.on{border-color:#ffd9d0;background:#c0392b33;border-radius:30px 10px 28px 12px}
 .chalk small{display:block;font-size:17px;opacity:.75}
+.lcol .chalk.nmbox{font-size:18px;opacity:.9}.lcol .chalk.nmbox small{font-size:36px;line-height:1.05;opacity:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .wsb{display:grid;grid-template-columns:1fr 1fr;gap:2px 18px;margin-top:4px;clear:both}.wsr{display:flex;align-items:center;gap:6px;font-size:16px;line-height:1.1}.wsr b{width:64px;font-weight:400;opacity:.85}.wsr i{flex:1;min-width:40px;height:8px;background:#ffffff1f;border-radius:4px;overflow:hidden}.wsr u{display:block;height:100%;background:var(--chalk);border-radius:4px}.wsr em{width:80px;text-align:right;font-style:normal;white-space:nowrap}.opts p .wsb{grid-template-columns:1fr;gap:3px}.opts p .wsr{font-size:21px;gap:8px}.opts p .wsr i{height:11px}.opts p .wsr b{width:92px}.opts p .wsr em{width:100px}@media (max-width:520px){.wsb{grid-template-columns:1fr}}
 .foot{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;margin-top:10px;border-top:2px dashed #e8e6d866;padding-top:8px}
 button{font:700 30px 'Caveat',cursive;background:var(--red);color:#fff;border:3px solid #e8e6d8;border-radius:10px 24px 8px 20px;padding:2px 22px;cursor:pointer;transform:rotate(-1deg)}
@@ -44,7 +45,7 @@ body.rt h1,body.rt h2.lt,body.rt .tt-name,body.rt button.tt-btn,body.rt .risk h3
 .risk .rr{display:flex;justify-content:space-between;gap:10px;margin-top:5px}.risk .rr b{font-weight:400;opacity:.9}
 .risk .bad{color:#ff8a7a}.risk .good{color:#8fe0a0}.risk small{display:block;opacity:.65;font-size:17px;line-height:1.05}
 .risk hr{border:0;border-top:1px dashed #e8e6d855;margin:7px 0 2px}
-.opts #go{width:100%;font-size:38px;padding:6px;margin:4px 0 8px}
+.opts #go,.opts #ru{width:100%;font-size:38px;padding:6px;margin:4px 0 8px}
 #pn{display:block;width:100%;box-sizing:border-box;font:400 34px 'Caveat','Comic Sans MS',cursive;color:var(--chalk);background:#00000055;border:2px solid #e8e6d888;border-radius:6px 14px 5px 12px;padding:6px 12px;margin:10px 0 14px;outline:none}#pn:focus{border-color:#ffa23c;box-shadow:0 0 12px #ff6a2a55}#pn::placeholder{color:#e8e6d855}
 .lore p,.lore li{font-size:22px;line-height:1.1;margin:4px 0}.lore ul{columns:2;padding-left:20px;margin:4px 0}
 @media (max-width:640px){.achg{grid-template-columns:1fr}.hub{grid-template-columns:1fr}.lore ul{columns:1}}
@@ -58,6 +59,7 @@ body.rt h1,body.rt h2.lt,body.rt .tt-name,body.rt button.tt-btn,body.rt .risk h3
 .slot{position:relative;border:2px solid #e8e6d855;background:#140a0cc0;border-radius:4px;box-shadow:inset 0 0 14px #000}.slot>span{position:absolute;left:4px;top:1px;font-size:15px;opacity:.6;pointer-events:none}
 .slot.ok{border-color:#5ad070;background:#1c3a22aa}.slot.no{border-color:#c03040}
 .sth{display:flex;align-items:center;gap:12px}.sttabs{display:flex;gap:8px;margin-left:auto}.stb{font-size:20px;line-height:1.2;padding:0 13px;transform:none;border-width:2px;border-radius:8px;background:#3a2226;color:#d8d0c0}.stb.on{background:var(--red);color:#fff}.stb.lk{opacity:.75;border-style:dashed}.stb.cf{opacity:1;background:#8a5a10;color:#fff}
+.stb.dok{background:#2f7d3a;color:#fff;outline:3px solid #8fe0a0}.stb.dno{background:#6a2a2a;color:#fff;outline:3px solid #ff8a7a}
 .sgrid{position:relative;width:calc(var(--cs)*var(--gc,10));height:calc(var(--cs)*var(--gr,8));border:3px solid #6a5a4a;background-color:#0e0809;background-image:linear-gradient(#ffffff14 1px,transparent 1px),linear-gradient(90deg,#ffffff14 1px,transparent 1px);background-size:var(--cs) var(--cs);touch-action:none;box-shadow:inset 0 0 20px #000}
 .it{position:absolute;box-sizing:border-box;background:#7a1c1c66;border:1px solid #a03030aa;cursor:grab;touch-action:none;user-select:none}.slot .it{inset:0}
 .it b{position:absolute;right:3px;bottom:0;font-size:15px;color:#fff;pointer-events:none}
@@ -456,7 +458,7 @@ const FAMS={hunter:{n:'The Hunter',d:'The plain issue kit. Always yours.',c:0,de
 const pit=q=>q.t=='f'?FAMS[q.k]:q.t=='w'?(SID[q.k]||PRI[q.k]||TOOL[q.k]):SKINS[q.k];
 let pname='';const cleanName=v=>String(v==null?'':v).replace(/[^\w .'\-]/g,'').replace(/\s+/g,' ').trim().slice(0,14);
 let LS={},AST={},ANT={},RS={},AL=null,shopScr='shop',wsConf=null,traps=[],own=['hunter','plain'],curFam='hunter',note='',pend=null,stash=[],invOpen=0;
-const ISZ={rifle:[4,2],shotgun:[4,2],repeater:[3,2],crossbow:[3,2],pistol:[2,2],revolver:[2,2],tonic:[1,1],bomb:[2,1],pepperbox:[3,2],musket:[4,2],flamer:[3,2],handcannon:[2,2],whisper:[2,2],flask:[1,1],flare:[1,1],ward:[1,1],tripwire:[1,1],saltline:[1,1],noisemaker:[1,1],chalk:[1,1],gatling:[4,2],blunderbuss:[4,2],longbow:[4,2],sprayer:[4,2],mortar:[3,2],sixshooter:[2,2],dartpistol:[2,2],stake:[2,1],carbine:[3,2],sawnoff:[3,2],pump:[4,2],lever:[3,2],drum:[3,2],repxbow:[3,2],fowling:[4,2],derringer:[2,1],pocketrev:[2,2],navyrev:[2,2],scatterpistol:[2,2],dragoon:[2,2],sling:[2,1],saltgun:[4,2],stamtonic:[1,1],bootwraps:[1,1],muzzle:[2,1],pyre:[2,1],magpie:[2,1],thief:[2,1],pearl:[2,1],undertow:[2,1]},SC=20,SR=8,MAXST=3,NTS=6,EXD=10/* seconds standing in an exit ring to escape */,isz=k=>ISZ[k]||[1,1];
+const ISZ={rifle:[4,2],shotgun:[4,2],repeater:[3,2],crossbow:[3,2],pistol:[2,2],revolver:[2,2],tonic:[1,1],bomb:[2,1],pepperbox:[3,2],musket:[4,2],flamer:[3,2],handcannon:[2,2],whisper:[2,2],flask:[1,1],flare:[1,1],ward:[1,1],tripwire:[2,1],saltline:[1,1],noisemaker:[1,1],chalk:[1,1],gatling:[4,2],blunderbuss:[4,2],longbow:[4,2],sprayer:[4,2],mortar:[3,2],sixshooter:[2,2],dartpistol:[2,2],stake:[2,1],carbine:[3,2],sawnoff:[3,2],pump:[4,2],lever:[3,2],drum:[3,2],repxbow:[3,2],fowling:[4,2],derringer:[2,1],pocketrev:[2,2],navyrev:[2,2],scatterpistol:[2,2],dragoon:[2,2],sling:[2,1],saltgun:[4,2],stamtonic:[1,1],bootwraps:[1,1],muzzle:[2,1],pyre:[2,1],magpie:[2,1],thief:[2,1],pearl:[2,1],undertow:[2,1]},SC=20,SR=8,MAXST=3,NTS=6,EXD=10/* seconds standing in an exit ring to escape */,isz=k=>ISZ[k]||[1,1];
 const fitsIn=(arr,C,R_,x,y,w,h,ex)=>x>=0&&y>=0&&x+w<=C&&y+h<=R_&&!arr.some(o=>{if(o===ex)return 0;const z=isz(o.k);return x<o.x+z[0]&&x+w>o.x&&y<o.y+z[1]&&y+h>o.y});
 const spotIn=(arr,C,R_,k,ex)=>{const[w,h]=isz(k);for(let y=0;y<=R_-h;y++)for(let x=0;x<=C-w;x++)if(fitsIn(arr,C,R_,x,y,w,h,ex))return[x,y];return null};
 const addTo=(arr,C,R_,k,n)=>{if(TOOL[k]){const t=arr.find(o=>o.k==k&&o.n<MAXST);if(t){t.n=Math.min(MAXST,t.n+(n||1));return 1}}const f=spotIn(arr,C,R_,k);if(!f)return 0;arr.push({k,x:f[0],y:f[1],n:n||(TOOL[k]?1:0)});return 1};
@@ -471,7 +473,7 @@ const accepts=(id,k,src)=>id=='p'?!!(PRI[k]&&k!='none'):id=='s'?!!(SID[k]&&k!='n
 const slotGet=id=>id=='p'?(sel.pri!='none'?{k:sel.pri,sk:sel.sk.p}:null):id=='s'?(sel.side!='none'?{k:sel.side,sk:sel.sk.s}:null):sel.tools[+id[1]]||null;
 const slotSet=(id,it)=>{if(id=='p'){sel.pri=it?it.k:'none';sel.sk.p=it?skv(it.k,it.sk):''}else if(id=='s'){sel.side=it?it.k:'none';sel.sk.s=it?skv(it.k,it.sk):''}else sel.tools[+id[1]]=it?{k:it.k,n:it.n||1}:null};
 const dsc=k=>{if(TOOL[k])return TOOL[k].d;const w=SID[k]||PRI[k];return st(w)+(w.nt?'<br><i>'+w.nt.join(' \u00b7 ')+'</i>':'')};
-const SPX={rifle:[21,6.5,6],shotgun:[20,5,6],repeater:[19,5.5,7],crossbow:[19,5.5,17],pistol:[10,3,6],revolver:[17,6,7],tonic:[9,4.5,5],bomb:[12,6,5],pepperbox:[15,6,7],musket:[24,7,6],flamer:[21,6.5,7],handcannon:[16,5.5,7],whisper:[15,6,6],flask:[11,5.5,5],flare:[13,6,4],ward:[10,4,8],gatling:[24,8,12],blunderbuss:[19,7,6],longbow:[16,6,19],sprayer:[20.5,4.2,7],mortar:[17,6,8],sixshooter:[16,5,6],dartpistol:[14,5,6],stake:[19,6,4],saltline:[11,4,8],noisemaker:[13,5,5],chalk:[12,4,10],carbine:[18,6,6],sawnoff:[15,5,6],pump:[22,5.5,6],lever:[22,5.5,8],drum:[22,5.5,9],repxbow:[19,5.5,17],fowling:[28,6,6],derringer:[9,3,5],pocketrev:[14,5,6],navyrev:[19,6,7],scatterpistol:[15,6,6],dragoon:[19,6,7],sling:[12,9,10],saltgun:[22,5,6],stamtonic:[10,5,5],bootwraps:[12,5,5],muzzle:[15.5,-.3,6],pearl:[15.5,-.3,6],undertow:[15.5,-.3,6],pyre:[9,0,9],magpie:[15.6,0,6],thief:[13,.5,6]};
+const SPX={tripwire:[18,0,7],rifle:[21,6.5,6],shotgun:[20,5,6],repeater:[19,5.5,7],crossbow:[19,5.5,17],pistol:[10,3,6],revolver:[17,6,7],tonic:[9,4.5,5],bomb:[12,6,5],pepperbox:[15,6,7],musket:[24,7,6],flamer:[21,6.5,7],handcannon:[16,5.5,7],whisper:[15,6,6],flask:[11,5.5,5],flare:[13,6,4],ward:[10,4,8],gatling:[24,8,12],blunderbuss:[23.4,5.6,6.4],longbow:[16,6,19],sprayer:[20.5,4.2,7],mortar:[17,6,8],sixshooter:[16,5,6],dartpistol:[14,5,6],stake:[19,6,4],saltline:[11,4,8],noisemaker:[13,5,5],chalk:[12,4,10],carbine:[18,6,6],sawnoff:[15,5,6],pump:[22,5.5,6],lever:[22,5.5,8],drum:[22,5.5,9],repxbow:[19,5.5,17],fowling:[28,6,6],derringer:[9,3,5],pocketrev:[14,5,6],navyrev:[19,6,7],scatterpistol:[15,6,6],dragoon:[19,6,7],sling:[12,9,10],saltgun:[22,5,6],stamtonic:[10,5,5],bootwraps:[12,5,5],muzzle:[15.5,-.3,6],pearl:[15.5,-.3,6],undertow:[15.5,-.3,6],pyre:[9,0,9],magpie:[15.6,0,6],thief:[13,.5,6]};
 function itemCv(k,W,H,sk){const c=document.createElement('canvas');c.width=W;c.height=H;c.style.cssText='width:100%;height:100%;image-rendering:pixelated;pointer-events:none';const[l,cx,h]=SPX[k]||[10,5,5],sc=Math.min(W*.86/l,H*.8/h),o=ctx;ctx=c.getContext('2d');try{drawWpn(k,W/2-cx*sc,H/2-.5*sc,0,sc,sk)}finally{ctx=o}return c}
 const SAVE=run=>{try{localStorage.setItem('bh_save',JSON.stringify({nm:pname,bank,own,led:LS,al:AL,skin:sel.skin,sk:sel.sk,stash:STB[0],stx:[STB[1],STB[2],STB[3]],stu:stUn.slice(1),pri:sel.pri,side:sel.side,bag:sel.bag,tools:sel.tools,ast:AST,ant:ANT,run:run?1:0}))}catch(e){}};
 try{const d=JSON.parse((localStorage.getItem('bh_save')||'null').replace(/"smg"/g,'"pepperbox"'));if(d&&Array.isArray(d.own)){own=[...new Set(['hunter','plain',...d.own.filter(k=>FAMS[k]||SKINS[k]||WSKINS[k])])];bank=Math.max(120,d.bank|0);if(d.led)LS=d.led;if(d.ast&&typeof d.ast=='object'){for(const k in d.ast){const v=+d.ast[k];if(isFinite(v)&&v>=0)AST[k]=v}}if(d.ant&&typeof d.ant=='object'){for(const k in d.ant){const v=d.ant[k]|0;if(v>0&&v<4)ANT[k]=v}}AL=d.al||null;sel.skin=SKINS[d.skin]&&own.includes(d.skin)?d.skin:'plain';sel.wsk={};sel.sk={p:'',s:''};const lw=d.sk?{}:(d.wsk&&typeof d.wsk=='object'?d.wsk:{}),lsk=k=>{const id=lw[k];return WSKINS[id]&&WSKINS[id].k==k&&own.includes(id)?id:''};pname=cleanName(d.nm);
@@ -631,11 +633,11 @@ function nmGate(v,then,fail){if(!nmKey(v)||(hasDev(v)&&DEVAUTH)||nmKey(v)===nmKe
 // existing players are checked once, a few seconds after the game loads; if their name turns out to be taken it is cleared
 setTimeout(()=>{if(pname&&nmKey(pname)&&!(hasDev(pname)&&DEVAUTH)&&nmKey(pname)!==nmKey(NMOK))nmClaim(pname,r=>{if(r=='taken'){const bad=pname;pname=NMOK||'';SAVE();lbPush();note='The name "'+bad+'" belongs to another hunter, so yours was cleared. Pick a new one under Hunter Name.';tmRefresh()}})},4000);
 // ---------- /UNIQUE HUNTER NAMES ----------
-const lbBody=()=>{const B=LBB[lbTab]||LBB[0],all=lbTop(B.k).filter(r=>r.v>0),fm=v=>(B.pre?'$':'')+v.toLocaleString(),RC=['#ffd23a','#c8ccd2','#cd7f32','#e8e6d8','#e8e6d8'];
- const rows=[0,1,2,3,4].map(i=>{const r=all[i];return r?`<div class="lbr${r.me?' you':''}"><b style="color:${RC[i]}">#${i+1}</b><span class=n style="color:${devCol(r.n,'#e8e6d8')}">${r.n}${r.me?' (you)':''}</span><span class=v>${fm(r.v)}</span></div>`:`<div class=lbr style="opacity:.4"><b>#${i+1}</b><span class=n>\u2014</span><span class=v></span></div>`}).join('');
+const lbBody=()=>{const B=LBB[lbTab]||LBB[0],all=lbTop(B.k).filter(r=>r.v>0),fm=v=>(B.pre?'$':'')+v.toLocaleString(),RC=['#ffd23a','#c8ccd2','#cd7f32'];
+ const rows=[0,1,2,3,4,5,6,7,8,9].map(i=>{const r=all[i];return r?`<div class="lbr${r.me?' you':''}"><b style="color:${RC[i]||'#e8e6d8'}">#${i+1}</b><span class=n style="color:${devCol(r.n,'#e8e6d8')}">${r.n}${r.me?' (you)':''}</span><span class=v>${fm(r.v)}</span></div>`:`<div class=lbr style="opacity:.4"><b>#${i+1}</b><span class=n>\u2014</span><span class=v></span></div>`}).join('');
  const mi=all.findIndex(r=>r.me),mine=lbMine()[B.k],on=LBC.some(c=>c.connected),n=Object.keys(LBD).length+1;
- const you=mi>=5?`<p class=sub>You are #${mi+1} with ${fm(all[mi].v)}</p>`:mi<0?`<p class=sub>You are not ranked yet \u2014 finish a run to get on this board</p>`:'';
- return `<div class=achw>${LBB.length>1?`<div class=tabs>${LBB.map((b,i)=>`<div class="tb ${i==lbTab?'on':''}" data-lb=${i}>${b.n}</div>`).join('')}</div>`:''}<h2 class=lt>${B.n}</h2><p class=sub>Top 5 hunters by ${B.u}</p>${rows}${you}</div><div class=foot><span>${on?'Live \u2014 '+n+' hunter'+(n>1?'s':'')+' on the boards':Date.now()-lbOT>8000?'Could not reach Cloudflare \u2014 showing this device only (still retrying)':'Connecting to Cloudflare...'}</span>${back}</div>`};
+ const you=mi>=10?`<div class="lbr you" style="margin-top:16px"><b style="color:#e8e6d8">#${mi+1}</b><span class=n style="color:${devCol(all[mi].n,'#e8e6d8')}">${all[mi].n} (you)</span><span class=v>${fm(all[mi].v)}</span></div>`:mi<0?`<p class=sub>You are not ranked yet \u2014 finish a run to get on this board</p>`:'';
+ return `<div class=achw>${LBB.length>1?`<div class=tabs>${LBB.map((b,i)=>`<div class="tb ${i==lbTab?'on':''}" data-lb=${i}>${b.n}</div>`).join('')}</div>`:''}<h2 class=lt>${B.n}</h2><p class=sub>Top 10 hunters by ${B.u}</p>${rows}${you}</div><div class=foot><span>${on?'Live \u2014 '+n+' hunter'+(n>1?'s':'')+' on the boards':Date.now()-lbOT>8000?'Could not reach Cloudflare \u2014 showing this device only (still retrying)':'Connecting to Cloudflare...'}</span>${back}</div>`};
 let showMap=0,camp={x:60,y:WH-60};
 const edgePt=()=>{const m=60,w=WW-2*m,h=WH-2*m;let t=R(0,2*(w+h));if(t<w)return{x:m+t,y:m};t-=w;if(t<h)return{x:WW-m,y:m+t};t-=h;if(t<w)return{x:WW-m-t,y:WH-m};t-=w;return{x:m,y:WH-m-t}};
 const say=(s,t)=>{msg=s;msgT=t||3};
@@ -665,12 +667,9 @@ function riskBox(){const c=cost(),nm=[];let gv=0;
  if(bn)nm.push(bn+' backpack item'+(bn>1?'s':''));
  const bs=Object.values(BOSS),lo=Math.min(...bs.map(b=>b.bo)),hi=Math.max(...bs.map(b=>b.bo)),bl=Object.values(BOSS).sort((a,b)=>a.bo-b.bo).map(b=>b.n.split(/[ ,]/)[0]+' $'+b.bo).join(' \u00b7 ');
  return `<div class=risk><h3>Risk &amp; Reward</h3>
-<div class=rr><b>Entry cost</b><span>$${c}</span></div><small>${c?'Extra magazines, paid up front':'No extra magazines bought'}</small>
-<div class=rr><b>Gear you carry in</b><span>$${gv}</span></div><small>${nm.length?nm.join(', '):'Nothing equipped \u2014 fists and faith'}</small>
-<hr>
-<div class="rr bad"><b>If you die</b><span>\u2212$${c+gv}</span></div><small>Everything you carry is lost. Your stash and cash are safe.</small>
-<div class="rr good"><b>Bounty if you escape</b><span>+$${lo}\u2013$${hi}</span></div><small>${bl}. The demon is drawn at the breach. Banish it, then reach an exit with your gear and backpack. The Tithe can take half the bounty.</small>
-<div class=rr><b>Escape empty-handed</b><span>\u2212$${c}</span></div><small>You keep your gear, but not the entry cost.</small></div>`}
+${c?`<div class=rr><b>Entry cost</b><span>$${c}</span></div>`:''}
+<div class="rr bad"><b>If you die</b><span>\u2212$${c+gv}</span></div>
+<div class="rr good"><b>If you escape</b><span>+$${lo}\u2013$${hi}</span></div></div>`}
 const cost=()=>[0,1].reduce((a,i)=>a+(xaW(i)?xaN(i)*xaP(xaW(i)):0),0);
 // Weapon stat bars used by the Gunsmith, the buy screen and the loadout pickers.
 // Every bar is scaled against a fixed ceiling, so weapons can be compared directly.
@@ -884,14 +883,14 @@ function menu(m){try{if(scr=='lb')lbOpen();else lbClose()}catch(e){}try{const an
  else if(scr=='missions')body=`<div class=cols>${col('Ledgers',ledList())}${col((LEDGERS[mi]||LEDGERS[0]).t,ledStory())}</div><div class=foot><span>Active: ${ledFoot()}</span>${back}</div>`;
  else if(scr=='lore'){const S=LORE[lorTab]||LORE[0],op=lorOpen>=0&&lkHas(lorTab,lorOpen)?S.e[lorOpen]:null,nf=S.e.filter((q,i)=>lkHas(lorTab,i)).length;
   body=`<div class=slate><div class=tabs>${LORE.map((s,i)=>`<div class="tb ${i==lorTab?'on':''}" data-l=${i}>${s.t.replace(' Lore','')}</div>`).join('')}</div><h2 class=lt>${S.t}</h2><p class=sub>${op?'Folder open. Close it to pick another.':S.sub}</p>`+(op?`<div class=fopen><div class=ftab>${op[0]}</div><div class=fback><div class=fsheet><div class="pol sp"><canvas data-la="${lorTab}.${lorOpen}" width=224 height=126></canvas></div><h3>${op[0]}</h3><p>${op[1]}</p></div></div></div>`:`<div class=fds>${S.e.map((n0,i)=>{const kn=lkHas(lorTab,i);return `<div class="fd${kn?'':' lk'}" ${kn?'data-lo='+i:''} style="--r:${(((i*37)%7)-3)*.8}deg"><div class=ft></div><div class=fl>${kn?n0[0]:'???'}</div></div>`}).join('')}</div>`)+`</div><div class=foot><span>${nf} of ${S.e.length} folders found${op?'':' \u2014 click one to open it'}</span>${op?'<button data-lo=-1>\u2190 Close folder</button>':back}</div>`} else if(scr=='help')body=`<div class=lore><h2>Controls</h2><ul>${HELP.split(' \u00b7 ').map(l=>`<li>${l}</li>`).join('')}</ul></div><div class=foot><span></span>${back}</div>`;
- else body=`${teamBar()}<div class=hub><div class=lcol><div class=stage><canvas id=pc width=256 height=288></canvas><div class=cap>${pname?pname+' \u2014 ':''}${PRI[sel.pri].n} \u00b7 ${SID[sel.side].n} \u00b7 ${tl}</div></div><div class=chalk data-v=name>Hunter Name<small>${pname||'Unnamed \u2014 tap to set'}</small></div>${riskBox()}</div><div class=opts>${fltBar()}${teamGo(ok)}${ok?'':'<p class=msg style="font-size:20px">Can\'t afford this loadout.</p>'}<div class=chalk data-v=sk>Skins<small>${SKINS[sel.skin].n}</small></div><div class=chalk data-v=stash>Stash & Armory<small>${STB.reduce((a,t)=>a+t.length,0)} items stored</small></div><div class=chalk data-v=missions>Ledgers<small>${ledSub()}</small></div><div class=chalk data-v=ach>Achievements<small>${achTotals()[0]} of ${achTotals()[1]} tiers earned</small></div><div class=chalk data-v=lore>Lore</div><div class=chalk data-v=lb>Leaderboard<small>Top 5 hunters on each board</small></div><div class=chalk data-v=title>Main Menu</div></div></div><div class=foot><span>Cash: $${bank} &nbsp;|&nbsp; Loadout: $${c}</span><span>Ledger: ${ledFoot()}</span></div>`;
+ else body=`${teamBar()}<div class=hub><div class=lcol><div class=stage><canvas id=pc width=256 height=288></canvas><div class=cap>${pname?pname+' \u2014 ':''}${PRI[sel.pri].n} \u00b7 ${SID[sel.side].n} \u00b7 ${tl}</div></div><div class="chalk nmbox" data-v=name>Hunter Name<small>${pname||'Unnamed \u2014 tap to set'}</small></div>${riskBox()}</div><div class=opts>${fltBar()}${teamGo(ok)}${ok?'':'<p class=msg style="font-size:20px">Can\'t afford this loadout.</p>'}<div class=chalk data-v=sk>Skins<small>${SKINS[sel.skin].n}</small></div><div class=chalk data-v=stash>Stash & Gunsmith<small>${STB.reduce((a,t)=>a+t.length,0)} items stored</small></div><div class=chalk data-v=missions>Ledgers<small>${ledSub()}</small></div><div class=chalk data-v=ach>Achievements<small>${achTotals()[0]} of ${achTotals()[1]} tiers earned</small></div><div class=chalk data-v=lore>Lore</div><div class=chalk data-v=lb>Leaderboard<small>Top 10 hunters on each board</small></div><div class=chalk data-v=title>Main Menu</div></div></div><div class=foot><span>Cash: $${bank} &nbsp;|&nbsp; Loadout: $${c}</span><span>Ledger: ${ledFoot()}</span></div>`;
 ;const drawIcons=()=>document.querySelectorAll('canvas[data-ic]').forEach(c=>{const o=ctx;ctx=c.getContext('2d');try{ctx.clearRect(0,0,34,18);drawWpn(c.dataset.ic,5,9,0,1,c.dataset.wk)}finally{ctx=o}});
- $('#menu').style.display='block';$('#menu').innerHTML=`<div class=board><i hidden></i><h1>\u2620 Hellbreach \u2620</h1>${m?`<p class=msg>${m}</p>`:''}${body}</div>`;drawIcons();if(scr=='name'){const pn=$('#pn');if(pn){const sv=()=>{const v=cleanName(pn.value);if(hasDev(v)&&!DEVAUTH)return;pname=v;SAVE()},
+ $('#menu').style.display='block';$('#menu').innerHTML=`<div class=board><i hidden></i><h1>\u2620 Hellbreach \u2620</h1>${m?`<p class=msg>${m}</p>`:''}${body}</div>`;drawIcons();if(scr=='name'){const pn=$('#pn');if(pn){const sv=()=>{},
    cm=then=>{const v=cleanName(pn.value),acc=()=>{pname=v;SAVE();if(then)then()},bad=()=>{pn.disabled=false;pname=NMOK||'';SAVE();lbPush();menu('\u201c'+v+'\u201d is already taken by another hunter. Choose a different name.')},
      chk=()=>{if(!nmKey(v)||(hasDev(v)&&DEVAUTH)||nmKey(v)===nmKey(NMOK)){acc();return}pn.disabled=true;const w=document.createElement('p');w.className='msg';w.textContent='Checking that name...';pn.insertAdjacentElement('afterend',w);nmGate(v,()=>{pn.disabled=false;acc()},bad)};
     if(!hasDev(v)||DEVAUTH){chk();return}
     devAsk(ok=>{if(ok){DEVAUTH=1;try{localStorage.setItem('bh_dv',PW_HASH)}catch(e){}acc()}else{const w=cleanName(v.replace(/dev/gi,''));pn.value=w;pname=w;SAVE();pn.focus()}})};
-   pn.oninput=sv;{const sb=document.querySelector('#menu .opts button[data-v=hub]');if(sb)sb.addEventListener('click',e=>{e.stopPropagation();cm(()=>{scr='hub';menu('')})})}
+   pn.oninput=sv;{const sb=document.querySelector('#menu .opts button[data-v=hub]');if(sb)sb.addEventListener('click',e=>{e.stopPropagation();cm(()=>{scr='hub';menu('')})})}{const bb=document.querySelector('#menu .foot button[data-v=hub]');if(bb)bb.addEventListener('click',e=>{e.stopPropagation();cm(()=>{scr='hub';menu('')})})}
    ['keydown','keyup','keypress'].forEach(ev=>pn.addEventListener(ev,e=>e.stopPropagation()));pn.addEventListener('keydown',e=>{if(e.key=='Enter')cm(()=>{scr='hub';menu('')})});pn.focus();pn.setSelectionRange(pn.value.length,pn.value.length)}}if(scr=='stash')stashInit();if(scr=='lore'){loreStr();setTimeout(loreStr,120);loreArt()}}
 $('#menu').onclick=e=>{const t=e.target.closest('[data-lb],[data-so],[data-stt],[data-ws],[data-l],[data-lo],[data-v],[data-xa],[data-bq],[data-m],[data-f],[data-y],[data-n],[data-w],[data-u],[data-q],[data-r],[data-k],[data-p],[data-s],[data-t],#go');if(!t)return;const d=t.dataset;if(d.stt===undefined)stConf=-1;
  if(d.stt!==undefined){const i=+d.stt;if(stUn[i]){stConf=-1;stSet(i);selRef=null;selInfo=null}else if(stConf!=i)stConf=i;else if(bank<STP[i]){note='Not enough cash: that tab costs $'+STP[i].toLocaleString()+'.';stConf=-1}else{bank-=STP[i];stUn[i]=1;stConf=-1;stSet(i);selRef=null;selInfo=null;SAVE();note='Stash tab '+(i+1)+' unlocked!'}}else if(d.bq){pq=Math.max(1,Math.min(PQMAX,pq+(d.bq=='+'?1:-1)))}else if(d.xa){const i=d.xa[0]=='s'?1:0,w=xaW(i);if(w){const n=xa[i]+(d.xa[1]=='+'?1:-1);if(n<0||n>XAMAX)return;if(d.xa[1]=='+'&&cost()+xaP(w)>bank){note='Not enough cash.'}else xa[i]=n}}else if(d.lb!==undefined)lbTab=+d.lb;else if(d.so!==undefined)note=sortStash();else if(d.l!==undefined){lorTab=+d.l;lorOpen=-1}else if(d.lo!==undefined)lorOpen=+d.lo;else if(d.ws){const id=d.ws;if(id.startsWith('x_')){delete sel.wsk[id.slice(2)];SAVE()}else{const s=WSKINS[id];if(s){if(own.includes(id)){wsConf=null;note='Apply it from the Stash: select the weapon, then press Skin.'}else if(wsConf!=id){wsConf=id}else if(bank<s.c){note='Not enough cash.';wsConf=null}else{bank-=s.c;own.push(id);wsConf=null;SAVE();note='Unlocked '+s.n+'! Select a weapon in the Stash and press Skin to apply it.'}}}}else if(d.v){wsConf=null;lorOpen=-1;scr=d.v;if(/^shop_/.test(d.v))shopScr=d.v}else if(d.m){mi=+d.m;const Lx=LEDGERS[mi];if(Lx&&lst(Lx.id).i<Lx.tasks.length){AL=Lx.id;SAVE()}}else if(d.f){curFam=d.f;const f=FAMS[d.f];if(own.includes(d.f)){if(Object.values(SKINS).filter(v=>v.f==d.f).length>1)scr='l_var';else{sel.skin=f.def;SAVE()}}else{pend={t:'f',k:d.f};scr='buy'}}
@@ -1447,19 +1446,31 @@ const gRect=id=>{const g=$(id),r=g.getBoundingClientRect();return{l:r.left+g.cli
 function startDrag(e,el,k,sid,ct,gi,o){e.preventDefault();const[w,h]=isz(k),cs=$('#sg').clientWidth/SC,gh=document.createElement('div');gh.className='ghost';gh.style.width=w*cs+'px';gh.style.height=h*cs+'px';gh.appendChild(itemCv(k,w*64,h*64,o&&o.sk));document.body.appendChild(gh);
  const hl=document.createElement('div');hl.className='hl';hl.style.display='none';document.body.appendChild(hl);const sp=!!(e.shiftKey&&!sid&&TOOL[k]&&(o.n||1)>1);if(sp){const o1={k,x:-9,y:-9,n:1};drg={k,sid,ct,gi,o:o1,split:o,w,h,cs,gh,hl,t:null}}else{el.style.opacity=.25;drg={k,sid,ct,gi,o,w,h,cs,gh,hl,t:null}}dragMove(e);
  addEventListener('pointermove',dragMove);addEventListener('pointerup',dragEnd,{once:true});addEventListener('pointercancel',dragEnd,{once:true})}
+// drop an item on another stash tab: room check (tools can merge into stacks of the same kind)
+const tabRoom=(i,d)=>{const arr=STB[i];if(!arr)return false;if(TOOL[d.k]&&arr.some(t=>t.k==d.k&&t.n<MAXST))return true;return !!spotIn(arr,SC,SR,d.k)};
 function dragMove(e){const d=drg;if(!d)return;const cs=d.cs;d.gh.style.left=e.clientX-d.w*cs/2+'px';d.gh.style.top=e.clientY-d.h*cs/2+'px';
- document.querySelectorAll('.slot').forEach(x=>x.classList.remove('ok','no'));d.hl.style.display='none';d.t=null;
+ document.querySelectorAll('.slot').forEach(x=>x.classList.remove('ok','no'));document.querySelectorAll('.stb').forEach(x=>x.classList.remove('dok','dno'));d.hl.style.display='none';d.t=null;
  for(const c of ['s','b']){const C=CT[c],G=gRect(C.e);if(e.clientX>G.l&&e.clientX<G.l+G.w&&e.clientY>G.t&&e.clientY<G.t+G.h){
    const arr=C.a(),gx=Math.round((e.clientX-d.w*cs/2-G.l)/cs),gy=Math.round((e.clientY-d.h*cs/2-G.t)/cs),px=Math.floor((e.clientX-G.l)/cs),py=Math.floor((e.clientY-G.t)/cs),src=!d.sid&&!d.split&&d.ct==c?arr[+d.gi]:null;
    const mg=TOOL[d.k]?arr.find(o=>o!==src&&o.k==d.k&&o.n<MAXST&&px>=o.x&&px<o.x+isz(o.k)[0]&&py>=o.y&&py<o.y+isz(o.k)[1]):null;
    let ok2,x=gx,y=gy,w=d.w,h=d.h;if(mg){ok2=1;x=mg.x;y=mg.y;[w,h]=isz(mg.k)}else ok2=fitsIn(arr,C.c,C.r,gx,gy,d.w,d.h,src);
    d.t={c,x:gx,y:gy,ok:ok2,mg};Object.assign(d.hl.style,{display:'block',left:G.l+x*cs+'px',top:G.t+y*cs+'px',width:w*cs+'px',height:h*cs+'px'});d.hl.className='hl'+(ok2?'':' no');return}}
+ const tb=document.elementsFromPoint(e.clientX,e.clientY).map(x=>x.closest&&x.closest('.stb')).find(Boolean);
+ if(tb){const ti=+tb.dataset.stt;if(stUn[ti]&&ti!=stTab){const okk=tabRoom(ti,d);d.t={tab:ti,ok:okk};tb.classList.add(okk?'dok':'dno')}return}
  const sl=document.elementsFromPoint(e.clientX,e.clientY).map(x=>x.closest&&x.closest('.slot')).find(Boolean);
  if(sl){const id=sl.dataset.sl,old=slotGet(id),okk=accepts(id,d.k,d.sid)&&id!=d.sid&&!(old&&old.k==d.k&&old.n>=MAXST);d.t={s:id,ok:okk};sl.classList.add(okk?'ok':'no')}}
 function take(d){if(d.split){d.split.n--;return}if(d.sid)slotSet(d.sid,null);else{const a=CT[d.ct].a(),i=a.indexOf(d.o);if(i>=0)a.splice(i,1)}}
 function dragEnd(){const d=drg;if(!d)return;drg=null;removeEventListener('pointermove',dragMove);d.gh.remove();d.hl.remove();const t=d.t,o=d.o;let ch=0;const reSel=nr=>{if(selRef&&(d.sid?selRef.sid==d.sid:selRef.o===d.o))selRef=nr};
  const mergeInto=tt=>{const mv=Math.min(MAXST-tt.n,o.n||1);tt.n+=mv;const rest=(o.n||1)-mv;if(rest>0)o.n=rest;else take(d);ch=1};
- if(t&&t.ok){
+ const toTab=ti=>{const arr=STB[ti];let n=TOOL[d.k]?(o.n||1):1,mv=0;
+  if(TOOL[d.k]){for(const q of arr){if(n<=0)break;if(q.k==d.k&&q.n<MAXST){const m=Math.min(MAXST-q.n,n);q.n+=m;n-=m;mv+=m}}
+   while(n>0){const f=spotIn(arr,SC,SR,d.k);if(!f)break;const m=Math.min(MAXST,n);arr.push({k:d.k,x:f[0],y:f[1],n:m});n-=m;mv+=m}}
+  else{const f=spotIn(arr,SC,SR,d.k);if(f){const no={k:d.k,x:f[0],y:f[1],n:o.n||0};if(o.sk)no.sk=o.sk;arr.push(no);mv=1;n=0}}
+  if(!mv){note='Stash tab '+(ti+1)+' is full.';return}
+  ch=1;if(n<=0){take(d);const was=selRef;reSel(null);if(selRef!==was)selInfo=null;note='Moved to stash tab '+(ti+1)+'.'}
+  else{if(d.split)take(d);else o.n=n;note='Stash tab '+(ti+1)+' is full: moved what fit.'}};
+ if(t&&t.tab!==undefined){if(t.ok)toTab(t.tab);else note='Stash tab '+(t.tab+1)+' is full.'}
+ else if(t&&t.ok){
   if(t.c){const arr=CT[t.c].a();
    if(t.mg)mergeInto(t.mg);
    else if(!d.sid&&!d.split&&d.ct==t.c){o.x=t.x;o.y=t.y;ch=1}
@@ -1471,7 +1482,7 @@ function dragEnd(){const d=drg;if(!d)return;drg=null;removeEventListener('pointe
    else{const C=CT[d.ct],a=C.a(),i=a.indexOf(o);a.splice(i,1);
     if(old){const z=isz(old.k),q=fitsIn(a,C.c,C.r,o.x,o.y,z[0],z[1])?[o.x,o.y]:spotIn(a,C.c,C.r,old.k);if(!q)a.splice(i,0,o);else{a.push({k:old.k,x:q[0],y:q[1],n:old.n||(TOOL[old.k]?1:0),...(old.sk?{sk:old.sk}:{})});slotSet(id,{k:d.k,n:o.n,sk:o.sk});reSel({sid:id});ch=1}}
     else{slotSet(id,{k:d.k,n:o.n,sk:o.sk});reSel({sid:id});ch=1}}}}
- if(ch)SAVE();menu()}
+ if(ch)SAVE();{const nn=note;note='';menu(nn)}}
 function newGame(){
  boss=Object.keys(BOSS)[Math.random()*Object.keys(BOSS).length|0];showMap=0;genGround();gorW=boss=='gorrath'?1:0;GFS=[];GGR=[];GHP=[];if(gorW)gorGround();nyxW=boss=='nyxara'?1:0;NSN=[];NWF=[];if(nyxW)nyxGround();morW=boss=='mordrek'?1:0;MGR=[];MBL=null;MCH=null;MBD=[];morBt=0;if(morW)morGround();walls=[];blds=[];
  camp=edgePt();exts=[];for(let t=0;exts.length<2&&t<500;t++){const p=edgePt();if(D(p.x,p.y,camp.x,camp.y)>1000&&exts.every(e=>D(p.x,p.y,e.x,e.y)>800))exts.push(p)}
@@ -1679,6 +1690,14 @@ const EVCH={bm:.18,rain:.14,fog:.14,collapse:.14};
 const evOk=(k,o)=>{const sd=blds[0]?blds[0].x*.53+blds[0].y:1;return hs(sd+o)<EVCH[k]};
 // ---------- ACTIONS ----------
 function noise(x,y,r){lessNoiseSrc(x,y);M.forEach(m=>{if(m.lesser){if(m.hp>0&&D(m.x,m.y,x,y)<r&&lessOut(x,y)){m.sx=x;m.sy=y;m.hun=1;m.ht=T}return}if(m.hp>0&&!glLure(m)&&D(m.x,m.y,x,y)<r&&(!m.boss||D(m.x,m.y,x,y)<160)){m.st='chase';m.lt=0}})}
+// RETRIEVABLE BOLTS: bows and crossbows leave their bolt behind. Every bolt can be picked up again: it lies where it landed (or in the demon it hit); none break.
+// Walk over it to get one bolt back in that weapon's reserve. Local to the shooter (it has an id, so multiplayer never broadcasts it) and it rots away after 90s. Max 40 on the ground.
+const BOLTK=['crossbow','repxbow','longbow'];let blN=0;
+function dropBolt(b,fl,m){if(b.dd||!BOLTK.includes(b.wk))return;b.dd=1;
+ const a=Math.atan2(b.vy,b.vx);let x=fl&&m?m.x+R(-5,5):b.x-Math.cos(a)*6,y=fl&&m?m.y+R(-4,4):b.y-Math.sin(a)*6;
+ if(hit(x,y,2)){x=b.x-Math.cos(a)*12;y=b.y-Math.sin(a)*12;if(hit(x,y,2))return}
+ items.push({t:'bolt',k:b.wk,x,y,id:'lb'+(blN++),exp:Date.now()+90000});
+ const bs=items.filter(i=>i.t=='bolt');if(bs.length>40)items.splice(items.indexOf(bs[0]),1)}
 function shoot(){if(P.cur>1){if(P.cd<=0){P.cd=.5;mouse.l=0;useSlotTool(P.cur-2)}return}const w=P.w[P.cur];if(!w&&P.cur<2){if(P.cd<=0&&P.mc<=0){P.cd=.5;melee()}return}if(w&&w.ml){if(P.cd<=0&&P.mc<=0){P.cd=w.ml.cd;stab(w);try{sfx.melee()}catch(e){}}return}if(!w||!w.d||P.rl>0||P.cd>0)return;if(P.mag[P.cur]<=0)return reload();if(w.dr){P.dw=(P.dw||0)+FD;return}if(w.gt&&(P.gj>0||(P.gsp||0)<.3))return;
  P.mag[P.cur]--;P.cd=w.gt?.07+.23*(1-(P.gsp||0)):w.r;const a=P.face,mzx=P.x+Math.cos(a)*8,mzy=P.y+Math.sin(a)*8;let mzb=0;for(let k=1;k<=4;k++)if(hit(P.x+(mzx-P.x)*k/4,P.y+(mzy-P.y)*k/4,.5)){mzb=1;break}if(mzb)burst(P.x+Math.cos(a)*4,P.y+Math.sin(a)*4,4,50,'#aaa',0);else if(w.mo)lobShell(w,a);else{const dm=w.lc&&P.mag[P.cur]==0?2:1;for(let i=0;i<w.p;i++){const t=a+R(-w.s,w.s);bul.push({x:mzx,y:mzy,vx:Math.cos(t)*w.sp,vy:Math.sin(t)*w.sp,d:w.d*dm,wk:w.k,l:w.l||.7})}if(dm>1)burst(mzx,mzy,8,120,'#fff0a0',0,a)}
  noise(P.x,P.y,w.nz);P.lf=.06;shake=Math.max(shake,w.p>1?3:2);burst(P.x+Math.cos(a)*10,P.y+Math.sin(a)*10,4,90,'#ffd27a',0,a)}
@@ -1799,9 +1818,10 @@ function update(dt){
   if(it.tn){if(Date.now()-tnSay>3500){tnSay=Date.now();say('The gear is tainted by evil.',3)}continue}
   if(it.t=='wpn'){P.pk=it;if(keys.KeyE)takeW(it);continue}
   if(it.t=='cash'){P.carry+=it.v;say('+$'+it.v+' from the fallen',3);it.got=1;continue}
+  if(it.t=='bolt'){const i=[0,1].find(j=>P.w[j]&&P.w[j].k==it.k);if(i===undefined)continue;if(!P.w[i].inf)P.res[i]+=1;say('+1 bolt',1.2);it.got=1;continue}
   if(it.t=='ammo'){const ss=[0,1].filter(i=>P.w[i]&&!P.w[i].ml);if(!ss.length)continue;const i=ss[R(0,ss.length)|0];P.res[i]+=Math.ceil(P.w[i].m*1.5);say('+ammo ('+P.w[i].n+')',2)}
   else{if(!giveTool(it.t=='tool'?it.k:it.t))continue}it.got=1}
- items=items.filter(i=>!i.got);
+ items=items.filter(i=>!i.got&&!(i.exp&&Date.now()>i.exp));
  const ex=exts.find(e=>!e.sealed&&D(P.x,P.y,e.x,e.y)<26);if(ex){if(P.ep<=0)say(ex.n+': hold your ground!',2.5);P.ep+=dt}else P.ep=Math.max(0,P.ep-dt*2);if(P.ep>=EXD)return end(1);
  const CLI=mpCli();for(const m of M){if(m.hp<=0||CLI)continue;if(m.lesser){roamLesser(m,dt);continue}TG=mpTgt(m);const sx0=m.x,sy0=m.y;m.ig=(m.ig||0)-dt;m.fl-=dt;m.cd-=dt;const d=D(m.x,m.y,TG.x,TG.y),a=Math.atan2(TG.y-m.y,TG.x-m.x),v=los(m.x,m.y,TG.x,TG.y);m.a=a;if(m.boss)m.st=inHouse(m.bb,TG.x,TG.y,0)?'chase':'idle';
   if(m.ty=='gleaner'&&m.st=='lure'){if(d<17&&!TG.dead)glReveal(m);continue}
@@ -1817,9 +1837,9 @@ function update(dt){
     if(d<16&&(m.mc=(m.mc||0)-dt)<=0){m.mc=1;hurtTG(18)}}
    else mobAI(m,a,d,v,dt)}if(m.boss){if(m.st=='chase'&&D(m.x,m.y,sx0,sy0)<.2*dt*55&&d>26){m.sg=m.sg||1;if((m.sk=(m.sk||0)-dt)<=0){m.sk=1.2;m.sg=-m.sg}mv(m,Math.cos(a+1.57*m.sg)*70*dt,Math.sin(a+1.57*m.sg)*70*dt,9)}if(!inHouse(m.bb,m.x,m.y,0)){m.x=sx0;m.y=sy0}}}
  for(const b of bul){const n=Math.ceil(Math.hypot(b.vx,b.vy)*dt/4);b.l-=dt;for(let i=0;i<n&&b.l>0;i++){b.x+=b.vx*dt/n;b.y+=b.vy*dt/n;
-  if(hit(b.x,b.y,.5)){b.l=0;burst(b.x,b.y,4,50,'#aaa',0);break}
+  if(hit(b.x,b.y,.5)){b.l=0;burst(b.x,b.y,4,50,'#aaa',0);dropBolt(b,0);break}
   let sc0=0;for(const m of M)if(m.ty=='spooler'&&m.hp>0&&m.sp==3&&spChainNear(m,b.x,b.y,3.5)){spCutReq(m);b.l=0;sc0=1;break}if(sc0)break;
-  for(const m of M)if(m.hp>0&&(m.lesser?cerbHit(m,b.x,b.y,1.5):D(m.x,m.y,b.x,b.y)<(m.boss?11:m.ty=='brute'?9:6))){hurt(m,b.d,Math.atan2(b.vy,b.vx),b.wk);b.l=0;break}if(b.l<=0)break}}
+  for(const m of M)if(m.hp>0&&(m.lesser?cerbHit(m,b.x,b.y,1.5):D(m.x,m.y,b.x,b.y)<(m.boss?11:m.ty=='brute'?9:6))){hurt(m,b.d,Math.atan2(b.vy,b.vx),b.wk);b.l=0;dropBolt(b,1,m);break}if(b.l<=0)break}if(b.l<=0)dropBolt(b,0)}
  bul=bul.filter(b=>b.l>0);
  for(const b of eb){b.x+=b.vx*dt;b.y+=b.vy*dt;b.l-=dt;if(hit(b.x,b.y,1))b.l=0;if(!CLI&&D(b.x,b.y,P.x,P.y)<6){b.l=0;hurtP(14,{m:b.o,s:'fire'})}if(!CLI&&mp.on&&b.l>0)for(const q of Object.values(mp.rp))if(q.hp>0&&D(b.x,b.y,q.x,q.y)<6){b.l=0;mpSend({t:'hit',to:q.id,d:14,k:'mob'});break}}eb=eb.filter(b=>b.l>0);
  for(const b of bombs){b.t-=dt;if(b.m>0){b.m-=dt;b.x+=b.vx*dt;b.y+=b.vy*dt;if(hit(b.x,b.y,2)){b.x-=b.vx*dt;b.y-=b.vy*dt;b.m=0}}
@@ -2333,6 +2353,7 @@ function render(){
  items.forEach(it=>{const x=it.x-cx|0,y=it.y-cy|0;if(x<-10||x>VW+10||y<-10||y>VH+10)return;shadow(x,y,4);
   if(it.t=='wpn'){drawWpn(it.k,x-6,y,-.3,.8,it.sk)}
   else if(it.t=='ammo'){ctx.fillStyle='#6a5030';ctx.fillRect(x-4,y-3,8,6);ctx.fillStyle='#e0b040';ctx.fillRect(x-3,y-2,2,3);ctx.fillRect(x,y-2,2,3)}
+  else if(it.t=='bolt'){ctx.fillStyle='#d8d8e0';ctx.fillRect(x-4,y,8,1);ctx.fillStyle='#e8ecff';ctx.fillRect(x-5,y-1,2,3);ctx.fillStyle='#ffd870';ctx.fillRect(x+4,y-1,1,3)}
   else if(it.t=='cash'){ctx.fillStyle='#e0b040';ctx.fillRect(x-4,y-3,8,6);ctx.fillStyle='#8a6a20';ctx.fillRect(x-2,y-1,4,2)}
   else if(it.t=='tonic'){drawWpn('tonic',x-3,y,-1.57,.9,it.sk)}
   else if(it.t=='tool'){drawWpn(it.k,x-4,y,-.2,.8,it.sk)}else{drawWpn('bomb',x-4,y,-.2,.8,it.sk)}if(it.tn){ctx.fillStyle='rgba(110,30,160,.35)';ctx.strokeStyle='rgba(170,70,220,'+(.5+.3*Math.sin(T*5))+')';ctx.lineWidth=1;ctx.beginPath();ctx.arc(x,y,7,0,7);ctx.fill();ctx.stroke()}});
@@ -2781,7 +2802,7 @@ const mpMate=i=>{try{return !!(mp.ids[i]&&isMate(mp.ids[i]))}catch(e){return fal
    // mp.tp = {hunterId:{nm,rd}} names and ready state of my teammates (filled in by the invite step)
 // TEAMS step 2: the 3 boxes across the top of the hub screen. Box 1 = the team host. Empty boxes say +Invite (clicking them is wired in step 3). A ready teammate's box turns green.
 function teamBar(){try{setTimeout(tmEnsure,0);const t=myTeam(),mem=t.members,pd=Object.values(mp.pend||{}),esc=x=>String(x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
- return '<div class=tbar>'+[0,1,2].map(i=>{const id=mem[i];if(id===undefined){const p=pd[i-mem.length];return p?'<div class="tbox emp" data-ts='+i+'>'+esc(p.nm)+'<small>Invited...</small></div>':'<div class="tbox emp" data-ts='+i+'>+<small>Invite</small></div>'}const me=id===mp.id,pr=me?{nm:pname,rd:id===t.host||mp.myrd?1:0}:(mp.tp[id]||{}),host=id===t.host;
+ return '<div class=tbar>'+[0,1,2].map(i=>{const id=mem[i];if(id===undefined){const p=pd[i-mem.length];return p?'<div class="tbox emp" data-ts='+i+'>'+esc(p.nm)+'<small>Invited... tap to cancel</small></div>':'<div class="tbox emp" data-ts='+i+'>+<small>Invite</small></div>'}const me=id===mp.id,pr=me?{nm:pname,rd:id===t.host||mp.myrd?1:0}:(mp.tp[id]||{}),host=id===t.host;
   return '<div class="tbox'+(me?' me':'')+(pr.rd&&!host?' rdy':'')+'" data-ts='+i+'><b>'+esc(pr.nm||(me?'You':'Hunter'))+'</b><small>'+(host?'Host':pr.rd?'Ready':'Not ready')+'</small></div>'}).join('')+'</div>'}catch(e){return ''}}
 // TEAMS step 3: invite by name -> accept -> roster. Invites and replies ride the shared 'hb1/search' channel as {t:'tm',...} (ignored by matchmaking);
 // the roster and leave/disband traffic use a team room 'hb1/room/tm<teamId>'. The host re-sends the roster every 3s; a member who hears nothing for 12s drops back to solo.
@@ -2815,6 +2836,7 @@ function tmAccept(){const i=tmIn;tmIn=null;tmClose();if(!i)return;if(mode!='menu
 function tmDecline(k){const i=tmIn;tmIn=null;tmClose();if(i)tmSend('hb1/search',{k,to:i.id,key:i.key})}
 function tmMsg(topic,buf){let o;try{o=JSON.parse(buf.toString())}catch(e){return}if(!o||o.t!=='tm'||o.from===mp.id||typeof o.from!=='string')return;const t=myTeam(),me=mp.id;
  if(o.k=='inv'){if(!pname||o.to!==tmKey(pname))return;const why=mode!='menu'?'match':mpBusy?'search':(tmIn||tmWait)?'invite':t.members.length>1?'team':'';if(why)return tmSend('hb1/search',{k:'busy',to:o.from,key:o.key,why});tmIn={id:o.from,tid:String(o.tid).slice(0,16),fn:cleanName(o.fn)||'A hunter',key:o.key,t0:Date.now()};tmShowInvite();return}
+ if(o.k=='cx'){if(tmIn&&tmIn.id===o.from&&o.to===tmKey(pname)){const f=tmIn.fn;tmIn=null;tmClose();note=f+' cancelled the invite.';tmRefresh()}return}
  if(o.to!==undefined&&o.to!==me)return;
  if(o.k=='acc'){if(t.members.includes(o.from))return;const p=mp.pend[o.key];if(!p||t.host!==me||t.members.length>=3||o.tid!==t.id||mpBusy||mode!='menu'||t.members.includes(o.from))return tmSend('hb1/search',{k:'nj',to:o.from});delete mp.pend[o.key];t.members.push(o.from);mp.tp[o.from]={nm:cleanName(o.nm)||p.nm,rd:0,ls:Date.now()};tmC&&tmC.subscribe(tmRoom(t.id));tmRoster();tmRefresh()}
  else if(o.k=='dec'||o.k=='busy'){const p=mp.pend[o.key];if(p){delete mp.pend[o.key];note=p.nm+(o.k=='dec'?' declined the invite.':o.why=='match'?' is in a match.':o.why=='search'?' is searching for a match.':o.why=='invite'?' is answering another invite.':' is already in a team.');tmRefresh()}}
@@ -2828,8 +2850,10 @@ function tmMsg(topic,buf){let o;try{o=JSON.parse(buf.toString())}catch(e){return
  else if(o.k=='rd'){if(t.host===me&&o.tid===t.id&&t.members.includes(o.from)&&mp.tp[o.from]){mp.tp[o.from].ls=Date.now();mp.tp[o.from].rd=o.rd?1:0;tmRoster();tmRefresh()}}
  else if(o.k=='lv'){if(t.host===me&&t.members.includes(o.from)){t.members=t.members.filter(id=>id!==o.from);delete mp.tp[o.from];tmRoster();if(!tmPull('A teammate left the team, so the search was cancelled.'))tmRefresh()}}
  else if(o.k=='dis'){if(o.tid===t.id&&t.host===o.from)tmReset('The team was disbanded.')}}
+// cancel an invite I sent: forget it and tell the invited hunter so their Accept/Decline popup closes
+function tmCancelInv(k){const p=mp.pend[k];if(!p)return;delete mp.pend[k];tmSend('hb1/search',{k:'cx',to:k,key:k});note='Invite to '+p.nm+' cancelled.';tmRefresh()}
 function tmBox(i){const t=myTeam(),id=t.members[i];if(mpBusy){note='You cannot change your team while searching for a match.';tmRefresh();return}
- if(id===undefined){if(t.host===mp.id)tmAsk();return}
+ if(id===undefined){if(t.host===mp.id){const ks=Object.keys(mp.pend||{}),pi=i-t.members.length;if(pi>=0&&pi<ks.length)tmCancelInv(ks[pi]);else tmAsk()}return}
  if(id===mp.id){if(t.members.length<2)return;if(t.host===mp.id){if(confirm('Disband your team?')){tmSend(tmRoom(t.id),{k:'dis',tid:t.id});tmReset()}}else if(confirm('Leave the team?')){tmSend(tmRoom(t.id),{k:'lv',tid:t.id});tmReset()}return}
  if(t.host===mp.id&&confirm('Remove '+((mp.tp[id]||{}).nm||'this hunter')+' from the team?')){t.members=t.members.filter(x=>x!==id);delete mp.tp[id];tmRoster();tmRefresh()}}
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('.tbox[data-ts]');if(b&&mode=='menu')tmBox(+b.dataset.ts)});
@@ -3047,8 +3071,12 @@ const _u3=update;update=function(dt){if(!mp.on)return _u3(dt);
  if((mpST-=dt)<=0){mpST=Math.max(.02,mpST+.05);mpSend({t:'p',ts:Date.now(),x:+P.x.toFixed(1),y:+P.y.toFixed(1),a:+P.face.toFixed(2),hp:P.hp,g:P.cur<2?(P.w[P.cur]?P.w[P.cur].k:'fists'):((P.ts[P.cur-2]||{}).k||'fists'),h:P.cur!=1&&P.w[1]?P.w[1].k:null,wk:P.wk,gs:(P.cur<2&&P.w[P.cur]?psk(P.cur):''),hs:(P.cur!=1&&P.w[1]?psk(1):''),sk:sel.skin,nm:pname,sa:P.sa>0?P.sa/.18:0,hf:P.hf,bt:bty&&bty.h===mp.me?1:0})}};
 const _real=newGame;newGame=function(){mpSearch((seed,n)=>{const o=Math.random;Math.random=mpMB(seed);try{_real()}finally{Math.random=o}
  if(n>1){M.forEach((m,i)=>m.id=i);Object.assign(mp,{host:0,ep:0,sq:0,mid:1000,mt:0,fc:0,nt:0,t0:Date.now(),hs:Date.now()+3000,ls:{},out:{},old:{},pool:null,fx:0,rtt:{}});items.forEach((it,i)=>it.id='i'+i);mp.rp={};mpb=[];const rg=mpMB(seed^0x9e3779b9),ed=()=>{const m=60,w=WW-2*m,h=WH-2*m;let t=rg()*2*(w+h);if(t<w)return{x:m+t,y:m};t-=w;if(t<h)return{x:WW-m,y:m+t};t-=h;if(t<w)return{x:WW-m-t,y:WH-m};t-=w;return{x:m,y:WH-m-t}},pts=[{x:camp.x,y:camp.y}];
- while(pts.length<n){let best=null,bs=-1;for(let i=0;i<150;i++){const c=ed();if(exts.some(e=>D(c.x,c.y,e.x,e.y)<200))continue;const d=Math.min(...pts.map(q=>D(c.x,c.y,q.x,q.y)));if(d>bs){bs=d;best=c}}if(!best)break;pts.push(best)}
- const sp=pts[mp.me]||pts[0];P.x=sp.x;P.y=sp.y;camp={x:sp.x,y:sp.y};M=M.filter(m=>m.boss||pts.every(q=>D(m.x,m.y,q.x,q.y)>200));say('Hunters in the breach: '+n+'. Everyone is prey.',6)}})}}
+ const tid=i=>{const h=mp.ids[i];return h===undefined?'#'+i:(mp.tm&&mp.tm[h])||h},tlist=[];for(let i=0;i<n;i++){const t=tid(i);if(!tlist.includes(t))tlist.push(t)}
+ while(pts.length<Math.max(1,tlist.length)){let best=null,bs=-1;for(let i=0;i<150;i++){const c=ed();if(exts.some(e=>D(c.x,c.y,e.x,e.y)<200))continue;const d=Math.min(...pts.map(q=>D(c.x,c.y,q.x,q.y)));if(d>bs){bs=d;best=c}}if(!best)break;pts.push(best)}
+ // TEAMS SPAWN TOGETHER: one far-apart edge point per TEAM (a solo hunter is a team of one); teammates stand a few steps apart on that point, in match-index order so every client agrees.
+ const myT=tlist.indexOf(tid(mp.me)),bp=pts[myT>=0?myT:0]||pts[0],mem=[];for(let i=0;i<n;i++)if(tid(i)===tid(mp.me))mem.push(i);
+ const rk=Math.max(0,mem.indexOf(mp.me)),hz=Math.min(bp.y,WH-bp.y)<=Math.min(bp.x,WW-bp.x),tg=hz?(bp.x<WW/2?1:-1):(bp.y<WH/2?1:-1),ins=hz?(bp.y<WH/2?1:-1):(bp.x<WW/2?1:-1),off=[[0,0],[34,0],[0,34]][rk%3],
+ sp={x:bp.x+(hz?off[0]*tg:off[1]*ins),y:bp.y+(hz?off[1]*ins:off[0]*tg)};P.x=sp.x;P.y=sp.y;camp={x:bp.x,y:bp.y};M=M.filter(m=>m.boss||pts.every(q=>D(m.x,m.y,q.x,q.y)>200));say('Hunters in the breach: '+n+'. Everyone is prey.',6)}})}}
 // ---------- ANNOUNCEMENTS: boss slain, boss banished, bounty tracking ----------
 function btyTake(f){if(f===mp.me||mp.out[f]||bty&&bty.h===mp.me)return;if(bty&&bty.h===f)return;const first=!bty;bty={h:f};
  if(first)banner(BOSS[boss].n+' is banished!',hn(f)+' claimed the $'+BOSS[boss].bo+' bounty - track them on the map [M]','#e0b040');
