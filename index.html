@@ -148,7 +148,7 @@ button.tt-btn:active{transform:translateX(12px) scale(.98)}
 <canvas id="g"></canvas><div id="menu"></div>
 <script>
 /* =====================================================================================================
-   NOTES: THINGS TO DO IN THE GAME (for future chats to follow; read this first, tick things off here when done)
+   NOTES: THINGS TO DO IN THE GAME (for future chats to follow; read this first, tick things off here when done, DELETE entries once they are built)
    -----------------------------------------------------------------------------------------------------
    BRAINSTORM TEAM (the owner's standing panel; use it whenever the owner asks to "brainstorm with my team"). 15 voices in three groups of 5:
      Devs:                 Ines (systems), Marcus (AI and pathing), Priya (art and animation), Tomasz (multiplayer and netcode), Dana (balance and tools).
@@ -157,126 +157,39 @@ button.tt-btn:active{transform:translateX(12px) scale(.98)}
    How to run a session: let each group speak in a few lines (devs say what is feasible in THIS codebase and flag multiplayer/desync risk, playtesters say what
    is fun, frustrating or streamable, specialists tie ideas back to real grimoire/folklore so the theme stays authentic), then end with a table of the
    final picks (name, hook, what it does, how you beat it) and ask the owner which to build. Panels may say "add nothing" if the game is already full.
-   Afterwards write the agreed ideas into this NOTES section so later chats can follow them. Past sessions: 9 lesser demons, then horde mobs (Gleaner built), then the Spooler (gut-chain hook mob, built).
+   Afterwards write the agreed ideas into this NOTES section so later chats can follow them. Past sessions: 9 lesser demons, then horde mobs, then the Spooler.
    -----------------------------------------------------------------------------------------------------
-   TO IMPLEMENT NEXT: TEAMS (solo, duo, trio). Owner's spec, Oct 18. Built in the steps below, one step per update, ticked off here when done. Multiplayer is the relay
-   in mpSearch / mpConnect / mpPub (topic hb1/search, rooms hb1/room/<id>), peers are mp.id, max MPMAX = 6 hunters, the monster host runs all monsters.
-     Rules: a team is 1 to 3 hunters (solo = team of 1). The map holds 6, so 3 teams of 2 or 2 teams of 3. Teams are never split by matchmaking. The hunter who
-       invited is the team HOST: only the host can press Enter the Breach, everyone else presses Ready Up. Teammates see each other on the map, and a teammate has a
-       slight BLUE OUTLINE on your screen. FRIENDLY FIRE is on. If you kill your teammate you cannot loot them: the game says the gear is tainted by evil. If anything else
-       kills your teammate (monster, fire, trap, boss, an enemy team) the gear is lootable as normal.
-     STEP 1 (DONE) - Team model (no UI yet). Built: mp.team, mp.tm, myTeam(), teamOf(id), isMate(id); search heartbeat carries tid, 'start' carries tm. mp.team={id,host,members:[ids]}, helper isMate(id), myTeam(), teamOf(id). Solo = a team with one member, so the solo flow stays exactly as it is.
-              Teams ride along in the 'start' message as o.tm (map of id to team id) so every client knows who is on whose side.
-     STEP 2 (DONE: boxes drawn by teamBar(); clicking an empty box is step 3) - Lobby boxes. On the hub screen with Hunter Name and Enter the Breach, add 3 player boxes along the top: box 1 is you (host), boxes 2 and 3 say "+ Invite".
-              Each filled box shows that hunter's name and small portrait (reuse mpPortrait / mpProfile). Boxes hide in solo until you click one.
-     STEP 3 (DONE: tm* functions after teamBar; invites ride the hb1/search channel as t:'tm', roster on room hb1/room/tm<teamId>; host re-sends roster every 3s, a member silent for 12s drops to solo; click own box = leave/disband, click a teammate as host = remove; duplicate names: first acceptor wins) - Invite and accept. Click an empty box, type a friend's name, press Invite. The invite goes over the relay on a per-name topic (hb1/inv/<lowercase name>) with the
-              host's name, team id and a timeout (about 30s). The friend gets an Accept / Decline popup. Accept: both subscribe to hb1/team/<id>, the host broadcasts the roster,
-              the friend's box fills in on every member's screen. Decline or timeout: the box resets and the host gets a short message. Anyone can leave; the host can kick.
-     STEP 4 (DONE: teamGo(); members' Ready Up sends t:'tm',k:'rd' on the team room, host relays it in the roster; ready states reset when a run starts. The host's Enter does NOT yet pull teammates into the match: that is step 5) - Host and Ready Up. The inviter is the host and is the only one who sees Enter the Breach. Other members see Ready Up (toggle). A member's box at the top turns GREEN
-              when ready (grey/red when not). Enter the Breach is disabled until every member box is green. If the host leaves, the next member becomes host (or the team disbands: ask the owner).
-     STEP 5 (DONE: mpSearch groups whole teams (heartbeat carries tid + ts = team size; a team counts once all ts members are searching), start message carries tm, roster border colours teams; host Enter sends k:'go' and every READY member pays + calls newGame; a member can't Ready Up if they can't afford their loadout) - Matchmaking with teams. Only the host starts the search, and it publishes the whole team (ids + profiles). mpSearch groups whole teams only (sum of sizes <= MPMAX),
-              never splitting one; the lead rule and the 'start' message stay the same but carry o.tm. Roster screen groups teammates under a shared team colour.
-     STEP 6 (DONE: mpMate(i) via mp.ids; rpDraw blue glow + blue name tag; teammates are blue dots on the M map. There is no minimap in this game) - Seeing your team in the match. rpDraw: teammates get a slight blue outline and a blue name tag; enemy hunters keep the current look. Map and minimap: teammates are blue
-              dots (always shown, even outside sight range); other hunters are not shown unless they are in view, as now.
-     STEP 7 (DONE: already on for shots, melee and bombs; added P.lh last-hunter stamp, 'dead' now carries by + lh, helper mpKill(o,f). NOT attributed to a hunter yet: fire/flask pools and tripwires, so those kills count as non-teammate; revisit in step 9) - Friendly fire. Check first what hunter-vs-hunter damage the game already has (bullets, explosions, fire, melee, traps); where none exists add it for everyone, teammates included,
-              and send each hit with the shooter's id. Track the last hunter who damaged someone (id and time) so deaths know their killer. Host validates, as with monster bites.
-     STEP 8 (DONE: mpDie() decides it on the victim's client with mpKill + mpMate and stamps tn:1 on every dropped item and on the 'dead' message; there is no item list in the host snapshot, items travel as 'dr' messages, so tn rides in those. Pickup loop skips tn items and says "The gear is tainted by evil." (3.5s throttle); tainted piles are drawn with a purple ring; Raum and the Magpie Feather ignore them; kill feed adds the line) - Tainted gear. When a hunter dies, record who killed them: a hunter on the SAME team (direct hit, or last damage from a teammate within about 5 seconds, e.g. their grenade or fire)
-              marks the corpse and drop as tainted. Looting a tainted corpse shows "The gear is tainted by evil" and gives nothing (also true in spectate/leave flow). Any other cause
-              (monster, boss, environment, an enemy team, bleeding out with no teammate hit) stays lootable. The tainted flag is decided by the monster host and synced in the snapshot.
-     STEP 9 (DONE, 42 lobby checks pass in /home/claude/test_teams.js with stubbed relay clients: invites, drops, duplicate names, full team, busy replies, killer rule, grouping 2+2+2 / 3+3 / 3+2+1 / 3+1 / 7 solos, 300 skewed-clock runs agreeing on who is in the match. Changes: members ping the host every 3s and the host removes a member silent for 12s; invite replies say WHY (in a match, searching, in a team, answering another invite); an accept that arrives too late or to a full team gets a 'nj' reply instead of an 8s hang; accepting clears my own unanswered invites; no inviting, leaving or kicking while a search runs; grouping is the pure function mpGroupTeams; tripwire hits on hunters now carry the layer's id (k:'tripwire') so they count as that hunter's kill; a flask thrown by a hunter now burns OTHER hunters too (before it was cosmetic on their screen) and credits the thrower, so fire is real friendly fire. Tutorial and solo untouched: solo sends nothing, tutorial stubs mpSearch) - Edge cases and tests. Disconnect or tab close (remove from team after the heartbeat timeout), duplicate names, inviting someone already in a team or in a match, invite while
-              searching, host change, teams of 2 + 2 + 2 and 3 + 3 and mixed totals, team of 3 + solo. The tutorial and solo play must be untouched. Simulate lobbies with stubbed relay clients
-              (as done for the map) before shipping. Tick the steps off in this list.
+   TEAM RULES (owner's answers, Oct 18). Teams, the match filter boxes, friendly fire and tainted gear are all built and have been removed from this list.
+     Decided and already how the game works: mixed teams (trio + duo + solo) share a match only if each side has selected the other's size (mutual rule in mpGroupTeams);
+       a solo hunter counts as a team of one; the host cannot Enter the Breach until every member is Ready; no loot sharing between teammates.
+     Decided, NOT built yet: when the host leaves mid-run, the host role passes to the remaining player with the LOWEST PING.
+       There are two hosts to think about: the TEAM host (roster, mp.team.host) and the MONSTER host (mp.host, runs every monster; takeover counter mp.ep, now "the next hunter").
+       Ping data exists: mp.rtt (shown in the F3 overlay). DESYNC RISK: each client measures its own rtt to the others, so they could disagree on who is lowest. Make the choice
+       deterministic: peers publish their measured pings (heartbeat / snapshot) and everyone picks the lowest of the published values, ties broken by lowest id. Apply to
+       both the team host and the monster host, and test with stubbed relay clients before shipping.
+     Open question: after 90s with no compatible match the game starts a solo run (you play alone with the monsters). The question is whether, instead, the filter should
+       RELAX after 90s (widen to accept any team size so you get matched with someone) before falling back to solo. Owner has not decided; explain it if asked.
    -----------------------------------------------------------------------------------------------------
-   DONE: MATCH FILTER BOXES (owner's request, Oct 18; teams steps 1-9 are done; F1-F4 below are all built, only the open questions at the end are left). On the hub, in the empty space ABOVE the Enter the Breach button (top of the right-hand .opts
-   column), add 3 boxes that can be selected and deselected: SOLOS, DUOS, TRIOS. The search then only matches you against teams of the sizes you have SELECTED.
-     Rules as understood (owner confirmed the idea, not every detail; the open questions below are my reading): all three start selected. At least one must stay selected (the last one cannot be
-       deselected). The filter is about the OTHER teams in the match, never your own teammates. A match only forms when every team in it is acceptable to every other team (mutual): team X
-       joins a group only if X's selection includes each team's size already in the group AND each of those teams' selections includes X's size. Teams are still never split.
-       The HOST's selection is the team's selection: only the host can click the boxes; members see the host's selection (greyed, not clickable) via the roster message. The boxes are locked while a search runs.
-       Solo and tutorial are untouched (a solo hunter just has the same three boxes).
-     F1 (DONE: fltBar(), fltOf(), click handler placed just above the 'Topic-compatible adapter' comment; mp.flt) - UI: .fbar with three .fbox boxes (label "Match against", Solos / Duos / Trios), selected = lit, click toggles (data-fl), mp.flt bitmask (1 solo, 2 duo, 4 trio, default 7) saved in
-              localStorage key 'hb_flt'; helper fltBar() rendered first inside .opts in the hub markup (line with teamGo(ok)).
-     F2 (DONE) - Roster: host adds fl to the 'ros' message; members adopt it into mp.tflt and draw it read-only.
-     F3 (DONE: heartbeat carries fl; seen[].fl; mpGroupsAll(list) builds groups and mpSearch starts the group holding me; mpGroupTeams = first group; overlay shows 'Only matching with: ...') - Search: the heartbeat in mpSearch carries fl (the team's selection) and ts (team size). mpGroupTeams checks the mutual rule above. A hunter whose oldest compatible group is not the global
-              oldest must still be able to start, so grouping runs per group: mpGroupsAll(list) builds groups oldest first, each client starts the group that contains it.
-              If nothing compatible turns up the existing 90s fallback still starts a solo run (unchanged); the search overlay should say which sizes it is searching for.
-     F4 (DONE: 59 checks, incl. 400 random lobbies; rebuild the harness from the grouping rule if it is gone) - Tests: extend /home/claude/test_teams.js style harness (stubbed relay clients; the file is not saved in the game, rebuild it): solos-only vs trios-only never meet; duo+solo with
-              mutual picks match; one-sided picks do not match; last box cannot be deselected; members cannot toggle; all-selected behaves exactly like today (2+2+2, 3+3, 3+2+1 still fill 6).
-     DONE (owner's request): if a teammate drops out while the team is searching, the rest are pulled out of the search and back to the hub (tmPull; ready states cleared, a note says why).
-       Triggers: the host removes a silent member (12s), a member leaves, the host disbands or goes quiet (tmReset), or anyone presses Stop searching (k:'cs' on the team room; the whole team stops, the team itself stays together).
-       A pull is quiet (mp.cancel(1)) so it does not echo. The 90s fallback and a countdown that already found a match are unchanged.
-     Open questions for the owner: should hunters who deselect their OWN size still be matched with other teams (assumed yes)? Should a long wait relax the filter after 90s instead of starting a solo run?
-     Open questions for the owner: can mixed teams share a match (e.g. trio + duo + solo = 6)? Does a solo hunter count as a team when others are in teams? Should the host be able to Enter without waiting for Ready?
-       Can teammates share loot or revive each other later? What happens to a team in a match when its host leaves mid-run?
+   TO IMPLEMENT NEXT: REVIVE TOTEM (owner's request, Oct 18). Teammates cannot loot or share, but they can be REVIVED, and only with this item.
+     Item: "Revive Totem", a new tool row (key e.g. revive). UNLIKE the lesser demon totems it is sold at the Gunsmith (tools tab) AND can be found as random loot in the world
+       (so it needs a shop price, an XT entry and normal tool rules: tool slot, stacks like any tool, lost on death, kept on a clean escape). Plus ISZ / SPX / TL entries and a sprite in drawWpn.
+     Use (proposed, owner to confirm numbers): stand next to the corpse of a dead TEAMMATE (isMate) in the same run, use the totem and stand still 3s like burning a totem
+       (moving or taking damage cancels, and the burn smoke makes a little noise). The teammate rises at the corpse with 40% health and a short ward (about 3s, the same idea as
+       the planned Phenex Ash Feather). The totem is spent only when the revive completes. Cannot be used on yourself, on an enemy team's corpse, or if the corpse is gone (they already left).
+     Multiplayer: the reviver sends a message to the dead teammate (e.g. {t:'rv'} on the team room); the dead hunter's client leaves spectate and respawns itself at the corpse
+       position. Their corpse pile and dropped gear must be handled (see open questions) and no one else may loot it mid-revive. Hook in at mpDie() (death, drops, tainted flag),
+       the spectate flow and the totem burn code (TOTD / dropTotems area). Keep it OUT of the tutorial and solo runs (no teammate to revive).
+     Open questions for the owner: does the revived hunter get their dropped gear back (and is it removed from the ground), or do they come back with only a basic loadout?
+       Can a hunter killed by their own teammate (tainted gear) still be revived? Price at the Gunsmith? Does a revived hunter still count as "died" for extraction rewards?
    -----------------------------------------------------------------------------------------------------
-   DONE: BOSS ARTWORK OVERHAUL. drawGorrath / drawNyxara / drawMordrek (just above drawM) replace the old boss sprites: gothic silhouettes, exposed ribs and
-   gashes, bleeding jaws, glowing eyes, darker palettes. drawM only dispatches to them; hitboxes, AI, m.boss fields and multiplayer sync are untouched.
-   Lore pictures (bs() in loreArt) and the title-screen cutscene (drawBoss in titleArt) call drawM, so they pick up the new art automatically.
-   The boss health bar was raised to y-42 to clear the taller sprites. Boss corpses: drawBossCorpse(x,y,boss) (gory heap per archdemon, called from the dead-mob loop in the world draw). The minimap X is unchanged.
-   -----------------------------------------------------------------------------------------------------
-   LESSER DEMONS TO ADD (Cerberus, Raum and Vepar are built so far). Agreed in a panel of 5 devs, 5 playtesters, 5 Goetia specialists.
-   Rules for every lesser demon: one clear sense, one clear tell, one clear counter. Follow the Cerberus pattern: LESSER[...] entry, mkX(x,y)
-   spawn function, a roam/behaviour function called from the update() mob loop, m.lesser=1, drawn in drawM, NEVER add to MOBS (pickMob() would
-   spawn it as a normal imp and MKS would sync it). Spawn on a roll at newGame (at most 1-2 per run), never inside the archdemon's building
-   (use lessOut / inHouse), keep multiplayer state seed-driven or host-owned (watch the desync), add mpReach for its reach, give each one a
-   Lesser Demon Lore entry (LORE tab 4), make them work for every player in multiplayer, and keep them OUT of the tutorial.
-   Easiest to build first: Botis, Raum, Vepar. Amy and Furfur reuse the sigil and exit code. Murmur and Phenex need hooks into death/gore.
-     1. Stolas, the Watcher Owl      - hunts by LIGHT (opposite of Cerberus, which hunts by sound). Muzzle flashes, flares and lit sigils draw it;
-                                       its screech wakes every imp nearby. Counter: stay dark, fight from cover, throw a flare to pull it away.
-     2. Furfur, the Liar Stag        - plants FALSE extraction rings that look real; standing in one summons imps instead of escaping.
-                                       Counter: real rings fill with a progress ticker, fake ones flicker.
-     3. Botis, the Buried Viper      - hides under the grass until you step over it, then strikes.
-                                       Counter: faint tell in the disturbed ground, a flare reveals it, tripwires trigger it early.
-     4. Raum, the Crow Thief [BUILT] - swoops in, steals ground loot or a tool from the belt, flies off.
-                                       Counter: shoot it down to get everything back.
-     5. Murmur, the Corpse Choir     - necromancer heralded by trumpets; raises dead imps as husks near him.
-                                       Counter: kill him first, or gib corpses with a Grenade or shotgun.
-     6. Phenex, the Ash Bird         - dies, then rises from its ash after about 20 seconds.
-                                       Counter: pour Holy Water on the ashes.
-     7. Vassago, the Finder          - hunts whoever is carrying the most cash (great for co-op arguments).
-                                       Counter: bank the cash by escaping, or kill it.
-     8. Amy, the Ash Archivist       - roams to burned sigils and snuffs them out, undoing progress.
-                                       Counter: guard the sigils, or kill her.
-     9. Vepar, the Rot-Mermaid [BUILT] - her touch gives rot, a slow health drain that keeps ticking.
-                                       Counter: Holy Water cleanses it.
-     Next-round idea (not agreed yet): Sitri, the Disarmer - yanks the weapon out of your hands onto the ground (fits the backpack pickup rules).
-   -----------------------------------------------------------------------------------------------------
-   LESSER DEMON TOTEMS (brainstormed by the 15-voice panel, Oct 18). Every lesser demon drops a TOTEM when it dies: always one, picked at random from its two (about a 1 in 5 chance of both).
-   A totem is a TOOL row flagged tot:1: never sold in shops, never in random world loot (its key lives in TOT, NOT in XT). It goes in a tool slot, stacks to 3 like any tool and follows the tool rules
-   (lost on death, kept on a clean escape). To BURN it: use it (left click from its tool slot) and stand still for 3s. Moving or taking damage cancels it; the burn smoke makes a little noise (a tell).
-   Effects are either timers on P (like P.sb / P.bw) or world objects (fires, NOISE) that reuse the flare / noisemaker sync messages. Rule: every totem has an upside AND a catch; none is a strict upgrade.
-   New totem recipe: key in TOT, a TOOL row with tot:1, ISZ / SPX / TL entries, a sprite in drawWpn, an entry in TOTD (the effect), and tot:[a,b] on that demon's LESSER row. dropTotems() does the rest.
-   BUILT: the system plus Cerberus (muzzle, pyre), Raum (magpie, thief) and Vepar (pearl, undertow). The other demons are not built yet: add their totems when each demon is built. (No lore blurbs for totems unless the owner asks.)
-   Plan table: demon | totem (key) | when burned | catch | cost (S small, M medium)
-     Cerberus | Hound's Muzzle (muzzle)    BUILT | 60s: all your noise (gunfire, sprint, steps) at half radius | none | S
-     Cerberus | Pyre of the Pack (pyre)     BUILT | totem keeps burning 10s as a loud decoy fire that lures imps and hunters | you must be well away from it | M
-     Stolas   | Owl Pellet                       | 45s Night Sight: see the horde's eyes and the sigils while still sprinting | the burn flash draws light-hunters | M
-     Stolas   | Screech Feather                  | stuns every imp within ~140px for 2s | wakes every imp within ~350px | M
-     Furfur   | Liar's Mask                      | a phantom of you draws imps for 10s | bosses ignore it | M
-     Furfur   | Honest Ring                      | exit hold time 10s -> 7s for the run, fake rings are marked | does nothing special if there is no Furfur | M
-     Botis    | Shed Skin                        | marks every hidden / disguised thing on the map for the run | none | S
-     Botis    | Viper Fang                       | your next 15 hits poison (5 dmg/s for 4s) | needs a new poison effect (the Blowpipe could reuse it) | M
-     Raum     | Magpie Feather (magpie)  BUILT   | 40s loot magnet: ground loot within ~120px flies to you | none | S
-     Raum     | Thief's Hands (thief)    BUILT   | your next 3 tool uses cost nothing | none | S
-     Murmur   | Grave Dust                       | sets every corpse within ~250px alight; they hurt imps and cannot be raised | the fire can burn you | M
-     Murmur   | Choir Note                       | a dirge halves the speed of imps within ~250px for 6s | the trumpets are loud | M
-     Phenex   | Ash Feather                      | the next time you would die this run you rise at 40% health with a 3s ward | one use, and you must burn it before you die | M
-     Phenex   | Cinder Egg                       | 25s fire immunity and a burning trail behind you | the trail lights you up | M
-     Vassago  | Dowsing Rod                      | marks all unopened loot and supply sites on the map for 60s | none | S
-     Vassago  | Finder's Fee                     | carried bounty +30% at once | every lesser demon knows where you are for 20s | M
-     Amy      | Archivist's Quill                | sigils burn in half the time for 90s | the smoke is visible | S
-     Amy      | Index Page                       | marks all sigils on the map, and burned sigils cannot be snuffed out | none | M
-     Vepar    | Brine Pearl (pearl)     BUILT    | cures rot / bleed and regenerates ~40 health over 20s | you stand still for the burn | M
-     Vepar    | Undertow (undertow)     BUILT    | a puddle slows everything inside by 60% for 10s | it slows you too | M
-   Sitri (not agreed as a demon yet) has no totems planned.
-   -----------------------------------------------------------------------------------------------------
-   TO DO NEXT: DEATH ANIMATION AUDIT: check that every weapon has an appropriate kill animation, and that every monster has an appropriate death animation for what killed it.
-     1. List every damage source: each primary and sidearm (PRI / SID), each tool that hurts (Grenade, Molotov, Tripwire, Caltrops, Salt gun, Stake...), plus fire, bomb, bloat blast, meteor, rot, and anything newer.
+   TO DO AFTER THAT: DEATH ANIMATION AUDIT: check that every weapon has an appropriate kill animation, and that every monster has an appropriate death animation for what killed it.
+     1. List every damage source: each primary and sidearm (PRI / SID), each tool that hurts (Grenade, Molotov, Tripwire, Salt gun, Stake...), plus fire, bomb, bloat blast, meteor, rot, and anything newer.
      2. For each source, kill one of every monster type (imp, skitter, bloat, vine, brute, spooler, gleaner, the three archdemons, Cerberus, Raum, Vepar) and look at the death. The reaction (GS[src]: fly, bolt, char, pop, mush, vap, none...) must fit the cause:
         a shotgun blast should not look like a burn, a flame should char, a bomb should gib, a stake or blade should not blow the body apart.
      3. Look for gaps: weapons that only borrow another weapon's GS entry (Batch 2 borrows), weapons with no GS entry (they fall back to the generic fly/fall), lesser demons (their corpse is a plain ellipse
         and they ignore the weapon's death style), bosses, and status deaths (rot, poison). Write down each gap, then add or fix the GS entry or the corpse drawing.
      4. Keep multiplayer in mind: the death style is chosen from the killing source, so remote kills must pass the same src.
+   -----------------------------------------------------------------------------------------------------
    TO IMPLEMENT IN THE FUTURE: THE MAP CHANGES (the two lists below, bosses and lesser demons, are the detail): the map should change depending on the archdemon (each of Gorrath, Nyxara and Mordrek gets its own look and layout), and lesser demons should change the map as well
      (for example a Vepar breach floods low ground with brine, a Raum breach puts nests and bones around). Not designed yet. Keep generation seed-driven so multiplayer stays in sync, and hook in at
      genGround / newGame and where the lesser demons are spawned (LESSER_MK).
@@ -313,76 +226,90 @@ button.tt-btn:active{transform:translateX(12px) scale(.98)}
      Vassago   - Toll Gates: rope barriers and bounty posts along the roads. Pay a coin toll to pass quietly or sneak around; the posts show a faint trail of where cash carriers walked, which tells him where to hunt.
      Amy       - Archive Ruins: toppled shelves and loose pages that act as low walls and block sight, ash footprints, and rings of burned glyphs around sigil sites. Pages rustle when you cross them (a small noise).
    -----------------------------------------------------------------------------------------------------
+   LESSER DEMONS STILL TO ADD (Cerberus, Raum and Vepar are built: use Cerberus as the pattern). Agreed in a panel of 5 devs, 5 playtesters, 5 Goetia specialists.
+   Rules for every lesser demon: one clear sense, one clear tell, one clear counter. Follow the Cerberus pattern: LESSER[...] entry, mkX(x,y)
+   spawn function, a roam/behaviour function called from the update() mob loop, m.lesser=1, drawn in drawM, NEVER add to MOBS (pickMob() would
+   spawn it as a normal imp and MKS would sync it). Spawn on a roll at newGame (at most 1-2 per run), never inside the archdemon's building
+   (use lessOut / inHouse), keep multiplayer state seed-driven or host-owned (watch the desync), add mpReach for its reach, give each one a
+   Lesser Demon Lore entry (LORE tab 4), make them work for every player in multiplayer, and keep them OUT of the tutorial.
+   Easiest to build first: Botis. Amy and Furfur reuse the sigil and exit code. Murmur and Phenex need hooks into death/gore.
+     1. Stolas, the Watcher Owl      - hunts by LIGHT (opposite of Cerberus, which hunts by sound). Muzzle flashes, flares and lit sigils draw it;
+                                       its screech wakes every imp nearby. Counter: stay dark, fight from cover, throw a flare to pull it away.
+     2. Furfur, the Liar Stag        - plants FALSE extraction rings that look real; standing in one summons imps instead of escaping.
+                                       Counter: real rings fill with a progress ticker, fake ones flicker.
+     3. Botis, the Buried Viper      - hides under the grass until you step over it, then strikes.
+                                       Counter: faint tell in the disturbed ground, a flare reveals it, tripwires trigger it early.
+     4. Murmur, the Corpse Choir     - necromancer heralded by trumpets; raises dead imps as husks near him.
+                                       Counter: kill him first, or gib corpses with a Grenade or shotgun.
+     5. Phenex, the Ash Bird         - dies, then rises from its ash after about 20 seconds.
+                                       Counter: pour Holy Water on the ashes.
+     6. Vassago, the Finder          - hunts whoever is carrying the most cash (great for co-op arguments).
+                                       Counter: bank the cash by escaping, or kill it.
+     7. Amy, the Ash Archivist       - roams to burned sigils and snuffs them out, undoing progress.
+                                       Counter: guard the sigils, or kill her.
+     Next-round idea (not agreed yet): Sitri, the Disarmer - yanks the weapon out of your hands onto the ground (fits the backpack pickup rules).
+   -----------------------------------------------------------------------------------------------------
+   LESSER DEMON TOTEMS (brainstormed by the 15-voice panel, Oct 18). Every lesser demon drops a TOTEM when it dies: always one, picked at random from its two (about a 1 in 5 chance of both).
+   A totem is a TOOL row flagged tot:1: never sold in shops, never in random world loot (its key lives in TOT, NOT in XT). It goes in a tool slot, stacks to 3 like any tool and follows the tool rules
+   (lost on death, kept on a clean escape). To BURN it: use it (left click from its tool slot) and stand still for 3s. Moving or taking damage cancels it; the burn smoke makes a little noise (a tell).
+   Effects are either timers on P (like P.sb / P.bw) or world objects (fires, NOISE) that reuse the flare / noisemaker sync messages. Rule: every totem has an upside AND a catch; none is a strict upgrade.
+   Value: every demon totem is worth $50 (TOOL c:50) and sells for the full $50 (sellVal / the item card special-case w.tot). Archdemon bounties: Gorrath $500, Nyxara $700, Mordrek $900 (BOSS[..].bo).
+   (The Revive Totem above is the one exception: it is bought and found, not dropped.)
+   New totem recipe: key in TOT, a TOOL row with tot:1, ISZ / SPX / TL entries, a sprite in drawWpn, an entry in TOTD (the effect), and tot:[a,b] on that demon's LESSER row. dropTotems() does the rest.
+   The system and the Cerberus, Raum and Vepar totems are built. Add the others when each demon is built. (No lore blurbs for totems unless the owner asks.)
+   Plan table: demon | totem | when burned | catch | cost (S small, M medium)
+     Stolas   | Owl Pellet                       | 45s Night Sight: see the horde's eyes and the sigils while still sprinting | the burn flash draws light-hunters | M
+     Stolas   | Screech Feather                  | stuns every imp within ~140px for 2s | wakes every imp within ~350px | M
+     Furfur   | Liar's Mask                      | a phantom of you draws imps for 10s | bosses ignore it | M
+     Furfur   | Honest Ring                      | exit hold time 10s -> 7s for the run, fake rings are marked | does nothing special if there is no Furfur | M
+     Botis    | Shed Skin                        | marks every hidden / disguised thing on the map for the run | none | S
+     Botis    | Viper Fang                       | your next 15 hits poison (5 dmg/s for 4s) | needs a new poison effect (the Blowpipe could reuse it) | M
+     Murmur   | Grave Dust                       | sets every corpse within ~250px alight; they hurt imps and cannot be raised | the fire can burn you | M
+     Murmur   | Choir Note                       | a dirge halves the speed of imps within ~250px for 6s | the trumpets are loud | M
+     Phenex   | Ash Feather                      | the next time you would die this run you rise at 40% health with a 3s ward | one use, and you must burn it before you die | M
+     Phenex   | Cinder Egg                       | 25s fire immunity and a burning trail behind you | the trail lights you up | M
+     Vassago  | Dowsing Rod                      | marks all unopened loot and supply sites on the map for 60s | none | S
+     Vassago  | Finder's Fee                     | carried bounty +30% at once | every lesser demon knows where you are for 20s | M
+     Amy      | Archivist's Quill                | sigils burn in half the time for 90s | the smoke is visible | S
+     Amy      | Index Page                       | marks all sigils on the map, and burned sigils cannot be snuffed out | none | M
+   Sitri (not agreed as a demon yet) has no totems planned.
+   -----------------------------------------------------------------------------------------------------
    HORDE MOBS (the rank-and-file tier: MOBS table, drawMob, mobAI, Horde Lore tab 1). Brainstormed by the same panel. Unlike lesser demons these live in MOBS.
    If a horde mob must never be picked by pickMob(), give it w:0 and place it by hand (that is how the Gleaner works). New MOBS keys go at the END
    (MKS = Object.keys(MOBS) is the multiplayer index). Each needs: MOBS entry, drawMob sprite, behaviour, a Horde Lore entry + picture (loreArt, ta==1) and
    an unlock in loreTick. Disguised/hidden mobs must not unlock lore, play ambient sounds or get woken by noise() until they reveal themselves.
-     DONE  Gleaner      - an ammo pile that is really a mimic. About 1 in 5 supply-site ammo piles (max 4 per map). Twitches every few seconds (the tell),
-                          springs when a hunter is within ~17px or when hit (a bullet or fist reveals it, gunfire noise does not), then chases forever
-                          (hp 50, speed 62, bite 14). Horde Lore entries 7 'Gleaners' and 8 'Not Every Pile Is a Gift'. Kept out of the tutorial.
-                          Code: MOBS.gleaner, glLure/mkGleaner/glReveal (after mkMob), drawGleaner (before drawMob), spawn in the supply-site loop in newGame.
-     DONE  Spooler      - (formerly the "Chainling" idea; renamed because its chain is its own intestines.) Design picked by the owner: "The Reliquary":
-                          a hooded, hollow demon, ribs hanging open like a reliquary door around a spindle of its own gut, ending in a rib-bone hook.
-                          Behaviour: keeps ~70-125px away, winds up for 0.75s (red aim line, aim locked at wind-up start), throws the hook (300px/s, 165px reach).
-                          A hook that lands reels the hunter in at 100px/s (faster than a walk, slower than a sprint) and it bites 12 on arrival. Counters: sidestep the
-                          throw, shoot or punch the taut gut (cuts it; the Spooler takes 16 dmg and re-spools for ~2s), or break line of sight behind a wall.
-                          hp 70, speed 46, spawn weight 9 in MOBS (kept out of the tutorial). Horde Lore entries 9 'Spoolers' and 10 'Cut the Gut' (pictures included).
-                          Multiplayer: the host owns the AI; the snapshot carries [state, aim, flight time, hooked player id, wind-up]; every hunter applies the pull to
-                          THEIR OWN character (spPull in update); a client that cuts the gut sends {t:'cc'} and the host makes it real.
-                          Code: MOBS.spooler, SPL + spoolAI/spCut/spCutReq/spMelee/spPull (above boom()), drawSpooler (before drawMob), the mobAI hook, bullets cut it in the update() bullet loop.
+   Multiplayer: the host owns the AI; put new state in the snapshot and let clients send small requests (see the Spooler's {t:'cc'}). Keep new mobs out of the tutorial.
      TODO  Candle-bearer - small demon with a candle; imps near it move faster; killing the candle removes the buff. A clear target to prioritise in a crowd.
      TODO  Splitter     - wet lump that splits into two skitters when killed, unless finished with melee or a charge. Cheap to build.
      TODO  Wailer       - thin screamer that does not attack but wakes nearby sleeping imps; cutting its scream short makes it explode.
                           Overlaps with Stolas's screech, so tune the two together.
    -----------------------------------------------------------------------------------------------------
-   WEAPONS TO ADD (brainstormed by the same panel; build cost S = table row only, M = a little new code, L = a new system).
+   WEAPONS STILL TO ADD (brainstormed by the same panel; build cost S = table row only, M = a little new code, L = a new system). Batches 1 to 3 are built and removed from the lists.
    NAMING RULE (owner): weapons get plain, normal names (Carbine, Longbow, Salt Line). No saintly or grimoire flavour in the name itself: that flavour
-   goes into unlockable SKINS later, and every weapon will get skins. Existing weapons keep their current names (Rifle, Shotgun, Repeater, Crossbow, Pepperbox,
-   Musket, Flamethrower / Pistol, Revolver, Hand Cannon, Silenced Pistol / Holy Water, Grenade, Molotov, Flare, Ward).
-   Plan: give every weapon a sub field and group the shop/loadout by it (see the Gunsmith comment near PRI). Effects (pierce, knockback, status, arc) are optional
-   flags on the table row. A shared STATUS system (slow, stun, sleep, blind, root) is the biggest unlock: build it once, about ten items reuse it.
+   goes into unlockable SKINS later, and every weapon will get skins. Existing weapons keep their current names.
+   Every weapon has a sub field and the shop/loadout groups by it (see the Gunsmith comment near PRI). Effects (pierce, knockback, status, arc) are optional
+   flags on the table row. The shared STATUS system exists (slow, stun, sleep, blind, root): reuse it. Weapon flags: gt gatling spin-up, dr longbow draw, mo mortar shell, lc last chamber x2,
+   ml melee profile (sidearm slot), inf unlimited reload, nt notes; WFX holds slow / knockback. Statuses are host-only; clients send {t:'sts'}. No lore blurbs by owner request.
    Multiplayer: resolve pierce/knockback/status on the host; ground zones and statuses ride the snapshot like the Spooler hook; arc shells reuse the bombs path.
    Balance: noise is the currency (gunfire wakes the horde and the Cerberus), so quiet weapons trade away damage; nothing is a strict upgrade.
    PRIMARIES
-     Rifles:          Long Rifle (S/L: stand still to zoom out, huge range, slow) | Carbine (S: lighter Rifle, 50 dmg, 6 rounds) | Marksman Rifle (M: each shot marks the
-                      demon, +25% damage from everyone for 5s) | Needle Rifle (M: bolt passes through up to 3 in a line)
-     Shotguns:        Sawn-off Shotgun (S: both barrels at once, brutal point-blank, 2 rounds) | Blunderbuss (M: wide cone, knocks the crowd back) |
-                      Salt Gun (M: tiny damage, slows imps 2s) | Pump Shotgun (S: 6 shells, pump cadence between shots)
-     Repeaters:       Lever Rifle (S: fast, steady 25 dmg) | Drum Repeater (S: 20-round drum, long reload, sprays) |
-                      Gatling Gun (M: hand-cranked, spin-up delay then very fast fire; loud; jams if held too long)
-     Bows/crossbows:  Longbow (M: hold to draw, damage scales with draw, silent) | Repeating Crossbow (S: 8 bolts, low damage, silent) |
-                      Fire Bow (M: arrows burn over time and light the dark) | Stake Launcher (M: pins one demon for 3s)
-     Black powder:    Volley Gun (M: seven barrels at once, ruinous up close, recoil shoves you back) | Fowling Piece (S: long barrel, mid spread, forgiving) |
-                      Arquebus (M: slow heavy ball that sets the target alight)
-     Flame/alchemy:   Holy Sprayer (M: holy-water spray cone, bonus vs the horde, slows) | Lime Thrower (M: quicklime cloud blinds imps) |
-                      Oil Sprayer (L: sprays oil that burns when anything ignites it)
-     Heavy:           Hand Mortar (M: lobs a shell, huge blast, 1 round) | Chain-Shot Gun (M: two balls on a chain sweep a wide line) |
-                      Rocket Launcher (M: slow rocket, delayed blast, very loud)
+     Rifles:          Long Rifle (S/L: stand still to zoom out, huge range, slow) | Marksman Rifle (M: each shot marks the demon, +25% damage from everyone for 5s) |
+                      Needle Rifle (M: bolt passes through up to 3 in a line)
+     Bows/crossbows: Fire Bow (M: arrows burn over time and light the dark) | Stake Launcher (M: pins one demon for 3s)
+     Black powder:    Volley Gun (M: seven barrels at once, ruinous up close, recoil shoves you back) | Arquebus (M: slow heavy ball that sets the target alight)
+     Flame/alchemy:   Lime Thrower (M: quicklime cloud blinds imps) | Oil Sprayer (L: sprays oil that burns when anything ignites it)
+     Heavy:           Chain-Shot Gun (M: two balls on a chain sweep a wide line) | Rocket Launcher (M: slow rocket, delayed blast, very loud)
    SIDEARMS
-     Pistols:         Dueling Pistol (S: one shot, pinpoint, huge damage) | Derringer (S: two stub barrels, quick reload, tiny noise) |
-                      Flare Pistol (M: 3 reusable flare shots that light and lure)
-     Revolvers:       Pocket Revolver (S: fast fanned fire, wild spread) | Six-Shooter (M: the sixth chamber does double damage) | Navy Revolver (S: 10 shots, light damage)
-     Heavy:           Dragoon Revolver (M: knocks small demons back) | Heavy Pistol (M: one ball that pierces 2) | Scatter Pistol (S: short-range blast, wide cone)
-     Quiet:           Dart Pistol (M: darts put imps to sleep 8s, they ignore noise) | Blowpipe (M: silent, poison drip damage) | Sling (S: unlimited stones, 8 dmg, quiet)
-     Close quarters:  NEW sidearm subtype: swaps the right-click melee profile for the weapon's own, so the sidearm slot can be melee.
-                      Stake (M: fast silent jab, bonus vs sleeping or disguised mobs) | Brass Knuckles (M: stronger, shorter punches) | Hatchet (M: wide slow chop, hits two)
+     Pistols:         Dueling Pistol (S: one shot, pinpoint, huge damage) | Flare Pistol (M: 3 reusable flare shots that light and lure)
+     Heavy:           Heavy Pistol (M: one ball that pierces 2)
+     Quiet:           Blowpipe (M: silent, poison drip damage)
+     Close quarters:  Brass Knuckles (M: stronger, shorter punches) | Hatchet (M: wide slow chop, hits two)
    TOOLS
-     Salt Line (M: line imps will not cross for 8s; bosses and ranged attackers ignore it; pathing must treat it as a wall) | Bell (M: stuns imps in a radius 1.5s, very loud) |
-     Caltrops (M: slow and chip anything that crosses, rivals too) | Smoke Bomb (M: blocks line of sight 8s) | Noisemaker (S: thrown, clatters on landing, lures the horde and the Cerberus) |
+     Bell (M: stuns imps in a radius 1.5s, very loud) | Caltrops (M: slow and chip anything that crosses, rivals too) | Smoke Bomb (M: blocks line of sight 8s) |
      Lens (M: hold to reveal Gleaners and other disguised things in a ring) | Slow Field (M: slows everything inside by 70% for 8s) | Bandage (M: hold still 6s to heal 40, quietly; moving breaks it) |
-     Stamina Tonic (S: 8s no stamina drain, faster sprint) | Scarecrow (M: decoy imps attack first for 10s) | Chalk Circle (M: 6s circle, melee and horde cannot enter, shots still land) |
-     Boot Wraps (S: 15s of silent sprinting)
-   BATCH 1 STATUS: BUILT (owner approved the list below, Oct 17). Code: the 'WEAPON BATCH 1' block at the end of the script (statuses, salt, chalk, noisemaker, mortar shell,
-   longbow draw, gatling spin-up and jam, stab for the Close Quarters sidearm), table rows in PRI/SID/TOOL, sprites in drawWpn, sounds in GN. Statuses are host-only; clients send {t:'sts'}.
-   Still to do from the lists below: everything not in batch 1 (Marksman Rifle, Slow Field, Bandage, Bell, Smoke Bomb, ... and melee primaries).
-   BATCH 2 STATUS: BUILT (S-tier primaries): Carbine, Sawn-off Shotgun, Pump Shotgun, Lever Rifle, Drum Repeater, Repeating Crossbow, Fowling Piece. Table rows in PRI only
-   (plus ISZ/SPX/BC, sprites in drawWpn, GN sounds, GS gore aliases). No lore blurbs by owner request. Still to do: Long Rifle, Marksman, Needle, Salt Gun, Fire Bow, Stake Launcher, Volley Gun, Arquebus, Lime Thrower, Oil Sprayer, Chain-Shot, Rocket Launcher.
-   BATCH 3 STATUS: BUILT: Derringer, Pocket Revolver, Navy Revolver, Scatter Pistol, Dragoon Revolver, Sling (sidearms), Salt Gun (primary), Stamina Tonic, Boot Wraps (tools).
-   Sling uses the weapon flag inf:1 (reload never uses reserve ammo). Salt Gun and Dragoon use WFX (slow / knockback). Stamina Tonic and Boot Wraps are player timers P.sb / P.bw (see the movement code).
-   SUGGESTED FIRST BATCH (11): Gatling Gun, Blunderbuss, Longbow, Holy Sprayer, Hand Mortar | Six-Shooter, Dart Pistol, Stake | Salt Line, Noisemaker, Chalk Circle.
-   Chosen so the shared status system is built once and several items reuse it.
-   Open questions for the owner: build this batch or other picks? Add the subtype tabs to the loadout and shop screens in the same build? Melee primaries (blades, hammers)
-   as a later brainstorm (parked: they need new combat code)? Each weapon should also get a lore blurb, and a Goetia seal engraved on the stock per subtype is a cosmetic idea.
+     Scarecrow (M: decoy imps attack first for 10s)
+   Open questions for the owner: add the subtype tabs to the loadout and shop screens for the new weapons? Melee primaries (blades, hammers) as a later brainstorm (parked: they need new combat code)?
+   A Goetia seal engraved on the stock per subtype is a cosmetic idea.
    ===================================================================================================== */
 const $=s=>document.querySelector(s),VW=640,VH=360,WW=2200,WH=1450;
 const cv=$('#g'),dk=document.createElement('canvas'),dx=dk.getContext('2d');let ctx=cv.getContext('2d');
@@ -439,15 +366,15 @@ TOOL.saltline={n:'Salt Line',c:30,d:'lay a line of salt imps will not cross for 
 TOOL.noisemaker={n:'Noisemaker',c:20,d:'thrown, clatters on landing and lures the horde for 7s \u00b7 stacks to 3'};
 TOOL.stamtonic={n:'Stamina Tonic',c:25,d:'8s of free sprinting and a faster run \u00b7 stacks to 3'};
 TOOL.bootwraps={n:'Boot Wraps',c:30,d:'15s of silent sprinting \u00b7 stacks to 3'};
-TOOL.muzzle={n:"Hound's Muzzle",c:60,tot:1,d:'totem: burn it (stand still 3s) and your noise is halved for 60s \u00b7 stacks to 3'};
-TOOL.pyre={n:'Pyre of the Pack',c:60,tot:1,d:'totem: burn it (stand still 3s) and it keeps burning 10s as a loud decoy fire that lures imps and hunters \u00b7 stacks to 3'};
-TOOL.magpie={n:'Magpie Feather',c:60,tot:1,d:'totem: burn it (stand still 3s) and loose loot within 120px flies to you for 40s \u00b7 stacks to 3'};
-TOOL.thief={n:"Thief's Hands",c:60,tot:1,d:'totem: burn it (stand still 3s) and your next 3 tool uses cost nothing \u00b7 stacks to 3'};
-TOOL.pearl={n:'Brine Pearl',c:60,tot:1,d:'totem: burn it (stand still 3s) to cure rot and regain ~40 health over 20s \u00b7 stacks to 3'};
-TOOL.undertow={n:'Undertow',c:60,tot:1,d:'totem: burn it (stand still 3s) and a puddle slows everything inside by 60% for 10s, you too \u00b7 stacks to 3'};
+TOOL.muzzle={n:"Hound's Muzzle",c:50,tot:1,d:'totem: burn it (stand still 3s) and your noise is halved for 60s \u00b7 stacks to 3'};
+TOOL.pyre={n:'Pyre of the Pack',c:50,tot:1,d:'totem: burn it (stand still 3s) and it keeps burning 10s as a loud decoy fire that lures imps and hunters \u00b7 stacks to 3'};
+TOOL.magpie={n:'Magpie Feather',c:50,tot:1,d:'totem: burn it (stand still 3s) and loose loot within 120px flies to you for 40s \u00b7 stacks to 3'};
+TOOL.thief={n:"Thief's Hands",c:50,tot:1,d:'totem: burn it (stand still 3s) and your next 3 tool uses cost nothing \u00b7 stacks to 3'};
+TOOL.pearl={n:'Brine Pearl',c:50,tot:1,d:'totem: burn it (stand still 3s) to cure rot and regain ~40 health over 20s \u00b7 stacks to 3'};
+TOOL.undertow={n:'Undertow',c:50,tot:1,d:'totem: burn it (stand still 3s) and a puddle slows everything inside by 60% for 10s, you too \u00b7 stacks to 3'};
 TOOL.chalk={n:'Chalk Circle',c:45,d:'a 6s circle melee attackers and the horde cannot enter; shots still land \u00b7 stacks to 3'};
 TOOL.tripwire={n:'Tripwire',c:30,d:'plant a wire; anything that trips it \u2014 imps, rivals, even you \u2014 takes a blast (V) \u00b7 stacks to 3'};
-const BOSS={gorrath:{n:'Gorrath the Maw',i:'\u{1F525}',d:'Charging brute of the pit.',bh:'charge',hp:900,bo:450},nyxara:{n:'Nyxara, Cinder Witch',i:'\u{1F608}',d:'Hurls hellfire from afar.',bh:'ranged',hp:650,bo:400},mordrek:{n:'Mordrek the Choir-Eater',i:'\u{1F47F}',d:'Calls the horde to his side.',bh:'summon',hp:750,bo:500}};
+const BOSS={gorrath:{n:'Gorrath the Maw',i:'\u{1F525}',d:'Charging brute of the pit.',bh:'charge',hp:900,bo:500},nyxara:{n:'Nyxara, Cinder Witch',i:'\u{1F608}',d:'Hurls hellfire from afar.',bh:'ranged',hp:650,bo:700},mordrek:{n:'Mordrek the Choir-Eater',i:'\u{1F47F}',d:'Calls the horde to his side.',bh:'summon',hp:750,bo:900}};
 let bank=500,sel={skin:'plain',wsk:{},sk:{p:'',s:''},pri:'repeater',side:'pistol',tools:[{k:'tonic',n:2},null,null,null,null,null],bag:[]},boss='gorrath',mode='menu',walls=[],blds=[],trees=[],M=[],bul=[],eb=[],bombs=[],parts=[],clues=[],items=[],scn=[],exts=[],P,cam={x:0,y:0},ground,blood,bx,keys={},mouse={x:320,y:180,l:0,r:0},msg='',msgT=0,shake=0,T=0,last=0,found=0,banished=0,corpse=null,bty=null,bn=null,mpHB=null,mpKB=null;
 const FAMS={hunter:{n:'The Hunter',d:'The plain issue kit. Always yours.',c:0,def:'plain'},warden:{n:'The Warden',d:'Hooded plague doctor. 5 variations.',c:1000,def:'warden'},
  knight:{n:'Iron Crusader',d:'Plate, plume and a visor slit. Walks like a wall.',c:900,def:'knight'},
@@ -595,9 +522,9 @@ const achBody=()=>{const[e,N]=achTotals();return `<div class=achw><h2 class=lt>A
 const LBB=[{k:'esc',n:'Survivors',u:'escapes'},{k:'bosses',n:'Archdemon Slayers',u:'archdemons slain'},{k:'cash',n:'Bounty Barons',u:'bounty carried out',pre:1},{k:'horde',n:'Horde Breakers',u:'horde kills'},{k:'banish',n:'Banishers',u:'banished corpses'},{k:'tiers',n:'Achievement Hunters',u:'achievement tiers'}];
 let lbTab=0,LBD={},LBC=[],lbT=0,lbOT=0,LBID='';
 try{LBID=localStorage.getItem('bh_pid')||'';if(!/^[a-z0-9]{8,16}$/.test(LBID)){LBID=('x'+Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2)).slice(0,14);localStorage.setItem('bh_pid',LBID)}}catch(e){if(!LBID)LBID=('x'+Math.random().toString(36).slice(2)+'000000').slice(0,12)}
-const lbMine=()=>({n:cleanName(pname)||'Unnamed Hunter',cl:nmClT(),esc:AST.esc|0,bosses:AST.bosses|0,cash:AST.cash|0,horde:AST.horde|0,banish:AST.banish|0,bounty:AST.bounty|0,tiers:achTotals()[0],ts:Date.now()});
+const lbMine=()=>({n:cleanName(pname)||'Unnamed Hunter',cl:nmClT(),esc:AST.esc|0,bosses:AST.bosses|0,cash:AST.cash|0,horde:AST.horde|0,banish:AST.banish|0,bounty:AST.bounty|0,tiers:achTotals()[0],ts:Date.now(),...(window.HBDAILY&&HBDAILY.pub?HBDAILY.pub():{})});
 function lbRecv(topic,buf){try{const id=String(topic).split('/')[2];if(!/^[a-z0-9]{8,16}$/.test(id)||id===LBID)return;const o=JSON.parse(buf.toString()),v=x=>Math.max(0,Math.min(1e9,Math.floor(+x||0)));if(!o||typeof o!='object')return;
- const e={n:cleanName(o.n)||'Hunter',esc:v(o.esc),bosses:v(o.bosses),cash:v(o.cash),horde:v(o.horde),banish:v(o.banish),bounty:v(o.bounty),tiers:Math.min(999,v(o.tiers)),ts:v(o.ts)};if(!LBD[id]||e.ts>=LBD[id].ts)LBD[id]=e}catch(e){}}
+ const e={n:cleanName(o.n)||'Hunter',esc:v(o.esc),bosses:v(o.bosses),cash:v(o.cash),horde:v(o.horde),banish:v(o.banish),bounty:v(o.bounty),tiers:Math.min(999,v(o.tiers)),ts:v(o.ts),dd:/^\d{4}-\d{2}-\d{2}$/.test(o.dd)?o.dd:'',ds:Math.min(8000,v(o.ds)),dw:o.dw?1:0};if(!LBD[id]||e.ts>=LBD[id].ts)LBD[id]=e}catch(e){}}
 function lbTop(k){const all=Object.entries(LBD).map(([id,e])=>({id,n:e.n,v:e[k],ts:e.ts}));const m=lbMine();all.push({id:LBID,n:m.n,v:m[k],ts:m.ts,me:1});
  all.sort((a,b)=>b.v-a.v||a.ts-b.ts);return all}
 function lbPub(c){try{if(c.connected)c.publish('hb1/lb/'+LBID,JSON.stringify(lbMine()),{retain:true,qos:0})}catch(e){}}
@@ -848,7 +775,7 @@ function loreStr(){const sl=document.querySelector('.slate');if(!sl)return;const
  sv.innerHTML='<path d="'+d+'" fill="none" stroke="#a02424" stroke-width="1.8" opacity=".9"/>';sl.insertBefore(sv,sl.firstChild)}
 addEventListener('resize',()=>{if(mode=='menu'&&scr=='lore')loreStr()});
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{if(mode=='menu'&&scr=='lore')loreStr()});
-const HELP='WASD move · Shift sprint · Mouse aim/fire · RMB melee · R reload · Wheel or 1-5 switch weapons/tools · LMB uses tools · Loot weapons, ammo & tools in the buildings · Caps Lock tap into the veil (toggle) · Tab inventory (the backpack survives your escape) · M map · E interact (sigils, banish, loot) · stand in an exit ring to escape · Enter chat (type, Enter to send, Esc to cancel) · N toggle ambient sound';
+const HELP='WASD move · Shift sprint · Mouse aim/fire · RMB melee · R reload · Wheel or 1-5 switch weapons/tools · LMB uses tools · Loot weapons, ammo & tools in the buildings · Caps Lock tap into the veil (toggle) · Tab inventory (the backpack survives your escape) · M map · E interact (sigils, banish, loot) · stand in an exit ring to escape · Enter chat (type, Enter to send, Esc to cancel) · N toggle ambient sound \u00b7 F9 save the last 15 seconds (with sound) as a clip \u00b7 F8 save the latest auto-highlight (boss kills, close calls, swarms) \u00b7 F10 replay recorder on/off (Shift+F10 auto-highlights on/off) \u00b7 Esc settings (volume, controls, replay)';
 const back='<button data-v=hub>\u2190 Back</button>',backTo=v=>`<button data-v=${v}>\u2190 Back</button>`;
 function menu(m){try{if(scr=='lb')lbOpen();else lbClose()}catch(e){}try{const an=achNotify();if(an)m=(m?m+' ':'')+an}catch(e){}const c=cost(),ok=c<=bank,tl=sel.tools.filter(Boolean).map(t=>TOOL[t.k].n.replace(' x2','')+' x'+t.n).join(', ')||'no tools';
  const col=(h,r)=>`<div class=col><h2>${h}</h2>${r}</div>`;let body;
@@ -1426,7 +1353,7 @@ function pickInfo(k,el,ref){selInfo=k;selRef=ref||null;skOpen=0;document.querySe
 function renderInfo(){const b=document.getElementById('ib');if(!b)return;const d=selInfo&&itemDef(selInfo);
  if(!d){b.innerHTML='<div class=ibe>Click a weapon or item to inspect it.</div>';return}
  const k=selInfo,wp=!TOOL[k];
- b.innerHTML='<div class=ibi></div><div class=ibt><h3>'+d.n+'</h3><div class=ibk>'+itemType(k)+' \u00b7 shop price $'+d.c+' \u00b7 sells for $'+Math.floor(d.c/2)+'</div>'+(wp?st(d)+wNotes(d).map(x=>'<div class=ibn>'+x+'</div>').join(''):'<p>'+d.d+'</p>')+'</div>';
+ b.innerHTML='<div class=ibi></div><div class=ibt><h3>'+d.n+'</h3><div class=ibk>'+itemType(k)+' \u00b7 shop price $'+d.c+' \u00b7 sells for $'+(d.tot?d.c:Math.floor(d.c/2))+'</div>'+(wp?st(d)+wNotes(d).map(x=>'<div class=ibn>'+x+'</div>').join(''):'<p>'+d.d+'</p>')+'</div>';
  const ro=wp?refObj():null,cur=ro?skv(k,ro.sk):'';b.querySelector('.ibi').appendChild(itemCv(k,256,192,cur));
  if(ro){const t=b.querySelector('.ibt'),row=document.createElement('div'),sl=WSK[k]||[];row.className='ibs';
   if(!sl.length)row.innerHTML='<span class=ibn>No skins exist for this weapon yet.</span>';
@@ -2340,7 +2267,7 @@ function visLight(sx,sy,a0,a1,rg,n,al){const wx=P.x,wy=P.y;dx.save();dx.beginPat
  dx.closePath();dx.clip();light(sx,sy,rg,al);dx.restore()}
 function tx(s,x,y,c,al){ctx.fillStyle='#000';ctx.textAlign=al||'left';ctx.fillText(s,x+1,y+1);ctx.fillStyle=c||'#e8e6d8';ctx.fillText(s,x,y)}
 function render(){
- const sh=shake?R(-shake,shake):0;const CT=P.dead?{x:P.sx,y:P.sy}:P;cam.x=cl(CT.x-VW/2+(mouse.x-VW/2)*.2+sh,0,WW-VW)|0;cam.y=cl(CT.y-VH/2+(mouse.y-VH/2)*.2+sh,0,WH-VH)|0;const cx=cam.x,cy=cam.y,px=P.x-cx,py=P.y-cy,lx=CT.x-cx,ly=CT.y-cy,fa=P.dead?(P.sa2||0):P.face;
+ const sh=shake?R(-shake,shake)*(window.HBCFG?HBCFG.shake:1):0;const CT=P.dead?{x:P.sx,y:P.sy}:P;cam.x=cl(CT.x-VW/2+(mouse.x-VW/2)*.2+sh,0,WW-VW)|0;cam.y=cl(CT.y-VH/2+(mouse.y-VH/2)*.2+sh,0,WH-VH)|0;const cx=cam.x,cy=cam.y,px=P.x-cx,py=P.y-cy,lx=CT.x-cx,ly=CT.y-cy,fa=P.dead?(P.sa2||0):P.face;
  ctx.drawImage(ground,cx,cy,VW,VH,0,0,VW,VH);
 
  ctx.drawImage(blood,cx,cy,VW,VH,0,0,VW,VH);
@@ -2389,8 +2316,8 @@ scn.forEach(c=>{const x=c.x-cx|0,y=c.y-cy|0;if(x<-40||x>VW+40||y<-30||y>VH+30)re
  // HUD
  ctx.font='bold 10px monospace';ctx.fillStyle='#000a';ctx.fillRect(8,VH-24,104,8);ctx.fillStyle='#b01c1c';ctx.fillRect(9,VH-23,102*Math.max(0,P.hp)/100,6);ctx.fillStyle='#000a';ctx.fillRect(8,VH-14,104,4);ctx.fillStyle=P.exh?'#886':'#6a9a4a';ctx.fillRect(9,VH-13,102*P.st/100,2);
  const w=P.w[P.cur];tx(P.cur<2&&w&&!w.ml?`${w.n}  ${P.mag[P.cur]}/${P.res[P.cur]}${P.rl>0?' (reload)':''}`:'',VW-8,VH-24,'#e8e6d8','right');
- ctx.font='bold 8px monospace';for(let i=0;i<2+NTS;i++){const x=VW/2-(NTS+2)*33+i*66,y=VH-22;ctx.fillStyle=i==P.cur?'#7a2a2ab0':'#000a';ctx.fillRect(x,y,62,16);if(i==P.cur){ctx.strokeStyle='#e8e6d8';ctx.lineWidth=1;ctx.strokeRect(x+.5,y+.5,61,15)}
-  const lb=i<2?(P.w[i]?P.w[i].n.slice(0,7):i==P.cur?'Fists':''):(P.ts[i-2]?TL[P.ts[i-2].k]+' '+P.ts[i-2].n:'');if(lb)tx((i+1)+' '+lb,x+3,y+11,'#e8e6d8')}ctx.font='bold 10px monospace';
+ ctx.font='bold 8px monospace';const SN=2+NTS,SP=Math.min(66,Math.floor((VW-240)/SN)),SW=SP-4;for(let i=0;i<SN;i++){const x=Math.round(VW/2-SN*SP/2)+i*SP,y=VH-22;ctx.fillStyle=i==P.cur?'#7a2a2ab0':'#000a';ctx.fillRect(x,y,SW,16);if(i==P.cur){ctx.strokeStyle='#e8e6d8';ctx.lineWidth=1;ctx.strokeRect(x+.5,y+.5,SW-1,15)}
+  const lb=i<2?(P.w[i]?P.w[i].n.slice(0,7):i==P.cur?'Fists':''):(P.ts[i-2]?TL[P.ts[i-2].k]+' '+P.ts[i-2].n:'');if(lb){ctx.save();ctx.beginPath();ctx.rect(x,y,SW,16);ctx.clip();tx((i+1)+' '+lb,x+3,y+11,'#e8e6d8');ctx.restore()}}ctx.font='bold 10px monospace';
  tx(PC.on&&(banished||bty||!corpse)?'PEACE - the sun is out. Reach extraction!':banished?'Reach extraction!':bty?(bty.h===mp.me?'Reach extraction!':bty.h==null?'Grab the dropped bounty! (see map)':hn(bty.h)+' holds the bounty (see map)'):corpse?'Banish the corpse (hold E)':(found>=3||bossOpen)?`Hunt ${BOSS[boss].n} (red X)`:`Sigils ${found}/3 (E to burn) - the lair is sealed`,8,14,'#d8c890');tx(mis.t=='none'?'':mis.done?'Ledger task done - extract to claim':mis.fail?'Ledger task failed this run':'Ledger: '+hudm(),8,26,mis.done?'#8fe0a0':mis.fail?'#a06a60':'#c0a070');if(P.carry)tx('Bounty: $'+P.carry,8,38,'#e0b040');if(P.wd>0)tx("Ward "+Math.ceil(P.wd)+'s',8,50,'#f0d070');if(P.sb>0)tx('Stamina '+Math.ceil(P.sb)+'s',8,62,'#6af0a0');if(P.bw>0)tx('Wraps '+Math.ceil(P.bw)+'s',8,74,'#c8b890');if(P.hm>0)tx('Muzzle '+Math.ceil(P.hm)+'s',8,86,'#b8a898');if(P.bn)tx('Burning '+TOOL[P.bn.k].n+'... '+Math.ceil(3-P.bn.t)+'  (stand still)',VW/2,VH/2+48,'#ffb070','center');tx('[M] Map',VW-8,14,'#d8c890','right');if(mp.on)tx('Hunters alive: '+(1+Object.keys(mp.rp).length),VW-8,26,'#d89090','right');
  rdHud();if(P.ep>0)tx('Escaping in '+Math.ceil(EXD-P.ep)+'...',VW/2,VH/2+34,'#8fe0a0','center');
  if(P.pk)tx('[E] take '+(P.pk.s?SID:PRI)[P.pk.k].n,VW/2,VH/2+48,'#ffd27a','center');if(msgT>0)tx(msg,VW/2,48,'#fff','center');drawDead()}
@@ -3668,7 +3595,7 @@ addEventListener('click',e=>{if(mode!='menu')return;const t=e.target&&e.target.c
 let CAPS=false;['keydown','keyup','mousedown','mousemove'].forEach(ev=>addEventListener(ev,e=>{try{CAPS=!!e.getModifierState('CapsLock')}catch(_){}},true));
 
 // ---------- SELLING: drag an item onto the sell box for half its shop price ----------
-const SELL_TXT='Sell: drag an item here for half its shop price',sellVal=d=>{const w=PRI[d.k]||SID[d.k]||TOOL[d.k]||{c:0};return Math.floor(w.c/2)*(TOOL[d.k]?(d.split?1:(d.o.n||1)):1)};
+const SELL_TXT='Sell: drag an item here for half its shop price (totems sell for $50 each)',sellVal=d=>{const w=PRI[d.k]||SID[d.k]||TOOL[d.k]||{c:0};return (w.tot?w.c:Math.floor(w.c/2))*(TOOL[d.k]?(d.split?1:(d.o.n||1)):1)};
 {const _dm=dragMove;dragMove=function(e){_dm(e);const d=drg,z=$('#sz');if(!d||!z)return;const r=z.getBoundingClientRect(),on=e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;d.sell=on;z.classList.toggle('on',on);
  if(on){d.t=null;d.hl.style.display='none';const q=(TOOL[d.k]?(d.split?1:(d.o.n||1)):1);z.textContent='Sell '+((PRI[d.k]||SID[d.k]||TOOL[d.k]||{}).n||d.k)+(q>1?' x'+q:'')+' for $'+sellVal(d)}else z.textContent=SELL_TXT}}
 {const _de=dragEnd;dragEnd=function(){const d=drg;if(d&&d.sell){drg=null;removeEventListener('pointermove',dragMove);d.gh.remove();d.hl.remove();const v=sellVal(d),nm=(PRI[d.k]||SID[d.k]||TOOL[d.k]||{}).n||d.k,q=TOOL[d.k]?(d.split?1:(d.o.n||1)):1;take(d);bank+=v;SAVE();MUS.cash();note='Sold '+nm+(q>1?' x'+q:'')+' for $'+v+'.';menu(note);note='';return}_de()}}
@@ -4294,4 +4221,497 @@ function weaponTick(dt){const w=P.cur<2?P.w[P.cur]:null;P.gj=Math.max(0,(P.gj||0
  if(w&&w.dr&&P.dw>.05){const f=Math.min(1,P.dw/w.dr);ctx.lineWidth=2.5;ctx.lineCap='round';ctx.strokeStyle='rgba(0,0,0,.45)';ctx.beginPath();ctx.arc(px,py,17,-Math.PI/2,Math.PI*1.5);ctx.stroke();ctx.strokeStyle=f>=1?'#ffe070':'#e8e0c0';ctx.beginPath();ctx.arc(px,py,17,-Math.PI/2,-Math.PI/2+f*Math.PI*2);ctx.stroke()}
  if(w&&w.gt&&((P.gsp||0)>.02||P.gh>.05||P.gj>0)){const sp=P.gsp||0,hh=Math.min(1,(P.gh||0)/3.2),jm=P.gj>0;ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillRect(px-14,py+14,28,5);ctx.fillStyle=jm?'#ff4020':'#e0b040';ctx.fillRect(px-13,py+15,jm?26:26*sp,1.5);ctx.fillStyle=hh>.7?'#ff4020':'#ff9a30';ctx.fillRect(px-13,py+17,26*(jm?1:hh),1.5)}
  ctx.restore()}}
+
+/* ===== Audio routing: master / effects / music volume (inserted between the game's sound output and the speakers) ===== */
+(()=>{
+ const A=window.HBAUDIO={master:1,sfx:1,music:1,sfxNode:null,musNodes:[],cbs:[],comp:null,
+  onSfx(cb){if(A.comp)cb(A.comp);else A.cbs.push(cb)},
+  apply(){if(A.sfxNode)A.sfxNode.gain.value=A.master*A.sfx;A.musNodes.forEach(n=>n.gain.value=A.master*A.music)}};
+ try{const _c=AudioNode.prototype.connect;
+  AudioNode.prototype.connect=function(d){
+   if(!(d instanceof AudioDestinationNode))return _c.apply(this,arguments);
+   try{
+    const ctx=this.context;
+    if(this instanceof DynamicsCompressorNode){      /* the sound-effects bus */
+     const v=ctx.createGain();v.gain.value=A.master*A.sfx;A.sfxNode=v;
+     _c.call(this,v);_c.call(v,d);A.comp=this;A.cbs.splice(0).forEach(f=>{try{f(this)}catch(e){}});return d}
+    if(this instanceof GainNode){                    /* menu music and title bells */
+     const v=ctx.createGain();v.gain.value=A.master*A.music;A.musNodes.push(v);
+     _c.call(this,v);_c.call(v,d);return d}
+   }catch(e){}
+   return _c.apply(this,arguments)}}catch(e){}
+})();
+
+/* ===== Instant Replay: F9 saves the last ~15-23s (with sound) as a .webm clip, F10 toggles the recorder.
+   Auto-highlights: boss kills, near-death escapes, close calls, swarms, kill sprees and deaths are captured
+   automatically and kept in memory (F8 in a run, or the panel on the menu, to save them). Shift+F10 toggles auto-highlights. ===== */
+(()=>{
+ const CLIP=15e3,LIFE=23e3,SLOTS=3,STAG=LIFE/SLOTS,RW=640,RH=360,FPS=30,MAXHL=5,COOL=25e3;
+ if(typeof MediaRecorder==='undefined'||!HTMLCanvasElement.prototype.captureStream)return;
+ const rc=document.createElement('canvas');rc.width=RW;rc.height=RH;const rx=rc.getContext('2d');
+ const mime=['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'].find(m=>MediaRecorder.isTypeSupported(m))||'';
+ let on=true,auto=true,slots=[],t0=0,lastF=0,lastTick=0,stream=null,saving=false,adest=null;
+ const trig={boss:1,escape:1,death:1,close:1,swarm:1},hl=[];let pend=null,lastAuto=-1e9,armed=false,kt=[],crowd=0,lastSamp=0;
+ const inTut=()=>typeof TUTR!=='undefined'&&TUTR;
+ /* tap the game's sound-effect output (taken before the volume sliders, so clips are always full volume) */
+ try{window.HBAUDIO.onSfx(comp=>{adest=comp.context.createMediaStreamDestination();comp.connect(adest)})}catch(e){}
+ const stamp=()=>{const d=new Date(),p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`};
+ const slug=s=>s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+ function download(url,label){const a=document.createElement('a');a.href=url;a.download=`hellbreach-${slug(label)}-${stamp()}.webm`;document.body.appendChild(a);a.click();a.remove()}
+ /* ---- highlights panel (shown on the menu / hub after a run) ---- */
+ const st=document.createElement('style');
+ st.textContent='#hbHL{position:fixed;left:12px;bottom:12px;z-index:99999;font:12px monospace;color:#e8e6d8;background:rgba(8,2,4,.92);border:1px solid #8a1c20;padding:8px 10px;max-width:290px;display:none}#hbHL h4{margin:0 0 6px;font:bold 12px monospace;color:#ff6a50;letter-spacing:.5px}#hbHL .r{display:flex;align-items:center;gap:6px;margin:3px 0}#hbHL .r span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#hbHL button{font:11px monospace;color:#e8e6d8;background:#3a0c10;border:1px solid #8a1c20;padding:2px 7px;cursor:pointer}#hbHL button:hover{background:#6a1418}';
+ document.head.appendChild(st);
+ const panel=document.createElement('div');panel.id='hbHL';document.body.appendChild(panel);
+ function render_(){
+  panel.innerHTML='';
+  const h=document.createElement('h4');h.textContent='\u{1F3AC} HIGHLIGHTS ('+hl.length+')';panel.appendChild(h);
+  hl.slice().reverse().forEach(it=>{
+   const r=document.createElement('div');r.className='r';
+   const s=document.createElement('span');s.textContent=it.label+' \u00b7 '+it.dur+'s';s.title=it.label;
+   const b=document.createElement('button');b.textContent='Save';b.onclick=()=>download(it.url,it.label);
+   const x=document.createElement('button');x.textContent='\u2715';x.title='Discard';x.onclick=()=>{const i=hl.indexOf(it);if(i>=0){URL.revokeObjectURL(it.url);hl.splice(i,1)}render_()};
+   r.append(s,b,x);panel.appendChild(r)});
+  panel.style.display=(hl.length&&mode!=='play')?'block':'none'}
+ const addHL=(blob,label,dur)=>{hl.push({url:URL.createObjectURL(blob),label,dur,run:window.HBRUN||0});while(hl.length>MAXHL)URL.revokeObjectURL(hl.shift().url);render_();try{window.HBREC.onAdd&&window.HBREC.onAdd()}catch(e){}};
+ window.HBREC={hl,save:download,onAdd:null,trig,clip:()=>saveClip(),saveLatest:()=>{const it=hl[hl.length-1];if(it){download(it.url,it.label);say('Highlight saved: '+it.label,2.5)}else say('No highlights yet',2)},get on(){return on},set on(v){on=!!v;if(!on){stopAll();pend=null}},get auto(){return auto},set auto(v){auto=!!v;if(!auto)pend=null}};
+ /* ---- rolling recorders ---- */
+ const start=i=>{try{
+  if(!stream)stream=rc.captureStream(FPS);
+  const ms=new MediaStream(stream.getVideoTracks());
+  if(adest)adest.stream.getAudioTracks().forEach(t=>ms.addTrack(t));
+  const mr=new MediaRecorder(ms,{mimeType:mime||undefined,videoBitsPerSecond:2.5e6,audioBitsPerSecond:128e3}),r={mr,ch:[],t:performance.now(),save:false,label:'',auto:false};
+  mr.ondataavailable=e=>{if(e.data&&e.data.size)r.ch.push(e.data)};
+  mr.onstop=()=>{if(!r.save)return;saving=false;const b=new Blob(r.ch,{type:'video/webm'});
+   if(b.size<1e3){say('Replay failed: no footage captured',3);return}
+   const dur=Math.round((performance.now()-r.t)/1000);
+   if(r.auto){addHL(b,r.label,dur);if(mode==='play')say('Highlight captured: '+r.label+' (F8 to save)',3.5)}
+   else{const u=URL.createObjectURL(b);download(u,'clip');setTimeout(()=>URL.revokeObjectURL(u),6e4);say('Clip saved ('+dur+'s)',3)}};
+  mr.start(1000);slots[i]=r}catch(e){slots[i]=null}};
+ const stopAll=()=>{slots.forEach(r=>{if(r&&r.mr.state!=='inactive'){r.save=false;try{r.mr.stop()}catch(e){}}});slots=[];t0=0};
+ const tick=n=>{
+  if(!t0)t0=n;
+  for(let i=0;i<SLOTS;i++){
+   const r=slots[i];
+   if(r===undefined){if(n-t0>=i*STAG)start(i)}
+   else if(r&&!r.save&&n-r.t>=LIFE){r.mr.stop();start(i)}}};
+ function grab(label,isAuto){
+  if(!on||saving)return false;
+  const n=performance.now();let best=null,bi=-1;
+  slots.forEach((r,i)=>{if(r&&r.mr.state==='recording'&&(!best||r.t<best.t)){best=r;bi=i}});
+  if(!best||n-best.t<4e3)return false;
+  saving=true;best.save=true;best.label=label;best.auto=isAuto;best.mr.stop();slots[bi]=undefined;t0=n-bi*STAG;return true}
+ function saveClip(){
+  if(!on){say('Replay recorder is off (F10)',2);return}
+  if(!grab('clip',false))say(saving?'Saving...':'Not enough footage yet',2)}
+ /* ---- auto-highlight queue: one pending highlight at a time, higher priority wins ---- */
+ const GRP={'Boss kill':'boss','Near-death escape':'escape','Final moments':'death','Close call':'close','Surrounded':'swarm','Killing spree':'swarm'};
+ function queue(label,delay,pri,alive){
+  if(!auto||!on||inTut()||trig[GRP[label]]===0)return;
+  const n=performance.now();
+  if(pri<3&&n-lastAuto<COOL)return;
+  if(pend&&pend.pri>pri)return;
+  pend={label,due:n+delay,pri,alive}}
+ function run(n,force){
+  if(!pend)return;
+  if(!force&&n<pend.due)return;
+  const p=pend;
+  if(p.alive&&P&&P.dead){pend=null;return}
+  if(saving){if(force)pend=null;return}
+  pend=null;if(grab(p.label,true))lastAuto=n}
+ const _end=end;
+ end=function(w){try{if(w&&!inTut()&&P&&!P.dead&&P.hp<=30)queue('Near-death escape',0,4);run(performance.now(),true)}catch(e){}return _end.apply(this,arguments)};
+ const _die=die;
+ die=function(){const was=P&&P.dead;const r=_die.apply(this,arguments);try{if(!was&&P&&P.dead)queue('Final moments',2000,3)}catch(e){}return r};
+ const _kill=kill;
+ kill=function(m){const r=_kill.apply(this,arguments);try{
+  if(m.boss)queue('Boss kill',3500,4);
+  else{const n=performance.now();kt.push(n);kt=kt.filter(t=>n-t<6e3);if(kt.length>=7){kt=[];queue('Killing spree',2500,1)}}
+ }catch(e){}return r};
+ /* ---- per-frame hook: frame capture, recorder rotation, situation detection ---- */
+ const _db=drawBanner;
+ drawBanner=function(){
+  _db();
+  if(!on)return;
+  const n=performance.now();
+  if(n-lastF>=1000/FPS-2){lastF=n;rx.drawImage(cv,0,0,RW,RH)}
+  if(n-lastTick>400){lastTick=n;tick(n)}
+  run(n,false);
+  if(auto&&n-lastSamp>500&&P&&!P.dead&&!inTut()){
+   lastSamp=n;
+   if(P.hp<=25&&!armed){armed=true;queue('Close call',4000,2,true)}else if(P.hp>=60)armed=false;
+   let c=0;try{for(const m of M)if(m.hp>0&&m.st=='chase'&&!m.boss&&D(P.x,P.y,m.x,m.y)<240)c++}catch(e){}
+   if(c>=6){if(++crowd>=3)queue('Surrounded',3000,1)}else crowd=0}
+ };
+ /* leaving a run (menu/title) discards the rolling buffer so clips never mix runs */
+ setInterval(()=>{if(mode!=='play'&&slots.length)stopAll();panel.style.display=(hl.length&&mode!=='play')?'block':'none'},1000);
+ addEventListener('keydown',e=>{
+  if(e.repeat||mode!=='play')return;
+  if(e.code==='F9'){e.preventDefault();saveClip()}
+  else if(e.code==='F8'){e.preventDefault();const it=hl[hl.length-1];if(it){download(it.url,it.label);say('Highlight saved: '+it.label,2.5)}else say('No highlights yet',2)}
+  else if(e.code==='F10'){e.preventDefault();
+   if(e.shiftKey){auto=!auto;pend=null;say(auto?'Auto-highlights on':'Auto-highlights off',2)}
+   else{on=!on;if(!on){stopAll();pend=null}say(on?'Replay recorder on':'Replay recorder off',2)}}
+ });
+})();
+
+/* ===== Post-run summary: shown after every escape or death ===== */
+(()=>{
+ const inTut=()=>typeof TUTR!=='undefined'&&TUTR;
+ let curP=null,st=null,box=null,openAt=0;
+ window.HBRUN=0;
+ const fresh=()=>({t0:performance.now(),kills:0,dmg:0,minHp:100,boss:0,seen:new WeakSet()});
+ const sync=()=>{if(typeof P!=='undefined'&&P&&P!==curP){curP=P;window.HBRUN++;st=fresh()}};
+ setInterval(sync,500);
+ const css=document.createElement('style');
+ css.textContent='#hbSum{position:fixed;inset:0;z-index:100000;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.78);font-family:monospace;color:#e8e6d8}#hbSum .c{width:min(460px,92vw);max-height:92vh;overflow:auto;background:#0c0406;border:1px solid #8a1c20;box-shadow:0 0 40px rgba(160,16,24,.35);padding:18px 20px}#hbSum h2{margin:0 0 2px;padding:0;border:0;background:none;font:bold 26px monospace;letter-spacing:3px;text-align:center}#hbSum .sub{text-align:center;color:#b8a89a;font-size:12px;margin-bottom:14px}#hbSum .g{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}#hbSum .s{background:#1a0a0d;border:1px solid #3a1418;padding:7px 9px}#hbSum .s b{display:block;font-size:20px;color:#fff}#hbSum .s i{font-style:normal;font-size:10px;letter-spacing:1px;color:#b8a89a;text-transform:uppercase}#hbSum .w{grid-column:1/3}#hbSum h4{margin:10px 0 5px;font-size:11px;letter-spacing:2px;color:#ff6a50}#hbSum .r{display:flex;align-items:center;gap:8px;margin:3px 0;font-size:12px}#hbSum .r span{flex:1}#hbSum button{font:12px monospace;color:#e8e6d8;background:#3a0c10;border:1px solid #8a1c20;border-radius:0;transform:none;box-shadow:none;text-shadow:none;padding:4px 10px;cursor:pointer}#hbSum button:hover{background:#6a1418}#hbSum .ok{display:block;width:100%;margin-top:14px;padding:8px;font-size:14px;letter-spacing:2px}';
+ document.head.appendChild(css);
+ box=document.createElement('div');box.id='hbSum';document.body.appendChild(box);
+ let data=null;
+ const fmt=t=>{t=Math.max(0,Math.round(t/1000));return (t/60|0)+':'+String(t%60).padStart(2,'0')};
+ const cell=(v,l,w)=>{const d=document.createElement('div');d.className='s'+(w?' w':'');const b=document.createElement('b');b.textContent=v;const i=document.createElement('i');i.textContent=l;d.append(b,i);return d};
+ function draw(){
+  if(!data)return;
+  box.innerHTML='';
+  const c=document.createElement('div');c.className='c';
+  const h=document.createElement('h2');h.textContent=data.win?'ESCAPED':'YOU DIED';h.style.color=data.win?'#e0b040':'#d02830';
+  const sub=document.createElement('div');sub.className='sub';sub.textContent=data.sub;
+  const g=document.createElement('div');g.className='g';
+  if(data.daily){const D=data.daily;
+   const dc=cell(D.score.toLocaleString(),'Daily score \u00b7 '+(D.isBest?'new best today!':'best today '+D.best.toLocaleString())+' \u00b7 streak '+D.streak+(D.streak===1?' day':' days'),1);
+   dc.querySelector('b').style.color='#e0b040';dc.querySelector('b').style.fontSize='28px';
+   const bd=document.createElement('i');bd.style.cssText='display:block;margin-top:5px;font-size:10px;letter-spacing:0;text-transform:none';bd.textContent=D.parts.filter(x=>x[1]).map(x=>x[0]+' '+(x[1]>0?'+':'')+x[1]).join(' \u00b7 ');dc.appendChild(bd);g.append(dc)}
+  g.append(
+   cell(fmt(data.time),'Time in the parish'),
+   cell(data.kills,'Creatures slain'),
+   cell(data.sigils+'/3','Sigils burned'),
+   cell(Math.round(data.dmg),'Damage taken'),
+   data.daily?cell(data.win?('$'+data.cash):'$0','Bounty (not kept in daily)'):cell(data.win?('+$'+data.cash):(data.cash?('-$'+data.cash):'$0'),data.win?'Bounty carried out':'Loot lost'),
+   cell(data.minHp<100?Math.max(0,Math.round(data.minHp))+' HP':'Untouched','Lowest health'),
+   cell(data.bossLine,'The demon',1));
+  c.append(h,sub,g);
+  const list=(window.HBREC&&window.HBREC.hl||[]).filter(x=>x.run===data.run);
+  if(list.length){
+   const t=document.createElement('h4');t.textContent='\u{1F3AC} HIGHLIGHTS FROM THIS RUN';c.appendChild(t);
+   list.slice().reverse().forEach(it=>{const r=document.createElement('div');r.className='r';
+    const sp=document.createElement('span');sp.textContent=it.label+' \u00b7 '+it.dur+'s';
+    const b=document.createElement('button');b.textContent='Save';b.onclick=()=>window.HBREC.save(it.url,it.label);
+    r.append(sp,b);c.appendChild(r)})}
+  if(data.daily){const cp=document.createElement('button');cp.textContent='COPY RESULT TO SHARE';cp.style.cssText='display:block;width:100%;margin-top:12px';
+   cp.onclick=()=>{const t=data.daily.share;const done=()=>{cp.textContent='COPIED!'};
+    try{navigator.clipboard.writeText(t).then(done,()=>{fb(t);done()})}catch(e){fb(t);done()}};
+   const fb=t=>{const a=document.createElement('textarea');a.value=t;a.style.cssText='position:fixed;opacity:0';document.body.appendChild(a);a.select();try{document.execCommand('copy')}catch(e){}a.remove()};
+   c.appendChild(cp)}
+  const ok=document.createElement('button');ok.className='ok';ok.textContent='CONTINUE';ok.onclick=close;
+  c.appendChild(ok);box.appendChild(c);box.style.display='flex';ok.focus()}
+ function close(){box.style.display='none';data=null}
+ function show(d){data=d;openAt=performance.now();draw()}
+ if(window.HBREC)window.HBREC.onAdd=()=>{if(data)draw()};
+ addEventListener('keydown',e=>{if(!data||e.repeat||performance.now()-openAt<500)return;if(e.code=='Enter'||e.code=='Escape'||e.code=='Space'){e.preventDefault();e.stopPropagation();close()}},true);
+ const _hurt=hurtP;
+ hurtP=function(d,k){sync();const was=P&&P.dead,hb=P?P.hp:0,r=_hurt.apply(this,arguments);try{if(st&&!was){st.dmg+=Math.max(0,hb-Math.max(0,P.hp))||0;st.minHp=Math.min(st.minHp,P.hp)}}catch(e){}return r};
+ const _kill=kill;
+ kill=function(m){sync();const first=m&&!(st&&st.seen.has(m));const r=_kill.apply(this,arguments);try{if(st&&first){st.seen.add(m);if(m.boss)st.boss=1;else st.kills++}}catch(e){}return r};
+ const _end=end;
+ end=function(w){
+  let d=null;
+  try{sync();
+   if(st&&!inTut()){
+    let bl='Still stalks the parish';try{const bn=BOSS[boss].n;bl=(banished?'Banished \u2014 ':st.boss?'Slain \u2014 ':'Alive \u2014 ')+bn}catch(e){}
+    d={win:!!w,time:performance.now()-st.t0,kills:st.kills,sigils:Math.min(3,found|0),dmg:st.dmg,minHp:Math.min(st.minHp,P.hp>0?P.hp:st.minHp),cash:P.carry|0,bossLine:bl,run:window.HBRUN,bossSlain:!!st.boss,banished:!!banished,
+       sub:w?(banished?'You banished the demon and walked out with the bounty.':st.boss?'The demon fell. You made it out alive.':'You made it out alive.'):'Everything you carried is lost. Your stash is safe.'}}
+  }catch(e){}
+  try{if(d&&window.HBDAILY&&window.HBDAILY.active){d.daily=window.HBDAILY.finish(d);d.sub='Daily Challenge \u2014 '+d.daily.mod+'. Your stash, loadout and cash are untouched.'}}catch(e){}
+  const r=_end.apply(this,arguments);
+  if(d&&(d.daily||!(window.HBCFG&&window.HBCFG.sum===false)))setTimeout(()=>show(d),700);
+  return r};
+})();
+
+/* ===== Settings screen: title menu "Settings" button, or Esc during a run (pauses single-player runs) ===== */
+(()=>{
+ const KEY='bh_settings',inTut=()=>typeof TUTR!=='undefined'&&TUTR;
+ const ACT=[['up','Move up','KeyW'],['down','Move down','KeyS'],['left','Move left','KeyA'],['right','Move right','KeyD'],['sprint','Sprint','ShiftLeft'],['reload','Reload','KeyR'],['use','Interact / banish','KeyE'],['map','Map','KeyM'],['inv','Inventory','Tab'],['amb','Toggle ambient sound','KeyN']];
+ const TRIG=[['boss','Boss kills'],['escape','Near-death escapes'],['close','Close calls'],['swarm','Swarms & kill sprees'],['death','Final moments (death)']];
+ const BAD=/^(F\d+|Escape|Enter|NumpadEnter|Backspace|Space|CapsLock|Digit\d|Numpad\d|Meta.*|ContextMenu|Delete|Insert|Home|End|PageUp|PageDown|Pause|NumLock|ScrollLock|PrintScreen)$/;
+ window.HBCFG={sum:true,shake:1};
+ const DEF=()=>({master:100,sfx:100,music:100,shake:100,bright:100,sum:true,rec:true,auto:true,trig:{boss:1,escape:1,close:1,swarm:1,death:1},keys:{}});
+ let S=DEF();
+ try{const j=JSON.parse(localStorage.getItem(KEY)||'null');if(j&&typeof j==='object'){S=Object.assign(S,j);S.trig=Object.assign(DEF().trig,j.trig||{});S.keys=j.keys&&typeof j.keys==='object'?j.keys:{}}}catch(e){}
+ const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+ const bound=a=>S.keys[a]||ACT.find(x=>x[0]===a)[2];
+ /* ---- apply settings to the game ---- */
+ let F={};
+ function buildF(){
+  F={};const cur={};ACT.forEach(([a,,d])=>{cur[a]=bound(a)});
+  const used=new Set(Object.values(cur));
+  ACT.forEach(([a,,d])=>{const b=cur[a];if(b!==d){F[b]=d;if(!used.has(d))F[d]=null}})}
+ function applyAudio(){const A=window.HBAUDIO;if(!A)return;A.master=S.master/100;A.sfx=S.sfx/100;A.music=S.music/100;A.apply()}
+ function applyRec(){const R=window.HBREC;if(!R)return;try{R.on=!!S.rec;R.auto=!!S.auto;Object.assign(R.trig,S.trig)}catch(e){}}
+ function applyDisplay(){window.HBCFG.shake=Math.max(0,Math.min(1,S.shake/100));try{cv.style.filter=S.bright===100?'':'brightness('+(S.bright/100)+')'}catch(e){}}
+ function applyAll(){applyAudio();applyRec();applyDisplay();window.HBCFG.sum=!!S.sum;buildF()}
+ applyAll();
+ /* ---- key remapping: translate physical keys into the game's default codes ---- */
+ let open=false,listening=null,box=null;
+ const label=c=>c.replace(/^Key/,'').replace('ShiftLeft','Left Shift').replace('ShiftRight','Right Shift').replace('ArrowUp','\u2191').replace('ArrowDown','\u2193').replace('ArrowLeft','\u2190').replace('ArrowRight','\u2192').replace('ControlLeft','Left Ctrl').replace('AltLeft','Left Alt').replace(/^Semicolon$/,';');
+ /* first listener: settings owns the keyboard while open; Esc opens it during a run */
+ ['keydown','keyup'].forEach(t=>addEventListener(t,e=>{
+  if(!e.isTrusted)return;
+  const tg=e.target,typing=tg&&(tg.tagName==='TEXTAREA'||(tg.tagName==='INPUT'&&tg.type!=='range'));
+  if(t==='keydown'&&!open&&!typing&&!e.repeat&&e.code==='Escape'&&mode==='play'&&P&&!P.dead&&!showMap&&!invOpen&&!(window.HBSUM_OPEN)){
+   e.stopImmediatePropagation();e.preventDefault();show();return}
+  if(!open)return;
+  e.stopImmediatePropagation();
+  if(t!=='keydown')return;
+  if(listening){
+   e.preventDefault();
+   if(e.code==='Escape'){listening=null;draw();return}
+   if(BAD.test(e.code)){flash('That key is reserved');return}
+   assign(listening,e.code);listening=null;draw();return}
+  if(e.code==='Escape'){e.preventDefault();hide()}
+ },true));
+ ['keydown','keyup'].forEach(t=>addEventListener(t,e=>{
+  if(!e.isTrusted||open)return;
+  if(!(e.code in F))return;
+  const tg=e.target;if(tg&&(tg.tagName==='TEXTAREA'||tg.tagName==='INPUT'))return;
+  if(t==='keydown'&&mode!=='play')return;
+  e.stopImmediatePropagation();if(mode==='play')e.preventDefault();
+  const to=F[e.code];if(!to)return;
+  dispatchEvent(new KeyboardEvent(t,{code:to,key:e.key,repeat:e.repeat,shiftKey:e.shiftKey,ctrlKey:e.ctrlKey,altKey:e.altKey,metaKey:e.metaKey,bubbles:true,cancelable:true}))
+ },true));
+ function assign(a,code){
+  const old=bound(a),holder=ACT.find(x=>x[0]!==a&&bound(x[0])===code);
+  if(holder)S.keys[holder[0]]=old;
+  S.keys[a]=code;
+  ACT.forEach(([k,,d])=>{if(S.keys[k]===d)delete S.keys[k]});
+  buildF();save()}
+ /* ---- pause single-player runs while open ---- */
+ const _u=update;
+ update=function(dt){if(open&&!(mp&&mp.on))return;return _u.apply(this,arguments)};
+ /* ---- UI ---- */
+ const css=document.createElement('style');
+ css.textContent='#hbSet{position:fixed;inset:0;z-index:100001;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.82);font-family:monospace;color:#e8e6d8}#hbSet .c{width:min(520px,94vw);max-height:92vh;overflow:auto;background:#0c0406;border:1px solid #8a1c20;box-shadow:0 0 40px rgba(160,16,24,.35);padding:16px 20px}#hbSet h2{margin:0 0 10px;padding:0;border:0;background:none;font:bold 24px monospace;letter-spacing:3px;text-align:center;color:#e0b040}#hbSet h4{margin:14px 0 6px;padding:0 0 3px;border:0;border-bottom:1px solid #3a1418;font:bold 11px monospace;letter-spacing:2px;color:#ff6a50}#hbSet .r{display:flex;align-items:center;gap:10px;margin:5px 0;font-size:13px}#hbSet .r>span{flex:1}#hbSet .r em{font-style:normal;min-width:38px;text-align:right;color:#b8a89a}#hbSet input[type=range]{width:170px;accent-color:#c02028}#hbSet button{font:12px monospace;color:#e8e6d8;background:#3a0c10;border:1px solid #8a1c20;border-radius:0;transform:none;box-shadow:none;text-shadow:none;padding:4px 10px;cursor:pointer;min-width:64px}#hbSet button:hover{background:#6a1418}#hbSet button.on{background:#7a1a20;color:#fff}#hbSet button.k{min-width:110px}#hbSet button.k.l{background:#c02028;color:#fff}#hbSet .f{display:flex;gap:8px;margin-top:16px}#hbSet .f button{flex:1;padding:8px;font-size:13px;letter-spacing:1px}#hbSet .n{font-size:11px;color:#b8a89a;margin:2px 0 6px}#hbSet .t{color:#ff6a50;font-size:12px;min-height:16px;text-align:center;margin-top:6px}';
+ document.head.appendChild(css);
+ box=document.createElement('div');box.id='hbSet';document.body.appendChild(box);
+ let msg='';const flash=m=>{msg=m;const t=box.querySelector('.t');if(t)t.textContent=m};
+ const el=(tag,props,...kids)=>{const e=document.createElement(tag);if(props)Object.assign(e,props);kids.forEach(k=>e.append(k));return e};
+ function slider(name,key,min,max,ap,snd){
+  min=min===undefined?0:min;max=max||100;ap=ap||applyAudio;
+  const out=el('em',{textContent:S[key]+'%'});
+  const inp=el('input',{type:'range',min,max,step:5,value:S[key]});
+  inp.oninput=()=>{S[key]=+inp.value;out.textContent=S[key]+'%';ap();save()};
+  if(snd!==false)inp.onchange=()=>{try{sfx.init();sfx.pick()}catch(e){}};
+  return el('div',{className:'r'},el('span',{textContent:name}),inp,out)}
+ function toggle(name,get,set,note){
+  const b=el('button',{textContent:get()?'ON':'OFF',className:get()?'on':''});
+  b.onclick=()=>{set(!get());b.textContent=get()?'ON':'OFF';b.className=get()?'on':'';save()};
+  return el('div',{className:'r',title:note||''},el('span',{textContent:name}),b)}
+ const ambGet=()=>{try{return localStorage.getItem('bh_amb')!=='0'}catch(e){return true}};
+ function draw(){
+  box.innerHTML='';
+  const c=el('div',{className:'c'});
+  c.append(el('h2',{textContent:'SETTINGS'}));
+  if(open&&mode==='play'&&mp&&mp.on)c.append(el('div',{className:'n',textContent:'Multiplayer: the game keeps running while this is open.'}));
+  c.append(el('h4',{textContent:'AUDIO'}),slider('Master volume','master'),slider('Effects volume','sfx'),slider('Menu music volume','music'));
+  c.append(toggle('Ambient atmosphere',ambGet,v=>{if(v!==ambGet()){try{sfx.toggle()}catch(e){}}}));
+  c.append(el('h4',{textContent:'DISPLAY'}),slider('Screen shake','shake',0,100,applyDisplay,false),slider('Brightness','bright',50,150,applyDisplay,false));
+  c.append(el('h4',{textContent:'REPLAY & HIGHLIGHTS'}));
+  if(!window.HBREC)c.append(el('div',{className:'n',textContent:'Replay recording is not supported in this browser.'}));
+  else{
+   c.append(toggle('Replay recorder (F9 clips)',()=>S.rec,v=>{S.rec=v;applyRec()},'Keeps a rolling buffer of the last ~20 seconds'));
+   c.append(toggle('Auto-highlights',()=>S.auto,v=>{S.auto=v;applyRec()},'Automatically capture big moments'));
+   TRIG.forEach(([k,n])=>c.append(toggle('   \u21b3 '+n,()=>!!S.trig[k],v=>{S.trig[k]=v?1:0;applyRec()})));
+   c.append(el('div',{className:'n',textContent:'Clips are recorded at full volume regardless of the volume sliders.'}))}
+  c.append(toggle('Post-run summary screen',()=>S.sum,v=>{S.sum=v;window.HBCFG.sum=v}));
+  c.append(el('h4',{textContent:'CONTROLS'}),el('div',{className:'n',textContent:'Click a key, then press the new one. Esc cancels. Mouse, 1-5, F-keys and Caps Lock are fixed.'}));
+  ACT.forEach(([a,n])=>{
+   const b=el('button',{className:'k'+(listening===a?' l':''),textContent:listening===a?'Press a key...':label(bound(a))});
+   b.onclick=()=>{listening=listening===a?null:a;draw()};
+   c.append(el('div',{className:'r'},el('span',{textContent:n}),b))});
+  c.append(el('div',{className:'t',textContent:msg}));
+  const reset=el('button',{textContent:'RESET TO DEFAULTS'});
+  reset.onclick=()=>{S=DEF();if(!ambGet()){try{sfx.toggle()}catch(e){}}listening=null;applyAll();save();msg='Defaults restored';draw()};
+  if(window.HBDAILY&&window.HBDAILY.active&&mode==='play'&&P&&!P.dead){
+   const fo=el('button',{textContent:'FORFEIT DAILY RUN'});let armedF=false;
+   fo.onclick=()=>{if(!armedF){armedF=true;fo.textContent='CLICK AGAIN TO CONFIRM';return}hide();end(0)};
+   c.append(el('div',{className:'f'},fo))}
+  const close=el('button',{textContent:'CLOSE'});close.onclick=hide;
+  c.append(el('div',{className:'f'},reset,close));
+  box.appendChild(c);box.style.display='flex'}
+ function show(){
+  if(open)return;open=true;listening=null;msg='';
+  try{for(const k in keys)keys[k]=0;mouse.l=0;mouse.r=0}catch(e){}
+  try{if(MC&&MC.root){MC.mx=MC.my=0;MC.fire=0;MC.punch=0;MC.spr=0}}catch(e){}
+  if(window.HBREC){try{S.rec=window.HBREC.on;S.auto=window.HBREC.auto}catch(e){}}
+  draw()}
+ function hide(){open=false;listening=null;box.style.display='none';save()}
+ window.HBSET={show,hide,get open(){return open}};
+ /* title-menu entry */
+ try{TT_ITEMS.push({l:'Settings',v:'settings'});if(mode=='menu'&&scr=='title'&&document.querySelector('.tt-btns')&&!document.querySelector('.tt-btns [data-v=settings]')){const bt=document.createElement('button');bt.className='tt-btn';bt.dataset.v='settings';bt.textContent='Settings';document.querySelector('.tt-btns').appendChild(bt)}}catch(e){}
+ {const _m=menu;menu=function(m){if(scr=='settings'){scr='title';show();return}_m.apply(this,arguments)}}
+})();
+
+/* ===== Touch buttons (mobile input): clip, save latest highlight, settings ===== */
+(()=>{
+ const css=document.createElement('style');
+ css.textContent='#hbTc{position:fixed;left:calc(12px + env(safe-area-inset-left,0px));top:34%;z-index:60;display:none;flex-direction:row;gap:10px;-webkit-user-select:none;user-select:none;touch-action:none}#hbTc button{width:44px;height:44px;border-radius:50%;border:2px solid rgba(232,230,216,.55);background:rgba(8,2,4,.55);color:#e8e6d8;font-size:20px;line-height:1;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent;transform:none;box-shadow:none;min-width:0}#hbTc button:active{background:rgba(192,32,40,.7)}#hbTc button.hl{display:none;border-color:#ffd060}';
+ document.head.appendChild(css);
+ const box=document.createElement('div');box.id='hbTc';document.body.appendChild(box);
+ const mk=(txt,title,fn,cls)=>{const b=document.createElement('button');b.textContent=txt;b.title=title;if(cls)b.className=cls;
+  const go=e=>{e.preventDefault();e.stopPropagation();try{fn()}catch(x){}};
+  b.addEventListener('pointerdown',go);b.addEventListener('contextmenu',e=>e.preventDefault());box.appendChild(b);return b};
+ mk('\u{1F3AC}','Clip the last 15 seconds',()=>{window.HBREC?window.HBREC.clip():say('Replay not supported here',2)});
+ const sv=mk('\u2B50','Save latest highlight',()=>window.HBREC&&window.HBREC.saveLatest(),'hl');
+ mk('\u2699','Settings',()=>window.HBSET&&window.HBSET.show());
+ setInterval(()=>{
+  const on=INPUT=='mobile'&&mode==='play'&&P&&!P.dead&&!(window.HBSET&&window.HBSET.open);
+  box.style.display=on?'flex':'none';
+  if(on)sv.style.display=(window.HBREC&&window.HBREC.hl.length)?'block':'none'},400);
+})();
+
+/* ===== Daily Challenge: one seeded world per UTC day, fixed kit, a daily twist, scored locally with streaks ===== */
+(()=>{
+ const KEY='bh_daily';
+ const MODS=[
+  {id:'fuse',n:'Short Fuse',d:'The Reaper arrives 40% sooner. Move fast.'},
+  {id:'glass',n:'Glass Cannon',d:'Every hit you take hurts 50% more.'},
+  {id:'lean',n:'Lean Supplies',d:'Half the ammunition and only one Holy Water.'},
+  {id:'night',n:'Night Terrors',d:'The edges of your vision are swallowed by darkness.'}];
+ const iso=d=>d.toISOString().slice(0,10);
+ const dayNum=s=>Math.floor(Date.parse(s+'T00:00:00Z')/864e5);
+ const hash=str=>{let h1=0xdeadbeef,h2=0x41c6ce57;for(let i=0;i<str.length;i++){const c=str.charCodeAt(i);h1=Math.imul(h1^c,2654435761);h2=Math.imul(h2^c,1597334677)}
+  h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909);return(h1^h2)>>>0};
+ const info=date=>{const n=dayNum(date);return{date,n,seed:hash('hellbreach-daily-'+date),mod:MODS[((n%MODS.length)+MODS.length)%MODS.length]}};
+ let rec={days:{}};
+ try{const j=JSON.parse(localStorage.getItem(KEY)||'null');if(j&&j.days)rec=j}catch(e){}
+ const saveRec=()=>{try{const ks=Object.keys(rec.days).sort();while(ks.length>45)delete rec.days[ks.shift()];localStorage.setItem(KEY,JSON.stringify(rec))}catch(e){}};
+ const A=window.HBDAILY={active:false,cur:null};
+ const streak=()=>{let d=new Date();if(!rec.days[iso(d)])d=new Date(d.getTime()-864e5);let n=0;while(rec.days[iso(d)]){n++;d=new Date(d.getTime()-864e5)}return n};
+ const fmt=t=>(t/60|0)+':'+String(t%60).padStart(2,'0');
+ const fmtDate=s=>{try{return new Date(s+'T00:00:00Z').toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric',timeZone:'UTC'})}catch(e){return s}};
+ let snap=null;
+ /* ---- scoring (called by the run summary when a daily run ends) ---- */
+ A.finish=d=>{
+  const cur=A.cur,sec=d.time/1000;
+  const parts=[['Sigils burned',d.sigils*150],['Creatures slain',d.kills*15],['Demon slain',d.bossSlain?300:0],['Demon banished',d.banished?500:0],['Escaped alive',d.win?1000:0],['Speed bonus',d.win?Math.max(0,Math.round(600-sec)):0],['Damage taken',-Math.round(d.dmg*1.5)]];
+  const score=Math.max(0,parts.reduce((a,x)=>a+x[1],0));
+  const share=`Hellbreach Daily ${cur.date} \u00b7 ${cur.mod.n}\n${d.win?'ESCAPED':'DIED'} \u00b7 Score ${score.toLocaleString()}\n${fmt(Math.round(sec))} \u00b7 ${d.kills} slain \u00b7 ${d.sigils}/3 sigils${d.banished?' \u00b7 demon banished':d.bossSlain?' \u00b7 demon slain':''}`;
+  const day=rec.days[cur.date]||(rec.days[cur.date]={best:0,attempts:0,escapes:0});
+  day.attempts++;if(d.win)day.escapes++;
+  const isBest=score>day.best||day.attempts===1;
+  if(isBest){day.best=score;day.win=d.win?1:0;day.time=Math.round(sec);day.share=share}
+  saveRec();
+  return{score,best:day.best,isBest,streak:streak(),share,parts,mod:cur.mod.n}};
+ /* ---- starting a run ---- */
+ A.start=date=>{
+  if(A.active||(typeof TUTR!=='undefined'&&TUTR))return;
+  const cur=info(date||iso(new Date()));A.cur=cur;
+  snap={sel:JSON.parse(JSON.stringify(sel)),bank};
+  try{mpStop()}catch(e){}
+  try{if(typeof TART!='undefined'&&TART){TART.stop();TART=null}}catch(e){}
+  hideModal();
+  const _ms=mpSearch;mpSearch=function(go){go(cur.seed,1)};
+  try{newGame()}catch(e){mpSearch=_ms;A.cur=null;sel=snap.sel;bank=snap.bank;return}finally{mpSearch=_ms}
+  if(mode!=='play'||!P){A.cur=null;sel=snap.sel;bank=snap.bank;return}
+  /* the same kit for everyone */
+  const lean=cur.mod.id==='lean',k=lean?1:3;
+  P.w=[PRI.repeater,SID.pistol];P.mag=[PRI.repeater.m,SID.pistol.m];P.res=[PRI.repeater.m*k,SID.pistol.m*k];P.bag=[];P.cur=0;
+  try{P.wsk=[skv('repeater',''),skv('pistol','')]}catch(e){}
+  P.ts=[{k:'tonic',n:lean?1:2},null,null,null,null,null];tsBind(P);P.carry=0;
+  mis={t:'none',n:0,p:0,b:0,done:0,fail:0,bo:0};
+  A.active=true;
+  say('Daily Challenge \u2014 '+cur.mod.n+': '+cur.mod.d,6)};
+ /* ---- isolation: a daily run never touches stash, cash, loadout, ledgers, achievements or the online leaderboard ---- */
+ const _end=end;
+ end=function(w){
+  if(!A.active)return _end.apply(this,arguments);
+  const sv=[achCommit,lbPush,ledgerCommit];
+  achCommit=()=>{};lbPush=()=>{};ledgerCommit=()=>'';
+  let r;try{r=_end.apply(this,arguments)}finally{[achCommit,lbPush,ledgerCommit]=sv}
+  sel=snap.sel;bank=snap.bank;try{SAVE()}catch(e){}
+  A.active=false;
+  try{if(A.cur&&rec.days[A.cur.date])lbPush()}catch(e){}
+  try{menu('Daily challenge finished. Your loadout, stash and cash are untouched.')}catch(e){}
+  return r};
+ /* Short Fuse: the Reaper clock (P.tm) is created lazily after the run starts, so it can't be pre-set. Drain it 1/0.6x faster instead,
+    which also pulls the timed events (hellfire, fog, collapse) forward by the same 40%. The HUD and the opening banner show the shortened clock. */
+ const fuseOn=()=>A.active&&A.cur&&A.cur.mod.id==='fuse'&&mode==='play'&&P&&P.tm!==undefined;
+ const _up=update;
+ update=function(dt){const r=_up.apply(this,arguments);
+  try{if(fuseOn()&&!P.dead&&!RD&&P.tm>.05)P.tm=Math.max(.05,P.tm-dt*(1/.6-1))}catch(e){}
+  return r};
+ try{const _rh=rdHud;rdHud=function(){if(fuseOn()){const o=P.tm;P.tm=o*.6;try{return _rh.apply(this,arguments)}finally{P.tm=o}}return _rh.apply(this,arguments)}}catch(e){}
+ try{const _bn=banner;banner=function(a,b,c){
+  if(A.active&&A.cur&&A.cur.mod.id==='fuse'&&a==='THE REAPER IS COMING'){const t=Math.round(RT0*.6);b='Short Fuse: you have '+Math.floor(t/60)+' min'+(t%60?' '+(t%60)+' sec':'')+'. Extract before the timer runs out.'}
+  return _bn.call(this,a,b,c)}}catch(e){}
+ const _h=hurtP;
+ hurtP=function(d,k){if(A.active&&A.cur&&A.cur.mod.id==='glass')d*=1.5;return _h.call(this,d,k)};
+ /* ---- in-run badge + night overlay ---- */
+ const css=document.createElement('style');
+ css.textContent='#hbDb{position:fixed;top:24px;right:10px;z-index:45;display:none;font:11px monospace;color:#e0b040;background:rgba(8,2,4,.6);border:1px solid #8a1c20;padding:2px 7px;pointer-events:none}#hbNight{position:fixed;inset:0;z-index:40;display:none;pointer-events:none;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 26%,rgba(0,0,0,.9) 78%)}'
+  +'#hbDly{position:fixed;inset:0;z-index:100000;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.82);font-family:monospace;color:#e8e6d8}#hbDly .c{width:min(480px,94vw);max-height:92vh;overflow:auto;background:#0c0406;border:1px solid #8a1c20;box-shadow:0 0 40px rgba(160,16,24,.35);padding:16px 20px}#hbDly h2{margin:0 0 2px;padding:0;border:0;background:none;font:bold 24px monospace;letter-spacing:3px;text-align:center;color:#e0b040}#hbDly .sub{text-align:center;color:#b8a89a;font-size:12px;margin-bottom:10px}#hbDly .m{font:12px monospace;background:#1a0a0d;border:1px solid #3a1418;padding:8px 10px;margin:8px 0}#hbDly .m b{display:block;color:#ff6a50;font-size:14px;margin-bottom:2px}#hbDly h4{margin:12px 0 5px;padding:0 0 3px;border:0;border-bottom:1px solid #3a1418;font:bold 11px monospace;letter-spacing:2px;color:#ff6a50}#hbDly .g{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}#hbDly .s{background:#1a0a0d;border:1px solid #3a1418;padding:6px 8px}#hbDly .s b{display:block;font-size:18px;color:#fff}#hbDly .s i{font-style:normal;font-size:10px;letter-spacing:1px;color:#b8a89a;text-transform:uppercase}#hbDly .r{display:flex;gap:8px;font-size:12px;margin:2px 0}#hbDly .r span{flex:1}#hbDly .r em{font-style:normal;color:#b8a89a}#hbDly p{margin:4px 0;font-size:12px;color:#c8b8aa}#hbDly .lb{display:flex;gap:8px;align-items:baseline;font-size:12px;margin:2px 0;padding:2px 4px}#hbDly .lb b{width:30px}#hbDly .lb span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#hbDly .lb em{font-style:normal;color:#b8a89a;font-size:10px}#hbDly .lb strong{color:#fff;min-width:56px;text-align:right}#hbDly .lb.me{background:#2a0e12;border:1px solid #6a1418}#hbDly .st{font-size:10px;color:#b8a89a;text-align:center;margin-top:4px}#hbDly .f{display:flex;gap:8px;margin-top:14px}#hbDly button{flex:1;font:13px monospace;letter-spacing:1px;color:#e8e6d8;background:#3a0c10;border:1px solid #8a1c20;border-radius:0;transform:none;box-shadow:none;text-shadow:none;padding:9px;cursor:pointer}#hbDly button:hover{background:#6a1418}#hbDly button.go{background:#7a1a20;color:#fff}';
+ document.head.appendChild(css);
+ const badge=document.createElement('div');badge.id='hbDb';document.body.appendChild(badge);
+ const night=document.createElement('div');night.id='hbNight';document.body.appendChild(night);
+ const modal=document.createElement('div');modal.id='hbDly';document.body.appendChild(modal);
+ setInterval(()=>{
+  const on=A.active&&A.cur&&mode==='play';
+  badge.style.display=on?'block':'none';if(on)badge.textContent='DAILY \u00b7 '+A.cur.date+' \u00b7 '+A.cur.mod.n;
+  night.style.display=(on&&A.cur.mod.id==='night')?'block':'none'},500);
+ /* ---- the Daily Challenge screen ---- */
+ const el=(t,p,...k)=>{const e=document.createElement(t);if(p)Object.assign(e,p);k.forEach(x=>e.append(x));return e};
+ let tick=null;
+ const untilReset=()=>{const n=new Date(),next=Date.UTC(n.getUTCFullYear(),n.getUTCMonth(),n.getUTCDate()+1),s=Math.max(0,Math.floor((next-n)/1000));return String(s/3600|0).padStart(2,'0')+':'+String(s%3600/60|0).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
+ /* ---- today's board: read from the same retained hunter entries the main leaderboard uses ---- */
+ A.pub=()=>{const ks=Object.keys(rec.days).filter(k=>rec.days[k]&&rec.days[k].attempts).sort(),k=ks[ks.length-1];if(!k)return{};const r=rec.days[k];return{dd:k,ds:Math.max(0,Math.min(8000,r.best|0)),dw:r.win?1:0}};
+ const todayRows=()=>{const t=iso(new Date()),rows=[];
+  for(const id in LBD){const e=LBD[id];if(e&&e.dd===t&&e.ds>0)rows.push({n:e.n,s:e.ds,w:e.dw,ts:e.ts||0})}
+  const d=rec.days[t];if(d&&d.attempts)rows.push({n:cleanName(pname)||'Unnamed Hunter',s:d.best,w:d.win,ts:0,me:1});
+  rows.sort((a,b)=>b.s-a.s||a.ts-b.ts);return rows};
+ let bc=[],bt=0,bo=0,bEl=null,bSt=null;
+ const drawBoard=()=>{if(!bEl||!bSt)return;const rows=todayRows(),RC=['#ffd23a','#c8ccd2','#cd7f32'];bEl.innerHTML='';
+  const add=(i,r)=>{const b=el('b',{textContent:'#'+(i+1)});if(i<3)b.style.color=RC[i];bEl.append(el('div',{className:'lb'+(r.me?' me':'')},b,el('span',{textContent:r.n+(r.me?' (you)':'')}),el('em',{textContent:r.w?'escaped':'died'}),el('strong',{textContent:r.s.toLocaleString()})))};
+  rows.slice(0,10).forEach((r,i)=>add(i,r));
+  const mi=rows.findIndex(r=>r.me);if(mi>=10){bEl.append(el('div',{className:'st',textContent:'\u2026'}));add(mi,rows[mi])}
+  if(!rows.length)bEl.append(el('p',{textContent:'No scores posted yet today. Be the first.'}));
+  const on=bc.some(c=>c.connected);
+  bSt.textContent=on?'Live \u2014 '+rows.length+' hunter'+(rows.length===1?'':'s')+' scored today':Date.now()-bo>8000?'Could not reach the relay \u2014 showing this device only':'Connecting\u2026'};
+ const boardClose=()=>{clearTimeout(bt);bc.forEach(c=>{try{c.end(true)}catch(e){}});bc=[]};
+ const boardOpen=()=>{boardClose();bo=Date.now();
+  try{const c=relayClient(['hb1/lb/+']);bc=[c];c.on('connect',()=>{c.subscribe('hb1/lb/+');lbPub(c);drawBoard()});c.on('message',(t,b)=>{lbRecv(t,b);clearTimeout(bt);bt=setTimeout(drawBoard,300)});c.on('error',()=>{})}catch(e){}
+  setTimeout(drawBoard,8500)};
+ function showModal(){
+  const today=iso(new Date()),cur=info(today),day=rec.days[today]||{best:0,attempts:0,escapes:0};
+  modal.innerHTML='';
+  const c=el('div',{className:'c'});
+  const rs=el('div',{className:'sub'});
+  const upd=()=>{rs.textContent=fmtDate(today)+'  \u00b7  new challenge in '+untilReset()};upd();
+  c.append(el('h2',{textContent:'DAILY CHALLENGE'}),rs);
+  c.append(el('div',{className:'m'},el('b',{textContent:'Today\u2019s twist: '+cur.mod.n}),cur.mod.d));
+  c.append(el('p',{textContent:'Everyone gets the same world, the same demon and the same kit: Repeater, Pistol and Holy Water. Your stash, cash and loadout are never touched, and nothing you carry out is kept.'}));
+  const g=el('div',{className:'g'});
+  const cell=(v,l)=>el('div',{className:'s'},el('b',{textContent:v}),el('i',{textContent:l}));
+  g.append(cell(day.attempts?day.best.toLocaleString():'\u2014','Best today'),cell(day.attempts,'Attempts'),cell(streak()+(streak()===1?' day':' days'),'Streak'));
+  c.append(el('h4',{textContent:'TODAY'}),g);
+  bEl=el('div');bSt=el('div',{className:'st'});
+  c.append(el('h4',{textContent:'TODAY\u2019S BOARD \u00b7 HIGHEST SCORE'}),bEl,bSt);
+  if(!(typeof pname!=='undefined'&&cleanName(pname)))c.append(el('p',{textContent:'Tip: set a Hunter Name on the main menu so your score shows under your name.'}));
+  c.append(el('h4',{textContent:'LAST 7 DAYS'}));
+  for(let i=0;i<7;i++){const ds=iso(new Date(Date.now()-i*864e5)),r=rec.days[ds];
+   c.append(el('div',{className:'r'},el('span',{textContent:fmtDate(ds)+(i===0?' (today)':'')}),el('em',{textContent:r?((r.win?'Escaped':'Died')+' \u00b7 '+r.best.toLocaleString()):'\u2014'})))}
+  c.append(el('p',{textContent:'Score: sigils, kills, demon slain/banished, escaping, speed, minus damage taken. Your best score each day is kept on this device and posted to today\u2019s board; nothing else about the run is shared.'}));
+  const go=el('button',{className:'go',textContent:day.attempts?'TRY AGAIN':'START RUN'});go.onclick=()=>A.start();
+  const cl=el('button',{textContent:'CLOSE'});cl.onclick=hideModal;
+  c.append(el('div',{className:'f'},go,cl));
+  modal.appendChild(c);modal.style.display='flex';drawBoard();boardOpen();
+  clearInterval(tick);tick=setInterval(upd,1000);go.focus()}
+ function hideModal(){modal.style.display='none';clearInterval(tick);boardClose()}
+ A.show=showModal;
+ addEventListener('keydown',e=>{if(modal.style.display==='flex'&&e.code==='Escape'){e.preventDefault();e.stopPropagation();hideModal()}},true);
+ /* title-menu entry, placed just above Settings */
+ try{
+  const si=TT_ITEMS.findIndex(x=>x.v==='settings');TT_ITEMS.splice(si<0?TT_ITEMS.length:si,0,{l:'Daily Challenge',v:'daily'});
+  const bt=document.querySelector('.tt-btns');
+  if(mode=='menu'&&scr=='title'&&bt&&!bt.querySelector('[data-v=daily]')){const b=document.createElement('button');b.className='tt-btn';b.dataset.v='daily';b.textContent='Daily Challenge';const sb=bt.querySelector('[data-v=settings]');bt.insertBefore(b,sb||null)}}catch(e){}
+ {const _m=menu;menu=function(m){if(scr=='daily'){scr='title';showModal();return}_m.apply(this,arguments)}}
+})();
 </script></body></html>
