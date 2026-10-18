@@ -53,8 +53,8 @@ body.rt h1,body.rt h2.lt,body.rt .tt-name,body.rt button.tt-btn,body.rt .risk h3
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0c0a0e}}
 :root[data-theme="dark"]{--bg:#0c0a0e}
 :root{--cs:min(32px,calc((100vw - 380px)/20))}@media (max-width:900px){:root{--cs:min(32px,max(18px,calc((100vw - 100px)/20)))}}
-.sellz{margin-top:12px;border:2px dashed #e0b040aa;border-radius:8px 16px 6px 14px;padding:10px 8px;text-align:center;font-size:22px;line-height:1.05;color:#e0b040;background:#00000033}.sellz.on{background:#e0b04033;border-style:solid;color:#ffe9a0}
-.stw{display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:start;margin-top:8px}@media (max-width:900px){.stw{grid-template-columns:1fr}}
+.sellz{margin-top:12px;box-sizing:border-box;height:72px;display:flex;align-items:center;justify-content:center;overflow:hidden;border:2px dashed #e0b040aa;border-radius:8px 16px 6px 14px;padding:4px 8px;text-align:center;font-size:22px;line-height:1.05;color:#e0b040;background:#00000033}.sellz.on{background:#e0b04033;border-style:solid;color:#ffe9a0}
+.stw{display:grid;grid-template-columns:350px 1fr;gap:22px;align-items:start;margin-top:8px}@media (max-width:900px){.stw{grid-template-columns:1fr}}
 .eq{display:flex;flex-direction:column;gap:10px}.eqp{display:flex;gap:10px;align-items:flex-start}.eqt{display:grid;grid-template-columns:repeat(3,max-content);gap:10px}
 .slot{position:relative;border:2px solid #e8e6d855;background:#140a0cc0;border-radius:4px;box-shadow:inset 0 0 14px #000}.slot>span{position:absolute;left:4px;top:1px;font-size:15px;opacity:.6;pointer-events:none}
 .slot.ok{border-color:#5ad070;background:#1c3a22aa}.slot.no{border-color:#c03040}
@@ -167,7 +167,8 @@ button.tt-btn:active{transform:translateX(12px) scale(.98)}
        Ping data exists: mp.rtt (shown in the F3 overlay). DESYNC RISK: each client measures its own rtt to the others, so they could disagree on who is lowest. Make the choice
        deterministic: peers publish their measured pings (heartbeat / snapshot) and everyone picks the lowest of the published values, ties broken by lowest id. Apply to
        both the team host and the monster host, and test with stubbed relay clients before shipping.
-     Open question: after 90s with no compatible match the game starts a solo run (you play alone with the monsters). The question is whether, instead, the filter should
+     Player kills: the 'Hunter Slayers' leaderboard (LBB key pk) counts hunters YOU killed (run stat RS.pk, banked into AST.pk at the end of a run). Teammate kills, tutorial and solo runs do not count; fire/flask pools and tripwires are not attributed to a hunter yet, so those kills do not count either.
+   Open question: after 90s with no compatible match the game starts a solo run (you play alone with the monsters). The question is whether, instead, the filter should
        RELAX after 90s (widen to accept any team size so you get matched with someone) before falling back to solo. Owner has not decided; explain it if asked.
    -----------------------------------------------------------------------------------------------------
    TO IMPLEMENT NEXT: REVIVE TOTEM (owner's request, Oct 18). Teammates cannot loot or share, but they can be REVIVED, and only with this item.
@@ -315,9 +316,15 @@ const $=s=>document.querySelector(s),VW=640,VH=360,WW=2200,WH=1450;
 const cv=$('#g'),dk=document.createElement('canvas'),dx=dk.getContext('2d');let ctx=cv.getContext('2d');
 cv.width=dk.width=VW;cv.height=dk.height=VH;
 const R=(a,b)=>a+Math.random()*(b-a),D=(a,b,c,d)=>Math.hypot(a-c,b-d),cl=(v,a,b)=>Math.max(a,Math.min(b,v));
-const PRI={rifle:{n:'Rifle',c:150,d:75,r:1.2,m:5,p:1,s:.015,nz:420,sp:520,rl:2.2},shotgun:{n:'Shotgun',c:130,d:15,r:1,m:2,p:7,s:.16,nz:380,sp:400,rl:2.4},repeater:{n:'Repeater',c:100,d:30,r:.38,m:8,p:1,s:.05,nz:340,sp:480,rl:2},crossbow:{n:'Crossbow',c:60,d:55,r:1.4,m:1,p:1,s:.02,nz:60,sp:360,rl:1.8},pepperbox:{n:'Pepperbox',c:140,d:21,r:.16,m:6,p:1,s:.09,nz:380,sp:480,rl:2.8},musket:{n:'Musket',c:200,d:140,r:1.9,m:2,p:1,s:.004,nz:520,sp:760,l:1,rl:3},flamer:{n:'Flamethrower',c:180,d:5,r:.1,m:40,p:2,s:.22,nz:130,sp:210,l:.38,rl:3.2},gatling:{n:'Gatling Gun',c:320,d:8,r:.07,m:60,p:1,s:.12,nz:460,sp:500,rl:4.5,gt:1,sub:'repeaters',nt:['Hand-cranked: hold to spin up, fire rate climbs the longer you hold','Jams if held too long; let go and it clears']},blunderbuss:{n:'Blunderbuss',c:190,d:11,r:1.25,m:2,p:9,s:.36,nz:420,sp:330,l:.4,rl:2.8,sub:'shotguns',nt:['Wide cone that knocks the crowd back']},longbow:{n:'Longbow',c:110,d:90,r:.3,m:4,p:1,s:.008,nz:20,sp:430,rl:2,dr:1.1,sub:'bows',nt:['Hold to draw, release to loose: damage scales with the draw','Silent']},sprayer:{n:'Holy Sprayer',c:170,d:7,r:.09,m:45,p:2,s:.2,nz:120,sp:230,l:.3,rl:3,sub:'flame',nt:['Holy-water spray slows what it hits','Bonus damage against the horde (not bosses)']},mortar:{n:'Hand Mortar',c:240,d:210,r:1.8,m:1,p:1,s:0,nz:540,sp:300,rl:3.6,mo:1,sub:'heavy',nt:['Lobs a shell where you aim: huge blast, stuns imps, hurts you too','Single shot; reload after every shot']},carbine:{n:'Carbine',c:120,d:50,r:.8,m:6,p:1,s:.03,nz:400,sp:500,rl:1.8,sub:'rifles',nt:['Lighter Rifle: less damage, quicker handling and reload']},sawnoff:{n:'Sawn-off Shotgun',c:150,d:16,r:.9,m:2,p:12,s:.3,nz:400,sp:380,l:.34,rl:2.2,sub:'shotguns',nt:['Both barrels at once: brutal point-blank, useless at range','Two shots, then reload']},pump:{n:'Pump Shotgun',c:170,d:13,r:.72,m:6,p:7,s:.17,nz:380,sp:400,rl:3.4,sub:'shotguns',nt:['Six shells with a pump cadence between shots','Slow to reload']},lever:{n:'Lever Rifle',c:110,d:25,r:.3,m:10,p:1,s:.03,nz:360,sp:500,rl:2.4,sub:'repeaters',nt:['Fast, steady fire at a modest 25 damage']},drum:{n:'Drum Repeater',c:210,d:14,r:.12,m:20,p:1,s:.11,nz:420,sp:480,rl:3.8,sub:'repeaters',nt:['20-round drum: sprays wide, long reload']},repxbow:{n:'Repeating Crossbow',c:130,d:20,r:.4,m:8,p:1,s:.035,nz:60,sp:360,rl:2.6,sub:'bows',nt:['Eight bolts, low damage','Silent']},saltgun:{n:'Salt Gun',c:120,d:3,r:.9,m:2,p:8,s:.2,nz:380,sp:380,l:.5,rl:2.4,sub:'shotguns',nt:['Tiny damage, but a hit slows imps for 2s']},fowling:{n:'Fowling Piece',c:140,d:15,r:1.1,m:2,p:5,s:.09,nz:400,sp:520,l:.9,rl:2.6,sub:'blackpowder',nt:['Long barrel, mid spread, forgiving to aim']},none:{n:'Fists',c:0}};
-const SID={pistol:{n:'Pistol',c:50,d:24,r:.5,m:6,p:1,s:.06,nz:280,sp:460,rl:1.4},revolver:{n:"Revolver",c:85,d:40,r:.7,m:6,p:1,s:.04,nz:320,sp:480,rl:2},handcannon:{n:"Hand Cannon",c:130,d:75,r:1.1,m:3,p:1,s:.05,nz:430,sp:520,rl:2.2},whisper:{n:'Silenced Pistol',c:110,d:21,r:.45,m:8,p:1,s:.04,nz:45,sp:480,rl:1.5},sixshooter:{n:'Six-Shooter',c:115,d:34,r:.5,m:6,p:1,s:.035,nz:330,sp:490,rl:2.4,lc:1,sub:'revolvers',nt:['The sixth chamber hits for double']},dartpistol:{n:'Dart Pistol',c:90,d:3,r:.6,m:8,p:1,s:.03,nz:25,sp:400,rl:1.6,sub:'quiet',nt:['Darts put imps to sleep for 8s; sleepers ignore noise','A hit from anything else wakes them','Bosses shrug it off']},stake:{n:'Stake',c:40,d:0,r:.3,m:0,p:1,s:0,nz:0,sp:0,rl:0,ml:{d:24,cd:.32,rg:26,ar:1,kb:2,nz:0},sub:'melee',nt:['Fast silent jab (left or right click)','Triple damage against sleeping or disguised demons','Replaces your right-click melee while it is your sidearm']},derringer:{n:'Derringer',c:70,d:45,r:.35,m:2,p:1,s:.06,nz:90,sp:440,rl:1.1,sub:'pistols',nt:['Two stub barrels, quick reload','Tiny noise']},pocketrev:{n:'Pocket Revolver',c:70,d:16,r:.17,m:6,p:1,s:.14,nz:260,sp:440,rl:2.1,sub:'revolvers',nt:['Fast fanned fire, wild spread']},navyrev:{n:'Navy Revolver',c:95,d:15,r:.42,m:10,p:1,s:.05,nz:280,sp:470,rl:2.6,sub:'revolvers',nt:['Ten shots, light damage']},scatterpistol:{n:'Scatter Pistol',c:105,d:11,r:.7,m:2,p:5,s:.22,nz:330,sp:380,l:.3,rl:1.8,sub:'heavy',nt:['Short-range blast, wide cone']},dragoon:{n:'Dragoon Revolver',c:140,d:48,r:.8,m:6,p:1,s:.04,nz:400,sp:500,rl:2.4,sub:'heavy',nt:['Heavy rounds knock demons back','Bosses shrug it off']},sling:{n:'Sling',c:35,d:8,r:.45,m:12,p:1,s:.05,nz:40,sp:340,rl:.5,inf:1,sub:'quiet',nt:['Unlimited stones, 8 damage, quiet']},none:{n:'Fists',c:0}};
+const PRI={rifle:{n:'Rifle',c:150,d:75,r:1,m:5,p:1,s:.015,nz:420,sp:520,rl:2.2},shotgun:{n:'Shotgun',c:130,d:15,r:1,m:2,p:7,s:.16,nz:380,sp:400,rl:2.4},repeater:{n:'Repeater',c:100,d:30,r:.38,m:8,p:1,s:.05,nz:340,sp:480,rl:2},crossbow:{n:'Crossbow',c:60,d:55,r:1.4,m:1,p:1,s:.02,nz:60,sp:360,rl:1.8},pepperbox:{n:'Pepperbox',c:140,d:21,r:.16,m:6,p:1,s:.09,nz:380,sp:480,rl:2.8},musket:{n:'Musket',c:180,d:140,r:1.9,m:2,p:1,s:.004,nz:520,sp:760,l:1,rl:2.6},flamer:{n:'Flamethrower',c:160,d:5,r:.1,m:50,p:2,s:.22,nz:130,sp:210,l:.5,rl:3.2},gatling:{n:'Gatling Gun',c:290,d:10,r:.07,m:60,p:1,s:.12,nz:460,sp:500,rl:4.5,gt:1,sub:'repeaters',nt:['Hand-cranked: hold to spin up, fire rate climbs the longer you hold','Jams if held too long; let go and it clears']},blunderbuss:{n:'Blunderbuss',c:160,d:13,r:1.25,m:2,p:9,s:.36,nz:420,sp:330,l:.4,rl:2.8,sub:'shotguns',nt:['Wide cone that knocks the crowd back']},longbow:{n:'Longbow',c:110,d:90,r:.3,m:4,p:1,s:.008,nz:20,sp:430,rl:2,dr:1.1,sub:'bows',nt:['Hold to draw, release to loose: damage scales with the draw','Silent']},sprayer:{n:'Holy Sprayer',c:170,d:6,r:.09,m:45,p:2,s:.2,nz:120,sp:230,l:.3,rl:3,sub:'flame',nt:['Holy-water spray slows what it hits','Bonus damage against the horde (not bosses)']},mortar:{n:'Hand Mortar',c:240,d:210,r:1.8,m:1,p:1,s:0,nz:540,sp:300,rl:3.6,mo:1,sub:'heavy',nt:['Lobs a shell where you aim: huge blast, stuns imps, hurts you too','Single shot; reload after every shot']},carbine:{n:'Carbine',c:120,d:50,r:.8,m:6,p:1,s:.03,nz:400,sp:500,rl:1.8,sub:'rifles',nt:['Lighter Rifle: less damage, quicker handling and reload']},sawnoff:{n:'Sawn-off Shotgun',c:170,d:14,r:.9,m:2,p:12,s:.3,nz:400,sp:380,l:.34,rl:2.2,sub:'shotguns',nt:['Both barrels at once: brutal point-blank, useless at range','Two shots, then reload']},pump:{n:'Pump Shotgun',c:170,d:13,r:.72,m:6,p:7,s:.17,nz:380,sp:400,rl:3.4,sub:'shotguns',nt:['Six shells with a pump cadence between shots','Slow to reload']},lever:{n:'Lever Rifle',c:110,d:25,r:.3,m:10,p:1,s:.03,nz:360,sp:500,rl:2.4,sub:'repeaters',nt:['Fast, steady fire at a modest 25 damage']},drum:{n:'Drum Repeater',c:210,d:14,r:.12,m:20,p:1,s:.11,nz:420,sp:480,rl:3.8,sub:'repeaters',nt:['20-round drum: sprays wide, long reload']},repxbow:{n:'Repeating Crossbow',c:130,d:20,r:.4,m:8,p:1,s:.035,nz:60,sp:360,rl:2.6,sub:'bows',nt:['Eight bolts, low damage','Silent']},saltgun:{n:'Salt Gun',c:120,d:3,r:.9,m:2,p:8,s:.2,nz:380,sp:380,l:.5,rl:2.4,sub:'shotguns',nt:['Tiny damage, but a hit slows imps for 2s']},fowling:{n:'Fowling Piece',c:140,d:15,r:1.1,m:2,p:5,s:.09,nz:400,sp:520,l:.9,rl:2.6,sub:'blackpowder',nt:['Long barrel, mid spread, forgiving to aim']},none:{n:'Fists',c:0}};
+const SID={pistol:{n:'Pistol',c:50,d:24,r:.5,m:6,p:1,s:.06,nz:280,sp:460,rl:1.4},revolver:{n:"Revolver",c:85,d:40,r:.7,m:6,p:1,s:.04,nz:320,sp:480,rl:2},handcannon:{n:"Hand Cannon",c:130,d:75,r:1.1,m:3,p:1,s:.05,nz:430,sp:520,rl:2.2},whisper:{n:'Silenced Pistol',c:110,d:21,r:.45,m:8,p:1,s:.04,nz:45,sp:480,rl:1.5},sixshooter:{n:'Six-Shooter',c:115,d:34,r:.5,m:6,p:1,s:.035,nz:330,sp:490,rl:2.4,lc:1,sub:'revolvers',nt:['The sixth chamber hits for double']},dartpistol:{n:'Dart Pistol',c:90,d:3,r:.6,m:8,p:1,s:.03,nz:25,sp:400,rl:1.6,sub:'quiet',nt:['Darts put imps to sleep for 8s; sleepers ignore noise','A hit from anything else wakes them','Bosses shrug it off']},stake:{n:'Stake',c:40,d:0,r:.3,m:0,p:1,s:0,nz:0,sp:0,rl:0,ml:{d:20,cd:.36,rg:26,ar:1,kb:2,nz:0},sub:'melee',nt:['Fast silent jab (left or right click)','Triple damage against sleeping or disguised demons','Replaces your right-click melee while it is your sidearm']},derringer:{n:'Derringer',c:70,d:40,r:.35,m:2,p:1,s:.06,nz:90,sp:440,rl:1.4,sub:'pistols',nt:['Two stub barrels, quick reload','Tiny noise']},pocketrev:{n:'Pocket Revolver',c:70,d:16,r:.17,m:6,p:1,s:.14,nz:260,sp:440,rl:2.1,sub:'revolvers',nt:['Fast fanned fire, wild spread']},navyrev:{n:'Navy Revolver',c:95,d:18,r:.42,m:10,p:1,s:.05,nz:280,sp:470,rl:2.6,sub:'revolvers',nt:['Ten shots, light damage']},scatterpistol:{n:'Scatter Pistol',c:105,d:11,r:.7,m:2,p:5,s:.22,nz:330,sp:380,l:.3,rl:1.8,sub:'heavy',nt:['Short-range blast, wide cone']},dragoon:{n:'Dragoon Revolver',c:140,d:48,r:.8,m:6,p:1,s:.04,nz:400,sp:500,rl:2.4,sub:'heavy',nt:['Heavy rounds knock demons back','Bosses shrug it off']},sling:{n:'Sling',c:35,d:8,r:.45,m:12,p:1,s:.05,nz:40,sp:340,rl:.5,inf:1,sub:'quiet',nt:['Unlimited stones, 8 damage, quiet']},none:{n:'Fists',c:0}};
 Object.entries(PRI).forEach(([k,w])=>w.k=k);Object.entries(SID).forEach(([k,w])=>w.k=k);
+// Gatling tuning: seconds to spin up to full rate, and seconds of continuous fire before it jams (weaponTick and the jam meter read these).
+const GT_SPIN=.9,GT_JAM=4.5;
+// Honest DPS for the stat screens: the old damage/fire-interval number ignored the longbow draw, gatling spin-up and jam, and the reload a single-shot weapon needs after every shot.
+function gtDps(w){const tot=w.d*w.p;let t=0,g=0,h=0,nx=0,n=0,dm=0;const dt=.005;while(n<w.m){t+=dt;g=Math.min(1,g+dt/GT_SPIN);if(g>=.3){h+=dt;if(t>=nx){n++;dm+=tot;nx=t+.07+.23*(1-g)}}if(h>GT_JAM)return dm/(t+2.4)}return dm/(t+w.rl)}
+function effDps(w){const tot=w.d*w.p;if(w.dr)return tot/(w.dr+w.r);if(w.gt)return gtDps(w);if(w.m==1)return tot/(w.r+w.rl);return tot/w.r}
+function dpsTxt(w){const e=Math.round(effDps(w)),f=(typeof WFX!='undefined'&&WFX[w.k])||{};return '~'+e+(f.mul?' ('+Math.round(e*f.mul)+' vs horde)':'')}
 // Gunsmith subtypes: each weapon gets a sub id; new weapons only need a sub field to show up in the right group.
 const SUBP=[['rifles','Rifles','Accurate, long-range rifles'],['shotguns','Shotguns','Hard-hitting spread at close range'],['repeaters','Repeaters','Fast, steady fire'],['bows','Bows and Crossbows','Quiet, deliberate shots'],['blackpowder','Black Powder','Slow, heavy-hitting old guns'],['flame','Flame and Alchemy','Fire, sprays and chemistry'],['heavy','Heavy','Cannons and rockets']],SUBS=[['pistols','Pistols','Reliable everyday sidearms'],['revolvers','Revolvers','Six-chamber hand guns'],['heavy','Heavy','Big, slow, powerful'],['quiet','Quiet','Keep the horde asleep'],['melee','Close Quarters','Blades, stakes and fists']];
 Object.assign(PRI.rifle,{sub:'rifles'});Object.assign(PRI.shotgun,{sub:'shotguns'});Object.assign(PRI.repeater,{sub:'repeaters'});Object.assign(PRI.crossbow,{sub:'bows'});Object.assign(PRI.pepperbox,{sub:'blackpowder'});Object.assign(PRI.musket,{sub:'blackpowder'});Object.assign(PRI.flamer,{sub:'flame'});Object.assign(SID.pistol,{sub:'pistols'});Object.assign(SID.revolver,{sub:'revolvers'});Object.assign(SID.handcannon,{sub:'heavy'});Object.assign(SID.whisper,{sub:'quiet'});
@@ -335,7 +342,80 @@ cb_pistol:{k:'pistol',n:'Pup',c:200,d:'Small, black and still learning to bark.'
 cb_revolver:{k:'revolver',n:'Chainbound',c:250,d:'Every chamber leashed, like the hound dragged up from the dark.'},
 cb_handcannon:{k:'handcannon',n:'Gate Hound',c:300,d:'A single bark that shakes the gate.'},
 cb_whisper:{k:'whisper',n:'Milk-Eye',c:250,d:'Blind and nearly silent. It hunts by what it hears, not what it sees.'}};
+// ---- CLEARANCE RACK: a budget-themed skin SET (primary + sidearm + two tools). Shared look: cardboard, duct tape, toy orange and a blinking red/yellow clearance sticker.
+// A skin may carry q (a colour remap used INSTEAD of the Cerberus one) and fx(ctx) (extra shapes drawn on top of the sprite, in the weapon's own pixel space; see drawWpn).
+const mkQ=pal=>{const cc={};return c=>{if(typeof c!='string'||c[0]!='#')return c;let v=cc[c];if(v)return v;let h=c.slice(1);if(h.length==3)h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];if(h.length!=6)return cc[c]=c;
+ const r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16),l=(r+g+b)/3,mx=Math.max(r,g,b),mn=Math.min(r,g,b),s=mx?(mx-mn)/mx:0;
+ if(r>150&&g>130&&b<130)v=pal.g;else if(s<.22)v=l>190?pal.m3:l>130?pal.m2:l>70?pal.m1:pal.k;else if(r>=g&&g>=b&&l<165&&s<.75)v=l>82?pal.w2:pal.w1;else v=c;return cc[c]=v}};
+const crF=(ctx,x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(x,y,w,h)};
+const crSticker=(ctx,x,y,r)=>{const on=Math.sin(performance.now()/260)>0;ctx.fillStyle=on?'#ffe030':'#e0252b';ctx.beginPath();for(let i=0;i<12;i++){const a=i*Math.PI/6,rr=i%2?r*.72:r;ctx.lineTo(x+Math.cos(a)*rr,y+Math.sin(a)*rr)}ctx.closePath();ctx.fill();crF(ctx,x-r*.3,y-r*.3,r*.6,r*.6,on?'#e0252b':'#ffe030')};
+const crCoin=(ctx,x,y,r,rim,face)=>{ctx.fillStyle=rim;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();ctx.fillStyle=face;ctx.beginPath();ctx.arc(x,y,r*.68,0,7);ctx.fill()};
+const CRSET='Clearance Rack set. ';
+Object.assign(WSKINS,{
+cr_drum:{k:'drum',n:'Bulk Buy',c:199,d:CRSET+'Twenty rounds in a coffee tin, a cardboard stock and enough duct tape to count as structural. Toy-orange muzzle, blinking sale sticker. No returns.',
+ q:mkQ({w1:'#a87a44',w2:'#d2a468',m1:'#d9d2c0',m2:'#f1ead6',m3:'#fffaf0',k:'#2a2a2a',g:'#f2c230'}),
+ fx:ctx=>{const f=(x,y,w,h,c)=>crF(ctx,x,y,w,h,c);
+  f(-3.4,-1.15,1.1,2.3,'#aeb4bd');f(-3.4,-1.15,.3,2.3,'#80868f');f(-1,-1.15,1.1,2.3,'#aeb4bd');f(-1,-1.15,.3,2.3,'#80868f');   // duct tape round the stock
+  f(-.2,.5,7.6,7.3,'#c42a1e');f(-.2,.5,7.6,.8,'#c9ced6');f(-.2,6.9,7.6,.9,'#c9ced6');f(-.2,3.2,7.6,2,'#f2c230');f(-.2,3.2,7.6,.35,'#fff3b0');   // the drum is a coffee tin
+  f(.9,3.9,1,.8,'#c42a1e');f(2.6,3.9,1,.8,'#c42a1e');f(4.3,3.9,1,.8,'#c42a1e');f(.5,1.6,.5,4.8,'#e8503f');
+  f(7.2,-1.2,.5,2.4,'#222');f(18.2,-1,1.2,1.8,'#ff7a1a');   // zip tie and the orange toy-gun tip
+  crSticker(ctx,11.8,-.1,1.6)}},
+cr_derringer:{k:'derringer',n:'Pocket Change',c:149,d:CRSET+'Copper, nickel and one suspicious gold coin. Every barrel counts, every cent counts.',
+ q:mkQ({w1:'#9a5a2c',w2:'#c8793a',m1:'#8c929c',m2:'#b9bec8',m3:'#e6e9ef',k:'#26262a',g:'#f2c230'}),
+ fx:ctx=>{crCoin(ctx,-.3,3.0,1.25,'#8a4f22','#c8793a');crCoin(ctx,-.3,1.5,1.25,'#a8801c','#f2c230');crCoin(ctx,1.7,-.1,1,'#8c929c','#e6e9ef');
+  crF(ctx,-.8,.95,.6,.5,'#fff6c0');if(Math.sin(performance.now()/500)>.88){crF(ctx,-1.2,.7,1.8,.3,'#fff');crF(ctx,-.45,.0,.3,1.8,'#fff')}   // the gold coin twinkles now and then
+  crSticker(ctx,5.6,.2,1.1)}},
+cr_bomb:{k:'bomb',n:'Tin Can Special',c:99,d:CRSET+'Dented in the aisle and past its date. The barcode still scans. The fuse is the only thing that is not discounted.',
+ q:mkQ({w1:'#8c7a56',w2:'#a89468',m1:'#8c929c',m2:'#b9bec8',m3:'#e6e9ef',k:'#26262a',g:'#f2c230'}),
+ fx:ctx=>{const f=(x,y,w,h,c)=>crF(ctx,x,y,w,h,c);
+  f(0,-2,8.2,4,'#c9ced6');f(.9,-1.8,6.4,3.6,'#4a9a3a');f(.9,-.5,6.4,1,'#f4efe2');f(0,-2,.9,4,'#aab0ba');f(7.3,-2,.9,4,'#aab0ba');f(.2,-1.9,.3,3.8,'#eef0f4');   // the tin and its label
+  f(1.5,.2,3.2,1.6,'#fff');[1.8,2.3,2.7,3.3,3.7,4.2].forEach((x,i)=>f(x,.4,i%2?.25:.4,1.2,'#111'));   // barcode sticker
+  f(5.5,-1.7,1.2,.8,'#2e6b26');f(5.8,-1.5,.5,.35,'#7fcf6a');   // the dent
+  crSticker(ctx,6.6,1.1,1.2)}},
+cr_tonic:{k:'tonic',n:'Store Brand',c:99,d:CRSET+'Plain white label, no frills, blessed in bulk. Now with 10% more faith by volume.* (*Not tested.)',
+ q:mkQ({w1:'#8c7a56',w2:'#a89468',m1:'#8c929c',m2:'#b9bec8',m3:'#e6e9ef',k:'#26262a',g:'#f2c230'}),
+ fx:ctx=>{const f=(x,y,w,h,c)=>crF(ctx,x,y,w,h,c);
+  f(0,-2.4,5,4.8,'#f4f1e6');f(0,-2.4,.8,4.8,'#d8d4c4');f(0,-2.4,5,.6,'#1b1b1b');f(0,1.8,5,.6,'#1b1b1b');   // generic label with the black bars
+  f(.5,-.7,4,1.4,'#1b1b1b');f(.9,-.25,1.1,.5,'#fff');f(2.3,-.25,.7,.5,'#fff');f(3.3,-.25,1,.5,'#fff');   // bold plain lettering
+  f(7.4,-1.3,1.8,2.6,'#e8d020');f(7.9,-1.3,.3,2.6,'#b8a010');f(8.6,-1.3,.3,2.6,'#b8a010');   // yellow screw cap
+  crSticker(ctx,4,-1.6,1)}}
+});
+
+// ---- RATTLEBONES set (matches the Rattlebones hunter skin): aged bone, violet iron, teal ghost-fire. A primary, a sidearm and three tools. ----
+{const BONE='#e8e4d0',BONE2='#b8b4a0',DARK='#14101a',TEAL='#70ffd0',PURP='#6a5a8a',rbP=t=>.5+.5*Math.sin(performance.now()/t),
+ PAL=mkQ({w1:BONE2,w2:BONE,m1:'#463858',m2:'#8a7aa8',m3:'#cfc6e0',k:DARK,g:TEAL}),RBS='Rattlebones set. ',
+ wrap=fn=>ctx=>{ctx.save();try{fn(ctx,(x,y,w,h,c)=>crF(ctx,x,y,w,h,c))}finally{ctx.restore()}};
+Object.assign(WSKINS,{
+rb_shotgun:{k:'shotgun',n:'Ribcage',c:300,d:RBS+'A femur for a stock, barrels wrapped in ribs, and a tiny skull on the butt. Something teal glows in the sockets.',q:PAL,
+ fx:wrap((ctx,f)=>{for(let x=6;x<14.5;x+=2){f(x,-2.1,.6,4.3,BONE);f(x+.2,-2.1,.2,4.3,'#fffbe8')}f(5,-.35,10,.7,DARK);
+  f(-6.4,-1.9,2.8,3.8,BONE);f(-6.4,-1.9,.7,3.8,'#fffbe8');f(-6.4,1.4,2.8,.5,BONE2);f(-5.9,-1.1,.9,.9,DARK);f(-5.9,.3,.9,.9,DARK);f(-5.1,-.2,.5,.4,DARK);
+  f(2,-1.6,3,.5,PURP);f(2,1.1,3,.5,PURP);ctx.globalAlpha=.5+.4*rbP(350);f(-5.7,-.95,.5,.5,TEAL);f(-5.7,.45,.5,.5,TEAL);f(14.4,-1.8,.8,3.6,TEAL)})},
+rb_pistol:{k:'pistol',n:'Death Rattle',c:220,d:RBS+'Grip of finger bones, a rune scratched into the slide. It rattles when you walk.',q:PAL,
+ fx:wrap((ctx,f)=>{f(-1.5,.4,2.6,4,BONE);f(-1.5,.4,.7,4,'#fffbe8');for(let y=1.4;y<4.2;y+=1.2)f(-1.5,y,2.6,.35,'#9a9078');
+  f(-1.9,.8,.6,.8,BONE);f(-1.9,2,.6,.8,BONE);f(-1.9,3.2,.6,.8,BONE);f(1.5,-1.4,6,.5,PURP);f(4.5,.1,1.2,.4,DARK);
+  ctx.globalAlpha=.5+.4*rbP(420);f(3,-.9,1.6,.4,TEAL);f(3.6,-1.2,.4,1,TEAL);ctx.globalAlpha=1;f(7.6,-1.1,.6,1.5,DARK)})},
+rb_tonic:{k:'tonic',n:'Marrow Draught',c:120,d:RBS+'Holy water in a skull-shaped bottle, sealed with violet wax. The glow inside is not a good sign.',q:PAL,
+ fx:wrap((ctx,f)=>{f(0,-2.4,5,4.8,'#d8d2b8');f(0,-2.4,.9,4.8,'#fffbe8');f(4.2,-2.4,.8,4.8,BONE2);f(.8,-1.7,.5,3.4,DARK);f(1.6,-1.7,.4,3.4,DARK);f(2.4,-.3,.8,.6,DARK);
+  f(3.2,-1.7,1.1,1.2,DARK);f(3.2,.5,1.1,1.2,DARK);ctx.globalAlpha=.5+.4*rbP(380);f(3.5,-1.4,.5,.6,TEAL);f(3.5,.8,.5,.6,TEAL);ctx.globalAlpha=1;
+  f(5,-1,2.4,2,BONE2);f(7.4,-1.1,1.6,2.2,PURP);f(7.4,-1.1,1.6,.5,'#8a7aa8')})},
+rb_bomb:{k:'bomb',n:'Skullcracker',c:120,d:RBS+'A skull packed with powder. The fuse burns with cold ghost-fire, so you cannot tell how short it is.',q:PAL,
+ fx:wrap((ctx,f)=>{f(0,-1.8,8,3.6,BONE);f(0,-1.8,8,.8,'#fffbe8');f(0,1,8,.8,BONE2);f(6.9,-2,.9,4,PURP);f(1,-1.3,.4,2.6,DARK);f(2,-1.3,.4,2.6,DARK);f(3,-1.3,.4,2.6,DARK);
+  f(3.9,-.3,.7,.6,DARK);f(4.9,-1.5,1.2,1.1,DARK);f(4.9,.4,1.2,1.1,DARK);f(.6,-1.8,.3,1.2,'#8a8068');f(.9,-.8,.5,.3,'#8a8068');
+  ctx.globalAlpha=.5+.4*rbP(300);f(5.2,-1.2,.5,.5,TEAL);f(5.2,.7,.5,.5,TEAL);ctx.globalAlpha=1;f(8,-.3,2.4,.7,BONE2);
+  const q=1+.3*rbP(120);f(10.2,-1.1*q,2.2,2.2*q,'#2fd8b0');f(10.8,-.5,1,1,'#d8fff0');ctx.globalAlpha=.35+.35*rbP(400);ctx.fillStyle=TEAL;ctx.beginPath();ctx.arc(11.3,0,3.2,0,7);ctx.fill()})},
+rb_tripwire:{k:'tripwire',n:'Spine Wire',c:120,d:RBS+'The wire is a human spine, vertebra by vertebra, strung between two femur stakes. The skull in the middle watches for anything that steps on it.',q:PAL,
+ fx:wrap((ctx,f)=>{for(const px of[-9,7]){f(px,-3,2,6,BONE);f(px,-3,.6,6,'#fffbe8');f(px-.4,-3.6,1.5,1.2,BONE);f(px+.9,-3.6,1.5,1.2,BONE);f(px-.4,2.4,1.5,1.2,BONE);f(px+.9,2.4,1.5,1.2,BONE)}
+  f(-7,-.3,14,.6,PURP);for(let x=-6.6;x<6.6;x+=1.9){if(Math.abs(x)<2.6)continue;f(x,-.9,1.1,1.8,BONE);f(x,-.9,1.1,.4,'#fffbe8');f(x+.35,-1.4,.4,.6,BONE2);f(x+.35,.8,.4,.6,BONE2)}
+  f(-2,-2.5,4,4,BONE);f(-2,-2.5,4,.7,'#fffbe8');f(-2,1,4,.5,BONE2);f(-1.4,-1.2,1,1,DARK);f(.4,-1.2,1,1,DARK);f(-.3,.1,.6,.5,DARK);f(-1.2,.9,.3,.5,DARK);f(.9,.9,.3,.5,DARK);
+  ctx.globalAlpha=.5+.4*rbP(260);f(-1.1,-.9,.5,.5,TEAL);f(.7,-.9,.5,.5,TEAL);f(-.5,-3.5,1,1.2,TEAL)})}
+})}
 Object.entries(WSKINS).forEach(([id,s])=>{s.id=id;(WSK[s.k]=WSK[s.k]||[]).push(s)});
+// ---- SKIN SETS: a named collection of skins. Buying the whole set takes SETOFF (10%) off the pieces you do not own yet. The Skins > Skin Sets tab reads this list.
+const SETOFF=.1,WSETS=[
+ {id:'cerberus',n:'Cerberus Set',d:'Blackened hide, bone and ember red. Three heads on every piece: eleven guns in all.',ids:Object.keys(WSKINS).filter(i=>i.startsWith('cb_'))},
+ {id:'clearance',n:'Clearance Rack',d:'The budget set: cardboard, duct tape and a blinking sale sticker. One primary, one sidearm and two tools.',ids:Object.keys(WSKINS).filter(i=>i.startsWith('cr_'))},
+ {id:'rattlebones',n:'Rattlebones Set',d:'Aged bone, violet iron and teal ghost-fire, to match the Rattlebones hunter. A shotgun, a pistol, a tripwire and two tools.',ids:Object.keys(WSKINS).filter(i=>i.startsWith('rb_'))}];
+const setLeft=S=>S.ids.filter(i=>!own.includes(i)),setSum=S=>setLeft(S).reduce((a,i)=>a+WSKINS[i].c,0),setCost=S=>Math.round(setSum(S)*(1-SETOFF));
 const PIP={rifle:[2.6,-.5],shotgun:[-4,-.4],repeater:[1.6,-.4],crossbow:[-3,-.4],pepperbox:[5.2,-.4],musket:[-4,-.4],flamer:[0,2.4],pistol:[-.4,-.9],revolver:[5.6,-.5],handcannon:[5,-1],whisper:[-.6,-.9]};
 const cbqC={};
 function cbq(c){if(typeof c!='string'||c[0]!='#')return c;let v=cbqC[c];if(v)return v;let h=c.slice(1);if(h.length==3)h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];if(h.length!=6)return cbqC[c]=c;
@@ -360,7 +440,7 @@ const SKINS={plain:{f:'hunter',c:0,pl:1,n:'Plain Hunter',d:'Drab coat, bare face
  witch:{f:'witch',v:'witch',c:750,n:'Bog Witch',d:'Tall hat, sharp nose, and a bottle of something awful.',coat:'#3a1a5a',coat2:'#5a2a82',hood:'#1c0e2e',mask:'#9ac47a',beak:'',eye:'#ffe040',eyeg:'#ffcc00',rune:'#ff5ad8',band:'#e0b040'},
  wolf:{f:'wolf',v:'wolf',c:800,n:'Wolfhide Stalker',d:'Pelt, paint and fangs. The wild hunts the breach.',coat:'#6a5a4a',coat2:'#9a8a74',hood:'#4a3e32',mask:'#d8b890',beak:'',eye:'#ffd040',eyeg:'#ffb000',rune:'#c02020',band:'#3a2a1c'},
  reaper:{f:'reaper',v:'reaper',c:0,led:1,mys:1,ep:1,n:'The Reaper',d:'Horns, wings, an ember where its heart should be, and a grin that never closes. How it is earned is not written anywhere.',coat:'#2a0b14',coat2:'#4a1626',hood:'#3c131e',mask:'#d8cca8',beak:'',eye:'#ffe060',eyeg:'#ffa020',rune:'#ff7a1a',band:'#6e1630'}};
-const TOOL={tonic:{n:'Holy Water',c:20,d:'+50 HP \u00b7 stacks to 3'},bomb:{n:'Grenade',c:25,d:'big boom \u00b7 stacks to 3'},flask:{n:'Molotov',c:35,d:'burning pool, 5s \u00b7 stacks to 3'},flare:{n:'Flare',c:20,d:'lights the dark, lures imps \u00b7 stacks to 3'},ward:{n:"Ward",c:40,d:'-60% damage for 10s \u00b7 stacks to 3'}};
+const TOOL={tonic:{n:'Holy Water',c:20,d:'+50 HP \u00b7 stacks to 3'},bomb:{n:'Grenade',c:35,d:'big boom \u00b7 stacks to 3'},flask:{n:'Molotov',c:35,d:'burning pool, 5s \u00b7 stacks to 3'},flare:{n:'Flare',c:20,d:'lights the dark, lures imps \u00b7 stacks to 3'},ward:{n:"Ward",c:40,d:'-60% damage for 10s \u00b7 stacks to 3'}};
 const XT=['flask','flare','ward','tripwire','saltline','noisemaker','chalk','stamtonic','bootwraps'],TOT=['muzzle','pyre','magpie','thief','pearl','undertow'],XL=['Molotov','Flare','Ward','Wire','Salt Line','Noisemaker','Chalk Circle','Stamina Tonic','Boot Wraps'],TKS=['tonic','bomb',...XT];
 TOOL.saltline={n:'Salt Line',c:30,d:'lay a line of salt imps will not cross for 8s; bosses and ranged attackers ignore it \u00b7 stacks to 3'};
 TOOL.noisemaker={n:'Noisemaker',c:20,d:'thrown, clatters on landing and lures the horde for 7s \u00b7 stacks to 3'};
@@ -374,7 +454,7 @@ TOOL.pearl={n:'Brine Pearl',c:50,tot:1,d:'totem: burn it (stand still 3s) to cur
 TOOL.undertow={n:'Undertow',c:50,tot:1,d:'totem: burn it (stand still 3s) and a puddle slows everything inside by 60% for 10s, you too \u00b7 stacks to 3'};
 TOOL.chalk={n:'Chalk Circle',c:45,d:'a 6s circle melee attackers and the horde cannot enter; shots still land \u00b7 stacks to 3'};
 TOOL.tripwire={n:'Tripwire',c:30,d:'plant a wire; anything that trips it \u2014 imps, rivals, even you \u2014 takes a blast (V) \u00b7 stacks to 3'};
-const BOSS={gorrath:{n:'Gorrath the Maw',i:'\u{1F525}',d:'Charging brute of the pit.',bh:'charge',hp:900,bo:500},nyxara:{n:'Nyxara, Cinder Witch',i:'\u{1F608}',d:'Hurls hellfire from afar.',bh:'ranged',hp:650,bo:700},mordrek:{n:'Mordrek the Choir-Eater',i:'\u{1F47F}',d:'Calls the horde to his side.',bh:'summon',hp:750,bo:900}};
+const BOSS={gorrath:{n:'Gorrath the Maw',i:'\u{1F525}',d:'Charging brute of the pit.',bh:'charge',hp:1000,bo:500},nyxara:{n:'Nyxara, Cinder Witch',i:'\u{1F608}',d:'Hurls hellfire from afar.',bh:'ranged',hp:750,bo:700},mordrek:{n:'Mordrek the Choir-Eater',i:'\u{1F47F}',d:'Calls the horde to his side.',bh:'summon',hp:850,bo:900}};
 let bank=500,sel={skin:'plain',wsk:{},sk:{p:'',s:''},pri:'repeater',side:'pistol',tools:[{k:'tonic',n:2},null,null,null,null,null],bag:[]},boss='gorrath',mode='menu',walls=[],blds=[],trees=[],M=[],bul=[],eb=[],bombs=[],parts=[],clues=[],items=[],scn=[],exts=[],P,cam={x:0,y:0},ground,blood,bx,keys={},mouse={x:320,y:180,l:0,r:0},msg='',msgT=0,shake=0,T=0,last=0,found=0,banished=0,corpse=null,bty=null,bn=null,mpHB=null,mpKB=null;
 const FAMS={hunter:{n:'The Hunter',d:'The plain issue kit. Always yours.',c:0,def:'plain'},warden:{n:'The Warden',d:'Hooded plague doctor. 5 variations.',c:1000,def:'warden'},
  knight:{n:'Iron Crusader',d:'Plate, plume and a visor slit. Walks like a wall.',c:900,def:'knight'},
@@ -384,12 +464,13 @@ const FAMS={hunter:{n:'The Hunter',d:'The plain issue kit. Always yours.',c:0,de
  wolf:{n:'Wolfhide Stalker',d:'Pelt, paint and fangs. The wild hunts the breach.',c:800,def:'wolf'}};
 const pit=q=>q.t=='f'?FAMS[q.k]:q.t=='w'?(SID[q.k]||PRI[q.k]||TOOL[q.k]):SKINS[q.k];
 let pname='';const cleanName=v=>String(v==null?'':v).replace(/[^\w .'\-]/g,'').replace(/\s+/g,' ').trim().slice(0,14);
-let LS={},AST={},ANT={},RS={},AL=null,shopScr='shop',wsConf=null,traps=[],own=['hunter','plain'],curFam='hunter',note='',pend=null,stash=[],invOpen=0;
+let LS={},AST={},ANT={},RS={},AL=null,shopScr='shop',wsConf=null,setConf=null,traps=[],own=['hunter','plain'],curFam='hunter',note='',pend=null,stash=[],invOpen=0;
 const ISZ={rifle:[4,2],shotgun:[4,2],repeater:[3,2],crossbow:[3,2],pistol:[2,2],revolver:[2,2],tonic:[1,1],bomb:[2,1],pepperbox:[3,2],musket:[4,2],flamer:[3,2],handcannon:[2,2],whisper:[2,2],flask:[1,1],flare:[1,1],ward:[1,1],tripwire:[2,1],saltline:[1,1],noisemaker:[1,1],chalk:[1,1],gatling:[4,2],blunderbuss:[4,2],longbow:[4,2],sprayer:[4,2],mortar:[3,2],sixshooter:[2,2],dartpistol:[2,2],stake:[2,1],carbine:[3,2],sawnoff:[3,2],pump:[4,2],lever:[3,2],drum:[3,2],repxbow:[3,2],fowling:[4,2],derringer:[2,1],pocketrev:[2,2],navyrev:[2,2],scatterpistol:[2,2],dragoon:[2,2],sling:[2,1],saltgun:[4,2],stamtonic:[1,1],bootwraps:[1,1],muzzle:[2,1],pyre:[2,1],magpie:[2,1],thief:[2,1],pearl:[2,1],undertow:[2,1]},SC=20,SR=8,MAXST=3,NTS=6,EXD=10/* seconds standing in an exit ring to escape */,isz=k=>ISZ[k]||[1,1];
 const fitsIn=(arr,C,R_,x,y,w,h,ex)=>x>=0&&y>=0&&x+w<=C&&y+h<=R_&&!arr.some(o=>{if(o===ex)return 0;const z=isz(o.k);return x<o.x+z[0]&&x+w>o.x&&y<o.y+z[1]&&y+h>o.y});
 const spotIn=(arr,C,R_,k,ex)=>{const[w,h]=isz(k);for(let y=0;y<=R_-h;y++)for(let x=0;x<=C-w;x++)if(fitsIn(arr,C,R_,x,y,w,h,ex))return[x,y];return null};
 const addTo=(arr,C,R_,k,n)=>{if(TOOL[k]){const t=arr.find(o=>o.k==k&&o.n<MAXST);if(t){t.n=Math.min(MAXST,t.n+(n||1));return 1}}const f=spotIn(arr,C,R_,k);if(!f)return 0;arr.push({k,x:f[0],y:f[1],n:n||(TOOL[k]?1:0)});return 1};
 // PER-ITEM WEAPON SKINS: a weapon carries its own skin id in .sk. It only draws if the skin belongs to that weapon, and carrying one never unlocks it.
+const TSK={};   // tool skins: tool key -> skin id. One equipped skin per tool kind; every tool of that kind you carry wears it.
 const skv=(k,id)=>id&&WSKINS[id]&&WSKINS[id].k==k?id:'',psk=i=>P&&P.wsk&&P.wsk[i]||'',setPS=(i,v)=>{if(!P.wsk)P.wsk=['',''];P.wsk[i]=v||''};
 const fits=(x,y,w,h,ex)=>fitsIn(stash,SC,SR,x,y,w,h,ex),freeSpot=k=>spotIn(stash,SC,SR,k),addItem=(k,n)=>addTo(stash,SC,SR,k,n);
 // ---- Stash tabs: stash is always the ACTIVE tab's array (STB[stTab]===stash). Tab 1 is free; tabs 2-4 are bought (STP). Saved as stash (tab 1), stx (tabs 2-4) and stu (unlock flags). ----
@@ -400,10 +481,10 @@ const accepts=(id,k,src)=>id=='p'?!!(PRI[k]&&k!='none'):id=='s'?!!(SID[k]&&k!='n
 const slotGet=id=>id=='p'?(sel.pri!='none'?{k:sel.pri,sk:sel.sk.p}:null):id=='s'?(sel.side!='none'?{k:sel.side,sk:sel.sk.s}:null):sel.tools[+id[1]]||null;
 const slotSet=(id,it)=>{if(id=='p'){sel.pri=it?it.k:'none';sel.sk.p=it?skv(it.k,it.sk):''}else if(id=='s'){sel.side=it?it.k:'none';sel.sk.s=it?skv(it.k,it.sk):''}else sel.tools[+id[1]]=it?{k:it.k,n:it.n||1}:null};
 const dsc=k=>{if(TOOL[k])return TOOL[k].d;const w=SID[k]||PRI[k];return st(w)+(w.nt?'<br><i>'+w.nt.join(' \u00b7 ')+'</i>':'')};
-const SPX={tripwire:[18,0,7],rifle:[21,6.5,6],shotgun:[20,5,6],repeater:[19,5.5,7],crossbow:[19,5.5,17],pistol:[10,3,6],revolver:[17,6,7],tonic:[9,4.5,5],bomb:[12,6,5],pepperbox:[15,6,7],musket:[24,7,6],flamer:[21,6.5,7],handcannon:[16,5.5,7],whisper:[15,6,6],flask:[11,5.5,5],flare:[13,6,4],ward:[10,4,8],gatling:[24,8,12],blunderbuss:[23.4,5.6,6.4],longbow:[16,6,19],sprayer:[20.5,4.2,7],mortar:[17,6,8],sixshooter:[16,5,6],dartpistol:[14,5,6],stake:[19,6,4],saltline:[11,4,8],noisemaker:[13,5,5],chalk:[12,4,10],carbine:[18,6,6],sawnoff:[15,5,6],pump:[22,5.5,6],lever:[22,5.5,8],drum:[22,5.5,9],repxbow:[19,5.5,17],fowling:[28,6,6],derringer:[9,3,5],pocketrev:[14,5,6],navyrev:[19,6,7],scatterpistol:[15,6,6],dragoon:[19,6,7],sling:[12,9,10],saltgun:[22,5,6],stamtonic:[10,5,5],bootwraps:[12,5,5],muzzle:[15.5,-.3,6],pearl:[15.5,-.3,6],undertow:[15.5,-.3,6],pyre:[9,0,9],magpie:[15.6,0,6],thief:[13,.5,6]};
+const SPX={tripwire:[18,0,7],rifle:[21,6.5,6],shotgun:[20,5,6],repeater:[19,5.5,7],crossbow:[19,5.5,17],pistol:[10,3,6],revolver:[17,6,7],tonic:[9,4.5,5],bomb:[12,6,5],pepperbox:[15,6,7],musket:[24,7,6],flamer:[21,6.5,7],handcannon:[16,5.5,7],whisper:[15,6,6],flask:[11,5.5,5],flare:[13,6,4],ward:[10,4,8],gatling:[24,8,12],blunderbuss:[23.4,5.6,6.4],longbow:[16,6,19],sprayer:[20.5,4.2,7],mortar:[17,6,8],sixshooter:[16,5,6],dartpistol:[14,5,6],stake:[19,6,4],saltline:[11,4,8],noisemaker:[13,5,5],chalk:[12,4,10],carbine:[18,6,6],sawnoff:[15,5,6],pump:[22,5.5,6],lever:[22,5.5,8],drum:[24,7.5,9],repxbow:[19,5.5,17],fowling:[28,6,6],derringer:[9,3,5],pocketrev:[14,5,6],navyrev:[19,6,7],scatterpistol:[15,6,6],dragoon:[19,6,7],sling:[12,9,10],saltgun:[22,5,6],stamtonic:[10,5,5],bootwraps:[12,5,5],muzzle:[15.5,-.3,6],pearl:[15.5,-.3,6],undertow:[15.5,-.3,6],pyre:[9,0,9],magpie:[15.6,0,6],thief:[13,.5,6]};
 function itemCv(k,W,H,sk){const c=document.createElement('canvas');c.width=W;c.height=H;c.style.cssText='width:100%;height:100%;image-rendering:pixelated;pointer-events:none';const[l,cx,h]=SPX[k]||[10,5,5],sc=Math.min(W*.86/l,H*.8/h),o=ctx;ctx=c.getContext('2d');try{drawWpn(k,W/2-cx*sc,H/2-.5*sc,0,sc,sk)}finally{ctx=o}return c}
-const SAVE=run=>{try{localStorage.setItem('bh_save',JSON.stringify({nm:pname,bank,own,led:LS,al:AL,skin:sel.skin,sk:sel.sk,stash:STB[0],stx:[STB[1],STB[2],STB[3]],stu:stUn.slice(1),pri:sel.pri,side:sel.side,bag:sel.bag,tools:sel.tools,ast:AST,ant:ANT,run:run?1:0}))}catch(e){}};
-try{const d=JSON.parse((localStorage.getItem('bh_save')||'null').replace(/"smg"/g,'"pepperbox"'));if(d&&Array.isArray(d.own)){own=[...new Set(['hunter','plain',...d.own.filter(k=>FAMS[k]||SKINS[k]||WSKINS[k])])];bank=Math.max(120,d.bank|0);if(d.led)LS=d.led;if(d.ast&&typeof d.ast=='object'){for(const k in d.ast){const v=+d.ast[k];if(isFinite(v)&&v>=0)AST[k]=v}}if(d.ant&&typeof d.ant=='object'){for(const k in d.ant){const v=d.ant[k]|0;if(v>0&&v<4)ANT[k]=v}}AL=d.al||null;sel.skin=SKINS[d.skin]&&own.includes(d.skin)?d.skin:'plain';sel.wsk={};sel.sk={p:'',s:''};const lw=d.sk?{}:(d.wsk&&typeof d.wsk=='object'?d.wsk:{}),lsk=k=>{const id=lw[k];return WSKINS[id]&&WSKINS[id].k==k&&own.includes(id)?id:''};pname=cleanName(d.nm);
+const SAVE=run=>{try{localStorage.setItem('bh_save',JSON.stringify({nm:pname,bank,own,led:LS,al:AL,skin:sel.skin,sk:sel.sk,stash:STB[0],stx:[STB[1],STB[2],STB[3]],stu:stUn.slice(1),pri:sel.pri,side:sel.side,bag:sel.bag,tools:sel.tools,tsk:TSK,ast:AST,ant:ANT,run:run?1:0}))}catch(e){}};
+try{const d=JSON.parse((localStorage.getItem('bh_save')||'null').replace(/"smg"/g,'"pepperbox"'));if(d&&Array.isArray(d.own)){own=[...new Set(['hunter','plain',...d.own.filter(k=>FAMS[k]||SKINS[k]||WSKINS[k])])];bank=Math.max(120,d.bank|0);if(d.led)LS=d.led;if(d.ast&&typeof d.ast=='object'){for(const k in d.ast){const v=+d.ast[k];if(isFinite(v)&&v>=0)AST[k]=v}}if(d.ant&&typeof d.ant=='object'){for(const k in d.ant){const v=d.ant[k]|0;if(v>0&&v<4)ANT[k]=v}}AL=d.al||null;for(const k in(d.tsk&&typeof d.tsk=='object'?d.tsk:{})){const v=skv(k,d.tsk[k]);if(TOOL[k]&&v&&own.includes(v))TSK[k]=v}sel.skin=SKINS[d.skin]&&own.includes(d.skin)?d.skin:'plain';sel.wsk={};sel.sk={p:'',s:''};const lw=d.sk?{}:(d.wsk&&typeof d.wsk=='object'?d.wsk:{}),lsk=k=>{const id=lw[k];return WSKINS[id]&&WSKINS[id].k==k&&own.includes(id)?id:''};pname=cleanName(d.nm);
  const ok=k=>k&&k!='none'&&(PRI[k]||SID[k]),wk=(k,o)=>ok(k)?(skv(k,o&&typeof o=='object'?o.sk:'')||lsk(k)):'';const stl=arr=>(Array.isArray(arr)?arr:[]).forEach(o=>{const k=typeof o=='string'?o:o&&o.k;if(!(ok(k)||TOOL[k]))return;const z=isz(k);if(typeof o=='object'&&Number.isInteger(o.x)&&Number.isInteger(o.y)&&fits(o.x,o.y,z[0],z[1]))stash.push({k,x:o.x,y:o.y,n:o.n||(TOOL[k]?2:0),...(wk(k,o)?{sk:wk(k,o)}:{})});else if(addItem(k,o&&o.n)){const q=wk(k,o);if(q)stash[stash.length-1].sk=q}});
  stash=[];stl(d.stash);STB=[stash,[],[],[]];stTab=0;stConf=-1;stUn=[1,0,0,0];if(Array.isArray(d.stu))[1,2,3].forEach(i=>{if(d.stu[i-1]){stUn[i]=1;stash=STB[i];stl(d.stx&&d.stx[i-1])}});stash=STB[0];
  if(d.run){sel.pri='none';sel.side='none';sel.bag=[];sel.tools=Array(NTS).fill(null)}else{if(PRI[d.pri])sel.pri=d.pri;if(SID[d.side])sel.side=d.side;if(d.sk&&typeof d.sk=='object'){sel.sk.p=skv(sel.pri,d.sk.p);sel.sk.s=skv(sel.side,d.sk.s)}else{sel.sk.p=lsk(sel.pri);sel.sk.s=lsk(sel.side)}sel.bag=[];(Array.isArray(d.bag)?d.bag:d.bag?[d.bag]:[]).forEach(o=>{const k=typeof o=='string'?o:o&&o.k;if(!(ok(k)||TOOL[k]))return;const z=isz(k);if(typeof o=='object'&&Number.isInteger(o.x)&&Number.isInteger(o.y)&&fitsIn(sel.bag,4,4,o.x,o.y,z[0],z[1]))sel.bag.push({k,x:o.x,y:o.y,n:o.n||(TOOL[k]?1:0),...(wk(k,o)?{sk:wk(k,o)}:{})});else if(addTo(sel.bag,4,4,k,o&&o.n)){const q=wk(k,o);if(q)sel.bag[sel.bag.length-1].sk=q}});if(Array.isArray(d.tools))sel.tools=Array.from({length:NTS},(_,i)=>{const t=d.tools[i];if(!t)return null;const k=typeof t=='string'?t:t.k;return TOOL[k]?{k,n:Math.min(MAXST,t.n||2)}:null})}}}catch(e){}
@@ -519,12 +600,12 @@ const achTotals=()=>{let e=0;ACH.forEach(a=>e+=achTier(a));return[e,ACH.length*3
 const achBody=()=>{const[e,N]=achTotals();return `<div class=achw><h2 class=lt>Achievements</h2><p class=sub>${e} of ${N} tiers earned</p><div class=achg>`+ACH.map(a=>{const g=achG(a),v=achVal(a.s),t=g.filter(x=>v>=x).length,nx=t<3?g[t]:g[2],prev=t?g[t-1]:0,pc=t>=3?100:Math.max(0,Math.min(100,(v-prev)/(nx-prev)*100));
  return `<div class="ach${t>=3?' mx':''}"><div class=an>${a.n}<span class=pips>${[0,1,2].map(i=>`<b style="${i<t?'color:'+TCOL[i]+';text-shadow:0 0 6px '+TCOL[i]:'color:#e8e6d833'}">\u2605</b>`).join('')}</span></div><small>${a.d(nx)}</small><div class=bar><i style="width:${pc}%;background:${TCOL[Math.min(t,2)]}"></i></div><small class=pr>${t>=3?'Mastered \u2014 '+v.toLocaleString():v.toLocaleString()+' / '+nx.toLocaleString()+' \u2014 next: '+TN[t]}</small><small class=tl>${g.map((x,i)=>`<span style="color:${i<t?TCOL[i]:'#e8e6d888'}">${TN[i]} ${x.toLocaleString()}</span>`).join(' \u00b7 ')}</small></div>`}).join('')+`</div></div>`};
 // ---------- LEADERBOARD: lifetime stats shared through the Hellbreach Cloudflare relay ----------
-const LBB=[{k:'esc',n:'Survivors',u:'escapes'},{k:'bosses',n:'Archdemon Slayers',u:'archdemons slain'},{k:'cash',n:'Bounty Barons',u:'bounty carried out',pre:1},{k:'horde',n:'Horde Breakers',u:'horde kills'},{k:'banish',n:'Banishers',u:'banished corpses'},{k:'tiers',n:'Achievement Hunters',u:'achievement tiers'}];
+const LBB=[{k:'esc',n:'Survivors',u:'escapes'},{k:'bosses',n:'Archdemon Slayers',u:'archdemons slain'},{k:'cash',n:'Bounty Barons',u:'bounty carried out',pre:1},{k:'horde',n:'Horde Breakers',u:'horde kills'},{k:'banish',n:'Banishers',u:'banished corpses'},{k:'pk',n:'Hunter Slayers',u:'hunters slain'},{k:'tiers',n:'Achievement Hunters',u:'achievement tiers'}];
 let lbTab=0,LBD={},LBC=[],lbT=0,lbOT=0,LBID='';
 try{LBID=localStorage.getItem('bh_pid')||'';if(!/^[a-z0-9]{8,16}$/.test(LBID)){LBID=('x'+Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2)).slice(0,14);localStorage.setItem('bh_pid',LBID)}}catch(e){if(!LBID)LBID=('x'+Math.random().toString(36).slice(2)+'000000').slice(0,12)}
-const lbMine=()=>({n:cleanName(pname)||'Unnamed Hunter',cl:nmClT(),esc:AST.esc|0,bosses:AST.bosses|0,cash:AST.cash|0,horde:AST.horde|0,banish:AST.banish|0,bounty:AST.bounty|0,tiers:achTotals()[0],ts:Date.now(),...(window.HBDAILY&&HBDAILY.pub?HBDAILY.pub():{})});
+const lbMine=()=>({n:cleanName(pname)||'Unnamed Hunter',cl:nmClT(),esc:AST.esc|0,bosses:AST.bosses|0,cash:AST.cash|0,horde:AST.horde|0,banish:AST.banish|0,pk:AST.pk|0,bounty:AST.bounty|0,tiers:achTotals()[0],ts:Date.now(),...(window.HBDAILY&&HBDAILY.pub?HBDAILY.pub():{})});
 function lbRecv(topic,buf){try{const id=String(topic).split('/')[2];if(!/^[a-z0-9]{8,16}$/.test(id)||id===LBID)return;const o=JSON.parse(buf.toString()),v=x=>Math.max(0,Math.min(1e9,Math.floor(+x||0)));if(!o||typeof o!='object')return;
- const e={n:cleanName(o.n)||'Hunter',esc:v(o.esc),bosses:v(o.bosses),cash:v(o.cash),horde:v(o.horde),banish:v(o.banish),bounty:v(o.bounty),tiers:Math.min(999,v(o.tiers)),ts:v(o.ts),dd:/^\d{4}-\d{2}-\d{2}$/.test(o.dd)?o.dd:'',ds:Math.min(8000,v(o.ds)),dw:o.dw?1:0};if(!LBD[id]||e.ts>=LBD[id].ts)LBD[id]=e}catch(e){}}
+ const e={n:cleanName(o.n)||'Hunter',esc:v(o.esc),bosses:v(o.bosses),cash:v(o.cash),horde:v(o.horde),banish:v(o.banish),pk:v(o.pk),bounty:v(o.bounty),tiers:Math.min(999,v(o.tiers)),ts:v(o.ts),dd:/^\d{4}-\d{2}-\d{2}$/.test(o.dd)?o.dd:'',ds:Math.min(8000,v(o.ds)),dw:o.dw?1:0};if(!LBD[id]||e.ts>=LBD[id].ts)LBD[id]=e}catch(e){}}
 function lbTop(k){const all=Object.entries(LBD).map(([id,e])=>({id,n:e.n,v:e[k],ts:e.ts}));const m=lbMine();all.push({id:LBID,n:m.n,v:m[k],ts:m.ts,me:1});
  all.sort((a,b)=>b.v-a.v||a.ts-b.ts);return all}
 function lbPub(c){try{if(c.connected)c.publish('hb1/lb/'+LBID,JSON.stringify(lbMine()),{retain:true,qos:0})}catch(e){}}
@@ -602,8 +683,8 @@ const cost=()=>[0,1].reduce((a,i)=>a+(xaW(i)?xaN(i)*xaP(xaW(i)):0),0);
 // Every bar is scaled against a fixed ceiling, so weapons can be compared directly.
 const nzLabel=n=>n<=60?'Silent':n<=150?'Quiet':n<=300?'Loud':n<=400?'Very loud':'Deafening';
 const wbar=(lb,f,v,col)=>`<span class=wsr><b>${lb}</b><i><u style="width:${Math.round(cl(f,.04,1)*100)}%${col?';background:'+col:''}"></u></i><em>${v}</em></span>`;
-const st=w=>{if(w.ml)return '<span class=wsb>'+wbar('Damage',w.ml.d/60,w.ml.d)+wbar('Speed',1-w.ml.cd,(1/w.ml.cd).toFixed(1)+'/s')+wbar('Reach',w.ml.rg/50,w.ml.rg)+wbar('Noise',.04,'Silent','#6fcf6a')+'</span>';if(!w.d)return 'melee only';const tot=w.d*w.p,dps=tot/w.r,rng=w.sp*(w.l||.7),nzc=w.nz<=150?'#6fcf6a':w.nz<=300?'#e0b040':'#e0583a';
- return '<span class=wsb>'+wbar('Damage',tot/140,tot+(w.p>1?' ('+w.d+'×'+w.p+')':''))+wbar('DPS',dps/135,'~'+Math.round(dps))+wbar('Range',rng/500,Math.round(rng))+wbar('Accuracy',1-w.s/.25,'±'+(w.s*57.2958).toFixed(1)+'°')+wbar('Magazine',w.m/10,w.m)+wbar('Reload',1-(w.rl-1)/3,w.rl+'s')+wbar('Noise',w.nz/520,nzLabel(w.nz),nzc)+'</span>'};
+const st=w=>{if(w.ml)return '<span class=wsb>'+wbar('Damage',w.ml.d/60,w.ml.d)+wbar('Speed',1-w.ml.cd,(1/w.ml.cd).toFixed(1)+'/s')+wbar('Reach',w.ml.rg/50,w.ml.rg)+wbar('Noise',.04,'Silent','#6fcf6a')+'</span>';if(!w.d)return 'melee only';const tot=w.d*w.p,dps=effDps(w),rng=w.sp*(w.l||.7),nzc=w.nz<=150?'#6fcf6a':w.nz<=300?'#e0b040':'#e0583a';
+ return '<span class=wsb>'+wbar('Damage',tot/140,tot+(w.p>1?' ('+w.d+'×'+w.p+')':''))+wbar('DPS',dps/135,dpsTxt(w))+wbar('Range',rng/500,Math.round(rng))+wbar('Accuracy',1-w.s/.25,'±'+(w.s*57.2958).toFixed(1)+'°')+wbar('Magazine',w.m/10,w.m)+wbar('Reload',1-(w.rl-1)/3,w.rl+'s')+wbar('Noise',w.nz/520,nzLabel(w.nz),nzc)+'</span>'};
 let scr='title';
 const LORE=[
  {t:'World Lore',sub:'What is left of the parish, pinned up by the last Wardens',e:[
@@ -793,12 +874,17 @@ function menu(m){try{if(scr=='lb')lbOpen();else lbClose()}catch(e){}try{const an
  else if(/^sk(_|$)/.test(scr)){const mi_=/^sk_i_([ps])_(\w+)$/.exec(scr),mv=/^sk_v_(\w+)$/.exec(scr),skl=k=>WSK[k]||[],
   row=(k,w)=>`<div class=chalk data-v=sk_v_${k}><canvas class=ic data-ic=${k} width=34 height=18></canvas>${w.n}<small>${skl(k).length?skl(k).length+' skin'+(skl(k).length>1?'s':''):'Not yet pulled from the Veil'}</small></div>`,
   subs=(c,src)=>(c=='p'?SUBP:SUBS).map(([id,nm,ds])=>[id,nm,ds,Object.values(src).filter(w=>w.k!='none'&&w.sub==id).length]).filter(x=>x[3]).map(([id,nm,ds,n])=>`<div class=chalk data-v=sk_i_${c}_${id}>${nm}<small>${ds} \u2014 ${n} on the rack</small></div>`).join('');
-  if(scr=='sk')body=pg('Skins',`<div class=chalk data-v=l_skin>Hunter Skins<small>${SKINS[sel.skin].n}</small></div><div class=chalk data-v=sk_w>Weapon Skins<small>Rifles, shotguns, sidearms and more</small></div><div class=chalk data-v=sk_t>Tool Skins<small>Holy water, grenades, flares and more</small></div>`,backTo('hub'));
+  if(scr=='sk')body=pg('Skins',`<div class=chalk data-v=l_skin>Hunter Skins<small>${SKINS[sel.skin].n}</small></div><div class=chalk data-v=sk_w>Weapon Skins<small>Rifles, shotguns, sidearms and more</small></div><div class=chalk data-v=sk_t>Tool Skins<small>Holy water, grenades, flares and more</small></div><div class=chalk data-v=sk_sets>Skin Sets<small>Full collections, 10% off when you buy the whole set</small></div>`,backTo('hub'));
+  else if(scr=='sk_sets')body=pg('Skins \u2014 Skin Sets',WSETS.map(S=>{const n=S.ids.length,have=S.ids.filter(i=>own.includes(i)).length;return `<div class=chalk data-v=sk_set_${S.id}>${S.n}${have==n?' \u2014 Complete \u2714':''}<small>${have} of ${n} owned \u2014 ${S.d}</small></div>`}).join(''),backTo('sk'))
+  else if(/^sk_set_/.test(scr)){const S=WSETS.find(x=>'sk_set_'+x.id==scr);if(!S)body=pg('Skins','',backTo('sk_sets'));else{const left=setLeft(S),sum=setSum(S),cost=setCost(S),
+    buy=left.length>=2?`<div class=chalk data-wset=${S.id}>Buy the whole set \u2014 $${cost}<small>${left.length} pieces you do not own yet: $${sum} \u2192 $${cost} (10% off)${setConf==S.id?' <b>Click again to buy for $'+cost+'.</b>':''}</small></div>`:left.length==1?`<div class=chalk style="cursor:default;opacity:.8">One piece to go<small>The set discount needs two or more missing pieces. Buy the last one below at its own price.</small></div>`:`<div class=chalk style="cursor:default;opacity:.8">Set complete \u2714<small>Apply the skins from the Stash with the Skin button.</small></div>`,
+    pcs=S.ids.map(id=>{const w=WSKINS[id],o=own.includes(id),def=itemDef(w.k);return `<div class=chalk data-ws=${id}><canvas class=ic data-ic=${w.k} data-wk=${id} width=34 height=18></canvas>${w.n} \u2014 ${def?def.n:w.k}${o?' \u2014 Owned':' \u2014 $'+w.c+' \u{1F512}'}<small>${w.d.replace(/^Clearance Rack set\. /,'')}${!o&&wsConf==id?' <b>Click again to buy for $'+w.c+'.</b>':''}</small></div>`}).join('');
+    body=pg(S.n,`<p>${S.d}</p>${buy}${pcs}`,backTo('sk_sets'))}}
   else if(scr=='sk_w')body=pg('Skins \u2014 Weapon Skins',`<div class=chalk data-v=sk_p>Primary Weapons<small>Rifles, shotguns, muskets and more</small></div><div class=chalk data-v=sk_s>Secondary Weapons<small>Sidearms for close work</small></div>`,backTo('sk'));
   else if(scr=='sk_p'||scr=='sk_s'){const c=scr[3];body=pg('Skins \u2014 '+(c=='p'?'Primary Weapons':'Secondary Weapons'),subs(c,c=='p'?PRI:SID),backTo('sk_w'))}
   else if(mi_){const c=mi_[1],sb=(c=='p'?SUBP:SUBS).find(x=>x[0]==mi_[2]);body=pg('Skins \u2014 '+(sb?sb[1]:''),Object.entries(c=='p'?PRI:SID).filter(([k,w])=>k!='none'&&sb&&w.sub==sb[0]).map(([k,w])=>row(k,w)).join(''),backTo('sk_'+c))}
   else if(scr=='sk_t')body=pg('Skins \u2014 Tool Skins',Object.entries(TOOL).map(([k,w])=>row(k,w)).join(''),backTo('sk'));
-  else if(mv){const k=mv[1],w=PRI[k]||SID[k]||TOOL[k]||{n:'Skins'},bk=TOOL[k]?'sk_t':'sk_i_'+(PRI[k]?'p':'s')+'_'+w.sub;body=pg(w.n+' \u2014 Skins',skl(k).length?``+skl(k).map(s=>{const o=own.includes(s.id),eq=false;return `<div class="chalk ${eq?'on':''}" data-ws=${s.id}><canvas class=ic data-ic=${k} data-wk=${s.id} width=34 height=18></canvas>${s.n}${o?(eq?' \u2014 Equipped':' \u2014 Owned'):' \u2014 $'+s.c+' \u{1F512}'}<small>${s.d}${o?' <b>Apply it to a weapon from the Stash (Skin button).</b>':''}${!o&&wsConf==s.id?' <b>Click again to buy for $'+s.c+'.</b>':''}</small></div>`}).join(''):'<div class=postit>Not yet pulled from the Veil</div>',backTo(bk))}
+  else if(mv){const k=mv[1],w=PRI[k]||SID[k]||TOOL[k]||{n:'Skins'},bk=TOOL[k]?'sk_t':'sk_i_'+(PRI[k]?'p':'s')+'_'+w.sub;body=pg(w.n+' \u2014 Skins',skl(k).length?``+skl(k).map(s=>{const o=own.includes(s.id),eq=!!(TOOL[k]&&TSK[k]==s.id);return `<div class="chalk ${eq?'on':''}" data-ws=${s.id}><canvas class=ic data-ic=${k} data-wk=${s.id} width=34 height=18></canvas>${s.n}${o?(eq?' \u2014 Equipped':' \u2014 Owned'):' \u2014 $'+s.c+' \u{1F512}'}<small>${s.d}${o?' <b>Apply it to a '+(TOOL[k]?'tool':'weapon')+' from the Stash (Skin button).</b>':''}${!o&&wsConf==s.id?' <b>Click again to buy for $'+s.c+'.</b>':''}</small></div>`}).join(''):'<div class=postit>Not yet pulled from the Veil</div>',backTo(bk))}
   else body=pg('Skins','',backTo('hub'))}
  else if(scr=='l_skin')body=pg('Hunter Skins',Object.entries(FAMS).map(([k,f])=>`<div class="chalk ${SKINS[sel.skin].f==k?'on':''}" data-f=${k}>${f.n}${f.ep?EPT:''}${own.includes(k)?'':f.mys?' \u2014 Unlock: ??? \u{1F512}':f.led?' \u2014 Ledger reward \u{1F512}':' \u2014 $'+f.c+' \u{1F512}'}<small>${f.d}</small></div>`).join(''),backTo('sk'));
  else if(scr=='l_var')body=pg(FAMS[curFam].n+' \u2014 Variations',Object.entries(SKINS).filter(([k,v])=>v.f==curFam).map(([k,v])=>`<div class="chalk ${sel.skin==k?'on':''}" data-k=${k}>${v.n}${own.includes(k)?'':' \u2014 $'+v.c+' \u{1F512}'}<small>${v.d}</small></div>`).join(''),backTo('l_skin'));
@@ -819,8 +905,8 @@ function menu(m){try{if(scr=='lb')lbOpen();else lbClose()}catch(e){}try{const an
     devAsk(ok=>{if(ok){DEVAUTH=1;try{localStorage.setItem('bh_dv',PW_HASH)}catch(e){}acc()}else{const w=cleanName(v.replace(/dev/gi,''));pn.value=w;pname=w;SAVE();pn.focus()}})};
    pn.oninput=sv;{const sb=document.querySelector('#menu .opts button[data-v=hub]');if(sb)sb.addEventListener('click',e=>{e.stopPropagation();cm(()=>{scr='hub';menu('')})})}{const bb=document.querySelector('#menu .foot button[data-v=hub]');if(bb)bb.addEventListener('click',e=>{e.stopPropagation();cm(()=>{scr='hub';menu('')})})}
    ['keydown','keyup','keypress'].forEach(ev=>pn.addEventListener(ev,e=>e.stopPropagation()));pn.addEventListener('keydown',e=>{if(e.key=='Enter')cm(()=>{scr='hub';menu('')})});pn.focus();pn.setSelectionRange(pn.value.length,pn.value.length)}}if(scr=='stash')stashInit();if(scr=='lore'){loreStr();setTimeout(loreStr,120);loreArt()}}
-$('#menu').onclick=e=>{const t=e.target.closest('[data-lb],[data-so],[data-stt],[data-ws],[data-l],[data-lo],[data-v],[data-xa],[data-bq],[data-m],[data-f],[data-y],[data-n],[data-w],[data-u],[data-q],[data-r],[data-k],[data-p],[data-s],[data-t],#go');if(!t)return;const d=t.dataset;if(d.stt===undefined)stConf=-1;
- if(d.stt!==undefined){const i=+d.stt;if(stUn[i]){stConf=-1;stSet(i);selRef=null;selInfo=null}else if(stConf!=i)stConf=i;else if(bank<STP[i]){note='Not enough cash: that tab costs $'+STP[i].toLocaleString()+'.';stConf=-1}else{bank-=STP[i];stUn[i]=1;stConf=-1;stSet(i);selRef=null;selInfo=null;SAVE();note='Stash tab '+(i+1)+' unlocked!'}}else if(d.bq){pq=Math.max(1,Math.min(PQMAX,pq+(d.bq=='+'?1:-1)))}else if(d.xa){const i=d.xa[0]=='s'?1:0,w=xaW(i);if(w){const n=xa[i]+(d.xa[1]=='+'?1:-1);if(n<0||n>XAMAX)return;if(d.xa[1]=='+'&&cost()+xaP(w)>bank){note='Not enough cash.'}else xa[i]=n}}else if(d.lb!==undefined)lbTab=+d.lb;else if(d.so!==undefined)note=sortStash();else if(d.l!==undefined){lorTab=+d.l;lorOpen=-1}else if(d.lo!==undefined)lorOpen=+d.lo;else if(d.ws){const id=d.ws;if(id.startsWith('x_')){delete sel.wsk[id.slice(2)];SAVE()}else{const s=WSKINS[id];if(s){if(own.includes(id)){wsConf=null;note='Apply it from the Stash: select the weapon, then press Skin.'}else if(wsConf!=id){wsConf=id}else if(bank<s.c){note='Not enough cash.';wsConf=null}else{bank-=s.c;own.push(id);wsConf=null;SAVE();note='Unlocked '+s.n+'! Select a weapon in the Stash and press Skin to apply it.'}}}}else if(d.v){wsConf=null;lorOpen=-1;scr=d.v;if(/^shop_/.test(d.v))shopScr=d.v}else if(d.m){mi=+d.m;const Lx=LEDGERS[mi];if(Lx&&lst(Lx.id).i<Lx.tasks.length){AL=Lx.id;SAVE()}}else if(d.f){curFam=d.f;const f=FAMS[d.f];if(own.includes(d.f)){if(Object.values(SKINS).filter(v=>v.f==d.f).length>1)scr='l_var';else{sel.skin=f.def;SAVE()}}else{pend={t:'f',k:d.f};scr='buy'}}
+$('#menu').onclick=e=>{const t=e.target.closest('[data-lb],[data-so],[data-stt],[data-ws],[data-wset],[data-l],[data-lo],[data-v],[data-xa],[data-bq],[data-m],[data-f],[data-y],[data-n],[data-w],[data-u],[data-q],[data-r],[data-k],[data-p],[data-s],[data-t],#go');if(!t)return;const d=t.dataset;if(d.stt===undefined)stConf=-1;
+ if(d.stt!==undefined){const i=+d.stt;if(stUn[i]){stConf=-1;stSet(i);selRef=null;selInfo=null}else if(stConf!=i)stConf=i;else if(bank<STP[i]){note='Not enough cash: that tab costs $'+STP[i].toLocaleString()+'.';stConf=-1}else{bank-=STP[i];stUn[i]=1;stConf=-1;stSet(i);selRef=null;selInfo=null;SAVE();note='Stash tab '+(i+1)+' unlocked!'}}else if(d.bq){pq=Math.max(1,Math.min(PQMAX,pq+(d.bq=='+'?1:-1)))}else if(d.xa){const i=d.xa[0]=='s'?1:0,w=xaW(i);if(w){const n=xa[i]+(d.xa[1]=='+'?1:-1);if(n<0||n>XAMAX)return;if(d.xa[1]=='+'&&cost()+xaP(w)>bank){note='Not enough cash.'}else xa[i]=n}}else if(d.lb!==undefined)lbTab=+d.lb;else if(d.so!==undefined)note=sortStash();else if(d.l!==undefined){lorTab=+d.l;lorOpen=-1}else if(d.lo!==undefined)lorOpen=+d.lo;else if(d.wset){const S=WSETS.find(x=>x.id==d.wset);if(S){const left=setLeft(S),cost=setCost(S);wsConf=null;if(left.length<2)setConf=null;else if(setConf!=S.id)setConf=S.id;else if(bank<cost){note='Not enough cash.';setConf=null}else{bank-=cost;left.forEach(i=>own.push(i));setConf=null;SAVE();note='Unlocked the whole '+S.n+' for $'+cost+'! Select an item in the Stash and press Skin to apply it.'}}}else if(d.ws){setConf=null;const id=d.ws;if(id.startsWith('x_')){delete sel.wsk[id.slice(2)];SAVE()}else{const s=WSKINS[id];if(s){if(own.includes(id)){wsConf=null;note='Apply it from the Stash: select the item, then press Skin.'}else if(wsConf!=id){wsConf=id}else if(bank<s.c){note='Not enough cash.';wsConf=null}else{bank-=s.c;own.push(id);wsConf=null;SAVE();note='Unlocked '+s.n+'! Select the item in the Stash and press Skin to apply it.'}}}}else if(d.v){wsConf=null;setConf=null;lorOpen=-1;scr=d.v;if(/^shop_/.test(d.v))shopScr=d.v}else if(d.m){mi=+d.m;const Lx=LEDGERS[mi];if(Lx&&lst(Lx.id).i<Lx.tasks.length){AL=Lx.id;SAVE()}}else if(d.f){curFam=d.f;const f=FAMS[d.f];if(own.includes(d.f)){if(Object.values(SKINS).filter(v=>v.f==d.f).length>1)scr='l_var';else{sel.skin=f.def;SAVE()}}else{pend={t:'f',k:d.f};scr='buy'}}
  else if(d.k){const v=SKINS[d.k];if(own.includes(d.k)){sel.skin=d.k;SAVE()}else{pend={t:'k',k:d.k};scr='buy'}}
  else if(d.y){const q=pend,it=pit(q);if(q.t=='w'){let got=0;while(got<pq&&bank>=it.c&&addItemAny(q.k)){bank-=it.c;got++}if(got){SAVE();note='Bought '+(got>1?got+'x ':'')+it.n+' \u2014 '+(got>1?'they are':'it is')+' in your stash.'+(got<pq?' Ran out of '+(bank<it.c?'cash':'stash room')+' after '+got+'.':'')}else note=bank<it.c?'Not enough cash.':'Not enough room in the stash.';scr=shopScr;pend=null;pq=1}else{if(bank>=it.c&&!it.led){bank-=it.c;if(q.t=='f'){own.push(q.k,it.def);sel.skin=it.def}else{own.push(q.k);sel.skin=q.k}SAVE();note='Unlocked '+it.n+'!'}scr=q.t=='f'?'l_skin':'l_var';pend=null}}
  else if(d.n){scr=pend.t=='f'?'l_skin':pend.t=='w'?shopScr:'l_var';pend=null}
@@ -862,7 +948,7 @@ function buildWalls(b){const g=[[],[],[],[]],ds=[R(0,4)|0];if(Math.random()<.5)d
   if(om!=0)wLine(o.x,o.y,o.w,1,h[0]);if(om!=1)wLine(o.x,o.y+o.h-6,o.w,1,h[1]);if(om!=2)wLine(o.x,o.y,o.h,0,h[2]);if(om!=3)wLine(o.x+o.w-6,o.y,o.h,0,h[3])}
  if(Math.random()<.6){const f=.5+(Math.random()<.5?1:-1)*R(.1,.2);Math.random()<.5?wLine(b.x+6,b.y+b.h*f,b.w-12,1,[[R(20,b.w-68)|0,36]]):wLine(b.x+b.w*f,b.y+6,b.h-12,0,[[R(20,b.h-68)|0,36]])}}
 // ---------- MOB TYPES (w = spawn weight: easy ones common, hard ones rare) ----------
-const MOBS={imp:{hp:45,sp:52,dm:10,cd:.9,w:44},skitter:{hp:22,sp:90,dm:6,cd:.6,w:26},bloat:{hp:60,sp:34,w:12},vine:{hp:55,sp:30,w:12},brute:{hp:130,sp:38,dm:24,cd:1.1,sc:1.5,w:6},gleaner:{hp:50,sp:62,dm:14,cd:.9,w:0},spooler:{hp:70,sp:46,dm:12,cd:1,w:9}};
+const MOBS={imp:{hp:45,sp:52,dm:10,cd:.9,w:44},skitter:{hp:22,sp:90,dm:6,cd:.6,w:26},bloat:{hp:60,sp:34,w:12},vine:{hp:55,sp:30,w:12},brute:{hp:150,sp:38,dm:24,cd:1.1,sc:1.5,w:10},gleaner:{hp:50,sp:62,dm:14,cd:.9,w:0},spooler:{hp:70,sp:46,dm:12,cd:1,w:9}};
 const pickMob=()=>{const tu=typeof TUTR!=='undefined'&&TUTR,wt=(k,o)=>k=='spooler'&&tu?0:o.w;let r=Math.random()*Object.entries(MOBS).reduce((a,[k,o])=>a+wt(k,o),0);for(const[k,o]of Object.entries(MOBS)){if((r-=wt(k,o))<0)return k}return'imp'};
 const mkMob=(x,y,st,ty)=>{ty=ty||pickMob();const o=MOBS[ty],gb=gorW&&ty=='brute'?1:0,hp=gb?190:o.hp;return{x,y,hp,mh:hp,st:st||'idle',wt:0,cd:0,fl:0,wk:0,ty,gb}};
 // ---- GLEANER (horde mob): an ammo pile that is really a mimic. It lies still ('lure' on the host, shows as 'idle' on clients: anything that is not 'chase' is
@@ -908,9 +994,9 @@ function mobAI(m,a,d,v,dt){const o=MOBS[m.ty||'imp'];
  if(m.ty=='spooler'){spoolAI(m,a,d,v,dt);return}
  if(m.ty=='vine'){if(m.fi){if(T>=m.lw){m.fi=0;m.lf=T+.2;const dx=TG.x-m.x,dy=TG.y-m.y,pr=dx*Math.cos(m.la)+dy*Math.sin(m.la),pp=Math.abs(-dx*Math.sin(m.la)+dy*Math.cos(m.la));if(pr>0&&pr<135&&pp<9&&los(m.x,m.y,TG.x,TG.y))hurtTG(18);burst(m.x+Math.cos(m.la)*70,m.y+Math.sin(m.la)*70,6,60,'#8a0f18',0)}return}
   const s=d<65?-40:d>105?o.sp:0;mv(m,Math.cos(a)*s*dt,Math.sin(a)*s*dt,5);m.wk+=dt*6;if(m.cd<=0&&v&&d<125&&d>20){m.fi=1;m.lw=T+.7;m.la=a;m.cd=2.4}return}
- const gbs=m.gb?1.21:1;mv(m,Math.cos(a)*o.sp*gbs*dt,Math.sin(a)*o.sp*gbs*dt,5);m.wk+=dt*(m.ty=='skitter'?12:8);
+ const gbs=(m.gb?1.21:1)*(hbT()?1:1.1);mv(m,Math.cos(a)*o.sp*gbs*dt,Math.sin(a)*o.sp*gbs*dt,5);m.wk+=dt*(m.ty=='skitter'?12:8);
  if(m.ty=='bloat'){if(d<18)kill(m);return}
- if(d<13*(o.sc||1)&&m.cd<=0){m.cd=o.cd;hurtTG(o.dm);if(m.gb&&TG===P)P.bt=3}}
+ if(d<13*(o.sc||1)&&m.cd<=0){m.cd=o.cd;hurtTG(hbT()?o.dm:Math.round(o.dm*1.2));if(m.gb&&TG===P)P.bt=3}}
 // ---- gore: rolling heads, limbs, guts, blood spray ----
 let gibs=[],drops=[],spurts=[];
 function spray(x,y,z,a,n,sp,g){if(drops.length>650)drops.splice(0,120);for(let i=0;i<n;i++){const t=a==null?R(0,6.28):a+R(-.9,.9),v=R(.2,1)*sp;drops.push({x,y,z,vx:Math.cos(t)*v,vy:Math.sin(t)*v,vz:R(30,130),gr:g})}}
@@ -1348,24 +1434,24 @@ let selInfo=null,selRef=null,skOpen=0;
 const itemDef=k=>(PRI[k]&&k!='none'?PRI[k]:SID[k]&&k!='none'?SID[k]:TOOL[k])||null;
 const itemType=k=>PRI[k]&&k!='none'?'Primary weapon':SID[k]&&k!='none'?'Sidearm':'Tool';
 const wNotes=w=>{const a=[];if(w.nt)a.push(...w.nt);if(w.p>1)a.push('Fires '+w.p+' pellets per shot');if(w.m==1)a.push('Single shot \u2014 reload after every shot');if(w.nz<=60)a.push('Near-silent');return a};
-const wList=w=>{const tot=w.d*w.p;return[['Damage',tot+(w.p>1?' ('+w.d+'x'+w.p+')':'')],['Fire rate',(1/w.r).toFixed(1)+'/s'],['DPS','~'+Math.round(tot/w.r)],['Range',Math.round(w.sp*(w.l||.7))],['Accuracy','\u00b1'+(w.s*57.2958).toFixed(1)+'\u00b0'],['Magazine',w.m],['Reload',w.rl+'s'],['Noise',nzLabel(w.nz)]]};
+const wList=w=>{const tot=w.d*w.p;return[['Damage',tot+(w.p>1?' ('+w.d+'x'+w.p+')':'')],['Fire rate',(1/w.r).toFixed(1)+'/s'],['DPS',dpsTxt(w)],['Range',Math.round(w.sp*(w.l||.7))],['Accuracy','\u00b1'+(w.s*57.2958).toFixed(1)+'\u00b0'],['Magazine',w.m],['Reload',w.rl+'s'],['Noise',nzLabel(w.nz)]]};
 function pickInfo(k,el,ref){selInfo=k;selRef=ref||null;skOpen=0;document.querySelectorAll('#menu .it.sel').forEach(x=>x.classList.remove('sel'));if(el)el.classList.add('sel');renderInfo()}
 function renderInfo(){const b=document.getElementById('ib');if(!b)return;const d=selInfo&&itemDef(selInfo);
  if(!d){b.innerHTML='<div class=ibe>Click a weapon or item to inspect it.</div>';return}
  const k=selInfo,wp=!TOOL[k];
  b.innerHTML='<div class=ibi></div><div class=ibt><h3>'+d.n+'</h3><div class=ibk>'+itemType(k)+' \u00b7 shop price $'+d.c+' \u00b7 sells for $'+(d.tot?d.c:Math.floor(d.c/2))+'</div>'+(wp?st(d)+wNotes(d).map(x=>'<div class=ibn>'+x+'</div>').join(''):'<p>'+d.d+'</p>')+'</div>';
- const ro=wp?refObj():null,cur=ro?skv(k,ro.sk):'';b.querySelector('.ibi').appendChild(itemCv(k,256,192,cur));
+ const ro=refObj(),cur=ro?(wp?skv(k,ro.sk):skv(k,TSK[k])):'';b.querySelector('.ibi').appendChild(itemCv(k,256,192,cur));
  if(ro){const t=b.querySelector('.ibt'),row=document.createElement('div'),sl=WSK[k]||[];row.className='ibs';
-  if(!sl.length)row.innerHTML='<span class=ibn>No skins exist for this weapon yet.</span>';
+  if(!sl.length)row.innerHTML='<span class=ibn>No skins exist for this '+(wp?'weapon':'tool')+' yet.</span>';
   else{const tg=document.createElement('button');tg.className='skb';tg.textContent='Skin: '+(cur?WSKINS[cur].n:'Standard')+(skOpen?' \u25B4':' \u25BE');tg.onclick=ev=>{ev.stopPropagation();skOpen=!skOpen;renderInfo()};row.appendChild(tg);
    if(skOpen){const mk=(id,lab)=>{const x=document.createElement('button');x.className='skb'+(id==cur?' on':'');x.textContent=lab;x.onclick=ev=>{ev.stopPropagation();applySkin(id)};row.appendChild(x)};
     mk('','Standard');sl.filter(q=>own.includes(q.id)||q.id==cur).forEach(q=>mk(q.id,q.n+(own.includes(q.id)?'':' (found)')));
-    const lk=sl.filter(q=>!own.includes(q.id)&&q.id!=cur).length,ht=(cur&&!own.includes(cur)?'You have not unlocked this skin. It stays on this weapon until you change it. ':'')+(lk?lk+' more locked - buy them under Skins.':'');
+    const lk=sl.filter(q=>!own.includes(q.id)&&q.id!=cur).length,ht=(!wp?'A tool skin covers every '+d.n+' you carry. ':'')+(cur&&!own.includes(cur)?'You have not unlocked this skin. It stays on this weapon until you change it. ':'')+(lk?lk+' more locked - buy them under Skins.':'');
     if(ht){const h=document.createElement('div');h.className='ibn';h.style.width='100%';h.textContent=ht;row.appendChild(h)}}}
   t.appendChild(row)}}
 function refObj(){const r=selRef;if(!r||!selInfo)return null;if(r.sid){const o=slotGet(r.sid);return o&&o.k==selInfo?o:null}const a=r.ct&&CT[r.ct]?CT[r.ct].a():null;return a&&a.includes(r.o)&&r.o.k==selInfo?r.o:null}
 // Skin button: changes the skin of this one item only. Only skins you own (or one already on the item) can be chosen; carrying a found skin never unlocks it.
-function applySkin(id){const ro=refObj();if(!ro||!(PRI[ro.k]||SID[ro.k]))return;const cur=skv(ro.k,ro.sk);id=skv(ro.k,id);if(id&&!own.includes(id)&&id!=cur)return;
+function applySkin(id){const ro=refObj();if(ro&&TOOL[ro.k]){const cu=skv(ro.k,TSK[ro.k]);id=skv(ro.k,id);if(id&&!own.includes(id)&&id!=cu)return;if(id)TSK[ro.k]=id;else delete TSK[ro.k];skOpen=0;SAVE();menu();return}if(!ro||!(PRI[ro.k]||SID[ro.k]))return;const cur=skv(ro.k,ro.sk);id=skv(ro.k,id);if(id&&!own.includes(id)&&id!=cur)return;
  if(selRef.sid)slotSet(selRef.sid,{k:ro.k,n:ro.n,sk:id});else if(id)ro.sk=id;else delete ro.sk;
  skOpen=0;SAVE();menu()}
 let drg=null;
@@ -1423,7 +1509,7 @@ RS={};mis=ledgerTask();trees=[];M=[];bul=[];eb=[];bombs=[];lobs=[];fires=[];flar
  if(gorW)gorMap(bb,sp);if(nyxW)nyxMap(bb,sp);if(morW)morMap(bb,sp);
  genBuildings(bb);genExits();sealBoss(bb);
  const B=BOSS[boss];M.push({boss:1,bb:bb,bh:B.bh,x:bb.cx,y:bb.cy,hx:bb.cx,hy:bb.cy,hp:B.hp,mh:B.hp,st:'idle',wt:0,cd:2,fl:0,dash:0,wk:0});
- for(let i=0;i<32;i++){let x,y,t=0;do{const b=i<16?blds[i%blds.length]:null;x=b?b.cx+R(-b.w/3,b.w/3):R(60,WW-60);y=b?b.cy+R(-b.h/3,b.h/3):R(60,WH-60)}while((hit(x,y,6)||D(x,y,sp.x,sp.y)<350)&&t++<30);M.push(mkMob(x,y,'idle'))}
+ for(let i=0;i<46;i++){let x,y,t=0;do{const b=i<24?blds[i%blds.length]:null;x=b?b.cx+R(-b.w/3,b.w/3):R(60,WW-60);y=b?b.cy+R(-b.h/3,b.h/3):R(60,WH-60)}while((hit(x,y,6)||D(x,y,sp.x,sp.y)<350)&&t++<30);M.push(mkMob(x,y,'idle'))}
  // Lesser demon: Cerberus. Anywhere on the open map: never inside or beside any building (wings included), never near where players spawn (the camp).
  // Lesser demons: always at least 1, and a 50% chance of a second. Each is picked from the built types in LESSER_MK (add new ones there).
  {const mks=Object.keys(LESSER_MK),ld=[];for(let n=0,c=Math.random()<.5?2:1;n<c;n++){let x,y,t=0;do{x=R(80,WW-80);y=R(80,WH-80)}while((hit(x,y,16)||D(x,y,sp.x,sp.y)<500||ld.some(l=>D(x,y,l.x,l.y)<500)||blds.some(b=>{const e=bExt(b);return x>e.x-40&&x<e.x+e.w+40&&y>e.y-40&&y<e.y+e.h+40}))&&t++<300);if(t<=300){const m=LESSER_MK[mks[R(0,mks.length)|0]](x,y);if(m.ty=='raum')placeNest(m,sp);ld.push(m);M.push(m)}}}
@@ -1613,7 +1699,7 @@ function morFogDraw(){if(!MOR()||P.dead)return;const c=ctx;c.save();c.fillStyle=
 {const _mu=update;update=function(dt){let sv=null;if(MOR()&&MCH&&P&&!P.dead&&D(P.x,P.y,MCH.x,MCH.y)<75)sv=M.filter(m=>m.hp>0&&!m.boss&&!m.lesser&&D(m.x,m.y,P.x,P.y)<260).map(m=>[m,m.x,m.y]);_mu(dt);if(sv)sv.forEach(([m,x,y])=>{m.x=x+(m.x-x)*.35;m.y=y+(m.y-y)*.35});try{morTick(dt)}catch(e){}}}
 
 // ---------- WORLD EVENT FREQUENCY: each of these happens in only some runs (decided from the map seed, so multiplayer agrees). Raise a number to see that event more often (0 = never, 1 = every run). Tithe is timed separately (first toll after ~130-210s, then every ~220-300s). ----------
-const EVCH={bm:.18,rain:.14,fog:.14,collapse:.14};
+const EVCH={bm:.30,rain:.40,fog:.40,collapse:.40};   // chance per run of each random event; they add up to 1.5 events per run on average
 const evOk=(k,o)=>{const sd=blds[0]?blds[0].x*.53+blds[0].y:1;return hs(sd+o)<EVCH[k]};
 // ---------- ACTIONS ----------
 function noise(x,y,r){lessNoiseSrc(x,y);M.forEach(m=>{if(m.lesser){if(m.hp>0&&D(m.x,m.y,x,y)<r&&lessOut(x,y)){m.sx=x;m.sy=y;m.hun=1;m.ht=T}return}if(m.hp>0&&!glLure(m)&&D(m.x,m.y,x,y)<r&&(!m.boss||D(m.x,m.y,x,y)<160)){m.st='chase';m.lt=0}})}
@@ -1753,14 +1839,14 @@ function update(dt){
  const CLI=mpCli();for(const m of M){if(m.hp<=0||CLI)continue;if(m.lesser){roamLesser(m,dt);continue}TG=mpTgt(m);const sx0=m.x,sy0=m.y;m.ig=(m.ig||0)-dt;m.fl-=dt;m.cd-=dt;const d=D(m.x,m.y,TG.x,TG.y),a=Math.atan2(TG.y-m.y,TG.x-m.x),v=los(m.x,m.y,TG.x,TG.y);m.a=a;if(m.boss)m.st=inHouse(m.bb,TG.x,TG.y,0)?'chase':'idle';
   if(m.ty=='gleaner'&&m.st=='lure'){if(d<17&&!TG.dead)glReveal(m);continue}
   if(m.st=='idle'){m.wt-=dt;if(m.wt<=0){m.wa=R(0,6.28);m.wt=R(1,4);m.go=Math.random()<.6}if(m.go&&!m.boss){mv(m,Math.cos(m.wa)*20*dt,Math.sin(m.wa)*20*dt,5);m.wk+=dt*5}
-   if(m.boss){m.al=(m.al||0)-dt;const sp=m.al>0?62:34,h=m.al>0?a+Math.PI+Math.sin(T*3)*.5:m.wa,qx=m.x,qy=m.y;mv(m,Math.cos(h)*sp*dt,Math.sin(h)*sp*dt,9);m.wk+=dt*5;if(Math.hypot(m.x-qx,m.y-qy)<.3*sp*dt)m.wt=0}if(!m.boss&&((d<(NYX()?52:75)&&v)||d<22)&&(m.ig||0)<=0){m.st='chase';m.lt=0}}
-  else{m.lt=v?Math.max(0,(m.lt||0)-dt*2):(m.lt||0)+dt;if(m.boss||m.ty=='gleaner'||(m.ty=='spooler'&&m.sp>0)?0:(d>240||(m.lt>3&&d>110)||m.lt>6)){m.st='idle';m.lt=0;m.ig=2;m.wt=0}
-   if(m.boss&&m.bh=='charge'){if(m.dash>0){m.dash-=dt;mv(m,Math.cos(m.da)*230*dt,Math.sin(m.da)*230*dt,9);if(!m.dh&&d<18){m.dh=1;hurtTG(35)}}
-    else if(d>50&&d<200&&m.cd<=0&&v){m.dash=.55;m.da=a;m.dh=0;m.cd=3}
-    else{mv(m,Math.cos(a)*62*dt,Math.sin(a)*62*dt,9);m.wk+=dt*7;if(d<20&&m.mc!==undefined&&m.mc<=0||d<20&&m.mc===undefined){m.mc=1;hurtTG(20)}}m.mc-=dt}
+   if(m.boss){m.al=(m.al||0)-dt;const sp=m.al>0?62:34,h=m.al>0?a+Math.PI+Math.sin(T*3)*.5:m.wa,qx=m.x,qy=m.y;mv(m,Math.cos(h)*sp*dt,Math.sin(h)*sp*dt,9);m.wk+=dt*5;if(Math.hypot(m.x-qx,m.y-qy)<.3*sp*dt)m.wt=0}if(!m.boss&&((d<(NYX()?(hbT()?52:70):(hbT()?75:105))&&v)||d<22)&&(m.ig||0)<=0){m.st='chase';m.lt=0}}
+  else{m.lt=v?Math.max(0,(m.lt||0)-dt*2):(m.lt||0)+dt;if(m.boss||m.ty=='gleaner'||(m.ty=='spooler'&&m.sp>0)?0:(d>300||(m.lt>3&&d>110)||m.lt>6)){m.st='idle';m.lt=0;m.ig=2;m.wt=0}
+   if(m.boss&&m.bh=='charge'){if(m.dash>0){m.dash-=dt;mv(m,Math.cos(m.da)*230*dt,Math.sin(m.da)*230*dt,9);if(!m.dh&&d<18){m.dh=1;hurtTG(40)}}
+    else if(d>50&&d<200&&m.cd<=0&&v){m.dash=.55;m.da=a;m.dh=0;m.cd=m.hp<m.mh*.5?1.7:2.4}
+    else{mv(m,Math.cos(a)*62*dt,Math.sin(a)*62*dt,9);m.wk+=dt*7;if(d<20&&m.mc!==undefined&&m.mc<=0||d<20&&m.mc===undefined){m.mc=1;hurtTG(24)}}m.mc-=dt}
    else if(m.boss){const s=d<110?-70:d>150?70:0;mv(m,Math.cos(a)*s*dt,Math.sin(a)*s*dt,8);m.wk+=dt*8;
-    if(m.cd<=0&&v&&d<320){m.cd=m.bh=='summon'?2:1.3;eb.push({x:m.x,y:m.y,vx:Math.cos(a)*140,vy:Math.sin(a)*140,l:3,o:m})}
-    if(m.bh=='summon'&&(m.sc=(m.sc===undefined?3:m.sc)-dt)<=0){m.sc=7;if(M.filter(q=>q.hp>0&&!q.boss).length<90){for(let i=0;i<3;i++){const nx=m.x+R(-24,24),ny=m.y+R(-24,24);if(!hit(nx,ny,6)){M.push(mkMob(nx,ny,'chase',Math.random()<.7?'imp':'skitter'));burst(nx,ny,8,60,'#ff7a1a',0)}}say(BOSS[boss].n+' calls the horde!',2)}}
+    if(m.cd<=0&&v&&d<320){m.cd=m.bh=='summon'?2:(m.hp<m.mh*.5?.8:1.1);eb.push({x:m.x,y:m.y,vx:Math.cos(a)*155,vy:Math.sin(a)*155,l:3,o:m})}
+    if(m.bh=='summon'&&(m.sc=(m.sc===undefined?3:m.sc)-dt)<=0){m.sc=m.hp<m.mh*.5?4.5:6;if(M.filter(q=>q.hp>0&&!q.boss).length<90){for(let i=0;i<3;i++){const nx=m.x+R(-24,24),ny=m.y+R(-24,24);if(!hit(nx,ny,6)){M.push(mkMob(nx,ny,'chase',Math.random()<.7?'imp':'skitter'));burst(nx,ny,8,60,'#ff7a1a',0)}}say(BOSS[boss].n+' calls the horde!',2)}}
     if(d<16&&(m.mc=(m.mc||0)-dt)<=0){m.mc=1;hurtTG(18)}}
    else mobAI(m,a,d,v,dt)}if(m.boss){if(m.st=='chase'&&D(m.x,m.y,sx0,sy0)<.2*dt*55&&d>26){m.sg=m.sg||1;if((m.sk=(m.sk||0)-dt)<=0){m.sk=1.2;m.sg=-m.sg}mv(m,Math.cos(a+1.57*m.sg)*70*dt,Math.sin(a+1.57*m.sg)*70*dt,9)}if(!inHouse(m.bb,m.x,m.y,0)){m.x=sx0;m.y=sy0}}}
  for(const b of bul){const n=Math.ceil(Math.hypot(b.vx,b.vy)*dt/4);b.l-=dt;for(let i=0;i<n&&b.l>0;i++){b.x+=b.vx*dt/n;b.y+=b.vy*dt/n;
@@ -1768,7 +1854,7 @@ function update(dt){
   let sc0=0;for(const m of M)if(m.ty=='spooler'&&m.hp>0&&m.sp==3&&spChainNear(m,b.x,b.y,3.5)){spCutReq(m);b.l=0;sc0=1;break}if(sc0)break;
   for(const m of M)if(m.hp>0&&(m.lesser?cerbHit(m,b.x,b.y,1.5):D(m.x,m.y,b.x,b.y)<(m.boss?11:m.ty=='brute'?9:6))){hurt(m,b.d,Math.atan2(b.vy,b.vx),b.wk);b.l=0;dropBolt(b,1,m);break}if(b.l<=0)break}if(b.l<=0)dropBolt(b,0)}
  bul=bul.filter(b=>b.l>0);
- for(const b of eb){b.x+=b.vx*dt;b.y+=b.vy*dt;b.l-=dt;if(hit(b.x,b.y,1))b.l=0;if(!CLI&&D(b.x,b.y,P.x,P.y)<6){b.l=0;hurtP(14,{m:b.o,s:'fire'})}if(!CLI&&mp.on&&b.l>0)for(const q of Object.values(mp.rp))if(q.hp>0&&D(b.x,b.y,q.x,q.y)<6){b.l=0;mpSend({t:'hit',to:q.id,d:14,k:'mob'});break}}eb=eb.filter(b=>b.l>0);
+ for(const b of eb){b.x+=b.vx*dt;b.y+=b.vy*dt;b.l-=dt;if(hit(b.x,b.y,1))b.l=0;if(!CLI&&D(b.x,b.y,P.x,P.y)<6){b.l=0;hurtP(18,{m:b.o,s:'fire'})}if(!CLI&&mp.on&&b.l>0)for(const q of Object.values(mp.rp))if(q.hp>0&&D(b.x,b.y,q.x,q.y)<6){b.l=0;mpSend({t:'hit',to:q.id,d:18,k:'mob'});break}}eb=eb.filter(b=>b.l>0);
  for(const b of bombs){b.t-=dt;if(b.m>0){b.m-=dt;b.x+=b.vx*dt;b.y+=b.vy*dt;if(hit(b.x,b.y,2)){b.x-=b.vx*dt;b.y-=b.vy*dt;b.m=0}}
   if(b.t<=0){b.dead=1;shake=10;splat(b.x,b.y,16,28);bx.fillStyle='rgba(0,0,0,.6)';bx.beginPath();bx.arc(b.x,b.y,22,0,7);bx.fill();burst(b.x,b.y,40,170,'#ff9a30',0);burst(b.x,b.y,20,130,'#6a0a10',1);noise(b.x,b.y,500);
    M.forEach(m=>{if(m.hp>0&&D(m.x,m.y,b.x,b.y)<55)hurt(m,130,Math.atan2(m.y-b.y,m.x-b.x),'bomb')});if(D(P.x,P.y,b.x,b.y)<55)hurtP(60,{s:'bomb'})}}bombs=bombs.filter(b=>!b.dead);
@@ -1887,7 +1973,7 @@ function human(x,y,a,body,hat,fl,wk,gun){shadow(x,y,6);const b=Math.sin(wk)*1.5;
  ctx.fillStyle=fl?'#fff':body;ctx.fillRect(x-4,y-6,8,9);ctx.fillStyle='#000';ctx.fillRect(x-4,y,8,1);ctx.fillStyle=fl?'#fff':'#d8b898';ctx.fillRect(x-2,y-10,4,4);
  if(hat){ctx.fillStyle=hat;ctx.fillRect(x-5,y-11,10,2);ctx.fillRect(x-3,y-14,6,3)}else{ctx.fillStyle='#c01020';ctx.fillRect(x-2,y-9,1,1);ctx.fillRect(x+1,y-9,1,1)}
  ctx.strokeStyle=gun||'#7a8a5c';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x,y-2);ctx.lineTo(x+Math.cos(a)*(gun?11:7),y-2+Math.sin(a)*(gun?11:7));ctx.stroke()}
-function drawWpn(k,hx,hy,a,sc,sk){const sid=sk||'',W=sid&&WSKINS[sid]&&WSKINS[sid].k==k?WSKINS[sid]:null,Q=W?cbq:c=>c,r=(x,y,w,h,c)=>{ctx.fillStyle=Q(c);ctx.fillRect(x,y,w,h)};ctx.save();ctx.translate(hx,hy);ctx.rotate(a);if(Math.cos(a)<0)ctx.scale(1,-1);const q=sc||1;ctx.scale(q,q);
+function drawWpn(k,hx,hy,a,sc,sk){const sid=sk||(TOOL[k]&&TSK[k])||'',W=sid&&WSKINS[sid]&&WSKINS[sid].k==k?WSKINS[sid]:null,Q=W?(W.q||cbq):c=>c,r=(x,y,w,h,c)=>{ctx.fillStyle=Q(c);ctx.fillRect(x,y,w,h)};ctx.save();ctx.translate(hx,hy);ctx.rotate(a);if(Math.cos(a)<0)ctx.scale(1,-1);const q=sc||1;ctx.scale(q,q);
  if(k=='rifle'){r(-4,-1,6,2.2,'#6a4326');r(-4,-1,6,.6,'#8a5a32');r(2,-1.3,5,2.4,'#2c2c34');r(7,-.7,9,1.4,'#aab0bc');r(7,-.7,9,.5,'#e0e4ec');r(5,-3.2,5,1.5,'#1a1a20');r(9.2,-3,.8,1.1,'#ff5a3c');r(15.5,-1.3,1.5,2.6,'#e8c860')}
  else if(k=='shotgun'){r(-5,-1.3,7,2.6,'#7a4a28');r(-5,-1.3,7,.7,'#9a6438');r(2,-1.6,3,3.2,'#3a3a42');r(5,-1.8,10,1.4,'#4a4a52');r(5,.4,10,1.4,'#4a4a52');r(8,-1.5,1,.7,'#ff6a1a');r(11,.7,1,.7,'#ff6a1a');r(14.5,-2,1,4,'#222');r(4,-.4,2,.8,'#8a1c1c')}
  else if(k=='repeater'){r(-4,-1,5,2.2,'#8a5a32');r(1,-1.5,5,3,'#c8a050');r(1,-1.5,5,.8,'#e8c878');r(6,-.9,9,1.3,'#6a6a72');r(6,.6,8,1.1,'#9a9aa2');r(2,1.6,3.5,.8,'#c8a050');r(2,1.6,.8,2,'#c8a050');r(14,-1.8,.8,.9,'#222')}
@@ -1938,7 +2024,8 @@ function drawWpn(k,hx,hy,a,sc,sk){const sid=sk||'',W=sid&&WSKINS[sid]&&WSKINS[si
  else if(k=='thief'){r(-5,-2,7,4,'#2c2036');r(-5,-2,7,.8,'#463858');r(-6.4,-1.6,1.4,3.2,'#8a0c18');r(2,-2.2,4,1,'#2c2036');r(2,-.8,5,1,'#2c2036');r(2,.6,4.5,1,'#2c2036');r(2,2,3.5,1,'#2c2036');r(6,-2.2,1,.7,'#e0d8c0');r(7,-.8,1,.7,'#e0d8c0');r(6.5,.6,1,.7,'#e0d8c0');r(5.5,2,1,.7,'#e0d8c0');r(0,-2,1.4,4,'#f0c850')}
  else if(k=='pearl'){r(-5,-2.4,10,4.8,'#2f6060');r(-5,-2.4,10,.9,'#5a9a90');r(-5,1.6,10,.8,'#183a3a');r(-2.4,-1.6,4.8,3.2,'#e8f0e8');r(-2.4,-1.6,4.8,.8,'#fff');r(-1.4,-.8,1.4,1.4,'#fff');r(1.4,.2,1,1,'#a8c8c0');r(-6.4,-.5,1.4,1,'#d9ccb0');r(5,-.5,1.4,1,'#d9ccb0')}
  else if(k=='undertow'){r(-5,-1.2,10,2.4,'#183a3a');r(-4,-2.2,8,.8,'#2f6060');r(-3,1.2,7,1.4,'#2f6060');r(-5,-.2,10,.8,'#5a9a90');r(-3,-.6,2,1.2,'#a8d8d0');r(2,.2,2,.8,'#a8d8d0');r(-.6,-3.6,1.2,1.4,'#5a9a90');r(5.6,-.6,1.4,1.2,'#d9ccb0')}
- if(W&&PIP[k]){const p=PIP[k];ctx.globalAlpha=.7+.3*Math.sin(performance.now()/350);ctx.fillStyle='#ff5a1e';for(let n=0;n<3;n++)ctx.fillRect(p[0]+n*1.6,p[1],.8,.8);ctx.globalAlpha=1}
+ if(W&&W.fx){try{W.fx(ctx,k)}catch(e){}}   // skin overlay: extra shapes in the weapon's own pixel space, drawn on top
+ if(W&&!W.q&&PIP[k]){const p=PIP[k];ctx.globalAlpha=.7+.3*Math.sin(performance.now()/350);ctx.fillStyle='#ff5a1e';for(let n=0;n<3;n++)ctx.fillRect(p[0]+n*1.6,p[1],.8,.8);ctx.globalAlpha=1}
  ctx.restore()}
 const BC={pepperbox:['#ffd860',1.5,.022],musket:['#fff6c0',1.8,.04],flamer:['#ff8a20',3,.025],handcannon:['#ffd860',2,.022],whisper:['#c8d0e0',1,.02],rifle:['#fff6c0',1.6,.03],shotgun:['#ff9a40',1.2,.012],repeater:['#ffe070',1.2,.018],crossbow:['#e8ecff',1.4,.045],pistol:['#ffe9a0',1.2,.014],revolver:['#ffd860',1.8,.02],gatling:['#ffe070',1.3,.02],blunderbuss:['#ffb050',1.3,.012],longbow:['#e8e0c0',1.6,.05],sprayer:['#8ad0ff',3.2,.03],sixshooter:['#ffd860',1.8,.02],dartpistol:['#7be07b',1.2,.03],carbine:['#fff6c0',1.5,.028],sawnoff:['#ff9a40',1.3,.012],pump:['#ff9a40',1.2,.012],lever:['#ffe070',1.2,.016],drum:['#ffe070',1.2,.018],repxbow:['#e8ecff',1.4,.045],fowling:['#ffb050',1.3,.014],derringer:['#e8d8a0',1,.012],pocketrev:['#ffd860',1.4,.016],navyrev:['#ffd860',1.5,.018],scatterpistol:['#ff9a40',1.2,.012],dragoon:['#ffd860',2,.022],sling:['#cfc8b8',1.4,.05],saltgun:['#f0eee0',1.2,.012]};
 const SKB={
@@ -2855,7 +2942,7 @@ function mpHandle(o){const r=mp.rp,f=o.f,nm=hn(f);mp.ls[f]=Date.now();if(o.v!==4
  else if(o.t=='chk')CHALK.push({x:o.x,y:o.y,r:36,t:6,m:6})
  else if(o.t=='nmk')NOISE.push({x:o.x,y:o.y,t:7,tk:0,own:0})
  else if(o.t=='fl')flares.push({x:o.x,y:o.y,t:14,tk:99,dec:1,id:-1,hp:1});
- else if(o.t=='dead'){const q0=r[f];if(q0)try{gore({x:q0.x,y:q0.y,ty:'imp'},null,70,o.by!=null&&o.ws?o.ws:'melee',palFor(q0.sk));pool(q0.x,q0.y,18,8);splat(q0.x,q0.y,50,26)}catch(e){}const dr=bty&&bty.h===f;if(dr)bty={h:null,x:q0?q0.x:bty.x,y:q0?q0.y:bty.y};delete r[f];mp.out[f]=1;say(nm+' was slain'+(o.by!=null?' by '+(o.by==mp.me?'you':hn(o.by)):'')+'!'+(o.tn?' Their gear is tainted by evil.':'')+(dr?' The bounty has dropped!':''),dr?6:4)}
+ else if(o.t=='dead'){{const kb=mpKill(o,f);if(kb===mp.me&&!mpMate(f)&&mode=='play'&&!(typeof TUTR!=='undefined'&&TUTR))RS.pk=(RS.pk||0)+1}const q0=r[f];if(q0)try{gore({x:q0.x,y:q0.y,ty:'imp'},null,70,o.by!=null&&o.ws?o.ws:'melee',palFor(q0.sk));pool(q0.x,q0.y,18,8);splat(q0.x,q0.y,50,26)}catch(e){}const dr=bty&&bty.h===f;if(dr)bty={h:null,x:q0?q0.x:bty.x,y:q0?q0.y:bty.y};delete r[f];mp.out[f]=1;say(nm+' was slain'+(o.by!=null?' by '+(o.by==mp.me?'you':hn(o.by)):'')+'!'+(o.tn?' Their gear is tainted by evil.':'')+(dr?' The bounty has dropped!':''),dr?6:4)}
  else if(o.t=='left'){const hb=bty&&bty.h===f;if(hb)bty=null;delete r[f];mp.out[f]=1;say(nm+' escaped'+(hb?' with the bounty!':'.'),hb?6:3)}}
 function mpStop(){mp.tm={};mp.on=0;mp.room=null;mp.rp={};mp.onS=null;mpb=[];clearInterval(mpTimer);mp.cl.forEach(c=>{try{c.end(true)}catch(e){}});mp.cl=[]}
 function mpOverlay(txt){if(!mpOv){mpOv=document.createElement('div');mpOv.style.cssText='position:fixed;inset:0;z-index:99;background:rgba(6,2,4,.93);color:#e8e6d8;font:22px Caveat,monospace;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center';document.body.appendChild(mpOv)}mpOv.innerHTML='<div style="font-size:34px;color:#d06a5a">Entering the breach...</div><div>'+txt+'</div>'+(mp.cancel?'<button id="mpCancel" style="margin-top:10px;padding:8px 26px;font:22px Caveat,monospace;color:#e8e6d8;background:#3a1418;border:2px solid #d06a5a;border-radius:6px;cursor:pointer">Stop searching</button>':'');const cb=mpOv.querySelector('#mpCancel');if(cb)cb.onclick=()=>{if(mp.cancel)mp.cancel()}}
@@ -3595,7 +3682,7 @@ addEventListener('click',e=>{if(mode!='menu')return;const t=e.target&&e.target.c
 let CAPS=false;['keydown','keyup','mousedown','mousemove'].forEach(ev=>addEventListener(ev,e=>{try{CAPS=!!e.getModifierState('CapsLock')}catch(_){}},true));
 
 // ---------- SELLING: drag an item onto the sell box for half its shop price ----------
-const SELL_TXT='Sell: drag an item here for half its shop price (totems sell for $50 each)',sellVal=d=>{const w=PRI[d.k]||SID[d.k]||TOOL[d.k]||{c:0};return (w.tot?w.c:Math.floor(w.c/2))*(TOOL[d.k]?(d.split?1:(d.o.n||1)):1)};
+const SELL_TXT='Sell: drag an item here for half its shop price',sellVal=d=>{const w=PRI[d.k]||SID[d.k]||TOOL[d.k]||{c:0};return (w.tot?w.c:Math.floor(w.c/2))*(TOOL[d.k]?(d.split?1:(d.o.n||1)):1)};
 {const _dm=dragMove;dragMove=function(e){_dm(e);const d=drg,z=$('#sz');if(!d||!z)return;const r=z.getBoundingClientRect(),on=e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;d.sell=on;z.classList.toggle('on',on);
  if(on){d.t=null;d.hl.style.display='none';const q=(TOOL[d.k]?(d.split?1:(d.o.n||1)):1);z.textContent='Sell '+((PRI[d.k]||SID[d.k]||TOOL[d.k]||{}).n||d.k)+(q>1?' x'+q:'')+' for $'+sellVal(d)}else z.textContent=SELL_TXT}}
 {const _de=dragEnd;dragEnd=function(){const d=drg;if(d&&d.sell){drg=null;removeEventListener('pointermove',dragMove);d.gh.remove();d.hl.remove();const v=sellVal(d),nm=(PRI[d.k]||SID[d.k]||TOOL[d.k]||{}).n||d.k,q=TOOL[d.k]?(d.split?1:(d.o.n||1)):1;take(d);bank+=v;SAVE();MUS.cash();note='Sold '+nm+(q>1?' x'+q:'')+' for $'+v+'.';menu(note);note='';return}_de()}}
@@ -4160,7 +4247,7 @@ function rotTick(dt){for(const u of UT)u.t-=dt;UT=UT.filter(u=>u.t>0);
    Table flags on a weapon row: gt gatling spin-up, dr longbow draw time, mo mortar shell, lc last chamber x2, ml melee profile (sidearm slot), nt notes.
    Per-weapon on-hit effects live in WFX (keyed by weapon key = bullet src). Bosses: immune to stun/sleep/blind, slow at half strength. */
 let FD=.016,SALT=[],CHALK=[],NOISE=[],SHELLS=[];
-const STK=['slow','stun','sleep','blind'],WFX={sprayer:{slow:1.6,mul:1.6},dartpistol:{sleep:8},blunderbuss:{kb:2.4},saltgun:{slow:2},dragoon:{kb:3}};
+const STK=['slow','stun','sleep','blind'],WFX={sprayer:{slow:1.6,mul:1.6},dartpistol:{sleep:8},blunderbuss:{kb:2.4},saltgun:{slow:2},dragoon:{kb:4.5}};
 function giveStatus(m,k,t){if(!m||m.hp<=0||m.lesser)return;if(m.boss){if(k!='slow')return;t*=.5}
  const s=m.stt||(m.stt={slow:0,stun:0,sleep:0,blind:0});s[k]=Math.max(s[k],t);
  if(k=='blind'&&!s.bp)s.bp={x:m.x+R(-90,90),y:m.y+R(-90,90)};if(k=='sleep'){m.st='idle';m.wt=1}}
@@ -4198,8 +4285,8 @@ function placeChalk(){const c={x:P.x,y:P.y,r:36,t:6,m:6};CHALK.push(c);say('Chal
  if(mp.on)mpSend({t:'chk',x:+c.x.toFixed(1),y:+c.y.toFixed(1)})}
 function nmLand(b){NOISE.push({x:b.x,y:b.y,t:7,tk:0,own:1});try{sfx.clatter(b.x,b.y)}catch(e){}if(mp.on)mpSend({t:'nmk',x:+b.x.toFixed(1),y:+b.y.toFixed(1)})}
 function weaponTick(dt){const w=P.cur<2?P.w[P.cur]:null;P.gj=Math.max(0,(P.gj||0)-dt);
- if(w&&w.gt){const fr=mouse.l&&P.rl<=0&&P.gj<=0&&P.mag[P.cur]>0;if(fr){P.gsp=Math.min(1,(P.gsp||0)+dt/1.1);if(P.gsp>=.3)P.gh=(P.gh||0)+dt}else{P.gsp=Math.max(0,(P.gsp||0)-dt*1.4);P.gh=Math.max(0,(P.gh||0)-dt*1.2)}
-  if(P.gh>3.2){P.gj=2.4;P.gh=0;P.gsp=0;say('Gatling jammed! Clearing...',2.4);try{sfx.jam()}catch(e){}}}else{P.gsp=0;P.gh=0}
+ if(w&&w.gt){const fr=mouse.l&&P.rl<=0&&P.gj<=0&&P.mag[P.cur]>0;if(fr){P.gsp=Math.min(1,(P.gsp||0)+dt/GT_SPIN);if(P.gsp>=.3)P.gh=(P.gh||0)+dt}else{P.gsp=Math.max(0,(P.gsp||0)-dt*1.4);P.gh=Math.max(0,(P.gh||0)-dt*1.2)}
+  if(P.gh>GT_JAM){P.gj=2.4;P.gh=0;P.gsp=0;say('Gatling jammed! Clearing...',2.4);try{sfx.jam()}catch(e){}}}else{P.gsp=0;P.gh=0}
  if(w&&w.dr){if(P.dw>0&&(!mouse.l||P.rl>0)){if(!mouse.l&&P.rl<=0&&P.cd<=0)fireBow(w);P.dw=0}}else P.dw=0;
  for(const s of SHELLS){s.t-=dt;s.x+=s.vx*dt;s.y+=s.vy*dt;if(s.t<=0){s.dead=1;shellBoom(s)}}SHELLS=SHELLS.filter(s=>!s.dead);
  for(const l of SALT)l.t-=dt;SALT=SALT.filter(l=>l.t>0);for(const c of CHALK)c.t-=dt;CHALK=CHALK.filter(c=>c.t>0);
@@ -4219,7 +4306,7 @@ function weaponTick(dt){const w=P.cur<2?P.w[P.cur]:null;P.gj=Math.max(0,(P.gj||0
  for(const s of SHELLS){const u=1-s.t/s.t0,z=Math.sin(u*Math.PI)*34;ctx.fillStyle='rgba(0,0,0,.35)';ctx.beginPath();ctx.ellipse(s.x-cx,s.y-cy,3,1.5,0,0,7);ctx.fill();ctx.fillStyle='#2c2c34';ctx.beginPath();ctx.arc(s.x-cx,s.y-cy-z,3,0,7);ctx.fill();ctx.fillStyle='#ffa030';ctx.fillRect(s.x-cx-.5,s.y-cy-z-4.5,1,1.5)}
  const w=P.cur<2?P.w[P.cur]:null,px=P.x-cx,py=P.y-cy;
  if(w&&w.dr&&P.dw>.05){const f=Math.min(1,P.dw/w.dr);ctx.lineWidth=2.5;ctx.lineCap='round';ctx.strokeStyle='rgba(0,0,0,.45)';ctx.beginPath();ctx.arc(px,py,17,-Math.PI/2,Math.PI*1.5);ctx.stroke();ctx.strokeStyle=f>=1?'#ffe070':'#e8e0c0';ctx.beginPath();ctx.arc(px,py,17,-Math.PI/2,-Math.PI/2+f*Math.PI*2);ctx.stroke()}
- if(w&&w.gt&&((P.gsp||0)>.02||P.gh>.05||P.gj>0)){const sp=P.gsp||0,hh=Math.min(1,(P.gh||0)/3.2),jm=P.gj>0;ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillRect(px-14,py+14,28,5);ctx.fillStyle=jm?'#ff4020':'#e0b040';ctx.fillRect(px-13,py+15,jm?26:26*sp,1.5);ctx.fillStyle=hh>.7?'#ff4020':'#ff9a30';ctx.fillRect(px-13,py+17,26*(jm?1:hh),1.5)}
+ if(w&&w.gt&&((P.gsp||0)>.02||P.gh>.05||P.gj>0)){const sp=P.gsp||0,hh=Math.min(1,(P.gh||0)/GT_JAM),jm=P.gj>0;ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillRect(px-14,py+14,28,5);ctx.fillStyle=jm?'#ff4020':'#e0b040';ctx.fillRect(px-13,py+15,jm?26:26*sp,1.5);ctx.fillStyle=hh>.7?'#ff4020':'#ff9a30';ctx.fillRect(px-13,py+17,26*(jm?1:hh),1.5)}
  ctx.restore()}}
 
 /* ===== Audio routing: master / effects / music volume (inserted between the game's sound output and the speakers) ===== */
@@ -4246,9 +4333,9 @@ function weaponTick(dt){const w=P.cur<2?P.w[P.cur]:null;P.gj=Math.max(0,(P.gj||0
    Auto-highlights: boss kills, near-death escapes, close calls, swarms, kill sprees and deaths are captured
    automatically and kept in memory (F8 in a run, or the panel on the menu, to save them). Shift+F10 toggles auto-highlights. ===== */
 (()=>{
- const CLIP=15e3,LIFE=23e3,SLOTS=3,STAG=LIFE/SLOTS,RW=640,RH=360,FPS=30,MAXHL=5,COOL=25e3;
+ const CLIP=15e3,LIFE=23e3,SLOTS=2,STAG=LIFE/SLOTS,RW=1280,RH=720,FPS=30,MAXHL=5,COOL=25e3;
  if(typeof MediaRecorder==='undefined'||!HTMLCanvasElement.prototype.captureStream)return;
- const rc=document.createElement('canvas');rc.width=RW;rc.height=RH;const rx=rc.getContext('2d');
+ const rc=document.createElement('canvas');rc.width=RW;rc.height=RH;const rx=rc.getContext('2d');rx.imageSmoothingEnabled=false;   /* record at 2x with hard pixel edges (no blur), and only 2 live encoders to keep the CPU load down */
  const mime=['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'].find(m=>MediaRecorder.isTypeSupported(m))||'';
  let on=true,auto=true,slots=[],t0=0,lastF=0,lastTick=0,stream=null,saving=false,adest=null;
  const trig={boss:1,escape:1,death:1,close:1,swarm:1},hl=[];let pend=null,lastAuto=-1e9,armed=false,kt=[],crowd=0,lastSamp=0;
@@ -4280,7 +4367,7 @@ function weaponTick(dt){const w=P.cur<2?P.w[P.cur]:null;P.gj=Math.max(0,(P.gj||0
   if(!stream)stream=rc.captureStream(FPS);
   const ms=new MediaStream(stream.getVideoTracks());
   if(adest)adest.stream.getAudioTracks().forEach(t=>ms.addTrack(t));
-  const mr=new MediaRecorder(ms,{mimeType:mime||undefined,videoBitsPerSecond:2.5e6,audioBitsPerSecond:128e3}),r={mr,ch:[],t:performance.now(),save:false,label:'',auto:false};
+  const mr=new MediaRecorder(ms,{mimeType:mime||undefined,videoBitsPerSecond:6e6,audioBitsPerSecond:128e3}),r={mr,ch:[],t:performance.now(),save:false,label:'',auto:false};
   mr.ondataavailable=e=>{if(e.data&&e.data.size)r.ch.push(e.data)};
   mr.onstop=()=>{if(!r.save)return;saving=false;const b=new Blob(r.ch,{type:'video/webm'});
    if(b.size<1e3){say('Replay failed: no footage captured',3);return}
@@ -4714,4 +4801,78 @@ function weaponTick(dt){const w=P.cur<2?P.w[P.cur]:null;P.gj=Math.max(0,(P.gj||0
   if(mode=='menu'&&scr=='title'&&bt&&!bt.querySelector('[data-v=daily]')){const b=document.createElement('button');b.className='tt-btn';b.dataset.v='daily';b.textContent='Daily Challenge';const sb=bt.querySelector('[data-v=settings]');bt.insertBefore(b,sb||null)}}catch(e){}
  {const _m=menu;menu=function(m){if(scr=='daily'){scr='title';showModal();return}_m.apply(this,arguments)}}
 })();
+
+function hbT(){return typeof TUTR!=='undefined'&&!!TUTR}
+
+// ---------- ARCHDEMON DEATH SCENES + SIGIL BURN (visual only; nothing here changes gameplay) ----------
+// When the archdemon falls, each lord dies its own way (Gorrath: magma burst, Nyxara: cinder pillar, Mordrek: the choir cuts off), and its seal burns into the ground
+// under the corpse. The seal drains as you hold E to banish, then flares and burns out. Driven by M[0].hp<=0 so every multiplayer client sees it. Skipped in the tutorial.
+let BDX=null;
+const BDC={gorrath:['255,110,30','#ff7a1a','#ffd070',['#ff7a1a','#ffd070','#ff3a10']],nyxara:['255,170,40','#ffb020','#fff0b0',['#ffb020','#ff6a1a','#fff0b0']],mordrek:['190,70,255','#c050ff','#f0d0ff',['#c050ff','#f0d0ff']]},BDS={gorrath:[8,3],nyxara:[5,2],mordrek:[7,3]},BDT=Math.PI*2;
+function bdxStart(b){const k=boss,cr=[];
+ if(k=='gorrath')for(let i=0;i<9;i++){const a=i*.698+R(-.25,.25),pts=[[0,0]],l=R(34,66);let px=0,py=0;for(let j=1;j<=5;j++){const aa=a+R(-.35,.35);px+=Math.cos(aa)*l/5;py+=Math.sin(aa)*l/5;pts.push([px,py])}cr.push(pts)}
+ BDX={M,x:b.x,y:b.y,k,t:0,bo:-1,p:[],cr,ac:0};
+ const pr=Math.max(.3,1-D(P.x,P.y,b.x,b.y)/600),c=BDC[k];
+ try{
+  if(k=='gorrath'){bx.fillStyle='rgba(14,6,4,.55)';bx.beginPath();bx.ellipse(b.x,b.y,46,30,0,0,7);bx.fill();bx.strokeStyle='rgba(70,12,6,.85)';bx.lineWidth=2.5;for(const pts of cr){bx.beginPath();pts.forEach((q,i)=>i?bx.lineTo(b.x+q[0],b.y+q[1]):bx.moveTo(b.x,b.y));bx.stroke()}
+   for(let i=0;i<46;i++){const a=R(0,6.28),sp=R(40,150);BDX.p.push({dx:0,dy:0,z:4,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp*.6,vz:R(90,230),g:300,l:0,m:R(.7,1.3),c:c[3][i%3],s:2})}
+   shake=Math.max(shake,16*pr);try{sfx.bomb({x:b.x,y:b.y,t:0})}catch(e){}}
+  else if(k=='nyxara'){bx.fillStyle='rgba(30,24,28,.5)';bx.beginPath();bx.ellipse(b.x,b.y,38,24,0,0,7);bx.fill();bx.fillStyle='rgba(60,50,56,.35)';for(let i=0;i<14;i++)bx.fillRect(b.x+R(-34,34),b.y+R(-20,20),2,1);
+   for(let i=0;i<28;i++){const a=R(0,6.28),sp=R(30,90);BDX.p.push({dx:0,dy:0,z:4,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp*.6,vz:R(10,60),g:-20,l:0,m:R(1,1.8),c:c[3][i%3],s:2})}
+   shake=Math.max(shake,7*pr);try{sfx.sigil(3)}catch(e){}}
+  else{bx.fillStyle='rgba(30,14,40,.5)';bx.beginPath();bx.ellipse(b.x,b.y,40,26,0,0,7);bx.fill();shake=Math.max(shake,4*pr)}
+ }catch(e){}
+ BDX.p.forEach(p=>p.l=p.m)}
+function bdxStep(dt){const B=BDX,k=B.k,c=BDC[k];B.t+=dt;const t=B.t,live=B.bo<0;
+ const rate=k=='gorrath'?(t<4?20:live?2.5:0):k=='nyxara'?(t<3.4?42:live?5:0):(t<2.4?7:live?1.2:0);B.ac+=rate*dt;
+ while(B.ac>=1){B.ac--;if(B.p.length>=170)break;
+  if(k=='gorrath'){const m=R(.8,1.6);B.p.push({dx:R(-12,12),dy:R(-6,6),z:2,vx:R(-14,14),vy:R(-8,8),vz:R(50,120),g:90,l:m,m,c:c[3][(Math.random()*3)|0],s:1})}
+  else if(k=='nyxara'){const m=R(1.1,1.9);B.p.push({dx:R(-8,8),dy:R(-4,4),z:2,vx:R(-12,12),vy:R(-6,6),vz:R(55,130),g:-15,l:m,m,c:c[3][(Math.random()*3)|0],s:1})}
+  else{const m=R(2.2,3.2);B.p.push({dx:R(-14,14),dy:R(-6,6),z:2,vx:R(-6,6),vy:R(-3,3),vz:R(16,34),g:0,l:m,m,w:1,ph:R(0,6)})}}
+ if(live&&(banished||bty)){B.bo=0;shake=Math.max(shake,5);try{sfx.sigil(3)}catch(e){}
+  for(let i=0;i<40;i++){const a=R(0,6.28),sp=R(30,120),m=R(.6,1.2);B.p.push({dx:0,dy:0,z:3,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp*.6,vz:R(60,180),g:200,l:m,m,c:c[3][i%c[3].length],s:2})}}
+ else if(B.bo>=0)B.bo+=dt;
+ for(const p of B.p){p.dx+=p.vx*dt;p.dy+=p.vy*dt;p.z+=p.vz*dt;p.vz-=p.g*dt;if(p.z<0){p.z=0;p.vz=0;p.vx*=.5}p.l-=dt}
+ B.p=B.p.filter(p=>p.l>0)}
+function bdxSeal(x,y){const B=BDX;if(!B||B.t<.8)return;const c=BDC[B.k],g=Math.min(1,(B.t-.8)/1.4),pl=.75+.25*Math.sin(T*3),[n,kk]=BDS[B.k];
+ let a=1,r=33,spin=T*.35;
+ if(B.bo>=0){const u=B.bo/1.2;if(u>=1)return;a=(1-u)*(1+(1-u));r=33*(1+u*.6)}
+ else{const d=Math.max(0,Math.min(1,P.bp/5));a=1-d*.75;r=33*(1-d*.35);spin*=1+d*5}
+ ctx.save();ctx.translate(x,y);ctx.globalCompositeOperation='lighter';ctx.lineCap='round';
+ const gr=ctx.createRadialGradient(0,0,2,0,0,r*1.15);gr.addColorStop(0,'rgba('+c[0]+','+(.22*a*pl).toFixed(3)+')');gr.addColorStop(1,'rgba('+c[0]+',0)');ctx.fillStyle=gr;ctx.beginPath();ctx.arc(0,0,r*1.15,0,7);ctx.fill();
+ const hot=B.bo>=0?'255,240,210':c[0];
+ for(const[w,al]of[[3.2,.22],[1.2,.85]]){ctx.strokeStyle='rgba('+hot+','+(al*a*pl).toFixed(3)+')';ctx.lineWidth=w;
+  ctx.beginPath();ctx.arc(0,0,r,-spin*.5,-spin*.5+BDT*g);ctx.stroke();
+  ctx.beginPath();ctx.arc(0,0,r*.62,spin*.3,spin*.3+BDT*g);ctx.stroke();
+  ctx.beginPath();for(let i=0;i<n;i++){const f=Math.max(0,Math.min(1,g*n-i));if(f<=0)break;const a0=spin+i*kk*BDT/n,a1=spin+(i+1)*kk*BDT/n,x0=Math.cos(a0)*r*.82,y0=Math.sin(a0)*r*.82,x1=Math.cos(a1)*r*.82,y1=Math.sin(a1)*r*.82;ctx.moveTo(x0,y0);ctx.lineTo(x0+(x1-x0)*f,y0+(y1-y0)*f)}ctx.stroke();
+  ctx.beginPath();for(let i=0;i<12;i++){if(i/12>g)break;const q=-spin*.5+i*BDT/12;ctx.moveTo(Math.cos(q)*r,Math.sin(q)*r);ctx.lineTo(Math.cos(q)*(r+3.5),Math.sin(q)*(r+3.5))}ctx.stroke()}
+ ctx.fillStyle='rgba('+hot+','+(.9*a*pl).toFixed(3)+')';for(let i=0;i<n;i++){if(i/n>g)break;const q=spin+i*kk*BDT/n;ctx.beginPath();ctx.arc(Math.cos(q)*r*.82,Math.sin(q)*r*.82,1.3,0,7);ctx.fill()}
+ ctx.beginPath();ctx.arc(0,0,2,0,7);ctx.fill();ctx.restore()}
+function bdxFx(x,y){const B=BDX;if(!B)return;const t=B.t,k=B.k,c=BDC[k];ctx.save();
+ if(k=='nyxara'){ctx.fillStyle='rgba(8,4,6,'+(.45*Math.min(1,t/3)).toFixed(3)+')';ctx.beginPath();ctx.ellipse(x,y,20,10,0,0,7);ctx.fill()}
+ ctx.globalCompositeOperation='lighter';
+ if(k=='gorrath'){
+  if(t<.8){const u=t/.8,rr=150*(1-(1-u)*(1-u));ctx.strokeStyle='rgba(255,150,50,'+(.8*(1-u)).toFixed(3)+')';ctx.lineWidth=3*(1-u)+1;ctx.beginPath();ctx.arc(x,y,rr,0,7);ctx.stroke();bGl(x,y,40*(1-u)+10,'#ffb050',.5*(1-u))}
+  const h=Math.max(0,1-t/5);ctx.lineCap='round';
+  for(const[w,col]of[[3.4,'rgba(255,60,10,'+(.22+.3*h).toFixed(3)+')'],[1.2,'rgba(255,'+((120+120*h)|0)+','+((30+60*h)|0)+','+(.35+.6*h).toFixed(3)+')']]){ctx.strokeStyle=col;ctx.lineWidth=w;for(const pts of B.cr){ctx.beginPath();pts.forEach((q,i)=>i?ctx.lineTo(x+q[0],y+q[1]):ctx.moveTo(x,y));ctx.stroke()}}
+  bGl(x,y,22,'#ff4a10',.14+.22*h)}
+ else if(k=='nyxara'&&t<4.2){const grow=Math.min(1,t/.7),fade=t<3.4?1:Math.max(0,1-(t-3.4)/.8),H=130*grow,w=9+(1-grow)*6+Math.sin(T*18)*1.5;
+  let gr=ctx.createLinearGradient(0,y,0,y-H);gr.addColorStop(0,'rgba(255,190,70,'+(.75*fade).toFixed(3)+')');gr.addColorStop(.6,'rgba(255,110,20,'+(.35*fade).toFixed(3)+')');gr.addColorStop(1,'rgba(255,60,10,0)');ctx.fillStyle=gr;ctx.fillRect(x-w/2,y-H,w,H);
+  ctx.fillStyle='rgba(255,240,200,'+(.5*fade).toFixed(3)+')';ctx.fillRect(x-w*.18,y-H*.8,w*.36,H*.8);bGl(x,y,24,'#ff8a20',.3*fade)}
+ else if(k=='mordrek'){
+  if(t<.7){const u=t/.7,rr=130*(1-u*u);ctx.strokeStyle='rgba(190,70,255,'+(.2+.7*u).toFixed(3)+')';ctx.lineWidth=2+u*2;ctx.beginPath();ctx.arc(x,y,rr,0,7);ctx.stroke()}
+  if(t>=.7&&t<1.1)bGl(x,y,30,'#e0a0ff',.6*(1-(t-.7)/.4))}
+ for(const p of B.p){const a=Math.max(0,p.l/p.m),sx=x+p.dx,sy=y+p.dy-p.z;
+  if(p.w){const sw=Math.sin(T*2+p.ph)*3;bGl(sx+sw,sy,3.5,'#b030ff',.25*a);ctx.globalAlpha=.8*a;ctx.fillStyle='#ebd2ff';ctx.beginPath();ctx.arc(sx+sw,sy,1.5,0,7);ctx.fill();ctx.globalAlpha=1}
+  else{ctx.globalAlpha=a;ctx.fillStyle=p.c;ctx.fillRect(sx,sy,p.s,p.s);ctx.globalAlpha=1}}
+ ctx.restore()}
+{const _dc=drawBossCorpse;drawBossCorpse=function(x,y,k){if(!BDX||BDX.M!==M)return _dc(x,y,k);bdxSeal(x,y);_dc(x,y,k);bdxFx(x,y)}}
+{const _bd2=bmDraw;bmDraw=function(){_bd2();const B=BDX;if(!B||B.M!==M||P.dead||mode!='play')return;const pr=Math.max(.25,1-D(P.x,P.y,B.x,B.y)/650),t=B.t;
+ if(B.k=='mordrek'){const a=(t<.25?t/.25:Math.max(0,1-(t-.25)/2.2))*.55*pr;if(a>.01){ctx.save();ctx.fillStyle='rgba(8,0,14,'+a.toFixed(3)+')';ctx.fillRect(0,0,VW,VH);ctx.restore()}}
+ else if(t<.6){const a=(1-t/.6)*(B.k=='gorrath'?.5:.38)*pr;ctx.save();ctx.fillStyle='rgba('+BDC[B.k][0]+','+a.toFixed(3)+')';ctx.fillRect(0,0,VW,VH);ctx.restore()}}}
+{const _un=newGame;newGame=function(){BDX=null;_un()}}
+{const _ub=update;update=function(dt){_ub(dt);if(mode!='play'||!P||hbT())return;
+ if(BDX&&BDX.M!==M)BDX=null;
+ if(!BDX){const b=M[0]&&M[0].boss?M[0]:M.find(m=>m.boss);if(b&&b.hp<=0)bdxStart(b)}
+ if(BDX)bdxStep(dt)}}
 </script></body></html>
