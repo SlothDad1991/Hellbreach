@@ -4662,6 +4662,7 @@ function tutFlyDraw(){const S=TUTR;if(!S||!P||mode!='play'||S.ok>0)return;const 
 // ---- step 2: combat lessons (wave, melee, swap weapons, heal, throw a charge) ----
 {const _h=hurt;hurt=function(m,d,a,k){if(TUTR&&k=='melee'&&m&&m.ty=='imp')TUTR.mh=(TUTR.mh|0)+1;return _h.apply(this,arguments)}}
 function tutImp(x,y,st){const m=mkMob(x,y,st||'idle','imp');if(st=='chase')m.lt=0;M.push(m);return m}
+const tSlotNo=k=>{const i=P&&P.ts?P.ts.findIndex(x=>x&&x.k==k):-1;return i<0?null:i+3},tSlotTxt=k=>{const n=tSlotNo(k);return n?'press '+n+' or scroll the mouse wheel':'scroll the mouse wheel'};
 const tAlive=a=>a.filter(m=>m.hp>0),tNear=a=>tAlive(a).sort((p,q)=>D(P.x,P.y,p.x,p.y)-D(P.x,P.y,q.x,q.y))[0]||null;
 TLESS.push(
  {t:'A pack',
@@ -4679,7 +4680,7 @@ TLESS.push(
   init:S=>{P.cur=0},
   tick:S=>P.cur==1},
  {t:'Heal',
-  d:()=>{const F=TUTR&&TUTR.fly;if(F&&!F.done)return 'The Reaper is making a pass overhead, and it breathes fire. Hold on, this is going to hurt.';return tMob()?'You are hurt. Tap '+tBtn('heal','the heal button')+' to drink Holy Water. It heals 50 HP.':'You are hurt. Press H to drink Holy Water. It heals 50 HP. (You can also pick it with 3 and left click.)'},
+  d:()=>{const F=TUTR&&TUTR.fly;if(F&&!F.done)return 'The Reaper is making a pass overhead, and it breathes fire. Hold on, this is going to hurt.';return tMob()?'You are hurt. Tap '+tBtn('heal','the heal button')+' to drink Holy Water. It heals 50 HP.':'You are hurt. To select your Holy Water, '+tSlotTxt('tonic')+', then left click to drink it. It heals 50 HP.'},
   init:S=>{S.keepHp=1;P.cur=0;S.fly={t:0,dur:5.8,x:-260,bs:null,fire:0,done:0};try{say('Something is circling overhead...',3)}catch(e){}},
   tick:(S,dt)=>{const F=S.fly;
    if(!F.done){F.t+=dt;F.x=lp(-260,VW+260,sg(F.t,.8,F.dur));const px=P.x-cam.x;
@@ -4689,7 +4690,7 @@ TLESS.push(
     if(F.t>=F.dur){F.done=1;P.hp=Math.min(P.hp,40)}}
    return !!F.done&&P.hp>=85}},
  {t:'Grenade',
-  d:()=>tMob()?'Tap '+tBtn('swap','the swap button')+' until the Grenade is selected, then drag FIRE toward the pack. It explodes after a moment, so get clear.':'Aim at the pack and press G to throw a Grenade. It explodes after a moment, so get clear.',
+  d:()=>tMob()?'Tap '+tBtn('swap','the swap button')+' until the Grenade is selected, then drag FIRE toward the pack. It explodes after a moment, so get clear.':'To select your Grenade, '+tSlotTxt('bomb')+'. Then aim at the pack and left click to throw it. It explodes after a moment, so get clear.',
   init:S=>{S.red=1;P.cur=0;TS('bomb',2);const c=tutSpot(P.x,P.y,190,230);S.c=c;S.ms=[];
    for(const o of[[0,0],[14,8],[-14,10]]){let x=c.x+o[0],y=c.y+o[1];if(hit(x,y,8)){x=c.x;y=c.y}S.ms.push(tutImp(x,y,'idle'))}S.bl=bombs.length;S.th=0},
   tick:S=>{if(!S.th&&bombs.length>S.bl)S.th=S.t;return S.th&&(!tAlive(S.ms).length||S.t-S.th>3.5)},
@@ -4724,7 +4725,7 @@ TLESS.push(
   init:S=>{},
   tick:S=>!!invOpen},
  {t:'Equip',
-  d:()=>invOpen?'A spare Rifle is in your backpack. '+(tMob()?'Tap':'Click')+' it to equip it. The weapon in your hands goes into the pack.':'Open your inventory again with '+tKey('bag','Tab')+' to continue.',
+  d:()=>invOpen?(tMob()?'A spare Rifle is in your backpack. Tap it to equip it. The weapon in your hands goes into the pack.':'A spare Rifle is in your backpack. Click it, or drag it onto your weapon slot, to equip it. The weapon in your hands goes into the pack.'):'Open your inventory again with '+tKey('bag','Tab')+' to continue.',
   init:S=>{if(!P.bag.some(o=>o.k=='rifle'))addTo(P.bag,4,4,'rifle',1)},
   tick:S=>!!(P.w[0]&&P.w[0].k=='rifle')},
  {t:'Close the bag',
