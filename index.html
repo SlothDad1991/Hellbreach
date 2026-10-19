@@ -187,17 +187,10 @@ button.tt-btn:active{transform:translateX(12px) scale(.98)}
      STEP 6 - Polish and test. Mobile/landscape layout, small screens (subtitles wrap), skip button reachable by touch, audio unlock on first gesture (the button click counts), no leaks (cancel rAF, free offscreen canvases),
          test with speechSynthesis missing, with sound muted, and with reduced motion. Confirm tutorial, solo and multiplayer flows are unchanged. Then delete this whole block from the notes.
    -----------------------------------------------------------------------------------------------------
-   TO IMPLEMENT NEXT: REVIVE TOTEM (owner's request, Oct 18). Teammates cannot loot or share, but they can be REVIVED, and only with this item.
-     Item: "Revive Totem", a new tool row (key e.g. revive). UNLIKE the lesser demon totems it is sold at the Gunsmith (tools tab) AND can be found as random loot in the world
-       (so it needs a shop price, an XT entry and normal tool rules: tool slot, stacks like any tool, lost on death, kept on a clean escape). Plus ISZ / SPX / TL entries and a sprite in drawWpn.
-     Use (proposed, owner to confirm numbers): stand next to the corpse of a dead TEAMMATE (isMate) in the same run, use the totem and stand still 3s like burning a totem
-       (moving or taking damage cancels, and the burn smoke makes a little noise). The teammate rises at the corpse with 40% health and a short ward (about 3s, the same idea as
-       the planned Phenex Ash Feather). The totem is spent only when the revive completes. Cannot be used on yourself, on an enemy team's corpse, or if the corpse is gone (they already left).
-     Multiplayer: the reviver sends a message to the dead teammate (e.g. {t:'rv'} on the team room); the dead hunter's client leaves spectate and respawns itself at the corpse
-       position. Their corpse pile and dropped gear must be handled (see open questions) and no one else may loot it mid-revive. Hook in at mpDie() (death, drops, tainted flag),
-       the spectate flow and the totem burn code (TOTD / dropTotems area). Keep it OUT of the tutorial and solo runs (no teammate to revive).
-     Open questions for the owner: does the revived hunter get their dropped gear back (and is it removed from the ground), or do they come back with only a basic loadout?
-       Can a hunter killed by their own teammate (tainted gear) still be revived? Price at the Gunsmith? Does a revived hunter still count as "died" for extraction rewards?
+   REVIVE TOTEM: BUILT Oct 19 (see the REVIVE TOTEM block after the totems code). Owner to confirm these numbers/choices, all easy to change: price $150 (shop, tools tab, and random world loot in multiplayer only);
+     5s stand-still revive within 36px of the corpse; rise at 40% health with a 3s ward; the revived hunter comes back EMPTY-HANDED and their dropped gear stays on the ground where they fell (nothing is duplicated or removed);
+     tainted gear (killed by a teammate) can still be revived; a revived hunter counts as alive for extraction (no 'died' mark); the totem is spent when the 5s finish, whether or not the teammate is still there; it never stacks (max 1) and is a 1x2 item.
+     Not done: nobody is blocked from looting the corpse pile during the 3s (teammates already cannot loot; rivals can). Not tested with real players in a live room, only with a simulated room.
    -----------------------------------------------------------------------------------------------------
    TO DO AFTER THAT: DEATH ANIMATION AUDIT: check that every weapon has an appropriate kill animation, and that every monster has an appropriate death animation for what killed it.
      1. List every damage source: each primary and sidearm (PRI / SID), each tool that hurts (Grenade, Molotov, Tripwire, Salt gun, Stake...), plus fire, bomb, bloat blast, meteor, rot, and anything newer.
@@ -457,10 +450,11 @@ const SKINS={plain:{f:'hunter',c:0,pl:1,n:'Plain Hunter',d:'Drab coat, bare face
  wolf:{f:'wolf',v:'wolf',c:800,n:'Wolfhide Stalker',d:'Pelt, paint and fangs. The wild hunts the breach.',coat:'#6a5a4a',coat2:'#9a8a74',hood:'#4a3e32',mask:'#d8b890',beak:'',eye:'#ffd040',eyeg:'#ffb000',rune:'#c02020',band:'#3a2a1c'},
  reaper:{f:'reaper',v:'reaper',c:0,led:1,mys:1,ep:1,n:'The Reaper',d:'Horns, wings, an ember where its heart should be, and a grin that never closes. How it is earned is not written anywhere.',coat:'#2a0b14',coat2:'#4a1626',hood:'#3c131e',mask:'#d8cca8',beak:'',eye:'#ffe060',eyeg:'#ffa020',rune:'#ff7a1a',band:'#6e1630'}};
 const TOOL={tonic:{n:'Holy Water',c:20,d:'+50 HP \u00b7 stacks to 3'},bomb:{n:'Grenade',c:35,d:'big boom \u00b7 stacks to 3'},flask:{n:'Molotov',c:35,d:'burning pool, 5s \u00b7 stacks to 3'},flare:{n:'Flare',c:20,d:'lights the dark, lures imps \u00b7 stacks to 3'},ward:{n:"Ward",c:40,d:'-60% damage for 10s \u00b7 stacks to 3'}};
-const XT=['flask','flare','ward','tripwire','saltline','noisemaker','chalk','stamtonic','bootwraps'],TOT=['muzzle','pyre','magpie','thief','pearl','undertow'],XL=['Molotov','Flare','Ward','Wire','Salt Line','Noisemaker','Chalk Circle','Stamina Tonic','Boot Wraps'],TKS=['tonic','bomb',...XT];
+const XT=['flask','flare','ward','tripwire','saltline','noisemaker','chalk','stamtonic','bootwraps','revive'],TOT=['muzzle','pyre','magpie','thief','pearl','undertow'],XL=['Molotov','Flare','Ward','Wire','Salt Line','Noisemaker','Chalk Circle','Stamina Tonic','Boot Wraps','Revive Totem'],TKS=['tonic','bomb',...XT];
 TOOL.saltline={n:'Salt Line',c:30,d:'lay a line of salt imps will not cross, and it lasts the whole run; bosses and ranged attackers ignore it \u00b7 stacks to 3'};
 TOOL.noisemaker={n:'Noisemaker',c:20,d:'thrown, clatters on landing and lures the horde for 7s \u00b7 stacks to 3'};
 TOOL.stamtonic={n:'Stamina Tonic',c:25,d:'8s of free sprinting and a faster run \u00b7 stacks to 3'};
+TOOL.revive={n:'Revive Totem',c:150,d:'multiplayer: stand next to a fallen teammate, use it and stand still 5s to call them back at 40% health with a 3s ward; they return empty-handed and their gear lies where they fell. The totem is spent once the 5s finish, even if they have already left \u00b7 does not stack (1x2 item, R rotates it)'};
 TOOL.bootwraps={n:'Boot Wraps',c:30,d:'15s of silent sprinting \u00b7 stacks to 3'};
 TOOL.muzzle={n:"Hound's Muzzle",c:50,tot:1,d:'totem: burn it (stand still 3s) and your noise is halved for 60s \u00b7 stacks to 3'};
 TOOL.pyre={n:'Pyre of the Pack',c:50,tot:1,d:'totem: burn it (stand still 3s) and it keeps burning 10s as a loud decoy fire that lures imps and hunters \u00b7 stacks to 3'};
@@ -481,10 +475,10 @@ const FAMS={hunter:{n:'The Hunter',d:'The plain issue kit. Always yours.',c:0,de
 const pit=q=>q.t=='f'?FAMS[q.k]:q.t=='w'?(SID[q.k]||PRI[q.k]||TOOL[q.k]):SKINS[q.k];
 let pname='';const cleanName=v=>String(v==null?'':v).replace(/[^\w .'\-]/g,'').replace(/\s+/g,' ').trim().slice(0,14);
 let LS={},AST={},ANT={},RS={},AL=null,shopScr='shop',wsConf=null,setConf=null,traps=[],own=['hunter','plain'],curFam='hunter',note='',pend=null,stash=[],invOpen=0;
-const ISZ={rifle:[4,2],shotgun:[4,2],repeater:[3,2],crossbow:[3,2],pistol:[2,2],revolver:[2,2],tonic:[1,1],bomb:[2,1],pepperbox:[3,2],musket:[4,2],flamer:[3,2],handcannon:[2,2],whisper:[2,2],flask:[1,1],flare:[1,1],ward:[1,1],tripwire:[2,1],saltline:[1,1],noisemaker:[1,1],chalk:[1,1],gatling:[4,2],blunderbuss:[4,2],longbow:[4,2],sprayer:[4,2],mortar:[3,2],sixshooter:[2,2],dartpistol:[2,2],stake:[2,1],carbine:[3,2],sawnoff:[3,2],pump:[4,2],lever:[3,2],drum:[3,2],repxbow:[3,2],fowling:[4,2],derringer:[2,1],pocketrev:[2,2],navyrev:[2,2],scatterpistol:[2,2],dragoon:[2,2],sling:[2,1],saltgun:[4,2],stamtonic:[1,1],bootwraps:[1,1],muzzle:[2,1],pyre:[2,1],magpie:[2,1],thief:[2,1],pearl:[2,1],undertow:[2,1]},SC=20,SR=8,MAXST=3,NTS=6,EXD=10/* seconds standing in an exit ring to escape */,isz=k=>ISZ[k]||[1,1];
-const fitsIn=(arr,C,R_,x,y,w,h,ex)=>x>=0&&y>=0&&x+w<=C&&y+h<=R_&&!arr.some(o=>{if(o===ex)return 0;const z=isz(o.k);return x<o.x+z[0]&&x+w>o.x&&y<o.y+z[1]&&y+h>o.y});
+const ISZ={rifle:[4,2],shotgun:[4,2],repeater:[3,2],crossbow:[3,2],pistol:[2,2],revolver:[2,2],tonic:[1,1],bomb:[2,1],pepperbox:[3,2],musket:[4,2],flamer:[3,2],handcannon:[2,2],whisper:[2,2],flask:[1,1],flare:[1,1],ward:[1,1],tripwire:[2,1],saltline:[1,1],noisemaker:[1,1],chalk:[1,1],gatling:[4,2],blunderbuss:[4,2],longbow:[4,2],sprayer:[4,2],mortar:[3,2],sixshooter:[2,2],dartpistol:[2,2],stake:[2,1],carbine:[3,2],sawnoff:[3,2],pump:[4,2],lever:[3,2],drum:[3,2],repxbow:[3,2],fowling:[4,2],derringer:[2,1],pocketrev:[2,2],navyrev:[2,2],scatterpistol:[2,2],dragoon:[2,2],sling:[2,1],saltgun:[4,2],stamtonic:[1,1],bootwraps:[1,1],revive:[1,2],muzzle:[2,1],pyre:[2,1],magpie:[2,1],thief:[2,1],pearl:[2,1],undertow:[2,1]},SC=20,SR=8,MAXST=3,NTS=6,EXD=10/* seconds standing in an exit ring to escape */,isz=k=>ISZ[k]||[1,1],mxs=k=>k=='revive'?1:MAXST,isz2=o=>{const z=isz(o.k);return o.r?[z[1],z[0]]:z};
+const fitsIn=(arr,C,R_,x,y,w,h,ex)=>x>=0&&y>=0&&x+w<=C&&y+h<=R_&&!arr.some(o=>{if(o===ex)return 0;const z=isz2(o);return x<o.x+z[0]&&x+w>o.x&&y<o.y+z[1]&&y+h>o.y});
 const spotIn=(arr,C,R_,k,ex)=>{const[w,h]=isz(k);for(let y=0;y<=R_-h;y++)for(let x=0;x<=C-w;x++)if(fitsIn(arr,C,R_,x,y,w,h,ex))return[x,y];return null};
-const addTo=(arr,C,R_,k,n)=>{if(TOOL[k]){const t=arr.find(o=>o.k==k&&o.n<MAXST);if(t){t.n=Math.min(MAXST,t.n+(n||1));return 1}}const f=spotIn(arr,C,R_,k);if(!f)return 0;arr.push({k,x:f[0],y:f[1],n:n||(TOOL[k]?1:0)});return 1};
+const addTo=(arr,C,R_,k,n)=>{if(TOOL[k]){const t=arr.find(o=>o.k==k&&o.n<mxs(k));if(t){t.n=Math.min(mxs(k),t.n+(n||1));return 1}}const f=spotIn(arr,C,R_,k);if(!f)return 0;arr.push({k,x:f[0],y:f[1],n:TOOL[k]?Math.min(mxs(k),n||1):(n||0)});return 1};
 // PER-ITEM WEAPON SKINS: a weapon carries its own skin id in .sk. It only draws if the skin belongs to that weapon, and carrying one never unlocks it.
 const TSK={};   // tool skins: tool key -> skin id. One equipped skin per tool kind; every tool of that kind you carry wears it.
 const skv=(k,id)=>id&&WSKINS[id]&&WSKINS[id].k==k?id:'',psk=i=>P&&P.wsk&&P.wsk[i]||'',setPS=(i,v)=>{if(!P.wsk)P.wsk=['',''];P.wsk[i]=v||''};
@@ -495,15 +489,20 @@ const stSet=i=>{stTab=i;stash=STB[i]},addItemAny=(k,n)=>{if(addItem(k,n))return 
 const STT=()=>[0,1,2,3].map(i=>stUn[i]?`<button class="stb${i==stTab?' on':''}" data-stt=${i}>${i+1}</button>`:`<button class="stb lk${stConf==i?' cf':''}" data-stt=${i}>${stConf==i?'Buy $'+STP[i].toLocaleString()+'?':'\u{1F512} $'+(STP[i]/1000)+'k'}</button>`).join('');
 const accepts=(id,k,src)=>id=='p'?!!(PRI[k]&&k!='none'):id=='s'?!!(SID[k]&&k!='none'):!!TOOL[k]&&!sel.tools.some((t,i)=>t&&t.k==k&&i!=+id[1]&&('t'+i)!=src);
 const slotGet=id=>id=='p'?(sel.pri!='none'?{k:sel.pri,sk:sel.sk.p}:null):id=='s'?(sel.side!='none'?{k:sel.side,sk:sel.sk.s}:null):sel.tools[+id[1]]||null;
-const slotSet=(id,it)=>{if(id=='p'){sel.pri=it?it.k:'none';sel.sk.p=it?skv(it.k,it.sk):''}else if(id=='s'){sel.side=it?it.k:'none';sel.sk.s=it?skv(it.k,it.sk):''}else sel.tools[+id[1]]=it?{k:it.k,n:it.n||1}:null};
+const slotSet=(id,it)=>{if(id=='p'){sel.pri=it?it.k:'none';sel.sk.p=it?skv(it.k,it.sk):''}else if(id=='s'){sel.side=it?it.k:'none';sel.sk.s=it?skv(it.k,it.sk):''}else sel.tools[+id[1]]=it?{k:it.k,n:Math.min(mxs(it.k),it.n||1)}:null};
 const dsc=k=>{if(TOOL[k])return TOOL[k].d;const w=SID[k]||PRI[k];return st(w)+(w.nt?'<br><i>'+w.nt.join(' \u00b7 ')+'</i>':'')};
-const SPX={tripwire:[18,0,7],rifle:[21,6.5,6],shotgun:[20,5,6],repeater:[19,5.5,7],crossbow:[19,5.5,17],pistol:[10,3,6],revolver:[17,6,7],tonic:[9,4.5,5],bomb:[12,6,5],pepperbox:[15,6,7],musket:[24,7,6],flamer:[21,6.5,7],handcannon:[16,5.5,7],whisper:[15,6,6],flask:[11,5.5,5],flare:[13,6,4],ward:[10,4,8],gatling:[24,8,12],blunderbuss:[23.4,5.6,6.4],longbow:[16,6,19],sprayer:[20.5,4.2,7],mortar:[17,6,8],sixshooter:[16,5,6],dartpistol:[14,5,6],stake:[19,6,4],saltline:[11,4,8],noisemaker:[13,5,5],chalk:[12,4,10],carbine:[18,6,6],sawnoff:[15,5,6],pump:[22,5.5,6],lever:[22,5.5,8],drum:[24,7.5,9],repxbow:[19,5.5,17],fowling:[28,6,6],derringer:[9,3,5],pocketrev:[14,5,6],navyrev:[19,6,7],scatterpistol:[15,6,6],dragoon:[19,6,7],sling:[12,9,10],saltgun:[22,5,6],stamtonic:[10,5,5],bootwraps:[12,5,5],muzzle:[15.5,-.3,6],pearl:[15.5,-.3,6],undertow:[15.5,-.3,6],pyre:[9,0,9],magpie:[15.6,0,6],thief:[13,.5,6]};
-function itemCv(k,W,H,sk){const c=document.createElement('canvas');c.width=W;c.height=H;c.style.cssText='width:100%;height:100%;image-rendering:pixelated;pointer-events:none';const[l,cx,h]=SPX[k]||[10,5,5],sc=Math.min(W*.86/l,H*.8/h),o=ctx;ctx=c.getContext('2d');try{drawWpn(k,W/2-cx*sc,H/2-.5*sc,0,sc,sk)}finally{ctx=o}return c}
-const SAVE=run=>{try{localStorage.setItem('bh_save',JSON.stringify({nm:pname,bank,own,led:LS,al:AL,skin:sel.skin,sk:sel.sk,stash:STB[0],stx:[STB[1],STB[2],STB[3]],stu:stUn.slice(1),pri:sel.pri,side:sel.side,bag:sel.bag,tools:sel.tools,tsk:TSK,ast:AST,ant:ANT,run:run?1:0}))}catch(e){}};
-try{const d=JSON.parse((localStorage.getItem('bh_save')||'null').replace(/"smg"/g,'"pepperbox"'));if(d&&Array.isArray(d.own)){own=[...new Set(['hunter','plain',...d.own.filter(k=>FAMS[k]||SKINS[k]||WSKINS[k])])];bank=Math.max(120,d.bank|0);if(d.led)LS=d.led;if(d.ast&&typeof d.ast=='object'){for(const k in d.ast){const v=+d.ast[k];if(isFinite(v)&&v>=0)AST[k]=v}}if(d.ant&&typeof d.ant=='object'){for(const k in d.ant){const v=d.ant[k]|0;if(v>0&&v<4)ANT[k]=v}}AL=d.al||null;for(const k in(d.tsk&&typeof d.tsk=='object'?d.tsk:{})){const v=skv(k,d.tsk[k]);if(TOOL[k]&&v&&own.includes(v))TSK[k]=v}sel.skin=SKINS[d.skin]&&own.includes(d.skin)?d.skin:'plain';sel.wsk={};sel.sk={p:'',s:''};const lw=d.sk?{}:(d.wsk&&typeof d.wsk=='object'?d.wsk:{}),lsk=k=>{const id=lw[k];return WSKINS[id]&&WSKINS[id].k==k&&own.includes(id)?id:''};pname=cleanName(d.nm);
- const ok=k=>k&&k!='none'&&(PRI[k]||SID[k]),wk=(k,o)=>ok(k)?(skv(k,o&&typeof o=='object'?o.sk:'')||lsk(k)):'';const stl=arr=>(Array.isArray(arr)?arr:[]).forEach(o=>{const k=typeof o=='string'?o:o&&o.k;if(!(ok(k)||TOOL[k]))return;const z=isz(k);if(typeof o=='object'&&Number.isInteger(o.x)&&Number.isInteger(o.y)&&fits(o.x,o.y,z[0],z[1]))stash.push({k,x:o.x,y:o.y,n:o.n||(TOOL[k]?2:0),...(wk(k,o)?{sk:wk(k,o)}:{})});else if(addItem(k,o&&o.n)){const q=wk(k,o);if(q)stash[stash.length-1].sk=q}});
+const SPX={tripwire:[18,0,7],rifle:[21,6.5,6],shotgun:[20,5,6],repeater:[19,5.5,7],crossbow:[19,5.5,17],pistol:[10,3,6],revolver:[17,6,7],tonic:[9,4.5,5],bomb:[12,6,5],pepperbox:[15,6,7],musket:[24,7,6],flamer:[21,6.5,7],handcannon:[16,5.5,7],whisper:[15,6,6],flask:[11,5.5,5],flare:[13,6,4],ward:[10,4,8],gatling:[24,8,12],blunderbuss:[23.4,5.6,6.4],longbow:[16,6,19],sprayer:[20.5,4.2,7],mortar:[17,6,8],sixshooter:[16,5,6],dartpistol:[14,5,6],stake:[19,6,4],saltline:[11,4,8],noisemaker:[13,5,5],chalk:[12,4,10],carbine:[18,6,6],sawnoff:[15,5,6],pump:[22,5.5,6],lever:[22,5.5,8],drum:[24,7.5,9],repxbow:[19,5.5,17],fowling:[28,6,6],derringer:[9,3,5],pocketrev:[14,5,6],navyrev:[19,6,7],scatterpistol:[15,6,6],dragoon:[19,6,7],sling:[12,9,10],saltgun:[22,5,6],stamtonic:[10,5,5],bootwraps:[12,5,5],revive:[9,0,12],muzzle:[15.5,-.3,6],pearl:[15.5,-.3,6],undertow:[15.5,-.3,6],pyre:[9,0,9],magpie:[15.6,0,6],thief:[13,.5,6]};
+function itemCv(k,W,H,sk,rt){const c=document.createElement('canvas');c.width=W;c.height=H;c.style.cssText='width:100%;height:100%;image-rendering:pixelated;pointer-events:none';const[l,cx,h]=SPX[k]||[10,5,5],w2=rt?H:W,h2=rt?W:H,sc=Math.min(w2*.86/l,h2*.8/h),o=ctx;ctx=c.getContext('2d');try{if(rt){ctx.translate(W/2,H/2);ctx.rotate(Math.PI/2);ctx.translate(-w2/2,-h2/2)}drawWpn(k,w2/2-cx*sc,h2/2-.5*sc,0,sc,sk)}finally{ctx=o}return c}
+// FAV LOADOUTS: three saved gear sets {pri,side,tools:[{k,n}x6]} that can be bought and equipped from the stash screen in one click.
+let FAV=[null,null,null];
+const favClean=f=>{if(!f||typeof f!='object')return null;const pri=PRI[f.pri]&&f.pri!='none'?f.pri:'none',side=SID[f.side]&&f.side!='none'?f.side:'none',seen={};
+ const tools=Array.from({length:NTS},(_,i)=>{const t=Array.isArray(f.tools)?f.tools[i]:null;if(!t||!TOOL[t.k]||TOOL[t.k].tot||seen[t.k])return null;seen[t.k]=1;return{k:t.k,n:Math.max(1,Math.min(mxs(t.k),(t.n|0)||1))}});
+ return pri=='none'&&side=='none'&&!tools.some(Boolean)?null:{pri,side,tools}};
+const SAVE=run=>{try{localStorage.setItem('bh_save',JSON.stringify({fav:FAV,nm:pname,bank,own,led:LS,al:AL,skin:sel.skin,sk:sel.sk,stash:STB[0],stx:[STB[1],STB[2],STB[3]],stu:stUn.slice(1),pri:sel.pri,side:sel.side,bag:sel.bag,tools:sel.tools,tsk:TSK,ast:AST,ant:ANT,run:run?1:0}))}catch(e){}};
+try{const d=JSON.parse((localStorage.getItem('bh_save')||'null').replace(/"smg"/g,'"pepperbox"'));if(d&&Array.isArray(d.own)){own=[...new Set(['hunter','plain',...d.own.filter(k=>FAMS[k]||SKINS[k]||WSKINS[k])])];bank=Math.max(120,d.bank|0);if(d.led)LS=d.led;if(Array.isArray(d.fav))FAV=[0,1,2].map(i=>favClean(d.fav[i]));if(d.ast&&typeof d.ast=='object'){for(const k in d.ast){const v=+d.ast[k];if(isFinite(v)&&v>=0)AST[k]=v}}if(d.ant&&typeof d.ant=='object'){for(const k in d.ant){const v=d.ant[k]|0;if(v>0&&v<4)ANT[k]=v}}AL=d.al||null;for(const k in(d.tsk&&typeof d.tsk=='object'?d.tsk:{})){const v=skv(k,d.tsk[k]);if(TOOL[k]&&v&&own.includes(v))TSK[k]=v}sel.skin=SKINS[d.skin]&&own.includes(d.skin)?d.skin:'plain';sel.wsk={};sel.sk={p:'',s:''};const lw=d.sk?{}:(d.wsk&&typeof d.wsk=='object'?d.wsk:{}),lsk=k=>{const id=lw[k];return WSKINS[id]&&WSKINS[id].k==k&&own.includes(id)?id:''};pname=cleanName(d.nm);
+ const ok=k=>k&&k!='none'&&(PRI[k]||SID[k]),wk=(k,o)=>ok(k)?(skv(k,o&&typeof o=='object'?o.sk:'')||lsk(k)):'';const stl=arr=>(Array.isArray(arr)?arr:[]).forEach(o=>{const k=typeof o=='string'?o:o&&o.k;if(!(ok(k)||TOOL[k]))return;const z=isz2(typeof o=='object'&&o?{k,r:o.r?1:0}:{k});if(typeof o=='object'&&Number.isInteger(o.x)&&Number.isInteger(o.y)&&fits(o.x,o.y,z[0],z[1])){stash.push({k,x:o.x,y:o.y,n:TOOL[k]?Math.min(mxs(k),o.n||2):(o.n||0),...(o.r&&z[0]!=z[1]?{r:1}:{}),...(wk(k,o)?{sk:wk(k,o)}:{})});if(TOOL[k])for(let q=(o.n||2)-mxs(k);q>0;q--)addItem(k,1)}else if(addItem(k,o&&o.n)){const q=wk(k,o);if(q)stash[stash.length-1].sk=q}});
  stash=[];stl(d.stash);STB=[stash,[],[],[]];stTab=0;stConf=-1;stUn=[1,0,0,0];if(Array.isArray(d.stu))[1,2,3].forEach(i=>{if(d.stu[i-1]){stUn[i]=1;stash=STB[i];stl(d.stx&&d.stx[i-1])}});stash=STB[0];
- if(d.run){sel.pri='none';sel.side='none';sel.bag=[];sel.tools=Array(NTS).fill(null)}else{if(PRI[d.pri])sel.pri=d.pri;if(SID[d.side])sel.side=d.side;if(d.sk&&typeof d.sk=='object'){sel.sk.p=skv(sel.pri,d.sk.p);sel.sk.s=skv(sel.side,d.sk.s)}else{sel.sk.p=lsk(sel.pri);sel.sk.s=lsk(sel.side)}sel.bag=[];(Array.isArray(d.bag)?d.bag:d.bag?[d.bag]:[]).forEach(o=>{const k=typeof o=='string'?o:o&&o.k;if(!(ok(k)||TOOL[k]))return;const z=isz(k);if(typeof o=='object'&&Number.isInteger(o.x)&&Number.isInteger(o.y)&&fitsIn(sel.bag,4,4,o.x,o.y,z[0],z[1]))sel.bag.push({k,x:o.x,y:o.y,n:o.n||(TOOL[k]?1:0),...(wk(k,o)?{sk:wk(k,o)}:{})});else if(addTo(sel.bag,4,4,k,o&&o.n)){const q=wk(k,o);if(q)sel.bag[sel.bag.length-1].sk=q}});if(Array.isArray(d.tools))sel.tools=Array.from({length:NTS},(_,i)=>{const t=d.tools[i];if(!t)return null;const k=typeof t=='string'?t:t.k;return TOOL[k]?{k,n:Math.min(MAXST,t.n||2)}:null})}}}catch(e){}
+ if(d.run){sel.pri='none';sel.side='none';sel.bag=[];sel.tools=Array(NTS).fill(null)}else{if(PRI[d.pri])sel.pri=d.pri;if(SID[d.side])sel.side=d.side;if(d.sk&&typeof d.sk=='object'){sel.sk.p=skv(sel.pri,d.sk.p);sel.sk.s=skv(sel.side,d.sk.s)}else{sel.sk.p=lsk(sel.pri);sel.sk.s=lsk(sel.side)}sel.bag=[];(Array.isArray(d.bag)?d.bag:d.bag?[d.bag]:[]).forEach(o=>{const k=typeof o=='string'?o:o&&o.k;if(!(ok(k)||TOOL[k]))return;const z=isz2(typeof o=='object'&&o?{k,r:o.r?1:0}:{k});if(typeof o=='object'&&Number.isInteger(o.x)&&Number.isInteger(o.y)&&fitsIn(sel.bag,4,4,o.x,o.y,z[0],z[1]))sel.bag.push({k,x:o.x,y:o.y,n:TOOL[k]?Math.min(mxs(k),o.n||1):(o.n||0),...(o.r&&z[0]!=z[1]?{r:1}:{}),...(wk(k,o)?{sk:wk(k,o)}:{})});else if(addTo(sel.bag,4,4,k,o&&o.n)){const q=wk(k,o);if(q)sel.bag[sel.bag.length-1].sk=q}});if(Array.isArray(d.tools))sel.tools=Array.from({length:NTS},(_,i)=>{const t=d.tools[i];if(!t)return null;const k=typeof t=='string'?t:t.k;if(TOOL[k])for(let q=(t.n||2)-mxs(k);q>0;q--)addItem(k,1);return TOOL[k]?{k,n:Math.min(mxs(k),t.n||2)}:null})}}}catch(e){}
 // ---------- DEV names: only a name containing DEV unlocks the chat cheats, and adding DEV to a name needs the password ----------
 const pwh=t=>{let h=2166136261;for(let i=0;i<t.length;i++){h^=t.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0).toString(36)},PW_HASH='vsgt4';
 let DEVAUTH=0;try{DEVAUTH=localStorage.getItem('bh_dv')===PW_HASH?1:0}catch(e){}
@@ -667,7 +666,7 @@ const edgePt=()=>{const m=60,w=WW-2*m,h=WH-2*m;let t=R(0,2*(w+h));if(t<w)return{
 const say=(s,t)=>{msg=s;msgT=t||3};
 let bossOpen=0,seals=[];
 function sealBoss(bb){seals=[];(bb.dr||[]).forEach(d=>{const o=d.wg?bb.wg:bb,hz=d.q<2,x=hz?o.x+d.of:d.q?o.x+o.w-6:o.x,y=hz?(d.q?o.y+o.h-6:o.y):o.y+d.of,w=hz?d.ln:6,h=hz?6:d.ln,z={x,y,w,h,t:1,k:-1,seal:1};walls.push(z);seals.push(z)})}
-function bossUnseal(local,who){if(bossOpen)return;bossOpen=1;walls=walls.filter(w=>!w.seal);try{sfx.sigil(3)}catch(e){}
+function bossUnseal(local,who){if(bossOpen)return;bossOpen=1;walls=walls.filter(w=>!w.seal);try{sfx.doom()}catch(e){}
  if(local){banner('THE BREACH DOOR OPENS','All 3 sigils are burned - '+BOSS[boss].n+"'s lair is unsealed for every hunter.",'#ff6a3a');if(mp.on)mpSend({t:'unseal'})}
  else banner('THE BREACH DOOR OPENS',hn(who)+' burned all 3 sigils - '+BOSS[boss].n+"'s lair is unsealed. Check your map [M].",'#ff6a3a')}
 function drawSeals(cx,cy){if(bossOpen)return;const p=.5+.5*Math.sin(performance.now()/1000*4);seals.forEach(z=>{const x=z.x-cx-2,y=z.y-cy-2,w=z.w+4,h=z.h+4;if(x>VW||y>VH||x+w<0||y+h<0)return;
@@ -1444,7 +1443,7 @@ const HELP='WASD move · Shift sprint · Mouse aim/fire · RMB melee · R reload
 const back='<button data-v=hub>\u2190 Back</button>',backTo=v=>`<button data-v=${v}>\u2190 Back</button>`;
 function menu(m){try{if(scr=='lb')lbOpen();else lbClose()}catch(e){}try{const an=achNotify();if(an)m=(m?m+' ':'')+an}catch(e){}const c=cost(),ok=c<=bank,tl=sel.tools.filter(Boolean).map(t=>TOOL[t.k].n.replace(' x2','')+' x'+t.n).join(', ')||'no tools';
  const col=(h,r)=>`<div class=col><h2>${h}</h2>${r}</div>`;let body;
- const stage=()=>`<div class=stage><canvas id=pc width=256 height=288></canvas><div class=cap>${SKINS[sel.skin].n} \u00b7 ${PRI[sel.pri].n} \u00b7 ${SID[sel.side].n} \u00b7 ${tl}</div></div>`,fo=b=>`<div class=foot><span>Cash: $${bank} &nbsp;|&nbsp; Loadout: $${c}</span>${b}</div>`,pg=(h,list,b)=>`<div class=hub>${stage()}<div class="opts list"><h2>${h}</h2>${list}</div></div>${fo(b)}`;
+ const stage=()=>`<div class=stage><canvas id=pc width=256 height=288></canvas><div class=cap>${SKINS[sel.skin].n} \u00b7 ${PRI[sel.pri].n} \u00b7 ${SID[sel.side].n} \u00b7 ${tl}</div></div>`,fo=b=>`<div class=foot><span>Cash: $${bank}</span>${b}</div>`,pg=(h,list,b)=>`<div class=hub>${stage()}<div class="opts list"><h2>${h}</h2>${list}</div></div>${fo(b)}`;
  if(scr=='load')body=`<div class=hub>${stage()}<div class=opts><div class=chalk data-v=l_skin>Player Skin<small>${SKINS[sel.skin].n}</small></div></div></div>${fo(back)}`;
  else if(scr=='name')body=`<div class=hub>${stage()}<div class="opts list"><h2>Name Your Hunter</h2><p>Other hunters in the breach will see this above your head. Up to 14 characters.</p><input id=pn type=text maxlength=14 autocomplete=off spellcheck=false placeholder="Hunter" value="${pname}"><button data-v=hub>Save</button></div></div>${fo(back)}`;
  else if(scr=='ammo'){const row=(i,lb)=>{const w=xaW(i);if(!w)return `<div class=chalk style="cursor:default;opacity:.5">${lb}<small>${i?(sel.side=='none'?'No sidearm equipped':'Melee only'):(sel.pri=='none'?'No primary equipped':'Melee only')}</small></div>`;const k=i?'s':'p',pr=xaP(w),res=w.m*3+xa[i]*w.m;return `<div class=chalk style="cursor:default">${lb}: ${w.n}<small>Magazine of ${w.m} \u2014 $${pr} each \u2014 starting reserve ${res} rounds (+${xa[i]*w.m} bought)</small><br><button data-xa=${k}- ${xa[i]<=0?'disabled':''}>\u2212</button> <b>${xa[i]} / ${XAMAX} extra mags \u2014 $${xa[i]*pr}</b> <button data-xa=${k}+ ${xa[i]>=XAMAX||c+pr>bank?'disabled':''}>+</button></div>`};
@@ -1482,7 +1481,7 @@ function menu(m){try{if(scr=='lb')lbOpen();else lbClose()}catch(e){}try{const an
   body=`<div class=slate><div class=tabs>${LORE.map((s,i)=>`<div class="tb ${i==lorTab?'on':''}" data-l=${i}>${s.t.replace(' Lore','')}</div>`).join('')}</div><h2 class=lt>${S.t}</h2><p class=sub>${op?'Folder open. Close it to pick another.':S.sub}</p>`+(op?`<div class=fopen><div class=ftab>${op[0]}</div><div class=fback><div class=fsheet><div class="pol sp"><canvas data-la="${lorTab}.${lorOpen}" width=224 height=126></canvas></div><h3>${op[0]}</h3><p>${op[1]}</p></div></div></div>`:`<div class=fds>${S.e.map((n0,i)=>{const kn=lkHas(lorTab,i);return `<div class="fd${kn?'':' lk'}" ${kn?'data-lo='+i:''} style="--r:${(((i*37)%7)-3)*.8}deg"><div class=ft></div><div class=fl>${kn?n0[0]:'???'}</div></div>`}).join('')}</div>`)+`</div><div class=foot><span>${nf} of ${S.e.length} folders found${op?'':' \u2014 click one to open it'}</span>${op?'<button data-lo=-1>\u2190 Close folder</button>':'<button data-v=chron>Read the Chronicle</button> <button data-cine=1>Play cinematic</button> '+back}</div>`}
  else if(scr=='chron'){const pg=LORE_PAGES[chI],tl=pg.text.split('\n').map(x=>`<p>${x}</p>`).join('');
   body=`<div class=slate><h2 class=lt>${chI?pg.title:'The Chronicle of the Breach'}</h2><p class=sub>${chI?'Page '+chI+' of '+(LORE_PAGES.length-1)+' \u2014 the narrated cinematic will play these pages in order':'Title card'}</p><div class=chv><canvas id=chc width=224 height=126></canvas><div class=cht>${chI?tl:'<p><i>'+pg.text+'</i></p>'}</div></div></div><div class=foot><span>Preview of the Learn the Lore cinematic: pictures and script so far</span><span><button data-ch=-1 ${chI?'':'disabled'}>\u2190 Prev</button> <button data-ch=1 ${chI<LORE_PAGES.length-1?'':'disabled'}>Next \u2192</button> <button data-cine=1>Play cinematic</button> ${backTo('lore')}</span></div>`} else if(scr=='help')body=`<div class=lore><h2>Controls</h2><ul>${HELP.split(' \u00b7 ').map(l=>`<li>${l}</li>`).join('')}</ul></div><div class=foot><span></span>${back}</div>`;
- else body=`${teamBar()}<div class=hub><div class=lcol><div class=stage><canvas id=pc width=256 height=288></canvas><div class=cap>${pname?pname+' \u2014 ':''}${PRI[sel.pri].n} \u00b7 ${SID[sel.side].n} \u00b7 ${tl}</div></div><div class="chalk nmbox" data-v=name>Hunter Name<small>${pname||'Unnamed \u2014 tap to set'}</small></div>${riskBox()}</div><div class=opts>${fltBar()}${teamGo(ok)}${ok?'':'<p class=msg style="font-size:20px">Can\'t afford this loadout.</p>'}<div class=chalk data-v=sk>Skins<small>${SKINS[sel.skin].n}</small></div><div class=chalk data-v=stash>Stash & Gunsmith<small>${STB.reduce((a,t)=>a+t.length,0)} items stored</small></div><div class=chalk data-v=missions>Ledgers<small>${ledSub()}</small></div><div class=chalk data-v=ach>Achievements<small>${achTotals()[0]} of ${achTotals()[1]} tiers earned</small></div><div class=chalk data-v=lore>Lore</div><div class=chalk data-v=lb>Leaderboard<small>Top 10 hunters on each board</small></div><div class=chalk data-v=title>Main Menu</div></div></div><div class=foot><span>Cash: $${bank} &nbsp;|&nbsp; Loadout: $${c}</span><span>Ledger: ${ledFoot()}</span></div>`;
+ else body=`${teamBar()}<div class=hub><div class=lcol><div class=stage><canvas id=pc width=256 height=288></canvas><div class=cap>${pname?pname+' \u2014 ':''}${PRI[sel.pri].n} \u00b7 ${SID[sel.side].n} \u00b7 ${tl}</div></div><div class="chalk nmbox" data-v=name>Hunter Name<small>${pname||'Unnamed \u2014 tap to set'}</small></div>${riskBox()}</div><div class=opts>${fltBar()}${teamGo(ok)}${ok?'':'<p class=msg style="font-size:20px">Can\'t afford this loadout.</p>'}<div class=chalk data-v=sk>Skins<small>${SKINS[sel.skin].n}</small></div><div class=chalk data-v=stash>Stash & Gunsmith<small>${STB.reduce((a,t)=>a+t.length,0)} items stored</small></div><div class=chalk data-v=missions>Ledgers<small>${ledSub()}</small></div><div class=chalk data-v=ach>Achievements<small>${achTotals()[0]} of ${achTotals()[1]} tiers earned</small></div><div class=chalk data-v=lore>Lore</div><div class=chalk data-v=lb>Leaderboard<small>Top 10 hunters on each board</small></div><div class=chalk data-v=title>Main Menu</div></div></div><div class=foot><span>Cash: $${bank}</span><span>Ledger: ${ledFoot()}</span></div>`;
 ;const drawIcons=()=>document.querySelectorAll('canvas[data-ic]').forEach(c=>{const o=ctx;ctx=c.getContext('2d');try{ctx.clearRect(0,0,34,18);drawWpn(c.dataset.ic,5,9,0,1,c.dataset.wk)}finally{ctx=o}});
  $('#menu').style.display='block';$('#menu').innerHTML=`<div class=board><i hidden></i><h1>\u2620 Hellbreach \u2620</h1>${m?`<p class=msg>${m}</p>`:''}${body}</div>`;drawIcons();if(scr=='name'){const pn=$('#pn');if(pn){const sv=()=>{},
    cm=then=>{const v=cleanName(pn.value),acc=()=>{pname=v;SAVE();if(then)then()},bad=()=>{pn.disabled=false;pname=NMOK||'';SAVE();lbPush();menu('\u201c'+v+'\u201d is already taken by another hunter. Choose a different name.')},
@@ -2011,9 +2010,10 @@ function drawCerberus(x,y,a,fl,wk,sn){
  ctx.restore()}
 const CT={s:{a:()=>stash,c:SC,r:SR,e:'#sg'},b:{a:()=>sel.bag,c:4,r:4,e:'#bg'}};
 function stashBody(){const sl=(id,lab,w,h)=>{const it=slotGet(id);return `<div class=slot data-sl=${id} style="width:calc(var(--cs)*${w});height:calc(var(--cs)*${h})"><span>${lab}</span>${it?`<div class=it data-sl=${id} data-ik=${it.k}></div>`:''}</div>`};
- const grid=(arr,ct)=>arr.map((o,i)=>{const[w,h]=isz(o.k);return `<div class=it data-ct=${ct} data-g=${i} data-ik=${o.k} style="left:calc(var(--cs)*${o.x});top:calc(var(--cs)*${o.y});width:calc(var(--cs)*${w});height:calc(var(--cs)*${h})"></div>`}).join('');
- return `<div class=stw><div class=eq><h2>Gear</h2><div class=eqp>${sl('p','Primary',4,2)}${sl('s','Sidearm',2,2)}</div><div class=eqt>${[0,1,2,3,4,5].map(i=>sl('t'+i,'Tool',2,2)).join('')}</div><h2>Backpack <small>(16 squares)</small></h2><div class=sgrid id=bg style="--gc:4;--gr:4">${grid(sel.bag,'b')}</div><div class=sellz id=sz>Sell: drag an item here for half its shop price</div></div><div><h2 class=sth>Stash<span class=sttabs>${STT()}</span></h2><div class=sgrid id=sg style="--gc:20;--gr:8">${grid(stash,'s')}</div><div class=ibox id=ib></div></div></div><div class=foot><span>Cash: $${bank}</span><span style="opacity:.6">Shift-drag or right-click a stack to split it</span><button data-so=1>Auto-sort</button><button data-v=shop>Gunsmith</button>${back}</div>`}
-function stashInit(){$('#menu').querySelectorAll('.it').forEach(el=>{const k=el.dataset.ik,sid=el.dataset.sl,ct=el.dataset.ct,o=sid?slotGet(sid):CT[ct].a()[+el.dataset.g];el.appendChild(itemCv(k,el.offsetWidth*2,el.offsetHeight*2,o&&o.sk));if(selRef&&(sid?selRef.sid==sid:selRef.o===o))el.classList.add('sel');if(TOOL[k]){const b=document.createElement('b');b.textContent='x'+(o.n||1);el.appendChild(b)}el.onpointerdown=e=>{if(e.button)return;pickInfo(k,el,sid?{sid}:{ct,o});startDrag(e,el,k,sid,ct,el.dataset.g,o)};if(!sid&&TOOL[k])el.oncontextmenu=e=>{e.preventDefault();splitOne(ct,o)}});renderInfo()}
+ const fv=[0,1,2].map(i=>{const f=FAV[i];return `<div class="favbox${f?' sv':''}" data-fav=${i}><span>Fav${i+1}</span>${f?'':'<small>empty</small>'}</div>`}).join('');
+ const grid=(arr,ct)=>arr.map((o,i)=>{const[w,h]=isz2(o);return `<div class=it data-ct=${ct} data-g=${i} data-ik=${o.k} style="left:calc(var(--cs)*${o.x});top:calc(var(--cs)*${o.y});width:calc(var(--cs)*${w});height:calc(var(--cs)*${h})"></div>`}).join('');
+ return `<div class=stw><div class=eq><h2>Gear</h2><div class=grow><div class=gl><div class=eqp>${sl('p','Primary',4,2)}${sl('s','Sidearm',2,2)}</div><div class=eqt>${[0,1,2,3,4,5].map(i=>sl('t'+i,'Tool',2,2)).join('')}</div></div><div class=favs>${fv}</div></div><h2>Backpack <small>(16 squares)</small></h2><div class=sgrid id=bg style="--gc:4;--gr:4">${grid(sel.bag,'b')}</div><div class=sellz id=sz>Sell: drag an item here for half its shop price</div></div><div><h2 class=sth>Stash<span class=sttabs>${STT()}</span></h2><div class=sgrid id=sg style="--gc:20;--gr:8">${grid(stash,'s')}</div><div class=ibox id=ib></div></div></div><div class=foot><span>Cash: $${bank}</span><span style="opacity:.6">Shift-drag or right-click a stack to split it \u00b7 R rotates an item (hover it or while dragging)</span><button data-so=1>Auto-sort</button><button data-v=shop>Gunsmith</button>${back}</div>`}
+function stashInit(){$('#menu').querySelectorAll('.it').forEach(el=>{const k=el.dataset.ik,sid=el.dataset.sl,ct=el.dataset.ct,o=sid?slotGet(sid):CT[ct].a()[+el.dataset.g];el.appendChild(itemCv(k,el.offsetWidth*2,el.offsetHeight*2,o&&o.sk,o&&o.r));if(selRef&&(sid?selRef.sid==sid:selRef.o===o))el.classList.add('sel');if(TOOL[k]){const b=document.createElement('b');b.textContent='x'+(o.n||1);el.appendChild(b)}el.onpointerdown=e=>{if(e.button)return;pickInfo(k,el,sid?{sid}:{ct,o});startDrag(e,el,k,sid,ct,el.dataset.g,o)};if(!sid){el.onpointerenter=()=>{hov={ct,o}};el.onpointerleave=()=>{if(hov&&hov.o===o)hov=null}}if(!sid&&TOOL[k])el.oncontextmenu=e=>{e.preventDefault();splitOne(ct,o)}});renderInfo();favInit()}
 function splitOne(ct,o){if(!o||!TOOL[o.k]||(o.n||1)<2)return;for(const c of [ct,ct=='b'?'s':'b']){const C=CT[c],a=C.a(),f=spotIn(a,C.c,C.r,o.k);if(f){o.n--;a.push({k:o.k,x:f[0],y:f[1],n:1});SAVE();menu();return}}note='No room to split that stack.';menu()}
 // ---------- ITEM INFO: click an item in the stash (or hover/click in the in-game inventory) to see its stats ----------
 let selInfo=null,selRef=null,skOpen=0;
@@ -2040,30 +2040,30 @@ function refObj(){const r=selRef;if(!r||!selInfo)return null;if(r.sid){const o=s
 function applySkin(id){const ro=refObj();if(ro&&TOOL[ro.k]){const cu=skv(ro.k,TSK[ro.k]);id=skv(ro.k,id);if(id&&!own.includes(id)&&id!=cu)return;if(id)TSK[ro.k]=id;else delete TSK[ro.k];skOpen=0;SAVE();menu();return}if(!ro||!(PRI[ro.k]||SID[ro.k]))return;const cur=skv(ro.k,ro.sk);id=skv(ro.k,id);if(id&&!own.includes(id)&&id!=cur)return;
  if(selRef.sid)slotSet(selRef.sid,{k:ro.k,n:ro.n,sk:id});else if(id)ro.sk=id;else delete ro.sk;
  skOpen=0;SAVE();menu()}
-let drg=null;
+let drg=null,hov=null;
 const gRect=id=>{const g=$(id),r=g.getBoundingClientRect();return{l:r.left+g.clientLeft,t:r.top+g.clientTop,w:g.clientWidth,h:g.clientHeight}};
-function startDrag(e,el,k,sid,ct,gi,o){e.preventDefault();const[w,h]=isz(k),cs=$('#sg').clientWidth/SC,gh=document.createElement('div');gh.className='ghost';gh.style.width=w*cs+'px';gh.style.height=h*cs+'px';gh.appendChild(itemCv(k,w*64,h*64,o&&o.sk));document.body.appendChild(gh);
- const hl=document.createElement('div');hl.className='hl';hl.style.display='none';document.body.appendChild(hl);const sp=!!(e.shiftKey&&!sid&&TOOL[k]&&(o.n||1)>1);if(sp){const o1={k,x:-9,y:-9,n:1};drg={k,sid,ct,gi,o:o1,split:o,w,h,cs,gh,hl,t:null}}else{el.style.opacity=.25;drg={k,sid,ct,gi,o,w,h,cs,gh,hl,t:null}}dragMove(e);
+function startDrag(e,el,k,sid,ct,gi,o){e.preventDefault();const[w,h]=isz2(o||{k}),cs=$('#sg').clientWidth/SC,gh=document.createElement('div');gh.className='ghost';gh.style.width=w*cs+'px';gh.style.height=h*cs+'px';gh.appendChild(itemCv(k,w*64,h*64,o&&o.sk,o&&o.r));document.body.appendChild(gh);
+ const hl=document.createElement('div');hl.className='hl';hl.style.display='none';document.body.appendChild(hl);const sp=!!(e.shiftKey&&!sid&&TOOL[k]&&(o.n||1)>1);if(sp){const o1={k,x:-9,y:-9,n:1,...(o.r?{r:1}:{})};drg={k,sid,ct,gi,o:o1,split:o,w,h,cs,gh,hl,t:null,rot:o.r?1:0}}else{el.style.opacity=.25;drg={k,sid,ct,gi,o,w,h,cs,gh,hl,t:null,rot:(o&&o.r)?1:0}}dragMove(e);
  addEventListener('pointermove',dragMove);addEventListener('pointerup',dragEnd,{once:true});addEventListener('pointercancel',dragEnd,{once:true})}
 // drop an item on another stash tab: room check (tools can merge into stacks of the same kind)
-const tabRoom=(i,d)=>{const arr=STB[i];if(!arr)return false;if(TOOL[d.k]&&arr.some(t=>t.k==d.k&&t.n<MAXST))return true;return !!spotIn(arr,SC,SR,d.k)};
-function dragMove(e){const d=drg;if(!d)return;const cs=d.cs;d.gh.style.left=e.clientX-d.w*cs/2+'px';d.gh.style.top=e.clientY-d.h*cs/2+'px';
+const tabRoom=(i,d)=>{const arr=STB[i];if(!arr)return false;if(TOOL[d.k]&&arr.some(t=>t.k==d.k&&t.n<mxs(d.k)))return true;return !!spotIn(arr,SC,SR,d.k)};
+function dragMove(e){const d=drg;if(!d)return;const cs=d.cs;d.lx=e.clientX;d.ly=e.clientY;d.gh.style.left=e.clientX-d.w*cs/2+'px';d.gh.style.top=e.clientY-d.h*cs/2+'px';
  document.querySelectorAll('.slot').forEach(x=>x.classList.remove('ok','no'));document.querySelectorAll('.stb').forEach(x=>x.classList.remove('dok','dno'));d.hl.style.display='none';d.t=null;
  for(const c of ['s','b']){const C=CT[c],G=gRect(C.e);if(e.clientX>G.l&&e.clientX<G.l+G.w&&e.clientY>G.t&&e.clientY<G.t+G.h){
    const arr=C.a(),gx=Math.round((e.clientX-d.w*cs/2-G.l)/cs),gy=Math.round((e.clientY-d.h*cs/2-G.t)/cs),px=Math.floor((e.clientX-G.l)/cs),py=Math.floor((e.clientY-G.t)/cs),src=!d.sid&&!d.split&&d.ct==c?arr[+d.gi]:null;
-   const mg=TOOL[d.k]?arr.find(o=>o!==src&&o.k==d.k&&o.n<MAXST&&px>=o.x&&px<o.x+isz(o.k)[0]&&py>=o.y&&py<o.y+isz(o.k)[1]):null;
-   let ok2,x=gx,y=gy,w=d.w,h=d.h;if(mg){ok2=1;x=mg.x;y=mg.y;[w,h]=isz(mg.k)}else ok2=fitsIn(arr,C.c,C.r,gx,gy,d.w,d.h,src);
+   const mg=TOOL[d.k]?arr.find(o=>o!==src&&o.k==d.k&&o.n<mxs(d.k)&&px>=o.x&&px<o.x+isz2(o)[0]&&py>=o.y&&py<o.y+isz2(o)[1]):null;
+   let ok2,x=gx,y=gy,w=d.w,h=d.h;if(mg){ok2=1;x=mg.x;y=mg.y;[w,h]=isz2(mg)}else ok2=fitsIn(arr,C.c,C.r,gx,gy,d.w,d.h,src);
    d.t={c,x:gx,y:gy,ok:ok2,mg};Object.assign(d.hl.style,{display:'block',left:G.l+x*cs+'px',top:G.t+y*cs+'px',width:w*cs+'px',height:h*cs+'px'});d.hl.className='hl'+(ok2?'':' no');return}}
  const tb=document.elementsFromPoint(e.clientX,e.clientY).map(x=>x.closest&&x.closest('.stb')).find(Boolean);
  if(tb){const ti=+tb.dataset.stt;if(stUn[ti]&&ti!=stTab){const okk=tabRoom(ti,d);d.t={tab:ti,ok:okk};tb.classList.add(okk?'dok':'dno')}return}
  const sl=document.elementsFromPoint(e.clientX,e.clientY).map(x=>x.closest&&x.closest('.slot')).find(Boolean);
- if(sl){const id=sl.dataset.sl,old=slotGet(id),okk=accepts(id,d.k,d.sid)&&id!=d.sid&&!(old&&old.k==d.k&&old.n>=MAXST);d.t={s:id,ok:okk};sl.classList.add(okk?'ok':'no')}}
+ if(sl){const id=sl.dataset.sl,old=slotGet(id),okk=accepts(id,d.k,d.sid)&&id!=d.sid&&!(old&&old.k==d.k&&old.n>=mxs(d.k));d.t={s:id,ok:okk};sl.classList.add(okk?'ok':'no')}}
 function take(d){if(d.split){d.split.n--;return}if(d.sid)slotSet(d.sid,null);else{const a=CT[d.ct].a(),i=a.indexOf(d.o);if(i>=0)a.splice(i,1)}}
 function dragEnd(){const d=drg;if(!d)return;drg=null;removeEventListener('pointermove',dragMove);d.gh.remove();d.hl.remove();const t=d.t,o=d.o;let ch=0;const reSel=nr=>{if(selRef&&(d.sid?selRef.sid==d.sid:selRef.o===d.o))selRef=nr};
- const mergeInto=tt=>{const mv=Math.min(MAXST-tt.n,o.n||1);tt.n+=mv;const rest=(o.n||1)-mv;if(rest>0)o.n=rest;else take(d);ch=1};
+ const mergeInto=tt=>{const mv=Math.min(mxs(d.k)-tt.n,o.n||1);tt.n+=mv;const rest=(o.n||1)-mv;if(rest>0)o.n=rest;else take(d);ch=1};
  const toTab=ti=>{const arr=STB[ti];let n=TOOL[d.k]?(o.n||1):1,mv=0;
-  if(TOOL[d.k]){for(const q of arr){if(n<=0)break;if(q.k==d.k&&q.n<MAXST){const m=Math.min(MAXST-q.n,n);q.n+=m;n-=m;mv+=m}}
-   while(n>0){const f=spotIn(arr,SC,SR,d.k);if(!f)break;const m=Math.min(MAXST,n);arr.push({k:d.k,x:f[0],y:f[1],n:m});n-=m;mv+=m}}
+  if(TOOL[d.k]){for(const q of arr){if(n<=0)break;if(q.k==d.k&&q.n<mxs(d.k)){const m=Math.min(mxs(d.k)-q.n,n);q.n+=m;n-=m;mv+=m}}
+   while(n>0){const f=spotIn(arr,SC,SR,d.k);if(!f)break;const m=Math.min(mxs(d.k),n);arr.push({k:d.k,x:f[0],y:f[1],n:m});n-=m;mv+=m}}
   else{const f=spotIn(arr,SC,SR,d.k);if(f){const no={k:d.k,x:f[0],y:f[1],n:o.n||0};if(o.sk)no.sk=o.sk;arr.push(no);mv=1;n=0}}
   if(!mv){note='Stash tab '+(ti+1)+' is full.';return}
   ch=1;if(n<=0){take(d);const was=selRef;reSel(null);if(selRef!==was)selInfo=null;note='Moved to stash tab '+(ti+1)+'.'}
@@ -2072,8 +2072,8 @@ function dragEnd(){const d=drg;if(!d)return;drg=null;removeEventListener('pointe
  else if(t&&t.ok){
   if(t.c){const arr=CT[t.c].a();
    if(t.mg)mergeInto(t.mg);
-   else if(!d.sid&&!d.split&&d.ct==t.c){o.x=t.x;o.y=t.y;ch=1}
-   else{take(d);const no={k:d.k,x:t.x,y:t.y,n:o.n||(TOOL[d.k]?1:0)};if(o.sk)no.sk=o.sk;arr.push(no);reSel({ct:t.c,o:no});ch=1}}
+   else if(!d.sid&&!d.split&&d.ct==t.c){o.x=t.x;o.y=t.y;if(d.rot&&isz(o.k)[0]!=isz(o.k)[1])o.r=1;else delete o.r;ch=1}
+   else{take(d);const no={k:d.k,x:t.x,y:t.y,n:o.n||(TOOL[d.k]?1:0)};if(o.sk)no.sk=o.sk;if(d.rot&&isz(d.k)[0]!=isz(d.k)[1])no.r=1;arr.push(no);reSel({ct:t.c,o:no});ch=1}}
   else{const id=t.s,old=slotGet(id);
    if(old&&old.k==d.k&&TOOL[d.k])mergeInto(old);
    else if(d.split){if(!old){slotSet(id,{k:d.k,n:1});take(d);ch=1}}
@@ -2082,6 +2082,13 @@ function dragEnd(){const d=drg;if(!d)return;drg=null;removeEventListener('pointe
     if(old){const z=isz(old.k),q=fitsIn(a,C.c,C.r,o.x,o.y,z[0],z[1])?[o.x,o.y]:spotIn(a,C.c,C.r,old.k);if(!q)a.splice(i,0,o);else{a.push({k:old.k,x:q[0],y:q[1],n:old.n||(TOOL[old.k]?1:0),...(old.sk?{sk:old.sk}:{})});slotSet(id,{k:d.k,n:o.n,sk:o.sk});reSel({sid:id});ch=1}}
     else{slotSet(id,{k:d.k,n:o.n,sk:o.sk});reSel({sid:id});ch=1}}}}
  if(ch)SAVE();{const nn=note;note='';menu(nn)}}
+// ---- ROTATE ITEMS WITH R in the stash: while dragging, or hovering an item (it turns in place if it still fits) ----
+addEventListener('keydown',e=>{if(e.code!=='KeyR'||e.repeat||e.ctrlKey||e.metaKey||e.altKey||mode==='play')return;const d=drg;
+ if(d){const z0=isz(d.k);if(z0[0]===z0[1])return;e.preventDefault();d.rot^=1;[d.w,d.h]=[d.h,d.w];d.gh.style.width=d.w*d.cs+'px';d.gh.style.height=d.h*d.cs+'px';d.gh.innerHTML='';d.gh.appendChild(itemCv(d.k,d.w*64,d.h*64,d.o&&d.o.sk,d.rot));dragMove({clientX:d.lx,clientY:d.ly});return}
+ const h=hov;if(!h||!CT[h.ct])return;const C=CT[h.ct],a=C.a(),o=h.o;if(!o||!a.includes(o))return;const z0=isz(o.k);if(z0[0]===z0[1])return;e.preventDefault();
+ const nr=o.r?0:1,w=nr?z0[1]:z0[0],hh=nr?z0[0]:z0[1];
+ for(let j=0;j<hh;j++)for(let i=0;i<w;i++){if(fitsIn(a,C.c,C.r,o.x-i,o.y-j,w,hh,o)){o.x-=i;o.y-=j;if(nr)o.r=1;else delete o.r;hov=null;SAVE();menu();return}}
+ hov=null;menu('No room to rotate that here.')});
 function newGame(){
  boss=Object.keys(BOSS)[Math.random()*Object.keys(BOSS).length|0];showMap=0;genGround();gorW=boss=='gorrath'?1:0;GFS=[];GGR=[];GHP=[];if(gorW)gorGround();nyxW=boss=='nyxara'?1:0;NSN=[];NWF=[];if(nyxW)nyxGround();morW=boss=='mordrek'?1:0;MGR=[];MBL=null;MCH=null;MBD=[];morBt=0;if(morW)morGround();walls=[];blds=[];
  camp=edgePt();exts=[];for(let t=0;exts.length<2&&t<500;t++){const p=edgePt();if(D(p.x,p.y,camp.x,camp.y)>1000&&exts.every(e=>D(p.x,p.y,e.x,e.y)>800))exts.push(p)}
@@ -2101,7 +2108,7 @@ RS={};mis=ledgerTask();trees=[];M=[];bul=[];eb=[];bombs=[];lobs=[];fires=[];flar
  {const mks=Object.keys(LESSER_MK),ld=[];for(let n=0,c=Math.random()<.5?2:1;n<c;n++){let x,y,t=0;do{x=R(80,WW-80);y=R(80,WH-80)}while((hit(x,y,16)||D(x,y,sp.x,sp.y)<500||ld.some(l=>D(x,y,l.x,l.y)<500)||blds.some(b=>{const e=bExt(b);return x>e.x-40&&x<e.x+e.w+40&&y>e.y-40&&y<e.y+e.h+40}))&&t++<300);if(t<=300){const m=LESSER_MK[mks[R(0,mks.length)|0]](x,y);if(m.ty=='raum')placeNest(m,sp);ld.push(m);M.push(m)}}}
  items=[];scn=[];
  // Loot odds unchanged (74% ammo roll), but every second ammo roll is skipped so only half the ammo piles spawn. Ammo is plentiful, tools are thinner, weapons are rare. fb=1 (a fallen hunter's pack) can carry a weapon more often.
- let ac=0;const pk=(x,y,fb)=>{let q=Math.random();if(fb)q=Math.random()<.12?.99:Math.random()*.96;let it;if(q<.74){if(ac++&1)return;it={t:'ammo'}}else if(q<.82)it={t:'tonic'};else if(q<.89)it={t:'bomb'};else if(q<.96)it={t:'tool',k:XT[R(0,XT.length)|0]};else{const s=Math.random()<.55?0:1,ks=Object.keys(s?SID:PRI).filter(k=>k!='none');it={t:'wpn',s,k:ks[R(0,ks.length)|0]}}{const sl=WSK[it.t=='wpn'||it.t=='tool'?it.k:it.t=='tonic'||it.t=='bomb'?it.t:''];if(sl&&sl.length&&Math.random()<.1)it.sk=sl[R(0,sl.length)|0].id}it.x=x;it.y=y;items.push(it)};
+ let ac=0;const pk=(x,y,fb)=>{let q=Math.random();if(fb)q=Math.random()<.12?.99:Math.random()*.96;let it;if(q<.74){if(ac++&1)return;it={t:'ammo'}}else if(q<.82)it={t:'tonic'};else if(q<.89)it={t:'bomb'};else if(q<.96)it={t:'tool',k:(()=>{let k;do k=XT[R(0,XT.length)|0];while(k=='revive'&&!(mp.on&&mp.n>1));return k})()};else{const s=Math.random()<.55?0:1,ks=Object.keys(s?SID:PRI).filter(k=>k!='none');it={t:'wpn',s,k:ks[R(0,ks.length)|0]}}{const sl=WSK[it.t=='wpn'||it.t=='tool'?it.k:it.t=='tonic'||it.t=='bomb'?it.t:''];if(sl&&sl.length&&Math.random()<.1)it.sk=sl[R(0,sl.length)|0].id}it.x=x;it.y=y;items.push(it)};
  blds.forEach(b=>{for(let i=0;i<3;i++)pk(b.x+R(25,b.w-25),b.y+R(25,b.h-25))});
  // Outdoor loot never lies bare on the grass: every pile sits at a supply site (wrecked cart, abandoned camp, fallen hunter, tarped cache)
  const SK=['cart','camp','fallen','cache'],SG=g=>ground.getContext('2d');let glN=0;
@@ -2117,7 +2124,7 @@ RS={};mis=ledgerTask();trees=[];M=[];bul=[];eb=[];bombs=[];lobs=[];fires=[];flar
   const m=k=='fallen'?2:k=='cache'?4:3;
   for(let j=0;j<m;j++){const a=Math.PI*2*(j+R(0,.6))/m+(k=='camp'?.5:0);let ix=x+Math.cos(a)*R(16,22),iy=y+Math.sin(a)*R(12,17)+4;if(hit(ix,iy,6)){ix=x+R(-2,2)*f;iy=y+13}const n0=items.length;pk(ix,iy,k=='fallen');const li=items[items.length-1];if(items.length>n0&&li.t=='ammo'&&glN<4&&Math.random()<.22){items.pop();M.push(mkGleaner(ix,iy));glN++}}}
  const pw=[sel.pri!='none'?PRI[sel.pri]:null,sel.side!='none'?SID[sel.side]:null];
- P={x:sp.x,y:sp.y,hp:100,st:100,w:pw,wsk:[pw[0]?skv(sel.pri,sel.sk.p):'',pw[1]?skv(sel.side,sel.sk.s):''],bag:(sel.bag||[]).map(o=>{const c={...o};delete c.mg;delete c.rs;return c}),cur:pw[0]?0:1,mag:pw.map(w=>w?w.m:0),res:pw.map((w,i)=>w?w.m*3+(w.d?(xa[i]|0)*w.m:0):0),rl:0,cd:0,mc:0,ts:Array.from({length:NTS},(_,i)=>{const t=sel.tools[i];return t&&TOOL[t.k]?{k:t.k,n:Math.min(MAXST,t.n||1)}:null}),wd:0,hf:0,wk:0,sl:0,carry:0,bp:0,ep:0,face:0,sa:0,nz:0,lf:0};tsBind(P);
+ P={x:sp.x,y:sp.y,hp:100,st:100,w:pw,wsk:[pw[0]?skv(sel.pri,sel.sk.p):'',pw[1]?skv(sel.side,sel.sk.s):''],bag:(sel.bag||[]).map(o=>{const c={...o};delete c.mg;delete c.rs;return c}),cur:pw[0]?0:1,mag:pw.map(w=>w?w.m:0),res:pw.map((w,i)=>w?w.m*3+(w.d?(xa[i]|0)*w.m:0):0),rl:0,cd:0,mc:0,ts:Array.from({length:NTS},(_,i)=>{const t=sel.tools[i];return t&&TOOL[t.k]?{k:t.k,n:Math.min(mxs(t.k),t.n||1)}:null}),wd:0,hf:0,wk:0,sl:0,carry:0,bp:0,ep:0,face:0,sa:0,nz:0,lf:0};tsBind(P);
  xa=[0,0];invOpen=0;mode='play';$('#menu').style.display='none';say('Burn 3 sigils to unseal the demon\'s door, then hunt it.'+(mis.t=='none'?'':' Ledger: '+tText(mis)+'.'),6)}
 
 // ---------- GORRATH'S BREACH: map changes + fire-touched brutes (only when Gorrath is the boss; the tutorial has its own world) ----------
@@ -2308,23 +2315,23 @@ function hurtP(d,k){if(P.dead)return;if(k)lastK=k;if(P.wd>0)d*=.4;P.hp-=d;P.hf=.
 function end(w){mode='menu';scr='hub';const lm=w?ledgerCommit():'';achCommit(w);try{lbPush()}catch(e){}if(w){bank+=P.carry;sel.pri=P.w[0]?P.w[0].k:'none';sel.side=P.w[1]?P.w[1].k:'none';sel.sk={p:P.w[0]?psk(0):'',s:P.w[1]?psk(1):''};sel.bag=P.bag;sel.tools=P.ts.map(x=>x?{k:x.k,n:x.n}:null);}else{sel.pri='none';sel.side='none';sel.sk={p:'',s:''};sel.bag=[];sel.tools=Array(NTS).fill(null)}invOpen=0;genMissions();{const c=curL();mi=Math.max(0,LEDGERS.findIndex(l=>c&&l.id==c.id))}bank=Math.max(bank,120);SAVE();menu(w?(lm+(P.carry?`Escaped with the bounty! +$${P.carry}`:'You escaped... empty-handed.')):'You died. Everything your character carried is lost. Your stash is safe.'+(()=>{const r=RWD;RWD='';return r})())}
 addEventListener('keydown',e=>{if(e.code=='Tab'&&mode=='play')e.preventDefault();if(e.repeat)return;keys[e.code]=1;if(mode!='play')return;const c=e.code;if(P.dead){if(c=='Enter'||c=='KeyL')end(0);return}
  if(c=='KeyM'){showMap=!showMap;mouse.l=mouse.r=0}if(c=='KeyI'||c=='Tab'){ivd=null;ivSel=null;invOpen=!invOpen;showMap=0;mouse.l=mouse.r=0;refocus()}if(c=='Escape')showMap=0;
- if(c=='KeyR')reload();if(c>='Digit1'&&c<='Digit'+(2+NTS))setSlot(+c[5]-1);
+ if(c=='KeyR'){if(invOpen)invRot();else reload()}if(c>='Digit1'&&c<='Digit'+(2+NTS))setSlot(+c[5]-1);
  if(['Space','Tab'].includes(c))e.preventDefault()});
 addEventListener('keyup',e=>keys[e.code]=0);
 // Tool slots: NTS free-form slots, any tool in any slot. P.tn / P.bm / P.xt.<kind> stay available as live accessors over them.
-const TC=k=>P.ts.reduce((a,x)=>a+(x&&x.k==k?x.n:0),0),TS=(k,n)=>{n=Math.max(0,Math.min(MAXST,n|0));let i=P.ts.findIndex(x=>x&&x.k==k);if(i<0){if(n<=0)return;i=P.ts.indexOf(null);if(i<0)return;P.ts[i]={k,n};return}if(n<=0)P.ts[i]=null;else P.ts[i].n=n};
-const TL={tonic:'Water',bomb:'Charge',flask:'Flask',flare:'Flare',ward:'Ward',tripwire:'Wire',saltline:'Salt',noisemaker:'Noise',chalk:'Chalk',stamtonic:'Stam',bootwraps:'Wraps',muzzle:'Muzzle',pyre:'Pyre',magpie:'Magpie',thief:'Hands',pearl:'Pearl',undertow:'Tide'};
+const TC=k=>P.ts.reduce((a,x)=>a+(x&&x.k==k?x.n:0),0),TS=(k,n)=>{n=Math.max(0,Math.min(mxs(k),n|0));let i=P.ts.findIndex(x=>x&&x.k==k);if(i<0){if(n<=0)return;i=P.ts.indexOf(null);if(i<0)return;P.ts[i]={k,n};return}if(n<=0)P.ts[i]=null;else P.ts[i].n=n};
+const TL={tonic:'Water',bomb:'Charge',flask:'Flask',flare:'Flare',ward:'Ward',tripwire:'Wire',saltline:'Salt',noisemaker:'Noise',chalk:'Chalk',stamtonic:'Stam',bootwraps:'Wraps',revive:'Revive',muzzle:'Muzzle',pyre:'Pyre',magpie:'Magpie',thief:'Hands',pearl:'Pearl',undertow:'Tide'};
 function tsBind(p){const df=(o,k,t)=>Object.defineProperty(o,k,{get:()=>TC(t),set:v=>TS(t,v),enumerable:true,configurable:true});df(p,'tn','tonic');df(p,'bm','bomb');const x={};XT.concat(TOT).forEach(k=>df(x,k,k));p.xt=x}
 function useSlotTool(j){const x=P.ts[j];if(!x)return;if(x.k=='tonic')useTonic();else if(x.k=='bomb')throwBomb();else useXT(x.k)}
-function giveTool(k){const nm=TOOL[k].n,have=P.ts.some(x=>x&&x.k==k);if(have&&TC(k)>=MAXST){say(nm+' is maxed (3)',1.5);return 0}if(have||P.ts.includes(null)){TS(k,TC(k)+1);say('+'+nm,2);return 1}if(addTo(P.bag,4,4,k,1)){say('+'+nm+' (backpack, tool slots full)',2.5);return 1}say('All '+NTS+' tool slots are full',1.5);return 0}
+function giveTool(k){const nm=TOOL[k].n,have=P.ts.some(x=>x&&x.k==k);if(have&&TC(k)>=mxs(k)){say(nm+' is maxed ('+mxs(k)+')',1.5);return 0}if(have||P.ts.includes(null)){TS(k,TC(k)+1);say('+'+nm,2);return 1}if(addTo(P.bag,4,4,k,1)){say('+'+nm+' (backpack, tool slots full)',2.5);return 1}say('All '+NTS+' tool slots are full',1.5);return 0}
 const has=i=>i<2?(i==1||!!P.w[i]):i<2+NTS&&!!P.ts[i-2];
 function stow(i){const w=P.w[i];if(!w)return;if(!addTo(P.bag,4,4,w.k))return say('Backpack is full',2);{const q=psk(i),b=P.bag[P.bag.length-1];b.mg=P.mag[i];b.rs=0;if(q)b.sk=q}P.w[i]=null;setPS(i,'');P.mag[i]=0;fixSlot()}
 function stowT(j,all){const x=P.ts[j];if(!x)return;let m=0;for(let i=0,n=all?x.n:1;i<n;i++){if(!addTo(P.bag,4,4,x.k,1)){if(!m)say('Backpack is full',2);break}m++}if(!m)return;x.n-=m;if(x.n<=0)P.ts[j]=null;fixSlot()}
 const tsAt=()=>{for(let j=0;j<NTS;j++){const x=IBX+(2+j)*IBS;if(mouse.x>x&&mouse.x<x+IBW&&mouse.y>IBY&&mouse.y<IBY+50)return j}return -1};
-function equipTool(o,j,one){const k=o.k,want=one?1:Math.min(o.n||1,MAXST);let t=P.ts.findIndex(x=>x&&x.k==k);
+function equipTool(o,j,one){const k=o.k,want=one?1:Math.min(o.n||1,mxs(k));let t=P.ts.findIndex(x=>x&&x.k==k);
  if(t<0){t=j>=0?j:P.ts.indexOf(null);if(t<0)return say('All '+NTS+' tool slots are full. Click a slot to stow it first.',2.5)}
  const cur=P.ts[t],take=n=>{o.n=(o.n||1)-n;if(o.n<=0){const i=P.bag.indexOf(o);if(i>=0)P.bag.splice(i,1)}};
- if(cur&&cur.k==k){const mv=Math.min(MAXST-cur.n,want);if(mv<=0)return say('Already carrying the max (3)',2);cur.n+=mv;take(mv);fixSlot();return}
+ if(cur&&cur.k==k){const mv=Math.min(mxs(k)-cur.n,want);if(mv<=0)return say('Already carrying the max ('+mxs(k)+')',2);cur.n+=mv;take(mv);fixSlot();return}
  if(!cur){P.ts[t]={k,n:want};take(want);fixSlot();return}
  const snap=P.bag.map(q=>({...q}));take(want);let ok=1;for(let i=0;i<cur.n;i++)if(!addTo(P.bag,4,4,cur.k,1)){ok=0;break}
  if(!ok){P.bag.length=0;snap.forEach(q=>P.bag.push(q));return say('No room in the backpack to swap',2)}
@@ -2335,14 +2342,14 @@ function unbag(it){const i=P.bag.indexOf(it);if(i<0)return;const k=it.k;
  if(o&&!addTo(P.bag,4,4,o.k)){P.bag.splice(i,0,it);return say('No room to swap',2)}
  {const q=psk(s);if(o){const b=P.bag[P.bag.length-1];b.mg=P.mag[s];b.rs=0;if(q)b.sk=q}}P.w[s]=w;setPS(s,skv(k,it.sk));P.mag[s]=it.mg!==undefined?it.mg:w.m;P.res[s]+=it.rs!==undefined?it.rs:(it.mg!==undefined?0:w.m*2);P.rl=0;P.cur=s}
 const IBX=120,IBS=50,IBW=46,IBY=68,GX=256,GY=146,GC=32,IVX=110,IVY=40,IVW=420,IVH=300;let ivd=null,ivSel=null;
-function invClick(sh){for(let j=0;j<2+NTS;j++){const x=IBX+j*IBS;if(mouse.x>x&&mouse.x<x+IBW&&mouse.y>IBY&&mouse.y<IBY+50){const it=eqItem(j);if(!it)return;ivSel=it.k;const z=isz(it.k);ivd={eq:j,o:it,sp:!!(sh&&j>=2&&(it.n||1)>1),shift:sh,sx:mouse.x,sy:mouse.y,dx:z[0]*GC/2,dy:z[1]*GC/2,mv:0};return}}
- const o=invHit();if(o)ivSel=o.k,ivd={o,sp:!!(sh&&TOOL[o.k]&&(o.n||1)>1),sx:mouse.x,sy:mouse.y,dx:mouse.x-(GX+o.x*GC),dy:mouse.y-(GY+o.y*GC),mv:0}}
-function invHit(){for(const o of P.bag){const z=isz(o.k);if(mouse.x>GX+o.x*GC&&mouse.x<GX+(o.x+z[0])*GC&&mouse.y>GY+o.y*GC&&mouse.y<GY+(o.y+z[1])*GC)return o}return null}
+function invClick(sh){for(let j=0;j<2+NTS;j++){const x=IBX+j*IBS;if(mouse.x>x&&mouse.x<x+IBW&&mouse.y>IBY&&mouse.y<IBY+50){const it=eqItem(j);if(!it)return;ivSel=it.k;const z=isz(it.k);ivd={eq:j,rot:0,o:it,sp:!!(sh&&j>=2&&(it.n||1)>1),shift:sh,sx:mouse.x,sy:mouse.y,dx:z[0]*GC/2,dy:z[1]*GC/2,mv:0};return}}
+ const o=invHit();if(o)ivSel=o.k,ivd={o,rot:o.r?1:0,sp:!!(sh&&TOOL[o.k]&&(o.n||1)>1),sx:mouse.x,sy:mouse.y,dx:mouse.x-(GX+o.x*GC),dy:mouse.y-(GY+o.y*GC),mv:0}}
+function invHit(){for(const o of P.bag){const z=isz2(o);if(mouse.x>GX+o.x*GC&&mouse.x<GX+(o.x+z[0])*GC&&mouse.y>GY+o.y*GC&&mouse.y<GY+(o.y+z[1])*GC)return o}return null}
 const invOut=()=>mouse.x<IVX||mouse.x>IVX+IVW||mouse.y<IVY||mouse.y>IVY+IVH;
 function bagDrop(o){const i=P.bag.indexOf(o);if(i<0)return;P.bag.splice(i,1);const c=TOOL[o.k]?Math.max(1,o.n||1):1;for(let j=0;j<c;j++)ttToss(ttGround(o.k,o.sk,o.mg,o.rs));say('Dropped '+ttName(o.k)+(c>1?' x'+c:''),2)}
 function invMove(){if(ivd&&!ivd.mv&&Math.hypot(mouse.x-ivd.sx,mouse.y-ivd.sy)>4)ivd.mv=1}
-function invTgt(d){const o=d.o,z=isz(o.k);if(invOut())return{out:1};if(TOOL[o.k]){const sj=tsAt();if(sj>=0)return{sj,ok:1}}else if(d.eq===undefined&&(PRI[o.k]||SID[o.k])){const wj=SID[o.k]?1:0,wx=IBX+wj*IBS;if(mouse.x>wx&&mouse.x<wx+IBW&&mouse.y>IBY&&mouse.y<IBY+50)return{wj,ok:1}}const gx=Math.round((mouse.x-d.dx-GX)/GC),gy=Math.round((mouse.y-d.dy-GY)/GC),px=Math.floor((mouse.x-GX)/GC),py=Math.floor((mouse.y-GY)/GC);
- const mg=TOOL[o.k]?P.bag.find(q=>q!==o&&q.k==o.k&&(q.n||1)<MAXST&&px>=q.x&&px<q.x+isz(q.k)[0]&&py>=q.y&&py<q.y+isz(q.k)[1]):null;if(mg)return{mg,gx:mg.x,gy:mg.y,ok:1,w:isz(mg.k)[0],h:isz(mg.k)[1]};
+function invTgt(d){const o=d.o,z0=isz(o.k),z=d.rot?[z0[1],z0[0]]:z0;if(invOut())return{out:1};if(TOOL[o.k]){const sj=tsAt();if(sj>=0)return{sj,ok:1}}else if(d.eq===undefined&&(PRI[o.k]||SID[o.k])){const wj=SID[o.k]?1:0,wx=IBX+wj*IBS;if(mouse.x>wx&&mouse.x<wx+IBW&&mouse.y>IBY&&mouse.y<IBY+50)return{wj,ok:1}}const gx=Math.round((mouse.x-d.dx-GX)/GC),gy=Math.round((mouse.y-d.dy-GY)/GC),px=Math.floor((mouse.x-GX)/GC),py=Math.floor((mouse.y-GY)/GC);
+ const mg=TOOL[o.k]?P.bag.find(q=>q!==o&&q.k==o.k&&(q.n||1)<mxs(o.k)&&px>=q.x&&px<q.x+isz2(q)[0]&&py>=q.y&&py<q.y+isz2(q)[1]):null;if(mg)return{mg,gx:mg.x,gy:mg.y,ok:1,w:isz2(mg)[0],h:isz2(mg)[1]};
  return{gx,gy,w:z[0],h:z[1],ok:fitsIn(P.bag,4,4,gx,gy,z[0],z[1],d.sp?null:o),inb:gx>=0&&gy>=0&&gx+z[0]<=4&&gy+z[1]<=4}}
 const eqItem=j=>j<2?(P.w[j]?{k:P.w[j].k,n:0,x:-9,y:-9,sk:psk(j)}:null):(P.ts[j-2]?{k:P.ts[j-2].k,n:P.ts[j-2].n,x:-9,y:-9}:null);
 function eqRelease(d){const j=d.eq;if(!d.mv){j<2?stow(j):stowT(j-2,d.shift);return}
@@ -2350,16 +2357,19 @@ function eqRelease(d){const j=d.eq;if(!d.mv){j<2?stow(j):stowT(j-2,d.shift);retu
  if(t.out){if(w){ttToss(ttGround(w.k,psk(j),P.mag[j],0));P.w[j]=null;setPS(j,'');P.mag[j]=0;say('Dropped '+ttName(w.k),2)}else{const n=d.sp?1:x.n;for(let i=0;i<n;i++)ttToss(ttGround(x.k));x.n-=n;if(x.n<=0)P.ts[j-2]=null;say('Dropped '+ttName(x.k)+(n>1?' x'+n:''),2)}fixSlot();return}
  if(t.sj!==undefined){const b=t.sj,a=j-2;if(a==b||!x)return;if(d.sp&&!P.ts[b]){P.ts[b]={k:x.k,n:1};x.n--;if(x.n<=0)P.ts[a]=null}else{const tmp=P.ts[a];P.ts[a]=P.ts[b];P.ts[b]=tmp}fixSlot();return}
  if(!t.ok)return;
- if(t.mg){if(!x)return;const mv=d.sp?1:Math.min(MAXST-t.mg.n,x.n);if(mv<=0)return;t.mg.n+=mv;x.n-=mv;if(x.n<=0)P.ts[j-2]=null;fixSlot();return}
- if(w){P.bag.push({k:w.k,x:t.gx,y:t.gy,n:0,mg:P.mag[j],rs:0,...(psk(j)?{sk:psk(j)}:{})});P.w[j]=null;setPS(j,'');P.mag[j]=0}else{const n=d.sp?1:x.n;P.bag.push({k:x.k,x:t.gx,y:t.gy,n});x.n-=n;if(x.n<=0)P.ts[j-2]=null}
+ if(t.mg){if(!x)return;const mv=d.sp?1:Math.min(mxs(x.k)-t.mg.n,x.n);if(mv<=0)return;t.mg.n+=mv;x.n-=mv;if(x.n<=0)P.ts[j-2]=null;fixSlot();return}
+ if(w){P.bag.push({k:w.k,x:t.gx,y:t.gy,n:0,mg:P.mag[j],rs:0,...(d.rot?{r:1}:{}),...(psk(j)?{sk:psk(j)}:{})});P.w[j]=null;setPS(j,'');P.mag[j]=0}else{const n=d.sp?1:x.n;P.bag.push({k:x.k,x:t.gx,y:t.gy,n,...(d.rot?{r:1}:{})});x.n-=n;if(x.n<=0)P.ts[j-2]=null}
  fixSlot()}
 function invRelease(){const d=ivd;ivd=null;if(!d||!invOpen)return;if(d.eq!==undefined){eqRelease(d);return}if(!P.bag.includes(d.o))return;const o=d.o;if(!d.mv){unbag(o);return}
  const t=invTgt(d);
  if(t.out){if(d.sp){o.n--;ttToss(ttGround(o.k));say('Dropped '+ttName(o.k),2)}else bagDrop(o);return}
  if(t.sj!==undefined){equipTool(o,t.sj,d.sp);return}
  if(t.wj!==undefined){unbag(o);return}
- if(t.mg){const mv=d.sp?1:Math.min(MAXST-t.mg.n,o.n||1);t.mg.n+=mv;o.n-=mv;if(o.n<=0)P.bag.splice(P.bag.indexOf(o),1);return}
- if(!t.ok)return;if(d.sp){o.n--;P.bag.push({k:o.k,x:t.gx,y:t.gy,n:1})}else{o.x=t.gx;o.y=t.gy}}
+ if(t.mg){const mv=d.sp?1:Math.min(mxs(o.k)-t.mg.n,o.n||1);t.mg.n+=mv;o.n-=mv;if(o.n<=0)P.bag.splice(P.bag.indexOf(o),1);return}
+ if(!t.ok)return;if(d.sp){o.n--;P.bag.push({k:o.k,x:t.gx,y:t.gy,n:1,...(d.rot?{r:1}:{})})}else{o.x=t.gx;o.y=t.gy;if(d.rot)o.r=1;else delete o.r}}
+function invRot(){if(ivd){const z0=isz(ivd.o.k);if(z0[0]==z0[1])return;ivd.rot^=1;const z=ivd.rot?[z0[1],z0[0]]:z0;ivd.dx=z[0]*GC/2;ivd.dy=z[1]*GC/2;return}
+ const o=invHit();if(!o)return;const z0=isz(o.k);if(z0[0]==z0[1])return;const nr=o.r?0:1,w=nr?z0[1]:z0[0],h=nr?z0[0]:z0[1];
+ for(let j=0;j<h;j++)for(let i=0;i<w;i++){if(fitsIn(P.bag,4,4,o.x-i,o.y-j,w,h,o)){o.x-=i;o.y-=j;if(nr)o.r=1;else delete o.r;return}}say('No room to rotate it here',1.5)}
 function invHoverKey(){if(ivd&&ivd.mv)return ivd.o.k;for(let j=0;j<2+NTS;j++){const x=IBX+j*IBS;if(mouse.x>x&&mouse.x<x+IBW&&mouse.y>IBY&&mouse.y<IBY+50){const it=eqItem(j);if(it)return it.k}}const o=invHit();return o?o.k:null}
 function invWrap(s,n){const o=[];let l='';for(const w of String(s).split(' ')){if((l+' '+w).trim().length>n){o.push(l);l=w}else l=(l+' '+w).trim()}if(l)o.push(l);return o}
 function drawInfoBox(){const bx=392,by=134,bw=134,bh=150;ctx.fillStyle='#14080a';ctx.fillRect(bx,by,bw,bh);ctx.strokeStyle='#555';ctx.lineWidth=1;ctx.strokeRect(bx+.5,by+.5,bw,bh);
@@ -2369,20 +2379,20 @@ function drawInfoBox(){const bx=392,by=134,bw=134,bh=150;ctx.fillStyle='#14080a'
  if(TOOL[k]){for(const l of invWrap(d.d,21)){tx(l,bx+5,y,'#ddd');y+=11}y+=3;tx('Value $'+d.c,bx+5,y,'#aaa');return}
  for(const[a,b]of wList(d)){tx(a,bx+5,y,'#aaa');tx(String(b),bx+bw-5,y,a=='Noise'?(d.nz<=150?'#6fcf6a':d.nz<=300?'#e0b040':'#e0583a'):'#fff','right');y+=11}
  y+=2;tx('Value $'+d.c,bx+5,y,'#888')}
-function invItem(k,x,y,W,H,sk){const[l,cx,h]=SPX[k]||[10,5,5],sc=Math.min(W*.86/l,H*.8/h);drawWpn(k,x+W/2-cx*sc,y+H/2-.5*sc,0,sc,sk)}
+function invItem(k,x,y,W,H,sk,rt){if(rt){ctx.save();ctx.translate(x+W/2,y+H/2);ctx.rotate(Math.PI/2);invItem(k,-H/2,-W/2,H,W,sk);ctx.restore();return}const[l,cx,h]=SPX[k]||[10,5,5],sc=Math.min(W*.86/l,H*.8/h);drawWpn(k,x+W/2-cx*sc,y+H/2-.5*sc,0,sc,sk)}
 function drawInv(){ctx.fillStyle='rgba(0,0,0,.7)';ctx.fillRect(0,0,VW,VH);ctx.fillStyle='#1c1418';ctx.fillRect(IVX,IVY,IVW,IVH);ctx.strokeStyle='#e8e6d8';ctx.lineWidth=1;ctx.strokeRect(IVX+.5,IVY+.5,IVW,IVH);ctx.font='bold 10px monospace';
  tx('INVENTORY',320,58,'#e8e6d8','center');const L=['Primary','Sidearm','Tool 1','Tool 2','Tool 3','Tool 4','Tool 5','Tool 6'],ks=[P.w[0]&&P.w[0].k,P.w[1]&&P.w[1].k,...P.ts.map(x=>x&&x.k)],ns=[0,0,...P.ts.map(x=>x?x.n:0)];
  for(let j=0;j<2+NTS;j++){const x=IBX+j*IBS,k=ks[j];ctx.fillStyle='#241c24';ctx.fillRect(x,IBY,IBW,50);ctx.strokeStyle='#666';ctx.strokeRect(x+.5,IBY+.5,IBW,50);tx(j>=2&&k?(TL[k]||k):L[j],x+3,IBY+10,'#aaa');
   if(k){if(ivd&&ivd.mv&&ivd.eq===j&&!ivd.sp)ctx.globalAlpha=.3;invItem(k,x+3,IBY+12,IBW-6,36,j<2?psk(j):'');if(ns[j])tx('x'+ns[j],x+IBW-3,IBY+46,'#fff','right');ctx.globalAlpha=1}else tx(j<2?'fists':'empty',x+4,IBY+34,'#777')}
  tx('BACKPACK (16 squares)',320,138,'#c8a050','center');ctx.fillStyle='#14080a';ctx.fillRect(GX,GY,4*GC,4*GC);ctx.strokeStyle='#555';for(let i=0;i<=4;i++){ctx.beginPath();ctx.moveTo(GX+i*GC+.5,GY);ctx.lineTo(GX+i*GC+.5,GY+4*GC);ctx.stroke()}for(let i=0;i<=4;i++){ctx.beginPath();ctx.moveTo(GX,GY+i*GC+.5);ctx.lineTo(GX+4*GC,GY+i*GC+.5);ctx.stroke()}
- for(const o of P.bag){if(ivd&&ivd.o===o&&ivd.mv&&!ivd.sp)continue;const z=isz(o.k),x=GX+o.x*GC,y=GY+o.y*GC;ctx.fillStyle='#7a1c1c88';ctx.fillRect(x+1,y+1,z[0]*GC-2,z[1]*GC-2);invItem(o.k,x,y,z[0]*GC,z[1]*GC,o.sk);if(TOOL[o.k])tx('x'+o.n,x+z[0]*GC-3,y+z[1]*GC-3,'#fff','right')}
- if(ivd&&ivd.mv){const o=ivd.o,z=isz(o.k),t=invTgt(ivd),out=t.out;
+ for(const o of P.bag){if(ivd&&ivd.o===o&&ivd.mv&&!ivd.sp)continue;const z=isz2(o),x=GX+o.x*GC,y=GY+o.y*GC;ctx.fillStyle='#7a1c1c88';ctx.fillRect(x+1,y+1,z[0]*GC-2,z[1]*GC-2);invItem(o.k,x,y,z[0]*GC,z[1]*GC,o.sk,o.r);if(TOOL[o.k])tx('x'+o.n,x+z[0]*GC-3,y+z[1]*GC-3,'#fff','right')}
+ if(ivd&&ivd.mv){const o=ivd.o,z0=isz(o.k),z=ivd.rot?[z0[1],z0[0]]:z0,t=invTgt(ivd),out=t.out;
   if(!out&&t.wj!==undefined){ctx.fillStyle='#40c06066';ctx.fillRect(IBX+t.wj*IBS,IBY,IBW,50)}
   if(!out&&t.sj!==undefined){const hx=IBX+(2+t.sj)*IBS;ctx.fillStyle='#40c06066';ctx.fillRect(hx,IBY,IBW,50)}
   if(!out&&(t.mg||t.inb)){ctx.fillStyle=t.ok?'#40c06055':'#c0302055';ctx.fillRect(GX+t.gx*GC,GY+t.gy*GC,t.w*GC,t.h*GC)}
-  const x=mouse.x-ivd.dx,y=mouse.y-ivd.dy;ctx.globalAlpha=.85;ctx.fillStyle='#7a1c1c';ctx.fillRect(x+1,y+1,z[0]*GC-2,z[1]*GC-2);invItem(o.k,x,y,z[0]*GC,z[1]*GC,o.sk);if(TOOL[o.k])tx('x'+(ivd.sp?1:o.n),x+z[0]*GC-3,y+z[1]*GC-3,'#fff','right');ctx.globalAlpha=1;
+  const x=mouse.x-ivd.dx,y=mouse.y-ivd.dy;ctx.globalAlpha=.85;ctx.fillStyle='#7a1c1c';ctx.fillRect(x+1,y+1,z[0]*GC-2,z[1]*GC-2);invItem(o.k,x,y,z[0]*GC,z[1]*GC,o.sk,ivd.rot);if(TOOL[o.k])tx('x'+(ivd.sp?1:o.n),x+z[0]*GC-3,y+z[1]*GC-3,'#fff','right');ctx.globalAlpha=1;
   if(out)tx('Release to drop',mouse.x,mouse.y-8,'#ff8a70','center')}
- drawInfoBox();tx('Drag gear or tools between slots and backpack. Click to stow.',320,292,'#bbb','center');tx('Drag items to rearrange. Drag outside the window or right-click to drop.',320,305,'#bbb','center');tx('Shift-drag moves one from a stack. Click a backpack item to equip it.',320,318,'#bbb','center');tx('The backpack comes home if you escape.  Tab: close',320,331,'#bbb','center')}
+ drawInfoBox();tx('Drag gear or tools between slots and backpack. Click to stow.',320,292,'#bbb','center');tx('Drag items to rearrange. Drag outside the window or right-click to drop.',320,305,'#bbb','center');tx('Shift-drag moves one from a stack. R rotates. Click a backpack item to equip it.',320,318,'#bbb','center');tx('The backpack comes home if you escape.  Tab: close',320,331,'#bbb','center')}
 function refocus(){try{window.focus();cv.focus({preventScroll:true})}catch(e){}}
 cv.tabIndex=0;cv.style.outline='none';addEventListener('blur',()=>{keys={}});
 function setSlot(i){if(!has(i))return say('Slot empty',1.5);P.cur=i;P.rl=0}
@@ -2608,6 +2618,7 @@ function drawWpn(k,hx,hy,a,sc,sk){const sid=sk||(TOOL[k]&&TSK[k])||'',W=sid&&WSK
  else if(k=='pyre'){r(-4,-.9,8,1.8,'#d9ccb0');r(-1,-3.6,2,7.2,'#d9ccb0');r(-4,-.9,8,.5,'#f0e6cc');r(-3.4,-3,1.6,1.4,'#c8b898');r(2,1.6,1.6,1.4,'#c8b898');if(Math.sin(performance.now()/70)>-.3)r(-.8,-5.4,1.8,2,'#ff7a1a');r(-.3,-4.8,.8,1,'#ffe070')}
  else if(k=='magpie'){r(-7,-.6,13,1.2,'#1c1424');r(-6,-1.8,9,1.2,'#2c2036');r(-5,.6,9,1.2,'#2c2036');r(-4,-2.6,5,.8,'#3a5a7a');r(-3,1.8,4,.8,'#3a7a6a');r(-7.6,-.3,1.6,.6,'#d9ccb0');r(5,-1.5,3,3,'#f0c850');r(5,-1.5,3,.7,'#fff0a0');r(6,-.3,1,.8,'#a87820')}
  else if(k=='thief'){r(-5,-2,7,4,'#2c2036');r(-5,-2,7,.8,'#463858');r(-6.4,-1.6,1.4,3.2,'#8a0c18');r(2,-2.2,4,1,'#2c2036');r(2,-.8,5,1,'#2c2036');r(2,.6,4.5,1,'#2c2036');r(2,2,3.5,1,'#2c2036');r(6,-2.2,1,.7,'#e0d8c0');r(7,-.8,1,.7,'#e0d8c0');r(6.5,.6,1,.7,'#e0d8c0');r(5.5,2,1,.7,'#e0d8c0');r(0,-2,1.4,4,'#f0c850')}
+ else if(k=='revive'){r(-1.5,-5,3,10,'#d8d0bc');r(-1.5,-5,3,1,'#fff');r(-4,-3,8,1.6,'#d8d0bc');r(-.8,-.8,1.6,2.6,'#c03030');r(-2.5,4,5,1.4,'#8a7a62');r(-3,-5.8,1,1.2,'#e8c860');r(2,-5.8,1,1.2,'#e8c860')}
  else if(k=='pearl'){r(-5,-2.4,10,4.8,'#2f6060');r(-5,-2.4,10,.9,'#5a9a90');r(-5,1.6,10,.8,'#183a3a');r(-2.4,-1.6,4.8,3.2,'#e8f0e8');r(-2.4,-1.6,4.8,.8,'#fff');r(-1.4,-.8,1.4,1.4,'#fff');r(1.4,.2,1,1,'#a8c8c0');r(-6.4,-.5,1.4,1,'#d9ccb0');r(5,-.5,1.4,1,'#d9ccb0')}
  else if(k=='undertow'){r(-5,-1.2,10,2.4,'#183a3a');r(-4,-2.2,8,.8,'#2f6060');r(-3,1.2,7,1.4,'#2f6060');r(-5,-.2,10,.8,'#5a9a90');r(-3,-.6,2,1.2,'#a8d8d0');r(2,.2,2,.8,'#a8d8d0');r(-.6,-3.6,1.2,1.4,'#5a9a90');r(5.6,-.6,1.4,1.2,'#d9ccb0')}
  if(W&&W.fx){try{W.fx(ctx,k)}catch(e){}}   // skin overlay: extra shapes in the weapon's own pixel space, drawn on top
@@ -3081,7 +3092,7 @@ let ac,mst,verb,nb,amb=null,vc=0,ambT=8,lt={};
 let ambOn=true;try{ambOn=localStorage.getItem('bh_amb')!='0'}catch(e){}
 const MAXV=30,dcs={};
 const dc=k=>dcs[k]||(dcs[k]=(()=>{const n=1024,c=new Float32Array(n);for(let i=0;i<n;i++)c[i]=Math.tanh((i*2/n-1)*k);return c})());
-const ready=()=>ac&&ac.state=='running'&&vc<MAXV;
+let vx=0;const ready=()=>ac&&ac.state=='running'&&vc<MAXV+vx,live=()=>ac&&ac.state=='running';
 const gate=(k,g)=>{const t=ac.currentTime;if((lt[k]===undefined?-9:lt[k])>t-g)return 0;lt[k]=t;return 1};
 function init(){
  if(ac){if(ac.state!='running')ac.resume();return}
@@ -3311,6 +3322,22 @@ function pick(){if(!ready()||!gate('pk',.1))return;O(bus(.6,.2),ac.currentTime,.
 function sigil(n){if(!ready())return;const o=bus(.9,.9),t=ac.currentTime;
  O(o,t,1.6,{f:230,f2:460,g:.2,a:.4,fm:3,fmf:5});O(o,t,1.6,{f:244,f2:490,g:.16,a:.4});O(o,t,1.6,{f:55,f2:70,g:.5,a:.3});N(o,t,1.2,{type:'bandpass',f:3000,f2:6000,q:3,g:.1,a:.5});
  if(n>=3){growl(o,t+.2,1.6,70,45,{rough:15,form:[200,400],g:.6,dist:5});O(o,t+.2,2,{f:50,f2:22,g:.9});choir(o,t+.1,2.4,.1)}}
+// SIGIL BURN: the match catching, a flame whoosh, a crackling fire and a low ritual hum. Always plays (even mid-fight).
+function sigilBurn(){if(!live())return;vx=16;setTimeout(()=>{vx=0},3500);const o=bus(1,.7),t=ac.currentTime;
+ N(o,t,.5,{type:'bandpass',f:500,f2:2800,q:.9,g:.6,a:.04});N(o,t+.03,1,{type:'lowpass',f:1900,f2:300,g:.5,a:.06});O(o,t,.9,{f:95,f2:42,g:.55,a:.05});
+ N(o,t+.1,1.9,{type:'bandpass',f:260,f2:140,q:.6,g:.3,a:.4});
+ for(let i=0;i<13;i++)N(o,t+R(.05,1.9),R(.015,.05),{type:'bandpass',f:R(1500,5000),q:4,g:R(.12,.35),a:.0005});
+ O(o,t+.05,1.8,{f:196,f2:233,g:.1,a:.5,fm:2,fmf:6});O(o,t+.05,1.8,{f:207.7,f2:247,g:.08,a:.5});
+ N(o,t+.7,1,{type:'highpass',f:5000,g:.12,a:.2})}
+// THE BREACH DOOR OPENS: dooming horror. Sub drone, grinding stone door, three tolling bells, a dissonant choir, then the archdemon answering from below.
+function doom(){if(!live())return;vx=30;setTimeout(()=>{vx=0},7000);const o=bus(1.15,1),t=ac.currentTime;
+ O(o,t,5.8,{f:36,f2:27,g:.95,a:1.2});O(o,t,5.8,{f:54,f2:40,g:.5,a:1.4,fm:3,fmf:.5});O(o,t+.2,4.6,{type:'sawtooth',f:41,f2:30,g:.16,a:1.5,dist:4});
+ N(o,t,4.6,{type:'lowpass',f:200,f2:420,q:3,g:.85,a:1.2});N(o,t+.5,3.6,{type:'bandpass',f:90,f2:55,q:1.5,g:.9,a:.8});
+ for(let i=0;i<6;i++)N(o,t+R(.3,3.8),R(.08,.25),{type:'lowpass',f:R(250,700),f2:80,g:R(.3,.55),a:.003});
+ [.4,1.9,3.4].forEach((d,i)=>{const f=98-i*6;[1,2.01,2.76].forEach((m,j)=>O(o,t+d,3.2-i*.3,{f:f*m,f2:f*m*.985,g:.36/(j+1),a:.004}));O(o,t+d,.45,{f:62,f2:30,g:.65,a:.002})});
+ pad(o,t+.8,5,[55,58.3,77.8,82.4,116.5],.17,700,2.5);
+ growl(o,t+2.2,2.8,64,30,{rough:11,form:[160,320],g:.85,dist:6});O(o,t+2.2,2.9,{f:46,f2:20,g:.9,a:.05});
+ N(o,t+2.6,2.2,{type:'bandpass',f:1800,f2:900,q:6,g:.06,a:1})}
 function chant(){if(!ready())return;pad(bus(.8,.8),ac.currentTime,1.1,[73.4,77.8,110],.1,500,.4)}
 function banish(){if(!ready())return;const o=bus(1,.9),t=ac.currentTime;O(o,t,2,{f:70,f2:15,g:1});N(o,t,1.6,{type:'lowpass',f:1000,f2:80,g:.7,a:.005});choir(o,t,3,.14);O(o,t+.1,1.6,{type:'triangle',f:880,g:.1,a:.02});O(o,t+.2,1.6,{type:'triangle',f:1318,g:.08,a:.02})}
 function bonus(){if(!ready())return;const o=bus(.7,.5),t=ac.currentTime;O(o,t,.4,{type:'triangle',f:660,g:.18,a:.01});O(o,t+.12,.5,{type:'triangle',f:990,g:.18,a:.01})}
@@ -3341,7 +3368,7 @@ function toggle(){ambOn=!ambOn;try{localStorage.setItem('bh_amb',ambOn?'1':'0')}
 function clatter(x,y){if(!ready())return;const sp=spat(x,y,600);if(!sp)return;const o=bus(.9,.3,sp),t=ac.currentTime;for(let i=0;i<7;i++)clk(o,t+i*.07+R(0,.03),R(1400,3200),.7);N(o,t,.35,{type:'bandpass',f:2400,q:1.5,g:.3,a:.002})}
 function jam(){if(!ready())return;const o=bus(.8,.1),t=ac.currentTime;clk(o,t,900,.9);clk(o,t+.09,600,.8);O(o,t,.1,{f:140,f2:60,g:.4})}
 function twang(){if(!ready())return;const o=bus(.5,.15),t=ac.currentTime;N(o,t,.12,{type:'highpass',f:2500,g:.25,a:.001});O(o,t,.18,{f:520,f2:300,g:.18,a:.002})}
-return{clatter,jam,twang,cerb,raum,vepar,init,gun,dry,reload,melee,hit,mob,pain,death,escape,beat,heal,thr,bomb,equip,pick,sigil,chant,banish,bonus,ext,fire,dash,summon,vine,amb:ambStart,stop:ambStop,tick:ambTick,toggle}})();
+return{clatter,jam,twang,cerb,raum,vepar,init,gun,dry,reload,melee,hit,mob,pain,death,escape,beat,heal,thr,bomb,equip,pick,sigil,sigilBurn,doom,chant,banish,bonus,ext,fire,dash,summon,vine,amb:ambStart,stop:ambStop,tick:ambTick,toggle}})();
 
 // ---- hook the sounds into the game ----
 {
@@ -3366,7 +3393,7 @@ update=function(dt){
  sfx.tick(dt);
  if(P.cur!==pc)sfx.equip();
  if(items.length<pi)sfx.pick();
- if(found>pf)sfx.sigil(found);
+ if(found>pf)sfx.sigilBurn();
  if(banished&&!pb)sfx.banish();
  if(mis.done&&!pd)sfx.bonus();
  if(P.bp>.05&&P.bp<5&&keys.KeyE){cpT-=dt;if(cpT<=0){cpT=1;sfx.chant()}}else cpT=0;
@@ -3528,9 +3555,11 @@ function mpHandle(o){const r=mp.rp,f=o.f,nm=hn(f);mp.ls[f]=Date.now();if(o.v!==4
  else if(o.t=='chk')CHALK.push({x:o.x,y:o.y,r:36,t:6,m:6})
  else if(o.t=='nmk')NOISE.push({x:o.x,y:o.y,t:7,tk:0,own:0})
  else if(o.t=='fl')flares.push({x:o.x,y:o.y,t:14,tk:99,dec:1,id:-1,hp:1});
- else if(o.t=='dead'){{const kb=mpKill(o,f);if(kb===mp.me&&!mpMate(f)&&mode=='play'&&!(typeof TUTR!=='undefined'&&TUTR))RS.pk=(RS.pk||0)+1}const q0=r[f];if(q0)try{gore({x:q0.x,y:q0.y,ty:'imp'},null,70,o.by!=null&&o.ws?o.ws:'melee',palFor(q0.sk));pool(q0.x,q0.y,18,8);splat(q0.x,q0.y,50,26)}catch(e){}const dr=bty&&bty.h===f;if(dr)bty={h:null,x:q0?q0.x:bty.x,y:q0?q0.y:bty.y};delete r[f];mp.out[f]=1;say(nm+' was slain'+(o.by!=null?' by '+(o.by==mp.me?'you':hn(o.by)):'')+'!'+(o.tn?' Their gear is tainted by evil.':'')+(dr?' The bounty has dropped!':''),dr?6:4)}
+ else if(o.t=='dead'){{const kb=mpKill(o,f);if(kb===mp.me&&!mpMate(f)&&mode=='play'&&!(typeof TUTR!=='undefined'&&TUTR))RS.pk=(RS.pk||0)+1}const q0=r[f];if(q0&&mpMate(f)){mp.cp=mp.cp||{};mp.cp[f]={x:q0.x,y:q0.y,nm:nm}}if(q0)try{gore({x:q0.x,y:q0.y,ty:'imp'},null,70,o.by!=null&&o.ws?o.ws:'melee',palFor(q0.sk));pool(q0.x,q0.y,18,8);splat(q0.x,q0.y,50,26)}catch(e){}const dr=bty&&bty.h===f;if(dr)bty={h:null,x:q0?q0.x:bty.x,y:q0?q0.y:bty.y};delete r[f];mp.out[f]=1;say(nm+' was slain'+(o.by!=null?' by '+(o.by==mp.me?'you':hn(o.by)):'')+'!'+(o.tn?' Their gear is tainted by evil.':'')+(dr?' The bounty has dropped!':''),dr?6:4)}
+ else if(o.t=='rv'){if(o.to===mp.me&&P&&P.dead&&mode=='play'&&mpMate(f))rvRise(f)}
+ else if(o.t=='rvd'){const cn=mp.cp&&mp.cp[f]?mp.cp[f].nm:nm;delete mp.out[f];if(mp.cp)delete mp.cp[f];say(cn+' was revived'+(o.by===mp.me?' by you':'')+'!',4);if(o.by===mp.me&&P.rvw&&P.rvw.f===f){P.rvw=null;burst(P.x,P.y,16,70,'#f0e0a0',0);try{sfx.heal()}catch(e){}}}
  else if(o.t=='left'){const hb=bty&&bty.h===f;if(hb)bty=null;delete r[f];mp.out[f]=1;say(nm+' escaped'+(hb?' with the bounty!':'.'),hb?6:3)}}
-function mpStop(){mp.tm={};mp.on=0;mp.room=null;mp.rp={};mp.onS=null;mpb=[];clearInterval(mpTimer);mp.cl.forEach(c=>{try{c.end(true)}catch(e){}});mp.cl=[]}
+function mpStop(){mp.cp={};mp.tm={};mp.on=0;mp.room=null;mp.rp={};mp.onS=null;mpb=[];clearInterval(mpTimer);mp.cl.forEach(c=>{try{c.end(true)}catch(e){}});mp.cl=[]}
 function mpOverlay(txt){if(!mpOv){mpOv=document.createElement('div');mpOv.style.cssText='position:fixed;inset:0;z-index:99;background:rgba(6,2,4,.93);color:#e8e6d8;font:22px Caveat,monospace;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center';document.body.appendChild(mpOv)}mpOv.innerHTML='<div style="font-size:34px;color:#d06a5a">Entering the breach...</div><div>'+txt+'</div>'+(mp.cancel?'<button id="mpCancel" style="margin-top:10px;padding:8px 26px;font:22px Caveat,monospace;color:#e8e6d8;background:#3a1418;border:2px solid #d06a5a;border-radius:6px;cursor:pointer">Stop searching</button>':'');const cb=mpOv.querySelector('#mpCancel');if(cb)cb.onclick=()=>{if(mp.cancel)mp.cancel()}}
 // ---------- HUNTER ROSTER: shown for ~10s after the matchmaking countdown, before the match starts ----------
 const RSTIME=10;
@@ -3689,7 +3718,7 @@ function btyTake(f){if(f===mp.me||mp.out[f]||bty&&bty.h===mp.me)return;if(bty&&b
  else if(dropped&&bty&&bty.h==null&&P.carry>pc&&D(P.x,P.y,bty.x,bty.y)<45){bty={h:mp.me};say('You picked up the bounty! Reach an exit!',5)}}}
 // ---------- NEW TOOLS: Molotov, Flare, Ward ----------
 function lob(k){const a=Math.atan2(mouse.y+cam.y-P.y,mouse.x+cam.x-P.x),d=Math.min(160,D(P.x,P.y,mouse.x+cam.x,mouse.y+cam.y));lobs.push({k,x:P.x,y:P.y,vx:Math.cos(a)*d/.4,vy:Math.sin(a)*d/.4,m:.4})}
-function useXT(k){if(!k||(P.xt[k]||0)<=0)return;if(TOT.includes(k))return startBurn(k);
+function useXT(k){if(!k||(P.xt[k]||0)<=0)return;if(k=='revive')return startRevive();if(TOT.includes(k))return startBurn(k);
  if(k=='ward'){if(P.wd>0)return say("Ward is already active",1.5);P.xt.ward--;P.wd=10;burst(P.x,P.y,18,70,'#f0d070',0);say("Ward: damage reduced for 10s",2.5);try{sfx.heal()}catch(e){}}
  else if(k=='stamtonic'){if(P.sb>0)return say('Stamina Tonic is already active',1.5);P.xt[k]--;P.sb=8;P.st=100;P.exh=0;burst(P.x,P.y,12,60,'#6af0a0',0);say('Stamina Tonic: run free for 8s',2.5);try{sfx.heal()}catch(e){}}
  else if(k=='bootwraps'){if(P.bw>0)return say('Boot Wraps are already on',1.5);P.xt[k]--;P.bw=15;burst(P.x,P.y,10,40,'#c8b890',0);say('Boot Wraps: silent sprint for 15s',2.5);try{sfx.thr()}catch(e){}}
@@ -3977,13 +4006,102 @@ function ttDraw(){if(!TTH||TTH.P!==P||P.dead)return;const x=TTH.x-cam.x,y=TTH.y-
   tx(inn?'Hold your ground: '+TTH.h.toFixed(1)+' / '+TT_HOLD+'s':'Reach the ward ring',VW/2,by+17,inn?'#8fe0a0':'#e8e6d8','center');ctx.font='bold 10px monospace'}
  const _ut=update;update=function(dt){_ut(dt);if(mode!='play')TTH=null;else ttTick(dt)}}
 
+
+/* ===================== FAV LOADOUTS (Fav1-3 boxes beside the gear slots in the stash) =====================
+   Click a box: empty = a gear window opens to build and save a loadout; saved = the loadout opens and "Buy & Equip" puts it on.
+   Buy & Equip: current gear goes back into the stash, each wanted item is taken from the stash (or bought at shop price if you do not own it), then it is all equipped.
+   Backpack is left alone. It is planned first on a snapshot, so nothing changes unless you can afford it and there is room. */
+{const st=document.createElement('style');st.textContent=`
+.grow{display:flex;gap:14px;align-items:flex-start}.gl{display:flex;flex-direction:column;gap:10px}.favs{display:flex;flex-direction:column;gap:10px}
+.favbox{position:relative;box-sizing:content-box;width:calc(var(--cs)*2);height:calc(var(--cs)*2);border:2px dashed #e8e6d866;background:#140a0cc0;border-radius:4px;box-shadow:inset 0 0 14px #000;cursor:pointer}
+.favbox:hover{border-color:#e8c860}.favbox>span{position:absolute;left:4px;top:1px;font-size:17px;opacity:.9;z-index:1}.favbox>small{position:absolute;left:0;right:0;bottom:6px;text-align:center;font-size:14px;opacity:.45}
+.favbox.sv{border-style:solid;border-color:#c8a050aa;background:#2a1418}
+#favmod{position:fixed;inset:0;background:#000b;z-index:9999;display:flex;align-items:center;justify-content:center;--fc:36px}
+#favmod .fmw{background:#1c1418;border:2px solid #e8e6d8aa;border-radius:6px;padding:14px 18px 16px;width:min(94vw,330px);max-height:92vh;overflow:auto;color:#f3e6d0;box-shadow:0 0 40px #000}
+#favmod h2{margin:0 0 8px;font-size:28px;text-align:center}#favmod h3{margin:10px 0 2px;font-size:19px;color:#c8a050}
+#favmod .fgr{display:flex;flex-direction:column;gap:10px;align-items:center}#favmod .fr{display:flex;gap:10px}
+#favmod .ft{display:grid;grid-template-columns:repeat(3,max-content);gap:10px}
+#favmod .fs{position:relative;box-sizing:content-box;border:2px solid #e8e6d855;background:#140a0cc0;border-radius:4px;box-shadow:inset 0 0 14px #000}
+#favmod.ed .fs{cursor:pointer}#favmod.ed .fs:hover{border-color:#e8c860}
+#favmod .fs>span{position:absolute;left:4px;top:1px;font-size:15px;opacity:.6;z-index:1;pointer-events:none}
+#favmod .fs>b{position:absolute;right:4px;top:1px;font-size:16px;color:#fff;z-index:1}
+#favmod .fs>i{position:absolute;right:4px;bottom:0;font-style:normal;font-size:17px;z-index:1;text-shadow:0 0 3px #000}
+#favmod .fs.ok>i{color:#6fcf6a}#favmod .fs.buy>i{color:#e0b040}
+#favmod .fic{position:absolute;inset:0;pointer-events:none}#favmod .fic canvas{width:100%;height:100%;image-rendering:pixelated}
+#favmod .fm{margin:10px 0 4px;text-align:center;font-size:19px;min-height:24px}#favmod .fm.bad{color:#e0705a}#favmod .fm.good{color:#8fe0a0}
+#favmod .fbs{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:8px}
+#favmod button.fb{font:inherit;font-size:21px;padding:3px 12px;border:2px solid #e8e6d8aa;border-radius:6px;background:#c0392b;color:#fff;cursor:pointer;width:auto;min-width:0;box-shadow:none;margin:0}
+#favmod button.fb.alt{background:#3a2a30}#favmod button.fb:disabled{opacity:.4;cursor:default}#favmod button.fb.sm{font-size:16px;padding:1px 7px}
+#favmod .fp{display:flex;align-items:center;gap:8px;padding:3px 6px;border:1px solid #e8e6d833;border-radius:4px;margin:4px 0;cursor:pointer}
+#favmod .fp:hover{background:#7a1c1c66}#favmod .fp.dis{opacity:.35;pointer-events:none}#favmod .fp .fic{position:relative;inset:auto;width:68px;height:36px;flex:none}
+#favmod .fp .fpn{flex:1;font-size:19px;line-height:1}#favmod .fp small{display:block;font-size:15px;opacity:.7}
+`;document.head.appendChild(st)}
+const fpi=k=>PRI[k]||SID[k]||TOOL[k];
+function favSnap(){return JSON.stringify({STB,bank,pri:sel.pri,side:sel.side,sk:sel.sk,tools:sel.tools})}
+function favRestore(j){const o=JSON.parse(j);for(let i=0;i<4;i++){STB[i].length=0;(o.STB[i]||[]).forEach(x=>STB[i].push(x))}bank=o.bank;sel.pri=o.pri;sel.side=o.side;sel.sk=o.sk;sel.tools=o.tools}
+const favOrder=()=>[stTab,0,1,2,3].filter((v,i,a)=>a.indexOf(v)==i&&(v==stTab||stUn[v]));
+function favPut(k,n,sk){for(const i of favOrder()){const a=STB[i],l=a.length;if(addTo(a,SC,SR,k,n||1)){if(sk&&a.length>l)a[a.length-1].sk=sk;return 1}}return 0}
+function favTake(k){for(const i of favOrder()){const a=STB[i],j=a.findIndex(o=>o.k==k);if(j<0)continue;const o=a[j];if(TOOL[k]){if((o.n||1)>1)o.n--;else a.splice(j,1);return{k}}a.splice(j,1);return o}return null}
+function favRun(L){let cost=0;const buy={};
+ if(sel.pri!='none'&&!favPut(sel.pri,0,sel.sk.p))return{fail:1};
+ if(sel.side!='none'&&!favPut(sel.side,0,sel.sk.s))return{fail:1};
+ for(const t of sel.tools)if(t)for(let q=0;q<(t.n||1);q++)if(!favPut(t.k,1))return{fail:1};
+ sel.pri='none';sel.side='none';sel.sk={p:'',s:''};sel.tools=Array(NTS).fill(null);
+ for(const[id,key,src]of[['p',L.pri,PRI],['s',L.side,SID]]){if(!key||key=='none'||!src[key])continue;const o=favTake(key);let c=0;if(!o){c=src[key].c;bank-=c;cost+=c}buy[id]=c;const q=o&&o.sk?skv(key,o.sk):'';if(id=='p'){sel.pri=key;sel.sk.p=q}else{sel.side=key;sel.sk.s=q}}
+ L.tools.forEach((t,i)=>{if(!t||!TOOL[t.k])return;let c=0;for(let q=0;q<t.n;q++)if(!favTake(t.k))c+=TOOL[t.k].c;bank-=c;cost+=c;buy['t'+i]=c;sel.tools[i]={k:t.k,n:t.n}});
+ return{cost,buy}}
+function favPlan(L){const s=favSnap();let r;try{r=favRun(L)}finally{favRestore(s)}return r}
+const favSame=L=>sel.pri==L.pri&&sel.side==L.side&&L.tools.every((t,i)=>{const c=sel.tools[i];return t?!!(c&&c.k==t.k&&c.n==t.n):!c});
+function favEquip(L){const p=favPlan(L);if(p.fail)return'Not enough room in the stash to put your current gear away.';if(p.cost>bank)return'Not enough cash.';
+ const s=favSnap(),r=favRun(L);if(r.fail){favRestore(s);return'Not enough room in the stash to put your current gear away.'}xa=[0,0];selRef=null;selInfo=null;SAVE();return''}
+let FM=null;
+function favInit(){document.querySelectorAll('#menu .favbox').forEach(el=>{const i=+el.dataset.fav,L=FAV[i];if(L){const k=L.pri!='none'?L.pri:L.side!='none'?L.side:(L.tools.find(Boolean)||{}).k;if(k){const c=itemCv(k,el.offsetWidth*2,el.offsetHeight*2);c.style.position='absolute';c.style.inset='0';el.appendChild(c)}}el.onclick=()=>favOpen(i)})}
+function favOpen(i){const f=FAV[i];FM={i,view:!!f,pick:null,msg:'',conf:0,L:f?JSON.parse(JSON.stringify(f)):{pri:'none',side:'none',tools:Array(NTS).fill(null)}};favRender()}
+function favClose(){const e=document.getElementById('favmod');if(e)e.remove();FM=null}
+function favRender(){if(!FM)return;let el=document.getElementById('favmod');if(!el){el=document.createElement('div');el.id='favmod';el.onclick=favClick;document.body.appendChild(el)}
+ const L=FM.L,v=FM.view,n=FM.i+1;el.className=v?'':'ed';let h='';
+ if(FM.pick){const id=FM.pick,tool=id[0]=='t',src=id=='p'?PRI:id=='s'?SID:TOOL,used=tool?L.tools.map((t,j)=>t&&'t'+j!=id?t.k:null).filter(Boolean):[];
+  const row=(k,w)=>{const dis=tool&&used.includes(k);return `<div class="fp${dis?' dis':''}" data-pk=${k}><div class=fic data-fk=${k} data-fw=2 data-fh=1></div><div class=fpn>${w.n}<small>$${w.c}${dis?' \u2014 already in another slot':''}</small></div>${tool&&mxs(k)>1?[1,2,3].filter(q=>q<=mxs(k)).map(q=>`<button class="fb sm" data-pk=${k} data-pn=${q}>x${q}</button>`).join(''):''}</div>`};
+  h=`<h2>Fav${n} \u2014 ${id=='p'?'Primary':id=='s'?'Sidearm':'Tool '+(+id[1]+1)}</h2><div class=fp data-pk=none><div class=fpn>\u2014 Empty \u2014</div></div>`;
+  if(tool)h+=Object.entries(TOOL).filter(([k,w])=>!w.tot).map(([k,w])=>row(k,w)).join('');
+  else{const sb=id=='p'?SUBP:SUBS,seen={};sb.forEach(([sid,nm])=>{const ls=Object.entries(src).filter(([k,w])=>k!='none'&&w.sub==sid);if(!ls.length)return;ls.forEach(([k])=>seen[k]=1);h+=`<h3>${nm}</h3>`+ls.map(([k,w])=>row(k,w)).join('')});const rest=Object.entries(src).filter(([k,w])=>k!='none'&&!seen[k]);if(rest.length)h+=`<h3>Other</h3>`+rest.map(([k,w])=>row(k,w)).join('')}
+  h+=`<div class=fbs><button class="fb alt" data-fa=back>Back</button></div>`}
+ else{const pl=v?favPlan(L):null,same=v&&favSame(L);
+  const slot=(id,lab,w,hh,k,cnt)=>{const has=k&&k!='none';let b='',cl='';if(v&&has&&pl.buy&&pl.buy[id]!==undefined){cl=pl.buy[id]?' buy':' ok';b=pl.buy[id]?`<i>$${pl.buy[id]}</i>`:'<i>\u2714</i>'}
+   return `<div class="fs${cl}" data-fs=${id} style="width:calc(var(--fc)*${w});height:calc(var(--fc)*${hh})"><span>${lab}</span>${has?`<div class=fic data-fk=${k} data-fw=${w} data-fh=${hh}></div>`:''}${cnt>1?`<b>x${cnt}</b>`:''}${b}</div>`};
+  h=`<h2>Fav${n} \u2014 ${v?'Loadout':FAV[FM.i]?'Edit loadout':'New loadout'}</h2><div class=fgr><div class=fr>${slot('p','Primary',4,2,L.pri)}${slot('s','Sidearm',2,2,L.side)}</div><div class=ft>${L.tools.map((t,i)=>slot('t'+i,'Tool',2,2,t&&t.k,t?t.n:0)).join('')}</div></div>`;
+  if(v){const tot=pl.fail?0:pl.cost;
+   h+=`<div class="fm ${FM.msg||pl.fail||tot>bank?'bad':'good'}">${FM.msg||(pl.fail?'Not enough room in the stash to put your current gear away.':same?'This loadout is already equipped.':tot>0?'Missing gear: $'+tot+' (you have $'+bank+')'+(tot>bank?' \u2014 need $'+(tot-bank)+' more':''):'You own everything in this loadout.')}</div>`;
+   h+=`<div class=fbs><button class=fb data-fa=equip ${same||pl.fail||tot>bank?'disabled':''}>${tot>0?'Buy &amp; Equip $'+tot:'Equip'}</button><button class="fb alt" data-fa=edit>Edit</button><button class="fb alt" data-fa=del>${FM.conf?'Click again to delete':'Delete'}</button><button class="fb alt" data-fa=close>Close</button></div>`}
+  else{h+=`<div class=fm>${FM.msg||'Tap a slot to choose gear for this loadout.'}</div><div class=fbs><button class=fb data-fa=save>Save</button><button class="fb alt" data-fa=copy>Copy my gear</button><button class="fb alt" data-fa=clear>Clear</button><button class="fb alt" data-fa=cancel>Cancel</button></div>`}}
+ el.innerHTML=`<div class=fmw>${h}</div>`;
+ el.querySelectorAll('.fic').forEach(d=>{const w=+d.dataset.fw,hh=+d.dataset.fh;d.appendChild(itemCv(d.dataset.fk,w*72,hh*72))})}
+function favClick(e){if(!FM)return;const el=document.getElementById('favmod'),L=FM.L;
+ if(e.target===el){if(FM.view&&!FM.pick)favClose();return}
+ const pk=e.target.closest('[data-pk]');
+ if(pk&&FM.pick){const k=pk.dataset.pk,nn=+pk.dataset.pn||1,id=FM.pick;if(id=='p')L.pri=k;else if(id=='s')L.side=k;else L.tools[+id[1]]=k=='none'?null:{k,n:Math.min(nn,mxs(k))};FM.pick=null;FM.msg='';favRender();return}
+ const fa=e.target.closest('[data-fa]');
+ if(fa){const a=fa.dataset.fa;
+  if(a=='back'){FM.pick=null}
+  else if(a=='close'||a=='cancel'){favClose();return}
+  else if(a=='edit'){FM.view=0;FM.msg='';FM.conf=0}
+  else if(a=='del'){if(!FM.conf){FM.conf=1}else{FAV[FM.i]=null;SAVE();const i=FM.i;favClose();menu('Fav'+(i+1)+' cleared.');return}}
+  else if(a=='clear'){FM.L={pri:'none',side:'none',tools:Array(NTS).fill(null)};FM.msg=''}
+  else if(a=='copy'){FM.L={pri:sel.pri,side:sel.side,tools:sel.tools.map(t=>t&&TOOL[t.k]&&!TOOL[t.k].tot?{k:t.k,n:t.n}:null)};FM.msg='Copied the gear you have equipped now.'}
+  else if(a=='save'){const c=favClean(L);if(!c){FM.msg='Add at least one item first.'}else{FAV[FM.i]=c;SAVE();const i=FM.i;favClose();menu('Fav'+(i+1)+' saved. Click it to buy and equip.');return}}
+  else if(a=='equip'){const p=favPlan(L),m=favEquip(L);if(m){FM.msg=m}else{const i=FM.i;favClose();menu('Equipped Fav'+(i+1)+(p.cost?' (paid $'+p.cost+')':'')+'.');return}}
+  favRender();return}
+ const fs=e.target.closest('[data-fs]');
+ if(fs&&!FM.view&&!FM.pick){FM.pick=fs.dataset.fs;FM.msg='';favRender()}}
+addEventListener('keydown',e=>{if(e.code=='Escape'&&FM){e.stopPropagation();if(FM.pick){FM.pick=null;favRender()}else favClose()}},true);
+
 // ---------- STASH AUTO-SORT ----------
 function sortStash(){const tl={},its=[];stash.forEach(o=>{if(TOOL[o.k])tl[o.k]=(tl[o.k]||0)+(o.n||1);else its.push({k:o.k,n:o.n||0,src:o})});
- for(const k in tl){let n=tl[k];while(n>0){const c=Math.min(MAXST,n);its.push({k,n:c});n-=c}}
+ for(const k in tl){let n=tl[k];while(n>0){const c=Math.min(mxs(k),n);its.push({k,n:c});n-=c}}
  const gp=k=>PRI[k]&&k!='none'?0:SID[k]?1:2,ar=k=>{const z=isz(k);return z[0]*z[1]};
  its.sort((a,b)=>gp(a.k)-gp(b.k)||ar(b.k)-ar(a.k)||(a.k<b.k?-1:a.k>b.k?1:0)||b.n-a.n);
  const out=[];for(const it of its){const f=spotIn(out,SC,SR,it.k);if(!f)return'Could not fit everything - stash left as it was.';out.push({k:it.k,x:f[0],y:f[1],n:it.n,src:it.src})}
- stash.length=0;out.forEach(o=>{if(o.src){o.src.x=o.x;o.src.y=o.y;stash.push(o.src)}else stash.push({k:o.k,x:o.x,y:o.y,n:o.n})});SAVE();return'Stash sorted.'}
+ stash.length=0;out.forEach(o=>{if(o.src){o.src.x=o.x;o.src.y=o.y;delete o.src.r;stash.push(o.src)}else stash.push({k:o.k,x:o.x,y:o.y,n:o.n})});SAVE();return'Stash sorted.'}
 
 // ---------- RANDOM EVENT: COLLAPSE ----------
 // One extraction point is sealed for the rest of the run. No banner, no sound: the only warning is the map [M]. ?event=collapse = 3s in.
@@ -4371,7 +4489,7 @@ function chCheat(txt){if(!devOK())return;try{const a=txt.slice(1).trim().toLower
  c[1](a);if(mp.on&&CHBC.includes(k))mpSend({t:'cheat',k,a:a.slice(0,3)});if(k!='god'&&k!='tools'&&k!='help'&&!LESSER_MK[k])say('Cheat: /'+k,1.5)}catch(e){say('Cheat failed',2)}}
 {const _rh=mpHandle;mpHandle=function(o){
  if(o&&o.t=='rst'){if(mode=='play'&&P&&!P.dead){const ks=[];P.ts.forEach((x,i)=>{if(x)ks.push(i)});if(ks.length){const j=ks[R(0,ks.length)|0],x=P.ts[j];P.ts[j]=null;fixSlot();say('Raum snatches your '+TOOL[x.k].n+'! Shoot it down.',4);shake=Math.max(shake,4);mpSend({t:'rsl',i:o.i,k:x.k,n:x.n})}else say('Raum finds nothing to steal and shrieks.',2.5)}return}
- if(o&&o.t=='rsl'){if(!mpCli()){const m=M.find(q=>q.id===o.i);if(m&&m.hp>0&&m.loot&&TOOL[o.k])m.loot.push({t:'tool',k:o.k,ct:Math.max(1,Math.min(MAXST,o.n|0))})}return}
+ if(o&&o.t=='rsl'){if(!mpCli()){const m=M.find(q=>q.id===o.i);if(m&&m.hp>0&&m.loot&&TOOL[o.k])m.loot.push({t:'tool',k:o.k,ct:Math.max(1,Math.min(mxs(o.k),o.n|0))})}return}
  _rh(o)}}
 {const _mc=mpHandle;mpHandle=function(o){if(o&&o.t=='cheat'&&CHBC.includes(o.k)&&mode=='play'&&P&&!P.dead&&hasDev(hn(o.f))){try{CHEATS[o.k][1](Array.isArray(o.a)?o.a.map(x=>String(x).slice(0,8)):[])}catch(e){}}_mc(o)}}
 {const _hc=hurtP;hurtP=function(d,k){if(CHEAT.god&&!(k&&k.s=='reaper'))return;_hc(d,k)}}
@@ -4454,14 +4572,14 @@ setInterval(mcSync,120);if(INPUT=='mobile')mcBuild();
 if(typeof scr!='undefined'&&scr=='title'&&mode=='menu')menu();
 // ---------- STASH: on touch, a quick tap sends an item to its equip slot, and a tap on an equipped item sends it back to the stash (dragging still works) ----------
 function tapMove(d){const k=d.k,o=d.o,n0=o.n||1;let ch=0;
- const putIn=(c,n)=>{const C=CT[c],a=C.a();let rest=n;if(TOOL[k])for(const t of a){if(rest<=0)break;if(t.k==k&&(t.n||1)<MAXST){const mv=Math.min(MAXST-(t.n||1),rest);t.n=(t.n||1)+mv;rest-=mv}}
+ const putIn=(c,n)=>{const C=CT[c],a=C.a();let rest=n;if(TOOL[k])for(const t of a){if(rest<=0)break;if(t.k==k&&(t.n||1)<mxs(k)){const mv=Math.min(mxs(k)-(t.n||1),rest);t.n=(t.n||1)+mv;rest-=mv}}
   if(rest>0){const f=spotIn(a,C.c,C.r,k);if(f){a.push({k,x:f[0],y:f[1],n:TOOL[k]?rest:0,...(o.sk?{sk:o.sk}:{})});rest=0}}return rest};
  if(d.sid){let r=putIn('s',n0);if(r>0)r=putIn('b',r);if(r<n0){if(r>0)slotSet(d.sid,{k,n:r});else slotSet(d.sid,null);ch=1}else note='No room in the stash or backpack.'}
  else{const sa=CT[d.ct].a(),idx=sa.indexOf(o);if(idx<0)return menu();
   const ids=PRI[k]&&k!='none'?['p']:SID[k]&&k!='none'?['s']:TOOL[k]?['t0','t1','t2','t3','t4','t5']:[];
   if(!ids.length)note='That cannot be equipped.';
   else{let done=0;
-   if(TOOL[k])for(const id of ids){const cur=slotGet(id);if(cur&&cur.k==k&&(cur.n||1)<MAXST){const mv=Math.min(MAXST-(cur.n||1),n0);slotSet(id,{k,n:(cur.n||1)+mv});if(n0-mv>0)o.n=n0-mv;else sa.splice(idx,1);done=1;break}}
+   if(TOOL[k])for(const id of ids){const cur=slotGet(id);if(cur&&cur.k==k&&(cur.n||1)<mxs(k)){const mv=Math.min(mxs(k)-(cur.n||1),n0);slotSet(id,{k,n:(cur.n||1)+mv});if(n0-mv>0)o.n=n0-mv;else sa.splice(idx,1);done=1;break}}
    if(!done){const id=ids.find(i=>!slotGet(i)&&accepts(i,k));if(id){slotSet(id,{k,n:n0,sk:o.sk});sa.splice(idx,1);done=1}}
    if(!done&&!TOOL[k]){const id=ids[0],old=slotGet(id);sa.splice(idx,1);const C=CT[d.ct],z=isz(old.k);let q=fitsIn(sa,C.c,C.r,o.x,o.y,z[0],z[1])?[o.x,o.y]:spotIn(sa,C.c,C.r,old.k),tgt=sa;
     if(!q){const oc=d.ct=='b'?'s':'b',O=CT[oc];tgt=O.a();q=spotIn(tgt,O.c,O.r,old.k)}
@@ -4803,6 +4921,25 @@ function dropRaumLoot(m){if(m.ty!='raum'||!m.loot||!m.loot.length)return;
 {const _k=kill;kill=function(m){const first=m&&m.lesser&&!m.tdr;_k(m);if(first&&!mpCli()){m.tdr=1;try{dropRaumLoot(m)}catch(e){}try{dropTotems(m)}catch(e){}}}}
 {const _n=noise;noise=function(x,y,r){if(P&&P.hm>0&&x===P.x&&y===P.y)r*=.5;return _n(x,y,r)}}
 {const _w=weaponTick;weaponTick=function(dt){_w(dt);if(P)totemTick(dt)}}
+
+/* ===================== REVIVE TOTEM (owner's request, Oct 18; built Oct 19) =====================
+   Multiplayer only. Stand within 36px of a fallen TEAMMATE's corpse (mp.cp, recorded from their 'dead' message), use the totem and stand still 5s (moving or taking damage cancels, noise like a totem burn).
+   Then {t:'rv'} goes to that hunter; if their client is still spectating it calls rvRise (40% health, 3s ward, empty-handed, at the corpse) and broadcasts {t:'rvd'}, which clears mp.out for everyone and spends the reviver's totem.
+   The totem is spent the moment the 5s finish, whether or not they answer (no answer in 3s = they already left, the totem is still gone). It never stacks (mxs) and is a 1x2 item. Their dropped gear stays on the ground where they fell (the 'dr' items). */
+function startRevive(){if(P.dead)return;if(P.bn)return say('Already burning a totem',1.5);
+ if(!mp.on||(typeof TUTR!=='undefined'&&TUTR))return say('The Revive Totem needs a fallen teammate in a multiplayer run',3);
+ let bf=null,bd=36;for(const[f,c]of Object.entries(mp.cp||{})){if(!mpMate(+f))continue;const d=D(P.x,P.y,c.x,c.y);if(d<bd){bd=d;bf=+f}}
+ if(bf===null)return say(Object.keys(mp.cp||{}).length?'Stand next to a fallen teammate to revive them':'None of your teammates has fallen',3);
+ P.bn={k:'revive',t:0,x:P.x,y:P.y,hp:P.hp,nz:0,cid:bf};say('Calling '+mp.cp[bf].nm+' back... stand still',2.5)}
+function rvBurn(dt,b){if(P.dead||D(P.x,P.y,b.x,b.y)>3||P.hp<b.hp-.01||TC('revive')<=0||!(mp.cp&&mp.cp[b.cid])){P.bn=null;say('The revive was interrupted',2);return}
+ b.t+=dt;if((b.nz-=dt)<=0){b.nz=1;noise(P.x,P.y,120)}if(Math.random()<dt*14)burst(P.x+R(-3,3),P.y-6,1,18,'#e8d8a0',0);
+ if(b.t>=5){P.bn=null;const c=mp.cp[b.cid];P.xt.revive--;fixSlot();P.rvw={f:b.cid,t:0,nm:c.nm};mpSend({t:'rv',to:b.cid});burst(P.x,P.y,16,70,'#f0e0a0',0);say('The totem burns away. Calling '+c.nm+' back...',3)}}
+function rvRise(by){const x=P.cx,y=P.cy;P.dead=0;P.dsent=0;P.dsending=0;P.spt=null;P.x=x;P.y=y;P.hp=40;P.st=100;P.wd=3;P.bn=null;P.rvw=null;P.rl=0;P.cd=0;P.rot=0;P.sb=0;P.bw=0;P.hm=0;P.mg=0;P.th=0;P.pr=0;
+ P.w=[null,null];P.wsk=['',''];P.bag=[];P.mag=[0,0];P.res=[0,0];P.cur=0;P.carry=0;for(let i=0;i<P.ts.length;i++)P.ts[i]=null;invOpen=0;
+ burst(x,y,26,110,'#f0e0a0',0);burst(x,y,14,60,'#c03030',0);shake=Math.max(shake,5);try{sfx.heal()}catch(e){}
+ say(hn(by)+' called you back. You rise with 40 health and empty hands; your gear lies where you fell.',8);mpSend({t:'rvd',by})}
+{const _t=totemTick;totemTick=function(dt){const b=P.bn;if(b&&b.k=='revive'){P.bn=null;_t(dt);P.bn=b;rvBurn(dt,b)}else _t(dt);
+ if(P.rvw){P.rvw.t+=dt;if(P.rvw.t>3){const n=P.rvw.nm;P.rvw=null;say(n+' has already left the breach. The totem is spent.',4)}}}}
 /* ---- VEPAR: rot status + her two totems (Brine Pearl, Undertow) ----
    Rot: P.rot = seconds left. Vepar's touch adds time (hurtP wrapper below, so it also works for remote hunters hit through {t:'hit'}); rot drains 2 HP per second.
    Cures: Holy Water (useTonic wrapper) and the Brine Pearl totem. P.pr = Brine Pearl regeneration seconds (+2 HP/s).
