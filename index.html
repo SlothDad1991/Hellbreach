@@ -5086,7 +5086,7 @@ function tutCalm(){EVN=null;TTH=null;FOG=null;HFR=null;mets=[];if(P){P.evp=[];P.
 function tutHud(){const S=TUTR;if(!P)return;ctx.save();const x=6,y=6,w=300,L=TLESS[S.i];
  if(invOpen&&L){const cx=110,cw=420,ls=invWrap(L.d(),68).slice(0,2),ok=S.ok>0;ctx.fillStyle='rgba(14,8,10,.96)';ctx.fillRect(cx,2,cw,37);ctx.strokeStyle=ok?'#6fcf6a':'#e8e6d8aa';ctx.lineWidth=1;ctx.strokeRect(cx+.5,2.5,cw,37);
   ctx.font='bold 9px monospace';tx('TUTORIAL '+(S.i+1)+'/'+TLESS.length+'  '+L.t+(ok?'  \u2713':''),cx+6,13,ok?'#8fe0a0':'#ffd9a0');ctx.font='bold 10px monospace';ls.forEach((l,i)=>tx(l,cx+6,24+i*11,'#e8e6d8'));ctx.restore();return}
- if(!L){const ls=invWrap('You know the whole hunt: sigils, the lair, the banish and the escape. Back to the menu in a moment.',46),h=34+ls.length*12+8;
+ if(!L){const ls=invWrap('You know the whole hunt: sigils, the lair, the banish and the escape. Back to the menu in a moment for a quick tour of its tabs.',46),h=34+ls.length*12+8;
   ctx.fillStyle='rgba(14,8,10,.94)';ctx.fillRect(x,y,w,h);ctx.strokeStyle='#6fcf6a';ctx.strokeRect(x+.5,y+.5,w,h);ctx.font='bold 9px monospace';tx('TUTORIAL',x+8,y+12,'#a89c80');ctx.font='bold 13px monospace';tx('Basics complete \u2713',x+8,y+27,'#8fe0a0');ctx.font='bold 10px monospace';ls.forEach((l,i)=>tx(l,x+8,y+41+i*12,'#e8e6d8'));ctx.restore();return}
  const ls=invWrap(L.d(),46),h=34+ls.length*12+8,ok=S.ok>0;
  ctx.fillStyle='rgba(14,8,10,.94)';ctx.fillRect(x,y,w,h);ctx.strokeStyle=ok?'#6fcf6a':'#e8e6d8aa';ctx.lineWidth=1;ctx.strokeRect(x+.5,y+.5,w,h);
@@ -5231,6 +5231,100 @@ TLESS.push(
   init:S=>{M=M.filter(m=>m.boss||m===S.sent);const p=tutSpot(P.x,P.y,200,260);const e={x:p.x,y:p.y,k:0,n:'Order Wagon',lx:p.x,ly:p.y};exts.push(e);S.ex=e;S.exd=0},
   tick:S=>S.exd,mark:S=>S.exd?null:S.ex}
 );
+// ---------- MENU TOUR: after the tutorial's final lesson (escape), the hub opens and a spotlight walks through every tab/box on it ----------
+// Steps live in MTOUR; each has a selector for the element to spotlight (steps whose element is missing, e.g. the match filter, are skipped), a title and text.
+// Only starts when the tutorial is COMPLETED (tutFinish('done')), never on 'Exit tutorial'. Esc / Skip ends it. It only reads the menu, it never changes saves.
+const MTOUR=[
+ {s:'#menu .nmbox',t:'Hunter Name',d:'Tap this to set the name other hunters see above your head in the breach. You can also set a recovery password here so you can get your hunter back on another device.'},
+ {s:'#menu .risk',t:'Risk & Reward',d:'Read this before every hunt. Entry cost is paid up front. If you die you lose that cost plus everything you carried in. If you escape alive you are paid a bounty, and the range depends on the archdemon.'},
+ {s:'#menu .foot',t:'Cash & Ledger',d:'Your cash is shown at the bottom, along with the Ledger you are working on. Cash buys guns, tools and ammo, and pays for your loadout each run.'},
+ {s:'#menu .fbar',t:'Match Against',d:'When you go online you can be matched with other hunters. These boxes choose which team sizes you accept: Solos, Duos or Trios. If you play in a team, the host chooses for everyone.'},
+ {s:'#go',t:'Enter the Breach',d:'This starts a real hunt with your current loadout. It is greyed out if you cannot afford the loadout. Teams ready up first, then the host presses it for everyone.'},
+ {s:'#menu [data-v=sk]',t:'Skins',d:'Change how your hunter, your weapons and your tools look. Skins you earn or unlock show up here.'},
+ {s:'#menu [data-v=stash]',t:'Stash & Gunsmith',d:'This is your gear. Drag weapons and tools into the Primary, Sidearm and Tool slots, and fill the backpack. Everything you equip is at risk when you enter. Sell items for half their shop price, and use the Gunsmith button inside to buy weapons, tools and extra ammo.'},
+ {s:'#menu [data-v=missions]',t:'Ledgers',d:'Story challenges with a list of tasks, such as clearing imps or getting melee kills. Finish tasks for bonus cash, and complete a whole Ledger to earn its reward skin.'},
+ {s:'#menu [data-v=ach]',t:'Achievements',d:'Feats you can earn over many hunts. Each one has Bronze, Silver and Gold tiers, and this tab shows how many tiers you have earned.'},
+ {s:'#menu [data-v=lore]',t:'Lore',d:'The story of the breach and a field guide to what lives in it. Tabs cover the world, the horde, archdemons, hunters, lesser demons, weapons, totems and tools. You can also read or play the Chronicle here.'},
+ {s:'#menu [data-v=lb]',t:'Leaderboard',d:'The top 10 hunters on each board: escapes, archdemons slain, bounty carried out, horde kills, banished corpses and more. Use the tabs on the board to switch between them.'},
+ {s:'#menu [data-v=title]',t:'Main Menu',d:'Goes back to the title screen, where you can start the hunt or replay the tutorial any time. That is the whole menu. Good luck out there.'}
+];
+let MTR=null;
+function menuTourStop(){if(!MTR)return;clearInterval(MTR.iv);document.removeEventListener('keydown',MTR.kd,true);window.removeEventListener('resize',MTR.pos);MTR.el.remove();MTR=null}
+function menuTourStart(list,label){
+ menuTourStop();
+ const steps=(list||MTOUR).filter(s=>!s.s||document.querySelector(s.s));if(!steps.length)return;
+ const el=document.createElement('div');el.id='mtour';el.style.cssText='position:fixed;inset:0;z-index:70;background:transparent';
+ el.innerHTML='<div class=mt-ring style="position:fixed;border:3px solid #ff3a1a;border-radius:10px;box-shadow:0 0 0 9999px rgba(8,3,5,.74);pointer-events:none;transition:all .2s ease"></div>'+
+  '<div class=mt-card style="position:fixed;left:50%;transform:translateX(-50%);width:calc(100% - 24px);max-width:420px;box-sizing:border-box;padding:16px 20px;background:#140a0e;border:2px solid #e8e6d899;border-left:7px solid #ff3a1a;color:#f3e6d0;font:15px/1.45 monospace">'+
+  '<div class=mt-n style="font:bold 11px monospace;color:#a89c80;margin-bottom:4px"></div><div class=mt-t style="font:400 28px/1.1 \'Pirata One\',cursive;letter-spacing:.06em;margin-bottom:8px"></div><p class=mt-d style="margin:0 0 12px"></p>'+
+  '<div style="display:flex;gap:8px"><button class="tt-btn mt-b" style="flex:1;min-width:0;margin:0;padding:6px 8px;text-align:center;box-sizing:border-box;font-size:20px;">Back</button><button class="tt-btn mt-x" style="flex:1;min-width:0;margin:0;padding:6px 8px;text-align:center;box-sizing:border-box;font-size:20px;">Skip</button><button class="tt-btn mt-nx" style="flex:1.4;min-width:0;margin:0;padding:6px 8px;text-align:center;box-sizing:border-box;font-size:20px;">Next</button></div></div>';
+ const st=document.createElement('style');st.textContent='#mtour .tt-btn:hover,#mtour .tt-btn:active{transform:none}#mtour .tt-btn::after{display:none}';el.appendChild(st);
+ document.body.appendChild(el);
+ const ring=el.querySelector('.mt-ring'),card=el.querySelector('.mt-card'),S={el,i:0,sc:scr,lb:label||'MENU TOUR'};MTR=S;
+ const place=()=>{const st0=steps[S.i];
+  if(!st0.s){ring.style.display='none';el.style.background='rgba(8,3,5,.74)';card.style.bottom='';card.style.top='50%';card.style.transform='translate(-50%,-50%)';return}
+  ring.style.display='';el.style.background='transparent';card.style.transform='translateX(-50%)';
+  const t=document.querySelector(st0.s);if(!t)return;const r=t.getBoundingClientRect(),p=6;
+  ring.style.left=(r.left-p)+'px';ring.style.top=(r.top-p)+'px';ring.style.width=(r.width+p*2)+'px';ring.style.height=(r.height+p*2)+'px';
+  const mid=r.top+r.height/2;if(mid<innerHeight/2){card.style.top='';card.style.bottom='12px'}else{card.style.bottom='';card.style.top='12px'}
+  };
+ const show=()=>{const s=steps[S.i],t=s.s?document.querySelector(s.s):null;card.querySelector('.mt-n').textContent=S.lb+'  '+(S.i+1)+' / '+steps.length;card.querySelector('.mt-t').textContent=s.t;card.querySelector('.mt-d').textContent=s.d;
+  card.querySelector('.mt-b').style.visibility=S.i?'visible':'hidden';card.querySelector('.mt-nx').textContent=S.i==steps.length-1?'Finish':'Next';
+  if(t)try{t.scrollIntoView({block:'center',behavior:'auto'})}catch(e){}place();setTimeout(place,60)};
+ const go=d=>{const n=S.i+d;if(n>=steps.length){menuTourStop();return}if(n<0)return;S.i=n;show()};
+ card.querySelector('.mt-nx').onclick=()=>go(1);card.querySelector('.mt-b').onclick=()=>go(-1);card.querySelector('.mt-x').onclick=menuTourStop;
+ el.addEventListener('click',e=>e.stopPropagation());   // block the menu underneath
+ S.kd=e=>{const k=e.key;if(k=='Escape'||k=='ArrowRight'||k=='Enter'||k==' '||k=='ArrowLeft'){e.preventDefault();e.stopPropagation();if(k=='Escape')menuTourStop();else go(k=='ArrowLeft'?-1:1)}};
+ document.addEventListener('keydown',S.kd,true);S.pos=place;window.addEventListener('resize',place);S.iv=setInterval(()=>{if(mode!='menu'||scr!=S.sc){menuTourStop();return}place()},200);
+ show()}
+{const _tf=tutFinish;tutFinish=function(how){const was=!!TUTR;_tf.apply(this,arguments);if(how=='done'&&was){scr='hub';menu('');setTimeout(menuTourStart,50)}}}
+
+// ---------- FIRST-VISIT TAB GUIDES: the first time you open Skins, Stash & Gunsmith, Ledgers, Achievements, Lore or Leaderboard, a short spotlight guide explains that screen ----------
+// Reuses the menu tour player. Each guide shows once per device (localStorage bh_gd_<screen>); a step with no selector is a centred card. Steps whose element is missing are skipped.
+const GUIDES={
+ sk:{l:'SKINS GUIDE',steps:[
+  {t:'Skins',d:'This is your wardrobe. Pick a category to change how your hunter, your weapons or your tools look.'},
+  {s:'#menu [data-v=l_skin]',t:'Hunter Skins',d:'Choose your hunter. Locked skins show their price, or how they are earned, such as a Ledger reward.'},
+  {s:'#menu [data-v=sk_w]',t:'Weapon Skins',d:'Give a gun its own look. Pick a weapon, then choose one of its skins.'},
+  {s:'#menu [data-v=sk_t]',t:'Tool Skins',d:'The same for tools like holy water, grenades and flares.'},
+  {s:'#menu [data-v=sk_sets]',t:'Skin Sets',d:'Full collections. Buying the whole set gets you 10% off.'}]},
+ stash:{l:'STASH GUIDE',steps:[
+  {t:'Stash & Gunsmith',d:'Everything you own lives here. Set up your loadout before each hunt: what you equip and put in your backpack is what you bring in, and what you can lose.'},
+  {s:'#menu .eqp',t:'Primary & Sidearm',d:'Drag a weapon from the stash into these slots to equip it. Click any item to read its stats. Press R to rotate an item while you hold it.'},
+  {s:'#menu .eqt',t:'Tool Slots',d:'Six slots for tools such as holy water, grenades and flares. Drag a tool here to bring it into the breach.'},
+  {s:'#menu .favs',t:'Favourites',d:'Three quick-access loadout boxes. Tap one to open it and set up or review a saved loadout.'},
+  {s:'#bg',t:'Backpack',d:'A 16-square pack. Anything in it comes into the breach with you, and is lost if you die.'},
+  {s:'#sz',t:'Sell',d:'Drag an item onto this strip to sell it for half its shop price.'},
+  {s:'#sg',t:'The Stash',d:'Your storage. Drag items around freely. Shift-drag or right-click a stack of tools to split it.'},
+  {s:'#menu .sttabs',t:'Stash Tabs',d:'Tab 1 is free. The numbered tabs with a lock can be bought for extra storage.'},
+  {s:'#menu [data-so]',t:'Auto-sort',d:'Tidies the stash into neat rows in one tap.'},
+  {s:'#menu .foot [data-v=shop]',t:'Gunsmith',d:'The shop. Buy primary weapons, sidearms and tools, and top up your ammo before a hunt.'}]},
+ missions:{l:'LEDGERS GUIDE',steps:[
+  {t:'Ledgers',d:'Ledgers are story challenges. Each one is a chain of tasks that pays cash and ends with a reward skin.'},
+  {s:'#menu .cols > .col:first-child',t:'Your Ledgers',d:'Tap a Ledger to read it and make it your active one. Progress counts toward the active Ledger only.'},
+  {s:'#menu .cols > .col:nth-child(2)',t:'The Tasks',d:'Tasks unlock one at a time. A finished task is ticked, the current one is marked with an arrow, and later ones stay hidden until you reach them.'},
+  {s:'#menu .cols .paper.on',t:'Banking Progress',d:'Progress is banked when you extract alive. If you die, that run\'s progress is lost.'}]},
+ ach:{l:'ACHIEVEMENTS GUIDE',steps:[
+  {t:'Achievements',d:'Long-term feats that build up over many hunts. Each has three tiers: Bronze, Silver and Gold.'},
+  {s:'#menu .achg .ach',t:'Reading a Card',d:'The stars show the tiers you have earned. The bar fills toward your next tier, and the line under it lists every tier target.'},
+  {s:'#menu .foot',t:'Keep Going',d:'The count at the top shows how many tiers you have earned in total. Keep hunting to fill every bar.'}]},
+ lore:{l:'LORE GUIDE',steps:[
+  {t:'Lore',d:'The story of the breach, and a field guide to everything in it.'},
+  {s:'#menu .slate .tabs',t:'Lore Tabs',d:'Each tab is a different book: the world, the horde, archdemons, hunters, lesser demons, arms, totems and tools.'},
+  {s:'#menu .fds',t:'Folders',d:'Tap a folder to read it. Folders marked ??? are still locked. Keep hunting to find them.'},
+  {s:'#menu [data-v=chron]',t:'The Chronicle',d:'Read the story of the breach page by page.'},
+  {s:'#menu [data-cine]',t:'Cinematic',d:'Play the narrated story of the breach.'}]},
+ lb:{l:'LEADERBOARD GUIDE',steps:[
+  {t:'Leaderboard',d:'See how you rank against other hunters. Stats are shared online, so you are compared with everyone who plays.'},
+  {s:'#menu .slate .tabs, #menu .achw .tabs',t:'Boards',d:'Switch boards here: Survivors, Archdemon Slayers, Bounty Barons, Horde Breakers, Banishers, Hunter Slayers and more.'},
+  {s:'#menu .lbr',t:'The Top 10',d:'The ten best hunters on the board. If you are not in the top ten, your own rank is shown below the list.'},
+  {s:'#menu .foot span',t:'Connection',d:'This line shows whether the online boards are connected. If they cannot be reached, only this device is shown.'}]}
+};
+const gdSeen=k=>{try{return localStorage.getItem('bh_gd_'+k)=='1'}catch(e){return true}};
+{const _m=menu;menu=function(){const r=_m.apply(this,arguments);
+ try{const k=scr,G=GUIDES[k];if(mode=='menu'&&G&&!TUTR&&!MTR&&!gdSeen(k)){try{localStorage.setItem('bh_gd_'+k,'1')}catch(e){}
+  setTimeout(()=>{if(mode=='menu'&&scr==k&&!MTR)menuTourStart(G.steps,G.l)},80)}}catch(e){}
+ return r}}
 menu();tutAsk(); // first render last, so every menu entry and wrapper above is in place
 
 /* ===================== TOTEMS (lesser demon drops; see the notes) =====================
