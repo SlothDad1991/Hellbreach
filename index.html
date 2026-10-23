@@ -718,8 +718,8 @@ TOOL.pearl={n:'Brine Pearl',c:50,tot:1,d:'totem: burn it (stand still 3s) to cur
 TOOL.undertow={n:'Undertow',c:50,tot:1,d:'totem: burn it (stand still 3s) and a puddle slows everything inside by 60% for 10s, you too \u00b7 stacks to 3'};
 TOOL.chalk={n:'Chalk Circle',c:45,d:'a 6s circle melee attackers and the horde cannot enter; shots still land \u00b7 stacks to 3'};
 TOOL.tripwire={n:'Tripwire',c:30,d:'plant a wire; anything that trips it \u2014 imps, rivals, even you \u2014 takes a blast (V) \u00b7 stacks to 3'};
-TOOL.tomb={n:'Tomb',c:0,d:'raise a neon green pentagram in front of you; the first imp to step inside is bound in neon green rope (imps only, never bosses or other demons) and the tomb is spent. Hold E beside the bound imp to tie a rope to your hand and drag it, extract with it, then sell it for $100 \u00b7 free \u00b7 does not stack, 1 per run (1x2 item, R rotates it)'};
-TOOL.impcap={n:'Captive Imp',c:100,tot:1,nb:1,d:'a bound imp, wrapped in neon green rope. Drag it onto the sell strip for $100. It cannot be taken into the map \u00b7 does not stack'};
+TOOL.tomb={n:'Tomb',c:0,d:'raise a neon green pentagram in front of you; the first imp to step inside is bound in neon green rope (imps only, never bosses or other demons) and the tomb is spent. Press E beside the bound imp to grab it (a rope ties to your hand) and press E again to let go; you cannot shoot or sprint while holding it. Drag it out, extract with it, then sell it for $100 \u00b7 free \u00b7 does not stack, 1 per run (1x2 item, R rotates it)'};
+TOOL.impcap={n:'Captive Imp',c:100,tot:1,nb:1,d:'a bound imp, wrapped in neon green rope. Drag it onto the sell strip for $100. It cannot be taken into the map \u00b7 does not stack (4x3 item, 12 squares, R rotates it)'};
 const BOSS={gorrath:{n:'Gorrath the Maw',i:'\u{1F525}',d:'Charging brute of the pit.',bh:'charge',hp:1000,bo:500},nyxara:{n:'Nyxara, Cinder Witch',i:'\u{1F608}',d:'Hurls hellfire from afar.',bh:'ranged',hp:750,bo:700},mordrek:{n:'Mordrek the Choir-Eater',i:'\u{1F47F}',d:'Calls the horde to his side.',bh:'summon',hp:850,bo:900}};
 let bank=500,sel={skin:'plain',wsk:{},sk:{p:'',s:''},pri:'repeater',side:'pistol',tools:[{k:'tonic',n:2},null,null,null,null,null],bag:[]},boss='gorrath',mode='menu',walls=[],blds=[],trees=[],M=[],bul=[],eb=[],bombs=[],parts=[],clues=[],items=[],scn=[],exts=[],P,cam={x:0,y:0},ground,blood,bx,keys={},mouse={x:320,y:180,l:0,r:0},msg='',msgT=0,shake=0,T=0,last=0,found=0,banished=0,corpse=null,bty=null,bn=null,mpHB=null,mpKB=null;
 const FAMS={hunter:{n:'The Hunter',d:'The plain issue kit. Always yours.',c:0,def:'plain'},warden:{n:'The Warden',d:'Hooded plague doctor. 5 variations.',c:1000,def:'warden'},
@@ -749,7 +749,7 @@ Object.assign(FAMS,{inq:{n:'High Inquisitor',d:'Ivory plate, gold leaf and a hal
 const pit=q=>q.t=='f'?FAMS[q.k]:q.t=='w'?(SID[q.k]||PRI[q.k]||TOOL[q.k]):SKINS[q.k];
 let pname='';const cleanName=v=>String(v==null?'':v).replace(/[^\w .'\-]/g,'').replace(/\s+/g,' ').trim().slice(0,14);
 let LS={},AST={},ANT={},RS={},AL=null,shopScr='shop',wsConf=null,setConf=null,traps=[],own=['hunter','plain'],curFam='hunter',note='',pend=null,stash=[],invOpen=0;
-const ISZ={rifle:[4,2],shotgun:[4,2],repeater:[3,2],crossbow:[3,2],pistol:[2,2],revolver:[2,2],tonic:[1,1],bomb:[2,1],pepperbox:[3,2],musket:[4,2],flamer:[3,2],handcannon:[2,2],whisper:[2,2],flask:[1,1],flare:[1,1],ward:[1,1],tripwire:[2,1],saltline:[1,1],noisemaker:[1,1],chalk:[1,1],gatling:[4,2],blunderbuss:[4,2],longbow:[4,2],sprayer:[4,2],mortar:[3,2],sixshooter:[2,2],dartpistol:[2,2],stake:[2,1],carbine:[3,2],sawnoff:[3,2],pump:[4,2],lever:[3,2],drum:[3,2],repxbow:[3,2],fowling:[4,2],derringer:[2,1],pocketrev:[2,2],navyrev:[2,2],scatterpistol:[2,2],dragoon:[2,2],sling:[2,1],saltgun:[4,2],stamtonic:[1,1],bootwraps:[1,1],revive:[1,2],tomb:[1,2],impcap:[1,1],muzzle:[2,1],pyre:[2,1],magpie:[2,1],thief:[2,1],pearl:[2,1],undertow:[2,1]},SC=20,SR=8,MAXST=3,NTS=6,EXD=10/* seconds standing in an exit ring to escape */,isz=k=>ISZ[k]||[1,1],mxs=k=>k=='revive'||k=='tomb'||k=='impcap'?1:MAXST,isz2=o=>{const z=isz(o.k);return o.r?[z[1],z[0]]:z};
+const ISZ={rifle:[4,2],shotgun:[4,2],repeater:[3,2],crossbow:[3,2],pistol:[2,2],revolver:[2,2],tonic:[1,1],bomb:[2,1],pepperbox:[3,2],musket:[4,2],flamer:[3,2],handcannon:[2,2],whisper:[2,2],flask:[1,1],flare:[1,1],ward:[1,1],tripwire:[2,1],saltline:[1,1],noisemaker:[1,1],chalk:[1,1],gatling:[4,2],blunderbuss:[4,2],longbow:[4,2],sprayer:[4,2],mortar:[3,2],sixshooter:[2,2],dartpistol:[2,2],stake:[2,1],carbine:[3,2],sawnoff:[3,2],pump:[4,2],lever:[3,2],drum:[3,2],repxbow:[3,2],fowling:[4,2],derringer:[2,1],pocketrev:[2,2],navyrev:[2,2],scatterpistol:[2,2],dragoon:[2,2],sling:[2,1],saltgun:[4,2],stamtonic:[1,1],bootwraps:[1,1],revive:[1,2],tomb:[1,2],impcap:[4,3],muzzle:[2,1],pyre:[2,1],magpie:[2,1],thief:[2,1],pearl:[2,1],undertow:[2,1]},SC=20,SR=8,MAXST=3,NTS=6,EXD=10/* seconds standing in an exit ring to escape */,isz=k=>ISZ[k]||[1,1],mxs=k=>k=='revive'||k=='tomb'||k=='impcap'?1:MAXST,isz2=o=>{const z=isz(o.k);return o.r?[z[1],z[0]]:z};
 const fitsIn=(arr,C,R_,x,y,w,h,ex)=>x>=0&&y>=0&&x+w<=C&&y+h<=R_&&!arr.some(o=>{if(o===ex)return 0;const z=isz2(o);return x<o.x+z[0]&&x+w>o.x&&y<o.y+z[1]&&y+h>o.y});
 const spotIn=(arr,C,R_,k,ex)=>{const[w,h]=isz(k);for(let y=0;y<=R_-h;y++)for(let x=0;x<=C-w;x++)if(fitsIn(arr,C,R_,x,y,w,h,ex))return[x,y];return null};
 const addTo=(arr,C,R_,k,n)=>{if(TOOL[k]){const t=arr.find(o=>o.k==k&&o.n<mxs(k));if(t){t.n=Math.min(mxs(k),t.n+(n||1));return 1}}const f=spotIn(arr,C,R_,k);if(!f)return 0;arr.push({k,x:f[0],y:f[1],n:TOOL[k]?Math.min(mxs(k),n||1):(n||0)});return 1};
@@ -2335,7 +2335,7 @@ function splitOne(ct,o){if(!o||!TOOL[o.k]||(o.n||1)<2)return;for(const c of [ct,
 // ---------- ITEM INFO: click an item in the stash (or hover/click in the in-game inventory) to see its stats ----------
 let selInfo=null,selRef=null,skOpen=0;
 const itemDef=k=>(PRI[k]&&k!='none'?PRI[k]:SID[k]&&k!='none'?SID[k]:TOOL[k])||null;
-const itemType=k=>PRI[k]&&k!='none'?'Primary weapon':SID[k]&&k!='none'?'Sidearm':'Tool';
+const itemType=k=>k=='impcap'?'Demon':PRI[k]&&k!='none'?'Primary weapon':SID[k]&&k!='none'?'Sidearm':'Tool';
 const wNotes=w=>{const a=[];if(w.nt)a.push(...w.nt);if(w.p>1)a.push('Fires '+w.p+' pellets per shot');if(w.m==1)a.push('Single shot \u2014 reload after every shot');if(w.nz<=60)a.push('Near-silent');return a};
 const wList=w=>{const tot=w.d*w.p;return[['Damage',tot+(w.p>1?' ('+w.d+'x'+w.p+')':'')],['Fire rate',(1/w.r).toFixed(1)+'/s'],['DPS',dpsTxt(w)],['Range',Math.round(w.sp*(w.l||.7))],['Accuracy','\u00b1'+(w.s*57.2958).toFixed(1)+'\u00b0'],['Magazine',w.m],['Reload',w.rl+'s'],['Noise',nzLabel(w.nz)]]};
 function pickInfo(k,el,ref){selInfo=k;selRef=ref||null;skOpen=0;document.querySelectorAll('#menu .it.sel').forEach(x=>x.classList.remove('sel'));if(el)el.classList.add('sel');renderInfo()}
@@ -2343,7 +2343,7 @@ function renderInfo(){const b=document.getElementById('ib');if(!b)return;const d
  if(!d){b.innerHTML='<div class=ibe>Click a weapon or item to inspect it.</div>';return}
  const k=selInfo,wp=!TOOL[k];
  b.innerHTML='<div class=ibi></div><div class=ibt><h3>'+d.n+'</h3><div class=ibk>'+itemType(k)+' \u00b7 '+(d.nb?'not sold in shops':d.c?'shop price $'+d.c:'free in the shop')+' \u00b7 sells for $'+(d.tot?d.c:Math.floor(d.c/2))+'</div>'+(wp?st(d)+wNotes(d).map(x=>'<div class=ibn>'+x+'</div>').join(''):'<p>'+d.d+'</p>')+'</div>';
- const ro=refObj(),cur=ro?(wp?skv(k,ro.sk):skv(k,TSK[k])):'';b.querySelector('.ibi').appendChild(itemCv(k,256,192,cur));
+ const ro=k=='impcap'?null:refObj(),cur=ro?(wp?skv(k,ro.sk):skv(k,TSK[k])):'';b.querySelector('.ibi').appendChild(itemCv(k,256,192,cur));
  if(ro){const t=b.querySelector('.ibt'),row=document.createElement('div'),sl=WSK[k]||[];row.className='ibs';
   if(!sl.length)row.innerHTML='<span class=ibn>No skins exist for this '+(wp?'weapon':'tool')+' yet.</span>';
   else{const tg=document.createElement('button');tg.className='skb';tg.textContent='Skin: '+(cur?WSKINS[cur].n:'Standard')+(skOpen?' \u25B4':' \u25BE');tg.onclick=ev=>{ev.stopPropagation();skOpen=!skOpen;renderInfo()};row.appendChild(tg);
@@ -6276,7 +6276,7 @@ const tgPool=()=>tgPool.c||(tgPool.c=Object.keys(PRI).filter(k=>k!='none'&&!PRI[
 // ---------- THE TOMB (free in the Tools rack, 1x2, never stacks, only 1 may go into the map) ----------
 // Use it (left click while it is your selected tool slot) to raise a neon green pentagram ~34px in front of you. The first imp (imps ONLY) to step inside is bound:
 // it leaves the horde (M) and becomes your captive, P.cap, wrapped in neon green rope, and the tomb is spent. A pentagram nobody steps into gutters out after 40s and the tomb is kept.
-// Hold E within ~48px of the bound imp to tie a rope to your hand and drag it (the rope slips if it stretches past ~110px). Extract with the imp within ~60px of you and it joins your stash
+// Press E within ~48px of the bound imp to grab it (toggle: E again lets go; no guns/melee/sprinting while holding) and drag it (the rope slips if it stretches past ~110px). Extract with the imp within ~60px of you and it joins your stash
 // as a Captive Imp (TOOL.impcap, never equippable, never in shops) which sells for the full $100 from the sell strip. If the stash is full it is sold on the spot for $100. Dying loses it.
 // Multiplayer: the captive is local to its owner (other hunters just see the imp vanish); a client tells the host with {t:'cap',i:id} so the host drops it, and CAPIDS stops snapshots re-adding it.
 const CAPIDS=new Set(),CAPG='#39ff14';let pents=[],pgId=0;
@@ -6294,16 +6294,18 @@ function useTomb(){const a=P.face;let x=P.x+Math.cos(a)*34,y=P.y+Math.sin(a)*34;
  pents=[{x,y,t:0,life:40,r:26,id:++pgId}];burst(x,y,22,80,CAPG,0);shake=Math.max(shake,2);say(P.cap?'The pentagram burns, but you already hold a bound imp':'A neon pentagram burns open. Lure an imp into it',3);try{sfx.heal()}catch(e){}}
 function bindImp(m,g){P.cap={x:m.x,y:m.y,a:m.a||0,wk:m.wk||0,bt:0,hl:0,s:0,ht:0};if(m.id!==undefined)CAPIDS.add(m.id);if(mpCli())mpSend({t:'cap',i:m.id});
  const i=M.indexOf(m);if(i>=0)M.splice(i,1);g.done=1;TS('tomb',0);fixSlot();burst(m.x,m.y,28,95,CAPG,0);burst(m.x,m.y,10,50,'#d8ffd0',0);shake=Math.max(shake,3);
- say('Imp bound! Hold E beside it to drag it by the rope, then extract with it',4.5);try{sfx.thr()}catch(e){}}
+ say('Imp bound! Press E beside it to grab the rope and drag it. Press E again to let go',4.5);try{sfx.thr()}catch(e){}}
 function capTick(dt){if(P.dead){P.cap=null;pents=[];return}
  for(const g of pents){g.t+=dt;if(P.cap||g.done)continue;const m=M.find(q=>q.hp>0&&!q.boss&&!q.lesser&&(q.ty||'imp')=='imp'&&D(q.x,q.y,g.x,g.y)<g.r-4);if(m)bindImp(m,g);else if(g.t>=g.life)say('The pentagram gutters out',2)}
  pents=pents.filter(g=>g.t<g.life&&!g.done);
  const c=P.cap;if(!c)return;c.bt=Math.min(1.2,c.bt+dt);c.s+=dt;const d=D(P.x,P.y,c.x,c.y);
- if(!keys.KeyE)c.hl=0;else if(!c.hl&&c.bt>=1&&d<48){c.hl=1;burst(P.x,P.y-3,6,40,CAPG,0)}
+ const ke=!!keys.KeyE,pr=ke&&!c.pe;c.pe=ke;if(pr&&c.bt>=1){if(c.hl){c.hl=0;say('You let go of the rope',1.5)}else if(d<48){c.hl=1;burst(P.x,P.y-3,6,40,CAPG,0);say('Holding the imp. Press E to let go',2)}}
  if(c.hl&&d>110){c.hl=0;say('The rope slipped from your hand',1.6)}
  if(c.hl){c.a=Math.atan2(P.y-c.y,P.x-c.x);if(d>18){const a=c.a,st=Math.min(d-18,Math.max(.6,(d-18)*14*dt),160*dt),ox=c.x,oy=c.y;mv(c,Math.cos(a)*st,Math.sin(a)*st,4);if(Math.abs(c.x-ox)+Math.abs(c.y-oy)>.05)c.wk+=dt*9}}
- if(P.ep>0&&d>60){c.ht-=dt;if(c.ht<=0){c.ht=2.5;say('Your imp is too far to extract with you. Hold E and drag it into the ring',2.4)}}}
-{const _u=update;update=function(dt){_u(dt);if(mode=='play'&&P)capTick(dt)}}
+ if(P.ep>0&&d>60){c.ht-=dt;if(c.ht<=0){c.ht=2.5;say('Your imp is too far to extract with you. Press E to grab it and drag it into the ring',2.4)}}}
+{const _u=update;update=function(dt){const hd=mode=='play'&&P&&P.cap&&P.cap.hl,sh=keys.ShiftLeft;if(hd)keys.ShiftLeft=0;try{_u(dt)}finally{if(hd)keys.ShiftLeft=sh}if(mode=='play'&&P)capTick(dt)}}
+{const _s=shoot;shoot=function(){if(P&&P.cap&&P.cap.hl&&P.cur<2){mouse.l=0;return}return _s.apply(this,arguments)}}
+{const _me=melee;melee=function(){if(P&&P.cap&&P.cap.hl)return;return _me.apply(this,arguments)}}
 function capExtract(){const c=P&&P.cap;if(!c)return '';P.cap=null;
  if(D(P.x,P.y,c.x,c.y)>60)return 'Your bound imp was too far away at the exit and slipped its rope. ';
  if(addItemAny('impcap',1))return 'You dragged a bound imp out with you. It is in your stash: sell it for $100. ';
@@ -6320,7 +6322,7 @@ function drawCap(c,cx,cy){const x=c.x-cx,y=c.y-cy;if(x<-30||x>VW+30||y<-44||y>VH
  for(let i=0;i<3;i++){const yy=-9+i*4.4,kk=Math.max(0,Math.min(1,k*3-i*.6));if(kk<=0)continue;ctx.beginPath();ctx.ellipse(0,yy,5.4,1.7,0,0,6.2832*kk);ctx.stroke()}
  if(k>.5){ctx.globalAlpha=Math.min(1,(k-.5)*2);ctx.beginPath();ctx.moveTo(-5,-10);ctx.lineTo(5,-1);ctx.moveTo(5,-10);ctx.lineTo(-5,-1);ctx.stroke();ctx.globalAlpha=1}
  ctx.restore();
- if(c.bt>=1&&!c.hl&&D(P.x,P.y,c.x,c.y)<48){ctx.save();ctx.font='bold 8px monospace';tx('Hold E',x,y-18,CAPG,'center');ctx.restore()}
+ if(c.bt>=1&&!c.hl&&D(P.x,P.y,c.x,c.y)<48){ctx.save();ctx.font='bold 8px monospace';tx('Press E',x,y-18,CAPG,'center');ctx.restore()}
  if(c.hl){const hx=P.x-cx+Math.cos(P.face)*5,hy=P.y-cy-3+Math.sin(P.face)*3,ex=x,ey=y-5,d=Math.hypot(ex-hx,ey-hy),sag=Math.max(2,16-d*.14),mx=(hx+ex)/2,my=(hy+ey)/2+sag;
   ctx.save();ctx.shadowColor=CAPG;ctx.shadowBlur=5;ctx.strokeStyle=CAPG;ctx.lineWidth=1.6;ctx.beginPath();ctx.moveTo(hx,hy);ctx.quadraticCurveTo(mx,my,ex,ey);ctx.stroke();ctx.shadowBlur=0;ctx.strokeStyle='#d8ffd0';ctx.lineWidth=.5;ctx.stroke();ctx.restore()}}
 {const _rp=rpDraw;rpDraw=function(L,cx,cy){_rp.apply(this,arguments);for(const g of pents)L.push([g.y-30,()=>drawPent(g,cx,cy)]);if(P.cap){const c=P.cap;L.push([c.y,()=>drawCap(c,cx,cy)])}}}
