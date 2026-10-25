@@ -73,6 +73,12 @@ body.rt h1,body.rt h2.lt,body.rt .tt-name,body.rt button.tt-btn,body.rt .risk h3
 .ibox .ibe{opacity:.55;font-size:22px;align-self:center;width:100%;text-align:center}
 .ibox .ibs{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.ibox .skb{font:inherit;font-size:20px;padding:2px 12px;color:#ffd9a0;background:#3a1418;border:1px solid #e8e6d855;border-radius:4px;cursor:pointer}.ibox .skb:hover{background:#5a1c22}.ibox .skb.on{border-color:#e0b040;color:#fff}
 .it.sel{outline:2px solid #ffd060;outline-offset:-2px;background:#a0303088}
+.bprow{display:flex;gap:14px;align-items:flex-start}.tbx{min-width:0;flex:none}.tgrid{border-color:#c8a050;background-color:#1a0f0a}.tbn{margin-top:4px;max-width:134px;font-size:15px;line-height:1.05;color:#e0b040;opacity:.85}
+.it b.tn{left:1px;right:1px;bottom:1px;text-align:center;font-size:13px;line-height:1.1;background:#000b;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;padding:0 1px}
+.it.tdok{outline:3px solid #8fe0a0;outline-offset:-3px}.it.tdno{outline:3px solid #ff8a7a;outline-offset:-3px}
+.ctw{display:flex;gap:8px;margin:6px 0;flex-wrap:wrap}.ctl{position:relative;width:100px;height:62px;border:2px dashed #e8e6d844;border-radius:4px;background:#140a0cc0;box-sizing:border-box}
+.ctl.has{border-style:solid;border-color:#c8a050aa;cursor:pointer}.ctl.has:hover{border-color:#ff7060}.ctl>span{position:absolute;left:4px;top:0;font-size:14px;opacity:.7}
+.ctl i{position:absolute;left:4px;right:4px;top:14px;bottom:2px}.ctl em{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:center;font-size:15px;opacity:.45;padding-bottom:5px;font-style:normal}.ctl b{position:absolute;right:3px;bottom:0;font-size:15px}
 .hl{position:fixed;pointer-events:none;background:#40ff6040;border:1px solid #60ff80}.hl.no{background:#ff304040;border-color:#ff5060}
 .slate{position:relative;margin-top:8px;border:12px solid #5a3a22;border-radius:4px;background:radial-gradient(ellipse at 25% 10%,#2f3f39,#17211d 75%);box-shadow:inset 0 0 70px #000,0 6px 20px #000;padding:10px 16px 22px;min-height:360px}
 .slate::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:0;background:repeating-linear-gradient(115deg,#ffffff06 0 3px,transparent 3px 40px)}
@@ -197,7 +203,7 @@ button.tt-btn:active{transform:translateX(12px) scale(.98)}
      STEP 14 (BUILT for tome hunters; see the STEP 14 block after injDeathHook) - Multiplayer (REQUIRED, built alongside the other steps, not last): the monster host runs every hunter NPC; snapshots (mpSendSnap) and clients need his position, HP, state and speech; other players see your hunters; the injured hunter spawn must come from the shared seed; two players must not both claim him (first Holy Water wins, host decides).
      STEP 15 (BUILT) - Hunter Lore folder 'Hunters in Need' (LORE tab 3, index 17; picture in loreArt; found when you come within 260px of him, bring a tome, or free him). Achievement 'Hand of Mercy' (ACH id resc, stat resc, 1 / 5 / 15 hunters freed with Holy Water). Ledger task type 'resc' (tText, hudm, ledStory, ledgerCommit all know it) added as a 5th and last task of The Last Crusade ('The Wounded Left Behind'); that ledger's skin now comes after it (own.push is guarded so old owners are not given it twice). injRescued() is the one place that counts a rescue.
      STEP 17 (BUILT) - Teams and matchmaking (OWNER DECIDED: friendly fire ON for hunters, hunters are players in the roster and fill the team boxes at the top, hunters count towards the player count, random names). Search for 'STEP 17': tmWant / tmDecl / tmAlloc / tmMine / tmSlots (team boxes: humans, pending invites, then hunters; humans always win a slot, hunters only fill free ones: 3 minus the humans, handed out in member order by the team host and sent in the roster as mem[].hu); mpGroupsAll (hc = hunters per member: team SIZE for the Solos / Duos / Trios rule = humans + hunters, max 3; each hunter takes one of the 6 places; the search counter and the start trigger use the weighted count); mpSearch sets mp.hg and sends hu in the profile and hc in the heartbeat; ctrBring brings exactly mp.hg tomes (extras go back to the stash); mpRosterList adds the hunters to the 10s roster. Friendly fire: every player's bullets, blasts, fire and melee already hurt every hunter (own, a teammate's, an enemy team's); a hunter's bullets never hurt a human; killing a hunter taints nothing (his tome burning is the cost). Names: tomes keep the random name the hunter was found with (INJ_NAMES, now 64 names).
-     (STEP 18 is fully built: tome loadout editor, ctrBring arms him, give prompt injGive, snapshot fields 15-16. Delete this line and the whole block once the owner confirms the hunter mechanic is tested.)
+     STEP 18 - Giving him a loadout: a screen to hand him primary / sidearm / tools / Holy Water before the match (the scroll stores his loadout); he is lost with it if he dies, and it comes back to you on a clean escape if he lives. OWNER DECIDED: you can also hand him items in the match (a give prompt like the Holy Water one, he gets only a pistol when first saved), and his loadout is edited in the stash by opening his TOME (the contract); the tome keeps his gear between matches. Always write 'tome' in the UI text.
      SUGGESTED ORDER: steps 2 to 6 first (spawn, scenes, bubbles, Holy Water, all seed-driven and synced from the start via step 14), then 7 and 8 (follower with his own kit), then 9, 10, 13, 18 (scroll, loadout, saving), then 11, 12, 17 (bringing him in, teams and matchmaking), then 15 and 16.
    -----------------------------------------------------------------------------------------------------
    TO IMPLEMENT: "LEARN THE LORE" NARRATED CINEMATIC (owner's request, Oct 19). STEPS 1-5 ARE BUILT (step 5 = wiring: tutorial prompt button, title screen entry, Lore menu button; localStorage bh_loreseen marks it seen) (step 4 = narration: LC_HOOK in the LORE NARRATION block; owner's recorded voice is embedded as LORE_VO in <script id=lorevo> at the end of the file, pages 0-12; browser voice is only a fallback; menu music ducked) (step 3 = loreCine(onEnd) full-screen player: title card, 12 pages, end card, Esc/Skip ends, click/Space/Right = next page, reduced-motion safe; hooks for narration: LC_HOOK={page(k,pg,chunks),stop()}, page lengths = PG[k].dur; started from Lore menu > Read the Chronicle > Play cinematic): const LORE_PAGES (13 pages, owner's Chronicle verbatim, each has a shot id) and the stills: drawLoreShot(g,id,t) draws a 224x126 shot, loreShot(id,t) returns a ready offscreen canvas (cached for still ids, redrawn each call for the ids in LORE_ANIM: eye, seam, bells, bleed, toll, ruin, reach; t = 0..1 progress through the page), loreShotFree() releases them when the cinematic ends. A page-by-page previewer already exists: Lore menu > Read the Chronicle (scr=='chron', chronInit); step 5 only needs to add the replay-cinematic button there. Scale the canvas up with imageSmoothingEnabled=false. Do the remaining steps in order; DELETE each step from these notes when it ships.
@@ -743,9 +749,9 @@ TOOL.chalk={n:'Chalk Circle',c:45,d:'a 6s circle melee attackers and the horde c
 TOOL.tripwire={n:'Tripwire',c:30,d:'plant a wire; anything that trips it \u2014 imps, rivals, even you \u2014 takes a blast (V) \u00b7 stacks to 3'};
 TOOL.tomb={n:'Tomb',c:0,d:'raise a neon green pentagram in front of you; the first imp to step inside is bound in neon green rope (imps only, never bosses or other demons) and the tomb is spent. Press E beside the bound imp to grab it (a rope ties to your hand) and press E again to let go; you cannot shoot or sprint while holding it. Drag it out, extract with it, then sell it for $100 \u00b7 free \u00b7 does not stack, 1 per run (1x2 item, R rotates it)'};
 TOOL.impcap={n:'Captive Imp',c:100,tot:1,nb:1,d:'a bound imp, wrapped in neon green rope. Drag it onto the sell strip for $100. It cannot be taken into the map \u00b7 does not stack (4x3 item, 12 squares, R rotates it)'};
-TOOL.contract={n:'Contract Tome',c:0,tot:1,nb:1,d:"a hunter's contract, bound as a tome. It holds his name, his story and his gear. It cannot be used, sold or taken into the map from here \u00b7 does not stack (2x2 item)"};
+TOOL.contract={n:'Contract Tome',c:0,tot:1,nb:1,d:"a hunter's contract, bound as a tome. It holds his name, his story and his gear. Put it in the tome box beside your backpack and he joins your party. Drag a weapon or Holy Water onto it to arm him. It cannot be sold \u00b7 does not stack (2x2 item)"};
 const BOSS={gorrath:{n:'Gorrath the Maw',i:'\u{1F525}',d:'Charging brute of the pit.',bh:'charge',hp:1000,bo:500},nyxara:{n:'Nyxara, Cinder Witch',i:'\u{1F608}',d:'Hurls hellfire from afar.',bh:'ranged',hp:750,bo:700},mordrek:{n:'Mordrek the Choir-Eater',i:'\u{1F47F}',d:'Calls the horde to his side.',bh:'summon',hp:850,bo:900}};
-let bank=500,sel={skin:'plain',wsk:{},sk:{p:'',s:''},pri:'repeater',side:'pistol',tools:[{k:'tonic',n:2},null,null,null,null,null],bag:[]},boss='gorrath',mode='menu',walls=[],blds=[],trees=[],M=[],bul=[],eb=[],bombs=[],parts=[],clues=[],items=[],scn=[],exts=[],P,cam={x:0,y:0},ground,blood,bx,keys={},mouse={x:320,y:180,l:0,r:0},msg='',msgT=0,shake=0,T=0,last=0,found=0,banished=0,corpse=null,bty=null,bn=null,mpHB=null,mpKB=null;
+let bank=500,sel={skin:'plain',wsk:{},sk:{p:'',s:''},pri:'repeater',side:'pistol',tools:[{k:'tonic',n:2},null,null,null,null,null],bag:[],tomes:[]},boss='gorrath',mode='menu',walls=[],blds=[],trees=[],M=[],bul=[],eb=[],bombs=[],parts=[],clues=[],items=[],scn=[],exts=[],P,cam={x:0,y:0},ground,blood,bx,keys={},mouse={x:320,y:180,l:0,r:0},msg='',msgT=0,shake=0,T=0,last=0,found=0,banished=0,corpse=null,bty=null,bn=null,mpHB=null,mpKB=null;
 const FAMS={hunter:{n:'The Hunter',d:'The plain issue kit. Always yours.',c:0,def:'plain'},warden:{n:'The Warden',d:'Hooded plague doctor. 5 variations.',c:1000,def:'warden'},
  knight:{n:'Iron Crusader',d:'Plate, plume and a visor slit. Walks like a wall.',c:900,def:'knight'},
  gun:{n:'Dusk Gunslinger',d:'Duster, bandana and a hat that has seen worse nights.',c:700,def:'gun'},
@@ -787,38 +793,50 @@ let STB=[stash,[],[],[]],stTab=0,stUn=[1,0,0,0],stConf=-1;const STP=[0,10000,200
 //   g = his loadout {p,s,t} (step 18 fills it; a new hunter only has a pistol). ctrClean(h) returns a safe copy or null (used by the loader, so it must not touch INJ, which is defined later).
 const ctrClean=h=>{if(!h||typeof h!='object')return null;const nm=cleanName(h.nm);if(!nm)return null;const g=h.g&&typeof h.g=='object'?h.g:{};
  return{id:String(h.id||'').replace(/[^\w]/g,'').slice(0,20)||Date.now().toString(36)+Math.random().toString(36).slice(2,6),nm,look:SKINS[h.look]?h.look:'plain',inj:/^\w{1,14}$/.test(h.inj||'')?h.inj:'cart',story:String(h.story||'').slice(0,160),
-  g:{p:PRI[g.p]&&g.p!='none'?g.p:'pistol',s:SID[g.s]&&g.s!='none'?g.s:'none',ps:PRI[g.p]&&g.p!='none'?skv(g.p,g.ps):'',ss:SID[g.s]&&g.s!='none'?skv(g.s,g.ss):'',t:(Array.isArray(g.t)?g.t:[]).filter(t=>t&&TOOL[t.k]&&!TOOL[t.k].tot&&t.k!='contract').slice(0,4).map(t=>({k:t.k,n:Math.max(1,Math.min(mxs(t.k),t.n|0||1))}))}}};
+  g:{p:PRI[g.p]&&g.p!='none'?g.p:'pistol',s:SID[g.s]&&g.s!='none'?g.s:'none',...(PRI[g.p]&&g.p!='none'&&skv(g.p,g.ps)?{ps:skv(g.p,g.ps)}:{}),...(SID[g.s]&&g.s!='none'&&skv(g.s,g.ss)?{ss:skv(g.s,g.ss)}:{}),t:(Array.isArray(g.t)?g.t:[]).filter(t=>t&&TOOL[t.k]&&!TOOL[t.k].tot&&t.k!='contract').slice(0,4).map(t=>({k:t.k,n:Math.max(1,Math.min(mxs(t.k),t.n|0||1))}))}}};
 // addContract(d): d = {name|nm,look,inj,story}. Puts a new tome in the first stash tab with room; returns the item, or 0 when every unlocked tab is full.
 const addContract=d=>{const o={k:'contract',n:1,h:ctrClean({...d,nm:d&&(d.nm||d.name),story:d&&(d.story||(typeof INJ!=='undefined'&&INJ[d.inj]?INJ[d.inj].story:''))})};if(!o.h)return 0;
  for(let i=0;i<4;i++){if(!stUn[i])continue;const f=spotIn(STB[i],SC,SR,'contract');if(f){o.x=f[0];o.y=f[1];STB[i].push(o);return o}}return 0};
 // STEP 10: the tome on a clean escape. CTP = tomes waiting for stash room (saved as ctp in bh_save, at most 8); ctrFlush() tries to place them and returns how many arrived (called from ctrExtract and menu()).
 let CTP=[],CTO=[],INJX=[],INJR=[];const ctrFlush=()=>{let n=0;while(CTP.length&&addContract(CTP[0])){CTP.shift();n++}return n};
+// ---- TOME BOX + HUNTER GEAR: sel.tomes is the tome box beside the backpack (4x2 grid = two 2x2 tomes). A tome in the box = that hunter is in your party and comes into the match with you.
+// His gear lives in the tome: h.g = {p primary, s sidearm, ps/ss skins, t:[{k:'tonic',n}]}. He fires his primary, else his sidearm, else his pistol.
+function ctrMax(){try{const t=myTeam();return Math.max(0,Math.min(2,3-t.members.length))}catch(e){return 2}}
+function ctrGun(g){return g&&PRI[g.p]&&g.p!='none'?g.p:g&&SID[g.s]&&g.s!='none'?g.s:'pistol'}
+function ctrTonic(g){const t=((g&&g.t)||[]).find(x=>x.k=='tonic');return t?t.n|0:0}
+function ctrUsable(k){const w=PRI[k]||SID[k];return !!(w&&k!='none'&&w.d&&!w.mo&&!w.dr&&!w.gt&&!w.ml)}
+function ctrPark(o){const c=ctrClean(o&&o.h);if(!c)return;if(sel.tomes.length<ctrMax()){const f=spotIn(sel.tomes,4,2,'contract');if(f){sel.tomes.push({k:'contract',n:1,x:f[0],y:f[1],h:c});return}}if(!addContract(c)&&CTP.length<8)CTP.push(c)}
+function ctrMigrate(){for(let i=sel.bag.length-1;i>=0;i--){const o=sel.bag[i];if(o&&o.k=='contract'){sel.bag.splice(i,1);ctrPark(o)}}}
+function ctrSpot(k,ex){for(const a of [[stash,SC,SR],[sel.bag,4,4]]){const f=spotIn(a[0],a[1],a[2],k,ex);if(f)return{a:a[0],f}}for(let i=0;i<4;i++){if(i==stTab||!stUn[i])continue;const f=spotIn(STB[i],SC,SR,k);if(f)return{a:STB[i],f}}return null}
+function ctrCan(o,d){if(!o||!o.h)return false;const k=d.k;if(k=='tonic')return ctrTonic(o.h.g)<mxs('tonic');return !!(PRI[k]&&k!='none'||SID[k]&&k!='none')&&ctrUsable(k)}
+function ctrGive(o,d){const g=o.h.g,k=d.k,nm=o.h.nm;
+ if(k=='tonic'){const have=ctrTonic(g),q=d.split?1:(d.o.n||1),mv=Math.min(mxs('tonic')-have,q);if(mv<=0)return nm+' cannot carry more Holy Water.';
+  if(!g.t)g.t=[];const t=g.t.find(x=>x.k=='tonic');if(t)t.n+=mv;else g.t.push({k:'tonic',n:mv});
+  if(d.split)d.split.n--;else if(mv<q)d.o.n=q-mv;else take(d);SAVE();return nm+' took '+mv+' Holy Water.'}
+ const isP=!!(PRI[k]&&k!='none'),prev=isP?(PRI[g.p]&&g.p!='none'?g.p:''):(SID[g.s]&&g.s!='none'?g.s:''),prevSk=isP?g.ps:g.ss;let home=null;
+ if(prev){if(d.sid&&accepts(d.sid,prev))home='slot';else{home=ctrSpot(prev,d.sid?null:d.o);if(!home)return 'No room in your stash to put '+nm+"'s old weapon."}}
+ const sk=d.o&&d.o.sk;take(d);
+ if(isP){g.p=k;if(sk)g.ps=sk;else delete g.ps}else{g.s=k;if(sk)g.ss=sk;else delete g.ss}
+ if(prev){if(home=='slot')slotSet(d.sid,{k:prev,n:0,sk:prevSk});else home.a.push({k:prev,x:home.f[0],y:home.f[1],n:0,...(prevSk?{sk:prevSk}:{})})}
+ SAVE();return nm+' took the '+(PRI[k]||SID[k]).n+'.'}
+function ctrTakeBack(o,w){const g=o.h.g;let k,sk,msg='';
+ if(w=='t'){const t=(g.t||[]).find(x=>x.k=='tonic');if(!t)return;let left=t.n;while(left>0){const sp=addItemAny('tonic',1)||addTo(sel.bag,4,4,'tonic',1);if(!sp)break;left--}
+  if(left>0){t.n=left;msg='No room for all of it.'}else g.t=g.t.filter(x=>x.k!='tonic');SAVE();menu(msg||'Took the Holy Water back.');return}
+ if(w=='p'){if(!(PRI[g.p]&&g.p!='none'))return;k=g.p;sk=g.ps}else{if(!(SID[g.s]&&g.s!='none'))return;k=g.s;sk=g.ss}
+ const sp=ctrSpot(k,null);if(!sp){menu('No room in your stash or backpack.');return}
+ sp.a.push({k,x:sp.f[0],y:sp.f[1],n:0,...(sk?{sk}:{})});if(w=='p'){g.p='pistol';delete g.ps}else{g.s='none';delete g.ss}
+ SAVE();menu('Took the '+(PRI[k]||SID[k]).n+' back from '+o.h.nm+'.')}
+function ctrCard(){const o=refObj();if(!o||!o.h)return'';const h=o.h,g=h.g,E=x=>String(x).replace(/[<>&"]/g,'');
+ const p=PRI[g.p]&&g.p!='none'?g.p:'',sd=SID[g.s]&&g.s!='none'?g.s:'',tn=ctrTonic(g);
+ const tile=(w,lab,k,n,sub)=>'<div class="ctl'+(k?' has':'')+'" data-cg='+w+(k?' title="Click to take it back"':'')+'><span>'+lab+'</span>'+(k?'<i data-ck='+k+'></i>':'<em>'+sub+'</em>')+(n>1?'<b>x'+n+'</b>':'')+'</div>';
+ const inBox=sel.tomes.includes(o);
+ return '<p><b>'+E(h.nm)+'</b><br>'+E(h.story)+'</p><div class=ctw>'+tile('p','Primary',p,1,'none')+tile('s','Sidearm',sd,1,'his pistol')+tile('t','Holy Water',tn?'tonic':'',tn,'none')+'</div><div class=ibn>'+(inBox?E(h.nm)+' is in your party. ':'Put this tome in the tome box beside your backpack and '+E(h.nm)+' joins your party. ')+'Drag a weapon or Holy Water onto the tome to arm him. Click his gear to take it back.</div>'}
+function ctrCardInit(b){const o=refObj();if(!o||!o.h)return;const g=o.h.g;b.querySelectorAll('.ctl').forEach(el=>{const w=el.dataset.cg,i=el.querySelector('i');if(!i)return;const k=i.dataset.ck,sk=w=='p'?g.ps:w=='s'?g.ss:'';i.appendChild(itemCv(k,192,96,sk));el.onclick=ev=>{ev.stopPropagation();ctrTakeBack(o,w)}})}
+
 // ctrExtract(): called by end(w) on an ESCAPE only. You get his tome when he is alive and contracted (st 'follow') AND you are the hunter who gave him the Holy Water (h.by===mp.me; in solo both are the same); however far away he is. Once per hunter (h.tm).
 function ctrExtract(){try{const h=INJH;ctrFlush();if(!h||h.tm||!(h.hp>0)||h.st!='follow'||h.by!==mp.me)return '';h.tm=1;
  const d={nm:h.name,look:h.look,inj:h.inj};if(addContract(d))return h.name+' signed his contract. His tome is in your stash. ';
  const c=ctrClean({...d,story:(INJ[h.inj]||{}).story});if(c&&CTP.length<8)CTP.push(c);return h.name+' signed his contract, but your stash is full. His tome will appear as soon as you free a space. '}catch(e){return ''}}
-// STEP 18 (loadout, parts a-c): his gear lives in the tome (h.g = {p primary, s sidearm, t [{k,n}] tools}). The tome info card has Give / Take back buttons (ctrGearUI) that move items between your stash and the tome;
-//   ctrBring arms him from it (primary, else sidearm, else pistol; Holy Water count = kit.tonic); ctrSyncKit writes back the Holy Water he did not drink when he comes home. If he dies the tome burns with his gear (step 12).
-function ctrSyncKit(h){try{const g=h.ct&&h.ct.g;if(!g)return;g.t=(g.t||[]).filter(t=>t.k!='tonic');const n=Math.max(0,h.kit&&h.kit.tonic|0);if(n>0)g.t.push({k:'tonic',n:Math.min(n,mxs('tonic'))})}catch(e){}}
-function ctrBack(k,sk){for(let j=0;j<4;j++){const i=(stTab+j)%4;if(!stUn[i])continue;const a=STB[i];if(addTo(a,SC,SR,k,1)){if(sk&&!TOOL[k])a[a.length-1].sk=sk;return 1}}return 0}
-function ctrCand(slot){const L=[];for(let i=0;i<4;i++){if(!stUn[i])continue;STB[i].forEach(o=>{if(!o||!o.k)return;if(slot=='p'?(PRI[o.k]&&o.k!='none'):slot=='s'?(SID[o.k]&&o.k!='none'&&!PRI[o.k]):o.k=='tonic')L.push([STB[i],o])})}return L}
-function ctrGive(co,slot){const g=co&&co.h&&co.h.g;if(!g)return;const c=ctrCand(slot);if(!c.length){say(slot=='t'?'You have no Holy Water in your stash.':'You have no '+(slot=='p'?'primary weapon':'sidearm')+' in your stash.',3);return}
- const[arr,o]=c[0];if(slot=='t'){const cur=(g.t||[]).find(t=>t.k=='tonic');if(cur&&cur.n>=mxs('tonic')){say('His tome cannot hold more Holy Water.',3);return}
-  if(cur)cur.n++;else(g.t=g.t||[]).push({k:'tonic',n:1});if(--o.n<=0)arr.splice(arr.indexOf(o),1)}
- else{const old=slot=='p'?g.p:g.s,osk=(slot=='p'?g.ps:g.ss)||'',has=slot=='p'?PRI[old]:old&&old!='none';arr.splice(arr.indexOf(o),1);if(has&&!ctrBack(old,osk)){arr.push(o);say('Your stash is full. Make room first.',3);return}
-  if(slot=='p'){g.p=o.k;g.ps=skv(o.k,o.sk)}else{g.s=o.k;g.ss=skv(o.k,o.sk)}}
- SAVE();menu()}
-function ctrTake(co,slot){const g=co&&co.h&&co.h.g;if(!g)return;let k,n=1;if(slot=='t'){const cur=(g.t||[]).find(t=>t.k=='tonic');if(!cur)return;k='tonic';n=cur.n}else{k=slot=='p'?g.p:g.s;if(!(slot=='p'?PRI[k]:k&&k!='none'))return}
- if(slot=='t'?!addItemAny(k,n):!ctrBack(k,slot=='p'?g.ps:g.ss)){say('Your stash is full. Make room first.',3);return}
- if(slot=='t')g.t=g.t.filter(t=>t.k!='tonic');else if(slot=='p'){g.p='pistol';g.ps=''}else{g.s='none';g.ss=''}SAVE();menu()}
-function ctrGearUI(b){try{const co=refObj();if(!co||!co.h||!co.h.g)return;const g=co.h.g,t=b.querySelector('.ibt'),box=document.createElement('div');box.className='ibs';box.style.cssText='display:block;margin-top:8px';
- const nm=k=>k&&k!='none'?((PRI[k]||SID[k]||TOOL[k]||{}).n||k):'nothing',ton=(g.t||[]).find(x=>x.k=='tonic'),
- rows=[['p','Primary',PRI[g.p]?nm(g.p):'nothing (uses his pistol)'],['s','Sidearm',nm(g.s)],['t','Holy Water',ton?ton.n+' bottle'+(ton.n>1?'s':''):'none']];
- box.innerHTML='<div class=ibn><b>Tome loadout</b> (gear goes with him and comes back with his tome)</div>';
- rows.forEach(([sl,lb,tx])=>{const r=document.createElement('div');r.style.cssText='display:flex;gap:6px;align-items:center;margin:3px 0;flex-wrap:wrap';
-  r.innerHTML='<span class=ibn style="flex:1;min-width:130px">'+lb+': '+tx+'</span>';
-  for(const[txt,fn]of[['Give',ctrGive],['Take back',ctrTake]]){const bt=document.createElement('button');bt.textContent=txt;bt.style.cssText='padding:2px 8px;cursor:pointer';bt.onclick=e=>{e.stopPropagation();fn(co,sl)};r.appendChild(bt)}
-  box.appendChild(r)});t.appendChild(box)}catch(e){}}
 const stSet=i=>{stTab=i;stash=STB[i]},addItemAny=(k,n)=>{if(addItem(k,n))return 1;for(let i=0;i<4;i++){if(i==stTab||!stUn[i])continue;const o=stash;stash=STB[i];const r=addItem(k,n);stash=o;if(r)return 1}return 0};
 const STT=()=>[0,1,2,3].map(i=>stUn[i]?`<button class="stb${i==stTab?' on':''}" data-stt=${i}>${i+1}</button>`:`<button class="stb lk${stConf==i?' cf':''}" data-stt=${i}>${stConf==i?'Buy $'+STP[i].toLocaleString()+'?':'\u{1F512} $'+(STP[i]/1000)+'k'}</button>`).join('');
 const accepts=(id,k,src)=>id=='p'?!!(PRI[k]&&k!='none'):id=='s'?!!(SID[k]&&k!='none'):!!TOOL[k]&&k!='impcap'&&k!='contract'&&!sel.tools.some((t,i)=>t&&t.k==k&&i!=+id[1]&&('t'+i)!=src);
@@ -832,11 +850,11 @@ let FAV=[null,null,null];
 const favClean=f=>{if(!f||typeof f!='object')return null;const pri=PRI[f.pri]&&f.pri!='none'?f.pri:'none',side=SID[f.side]&&f.side!='none'?f.side:'none',seen={};
  const tools=Array.from({length:NTS},(_,i)=>{const t=Array.isArray(f.tools)?f.tools[i]:null;if(!t||!TOOL[t.k]||TOOL[t.k].tot||seen[t.k])return null;seen[t.k]=1;return{k:t.k,n:Math.max(1,Math.min(mxs(t.k),(t.n|0)||1))}});
  return pri=='none'&&side=='none'&&!tools.some(Boolean)?null:{pri,side,tools}};
-const SAVE=run=>{try{localStorage.setItem('bh_save',JSON.stringify({fav:FAV,nm:pname,bank,own,led:LS,al:AL,skin:sel.skin,sk:sel.sk,stash:STB[0],stx:[STB[1],STB[2],STB[3]],stu:stUn.slice(1),pri:sel.pri,side:sel.side,bag:sel.bag,tools:sel.tools,tsk:TSK,ast:AST,ant:ANT,ctp:CTP,cto:CTO,run:run?1:0}))}catch(e){}};
+const SAVE=run=>{try{localStorage.setItem('bh_save',JSON.stringify({fav:FAV,nm:pname,bank,own,led:LS,al:AL,skin:sel.skin,sk:sel.sk,stash:STB[0],stx:[STB[1],STB[2],STB[3]],stu:stUn.slice(1),pri:sel.pri,side:sel.side,bag:sel.bag,tomes:sel.tomes,tools:sel.tools,tsk:TSK,ast:AST,ant:ANT,ctp:CTP,cto:CTO,run:run?1:0}))}catch(e){}};
 try{const d=JSON.parse((localStorage.getItem('bh_save')||'null').replace(/"smg"/g,'"pepperbox"'));if(d&&Array.isArray(d.own)){own=[...new Set(['hunter','plain',...d.own.filter(k=>FAMS[k]||SKINS[k]||WSKINS[k])])];bank=Math.max(120,d.bank|0);if(d.led)LS=d.led;if(Array.isArray(d.fav))FAV=[0,1,2].map(i=>favClean(d.fav[i]));if(d.ast&&typeof d.ast=='object'){for(const k in d.ast){const v=+d.ast[k];if(isFinite(v)&&v>=0)AST[k]=v}}if(d.ant&&typeof d.ant=='object'){for(const k in d.ant){const v=d.ant[k]|0;if(v>0&&v<4)ANT[k]=v}}AL=d.al||null;if(Array.isArray(d.ctp))CTP=d.ctp.map(ctrClean).filter(Boolean).slice(0,8);if(Array.isArray(d.cto))d.cto.map(ctrClean).filter(Boolean).forEach(c=>{if(CTP.length<8)CTP.push(c)});for(const k in(d.tsk&&typeof d.tsk=='object'?d.tsk:{})){const v=skv(k,d.tsk[k]);if(TOOL[k]&&v&&own.includes(v))TSK[k]=v}sel.skin=SKINS[d.skin]&&own.includes(d.skin)?d.skin:'plain';sel.wsk={};sel.sk={p:'',s:''};const lw=d.sk?{}:(d.wsk&&typeof d.wsk=='object'?d.wsk:{}),lsk=k=>{const id=lw[k];return WSKINS[id]&&WSKINS[id].k==k&&own.includes(id)?id:''};pname=cleanName(d.nm);
  const ok=k=>k&&k!='none'&&(PRI[k]||SID[k]),wk=(k,o)=>ok(k)?(skv(k,o&&typeof o=='object'?o.sk:'')||lsk(k)):'';const stl=arr=>(Array.isArray(arr)?arr:[]).forEach(o=>{const k=typeof o=='string'?o:o&&o.k;if(!(ok(k)||TOOL[k]))return;if(k=='contract'&&!ctrClean(o&&o.h))return;const z=isz2(typeof o=='object'&&o?{k,r:o.r?1:0}:{k});if(typeof o=='object'&&Number.isInteger(o.x)&&Number.isInteger(o.y)&&fits(o.x,o.y,z[0],z[1])){stash.push({k,x:o.x,y:o.y,n:TOOL[k]?Math.min(mxs(k),o.n||2):(o.n||0),...(o.r&&z[0]!=z[1]?{r:1}:{}),...(wk(k,o)?{sk:wk(k,o)}:{}),...(k=='contract'?{h:ctrClean(o.h)}:{})});if(TOOL[k])for(let q=(o.n||2)-mxs(k);q>0;q--)addItem(k,1)}else if(addItem(k,o&&o.n)){const q=wk(k,o);if(q)stash[stash.length-1].sk=q;if(k=='contract')stash[stash.length-1].h=ctrClean(o.h)}});
  stash=[];stl(d.stash);STB=[stash,[],[],[]];stTab=0;stConf=-1;stUn=[1,0,0,0];if(Array.isArray(d.stu))[1,2,3].forEach(i=>{if(d.stu[i-1]){stUn[i]=1;stash=STB[i];stl(d.stx&&d.stx[i-1])}});stash=STB[0];
- if(d.run){try{(Array.isArray(d.bag)?d.bag:[]).forEach(o=>{if(o&&o.k=='contract'){const c=ctrClean(o.h);if(c&&CTP.length<8)CTP.push(c)}})}catch(e){}sel.pri='none';sel.side='none';sel.bag=[];sel.tools=Array(NTS).fill(null)}else{if(PRI[d.pri])sel.pri=d.pri;if(SID[d.side])sel.side=d.side;if(d.sk&&typeof d.sk=='object'){sel.sk.p=skv(sel.pri,d.sk.p);sel.sk.s=skv(sel.side,d.sk.s)}else{sel.sk.p=lsk(sel.pri);sel.sk.s=lsk(sel.side)}sel.bag=[];(Array.isArray(d.bag)?d.bag:d.bag?[d.bag]:[]).forEach(o=>{const k=typeof o=='string'?o:o&&o.k;if(!(ok(k)||TOOL[k]))return;if(k=='contract'&&!ctrClean(o&&o.h))return;const z=isz2(typeof o=='object'&&o?{k,r:o.r?1:0}:{k});if(typeof o=='object'&&Number.isInteger(o.x)&&Number.isInteger(o.y)&&fitsIn(sel.bag,4,4,o.x,o.y,z[0],z[1]))sel.bag.push({k,x:o.x,y:o.y,n:TOOL[k]?Math.min(mxs(k),o.n||1):(o.n||0),...(o.r&&z[0]!=z[1]?{r:1}:{}),...(wk(k,o)?{sk:wk(k,o)}:{}),...(k=='contract'?{h:ctrClean(o.h)}:{})});else if(addTo(sel.bag,4,4,k,o&&o.n)){const q=wk(k,o);if(q)sel.bag[sel.bag.length-1].sk=q;if(k=='contract')sel.bag[sel.bag.length-1].h=ctrClean(o.h)}});if(Array.isArray(d.tools))sel.tools=Array.from({length:NTS},(_,i)=>{const t=d.tools[i];if(!t)return null;const k=typeof t=='string'?t:t.k;if(TOOL[k])for(let q=(t.n||2)-mxs(k);q>0;q--)addItem(k,1);return TOOL[k]?{k,n:Math.min(mxs(k),t.n||2)}:null})}}}catch(e){}
+ if(d.run){try{(Array.isArray(d.bag)?d.bag:[]).concat(Array.isArray(d.tomes)?d.tomes:[]).forEach(o=>{if(o&&o.k=='contract'){const c=ctrClean(o.h);if(c&&CTP.length<8)CTP.push(c)}})}catch(e){}sel.pri='none';sel.side='none';sel.bag=[];sel.tools=Array(NTS).fill(null)}else{if(PRI[d.pri])sel.pri=d.pri;if(SID[d.side])sel.side=d.side;if(d.sk&&typeof d.sk=='object'){sel.sk.p=skv(sel.pri,d.sk.p);sel.sk.s=skv(sel.side,d.sk.s)}else{sel.sk.p=lsk(sel.pri);sel.sk.s=lsk(sel.side)}sel.bag=[];(Array.isArray(d.bag)?d.bag:d.bag?[d.bag]:[]).forEach(o=>{const k=typeof o=='string'?o:o&&o.k;if(!(ok(k)||TOOL[k]))return;if(k=='contract'&&!ctrClean(o&&o.h))return;const z=isz2(typeof o=='object'&&o?{k,r:o.r?1:0}:{k});if(typeof o=='object'&&Number.isInteger(o.x)&&Number.isInteger(o.y)&&fitsIn(sel.bag,4,4,o.x,o.y,z[0],z[1]))sel.bag.push({k,x:o.x,y:o.y,n:TOOL[k]?Math.min(mxs(k),o.n||1):(o.n||0),...(o.r&&z[0]!=z[1]?{r:1}:{}),...(wk(k,o)?{sk:wk(k,o)}:{}),...(k=='contract'?{h:ctrClean(o.h)}:{})});else if(addTo(sel.bag,4,4,k,o&&o.n)){const q=wk(k,o);if(q)sel.bag[sel.bag.length-1].sk=q;if(k=='contract')sel.bag[sel.bag.length-1].h=ctrClean(o.h)}});if(Array.isArray(d.tools))sel.tools=Array.from({length:NTS},(_,i)=>{const t=d.tools[i];if(!t)return null;const k=typeof t=='string'?t:t.k;if(TOOL[k])for(let q=(t.n||2)-mxs(k);q>0;q--)addItem(k,1);return TOOL[k]?{k,n:Math.min(mxs(k),t.n||2)}:null});sel.tomes=[];(Array.isArray(d.tomes)?d.tomes:[]).slice(0,2).forEach(o=>{const c=o&&o.k=='contract'?ctrClean(o.h):null;if(!c)return;const f=spotIn(sel.tomes,4,2,'contract');if(f)sel.tomes.push({k:'contract',n:1,x:f[0],y:f[1],h:c});else if(!addContract(c)&&CTP.length<8)CTP.push(c)});ctrMigrate()}}}catch(e){}
 // ---------- DEV names: only a name containing DEV unlocks the chat cheats, and adding DEV to a name needs the password ----------
 const pwh=t=>{let h=2166136261;for(let i=0;i<t.length;i++){h^=t.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0).toString(36)},PW_HASH='vsgt4';
 let DEVAUTH=0;try{DEVAUTH=localStorage.getItem('bh_dv')===PW_HASH?1:0}catch(e){}
@@ -1823,7 +1841,7 @@ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{if(mode==
 function pentaPath(c,x,y,r){c.arc(x,y,r,0,7);c.moveTo(x,y-r);for(let i=1;i<=5;i++){const a=-Math.PI/2+i*4*Math.PI/5;c.lineTo(x+Math.cos(a)*r,y+Math.sin(a)*r)}}
 const HELP='WASD move · Shift sprint · Mouse aim/fire · RMB melee · R reload · Wheel or 1-5 switch weapons/tools · LMB uses tools · Loot weapons, ammo & tools in the buildings · Caps Lock tap into the veil (toggle) · Tab inventory (the backpack survives your escape) · M map · E interact (sigils, banish, loot) · stand in an exit ring to escape · Enter chat (type, Enter to send, Esc to cancel) · N toggle ambient sound \u00b7 F9 save the last 15 seconds (with sound) as a clip \u00b7 F8 save the latest auto-highlight (boss kills, close calls, swarms) \u00b7 F10 replay recorder on/off (Shift+F10 auto-highlights on/off) \u00b7 Esc settings (volume, controls, replay)';
 const back='<button data-v=hub>\u2190 Back</button>',backTo=v=>`<button data-v=${v}>\u2190 Back</button>`;
-function menu(m){try{if(scr=='lb')lbOpen();else lbClose()}catch(e){}try{if(CTP.length&&ctrFlush()){SAVE();m=(m?m+' ':'')+'A waiting contract tome arrived in your stash.'}}catch(e){}try{const an=achNotify();if(an)m=(m?m+' ':'')+an}catch(e){}const c=cost(),ok=c<=bank,tl=(sel.tools.filter(Boolean).map(t=>TOOL[t.k].n.replace(' x2','')+' x'+t.n).join(', ')||'no tools')+(()=>{const th=sel.bag.filter(o=>o&&o.k=='contract'&&o.h).slice(0,2).map(o=>o.h.nm);return th.length?' | Hunters: '+th.join(', '):''})();
+function menu(m){try{if(scr=='lb')lbOpen();else lbClose()}catch(e){}try{if(CTP.length&&ctrFlush()){SAVE();m=(m?m+' ':'')+'A waiting contract tome arrived in your stash.'}}catch(e){}try{const an=achNotify();if(an)m=(m?m+' ':'')+an}catch(e){}const c=cost(),ok=c<=bank,tl=(sel.tools.filter(Boolean).map(t=>TOOL[t.k].n.replace(' x2','')+' x'+t.n).join(', ')||'no tools')+(()=>{const th=sel.tomes.filter(o=>o&&o.h).slice(0,2).map(o=>o.h.nm);return th.length?' | Hunters: '+th.join(', '):''})();
  const col=(h,r)=>`<div class=col><h2>${h}</h2>${r}</div>`;let body;
  const stage=()=>`<div class=stage><canvas id=pc width=256 height=288></canvas><div class=cap>${setCap(tl)}</div></div>`,fo=b=>`<div class=foot><span>Cash: $${bank}</span>${b}</div>`,pg=(h,list,b)=>`<div class=hub>${stage()}<div class="opts list"><h2>${h}</h2>${list}</div></div>${fo(b)}`;
  if(scr=='load')body=`<div class=hub>${stage()}<div class=opts><div class=chalk data-v=l_skin>Player Skin<small>${SKINS[sel.skin].n}</small></div></div></div>${fo(back)}`;
@@ -2237,7 +2255,7 @@ const INJD={
 function drawInjured(h,cx,cy){
  if(h.hp<=0&&h.gz)return;   // dead: the gore gibs and the painted body are the corpse (step 8)
  const x=h.x-cx,y=h.y-cy;if(x<-50||x>VW+50||y<-50||y>VH+50)return;
- const f=h.f||1,sk=sel.skin,dead=h.hp<=0;sel.skin=SKINS[h.look]?h.look:'plain';INJFL=h.fl>0?1:0;INJWK=h.mv?h.wk||0:0;{const an=h.st!='follow'?null:h.sa>0&&h.pa!==undefined?h.pa:(h.tg&&h.tg.hp>0&&h.aa!==undefined?h.aa:null);INJA=an==null?0:(f>0?an:Math.PI-an);INJP=h.sa>0&&!dead?h.sa/.18:0}
+ const f=h.f||1,sk=sel.skin,dead=h.hp<=0;sel.skin=SKINS[h.look]?h.look:'plain';INJFL=h.fl>0?1:0;INJWK=h.mv?h.wk||0:0;INJGN=(PRI[h.gun]||SID[h.gun])&&h.gun!='none'?h.gun:'pistol';{const an=h.st!='follow'?null:h.sa>0&&h.pa!==undefined?h.pa:(h.tg&&h.tg.hp>0&&h.aa!==undefined?h.aa:null);INJA=an==null?0:(f>0?an:Math.PI-an);INJP=h.sa>0&&!dead?h.sa/.18:0}
  try{ctx.save();if(h.ta>0)ctx.globalAlpha=1-.7*Math.min(1,h.ta/.35);ctx.translate(x,y);ctx.scale(f,1);if(dead){injBlob(0,6,24,8,'rgba(110,8,16,.7)');injBlob(-3,7,13,4,'#4a080e')}((h.st=='freed'||h.st=='follow')&&!dead?injStand:(INJD[h.inj]||INJD.bite))(T);if(h.dr>0&&!dead)injDrink(h);if(INJP>0){ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,16,INJA-1,INJA+1);ctx.stroke()}ctx.restore()}finally{sel.skin=sk;INJFL=0}
  if(!dead&&typeof P!=='undefined'&&P&&D(P.x,P.y,h.x,h.y)<170)tx(h.name,x,y-34,'#d8c890','center')}
 // STEP 5: speech bubbles. injTick(dt) runs from update(): when you are within 150px he speaks a plea (a new one every 9s while you stay). injSay(h,kind) puts a line in his bubble; kind = plea | thanks | nohw | follow.
@@ -2248,7 +2266,6 @@ function injTick(dt){const h=INJH;if(!h||mode!='play'||typeof P==='undefined'||!
  INJL=mpCli()?null:injLead(h);if(INJL&&h.ld!==INJL.id){h.ld=INJL.id;h.px=undefined}
  if(h.st=='follow'){injFollow(h,dt);injTarget(h,dt);injGun(h,dt);injHeal(h,dt);if(mpCli())injSmooth(h,dt)}
  const ke=!!keys.KeyE,pr=ke&&!h.pe;h.pe=ke;if(h.st=='hurt'&&!P.dead){const dd=D(P.x,P.y,h.x,h.y);if(dd<44){if(!h.hint){h.hint=1;say(TC('tonic')>0?'Press E to give '+h.name+' Holy Water':h.name+' needs Holy Water',3)}if(pr)injTry()}else if(dd>90)h.hint=0}
- if(h.st=='follow'&&h.ct&&!P.dead){const dd=D(P.x,P.y,h.x,h.y);if(dd<44){if(!h.ghint){h.ghint=1;say('Press E to give '+h.name+' Holy Water or a weapon from your backpack',3)}if(pr)injGive(h)}else if(dd>90)h.ghint=0}   // 18d
  if(h.bub&&(h.bub.t+=dt)>=h.bub.d)h.bub=null;h.cd=(h.cd||0)-dt;if(h.st=='follow'&&INJL&&!INJL.dead&&!mpCli()&&!h.bub&&h.cd<=0){injSay(h,'follow');h.cd=R(20,40)}   // 7a5: now and then, 20-40s apart, never over another bubble
  if(h.st=='hurt'&&!h.bub&&h.cd<=0&&!P.dead&&D(P.x,P.y,h.x,h.y)<150){injSay(h,'plea');h.cd=9}}
 // STEP 7a1 + 7a2 + 7a3: follow. He starts walking when you are farther than 70px and stops once he is inside the 40-70px band (he settles at about 55px);
@@ -2365,25 +2382,12 @@ function injLead(h){try{const meL=()=>({x:P.x,y:P.y,dead:!!P.dead,id:mp.me});
  const o=h.by===undefined||h.by<0?mp.me:h.by,ok=id=>id===mp.me?!P.dead:!!(mp.rp[id]&&mp.rp[id].hp>0&&!(mp.out&&mp.out[id])),at=id=>{if(id===mp.me)return meL();const q=mp.rp[id];return{x:q.x,y:q.y,dead:false,id}};
  if(ok(o))return at(o);
  let b=null,bd=1e9;for(const id of [mp.me,...Object.keys(mp.rp).map(Number)]){if(id===o||!ok(id)||teamOf(id)!==teamOf(o))continue;const q=at(id),d=D(q.x,q.y,h.x,h.y);if(d<bd){bd=d;b=q}}return b}catch(e){return null}}
-// STEP 18d: handing him gear in the match. Stand within 44px of a hunter you lead (h.ct = brought from a tome) and press E (keys.KeyE, so touch works): one Holy Water from your tools goes into his kit (up to the tome limit);
-//   with none to give, the first weapon in your BACKPACK goes to him (primary or sidearm slot, his old one comes back to your backpack). Written to his tome at once (h.ct.g, which is the same object as the CTO entry) and SAVE(1).
-//   He fights with his primary, else his sidearm, else the pistol. Solo or monster host only (a client's give is refused for now); gun and Holy Water count ride the 'inj' snapshot (fields 15 and 16) so everyone sees the right gun.
-function injTome(h){try{const g=h.ct&&h.ct.g;if(!g)return;g.t=(g.t||[]).filter(t=>t.k!='tonic');const n=Math.max(0,(h.kit&&h.kit.tonic)|0);if(n>0)g.t.push({k:'tonic',n:Math.min(n,mxs('tonic'))});SAVE(1)}catch(e){}}
-function injGive(h){if(!h||h.hp<=0||!h.ct||h.st!='follow'||!P||P.dead)return;if(mpCli()){say('Only the match host can hand items over for now.',3);return}
- const g=h.ct.g||(h.ct.g={p:'pistol',s:'none',t:[]}),k=h.kit||(h.kit={tonic:0});
- if(TC('tonic')>0&&(k.tonic|0)<mxs('tonic')){TS('tonic',TC('tonic')-1);k.tonic=(k.tonic|0)+1;injTome(h);injSay(h,'thanks');say('You gave '+h.name+' Holy Water.',2);return}
- const o=(P.bag||[]).find(q=>q&&(PRI[q.k]||SID[q.k])&&q.k!='none');
- if(!o){say(TC('tonic')>0?h.name+' cannot carry more Holy Water.':'Nothing to give: you need Holy Water or a weapon in your backpack.',3);return}
- const isP=!!PRI[o.k],old=isP?g.p:g.s,osk=(isP?g.ps:g.ss)||'',has=isP?!!PRI[old]:!!(old&&old!='none');P.bag.splice(P.bag.indexOf(o),1);
- if(has){if(!addTo(P.bag,4,4,old,1)){P.bag.push(o);say('No room in your backpack to swap.',2.5);return}if(osk)P.bag[P.bag.length-1].sk=osk}
- if(isP){g.p=o.k;g.ps=skv(o.k,o.sk)}else{g.s=o.k;g.ss=skv(o.k,o.sk)}h.gun=PRI[g.p]&&g.p!='none'?g.p:(g.s&&g.s!='none'?g.s:'pistol');h.mag=undefined;h.rl=0;
- injTome(h);injSay(h,'thanks');say('You gave '+h.name+' a '+((PRI[o.k]||SID[o.k]).n||o.k)+'.',2.5)}
 function injSnap1(){const h=INJH;if(!h)return undefined;const b=h.bub;
- return[+h.x.toFixed(1),+h.y.toFixed(1),h.f>0?1:-1,Math.max(0,INJST.indexOf(h.st)),Math.ceil(h.hp),h.mv?1:0,+(h.wk||0).toFixed(1),h.tg&&h.tg.hp>0&&h.aa!==undefined?+h.aa.toFixed(2):null,h.pn||0,+Math.max(0,h.dr||0).toFixed(2),h.by===undefined?-1:h.by,b?b.l.join('|'):0,b?+b.d.toFixed(1):0,b?+b.t.toFixed(2):0,h.fl>0?1:0,h.gun||'pistol',Math.max(0,(h.kit&&h.kit.tonic)|0)]}
+ return[+h.x.toFixed(1),+h.y.toFixed(1),h.f>0?1:-1,Math.max(0,INJST.indexOf(h.st)),Math.ceil(h.hp),h.mv?1:0,+(h.wk||0).toFixed(1),h.tg&&h.tg.hp>0&&h.aa!==undefined?+h.aa.toFixed(2):null,h.pn||0,+Math.max(0,h.dr||0).toFixed(2),h.by===undefined?-1:h.by,b?b.l.join('|'):0,b?+b.d.toFixed(1):0,b?+b.t.toFixed(2):0,h.fl>0?1:0]}
 function injApply1(e){const h=INJH;if(!h||!e||h.hp<=0||!mpCli())return;
  if(e[4]<=0||e[3]==3){injDie(e[7]||0);return}
  if(e[3]==2&&h.st=='hurt')injFree(h);
- h.hp=e[4];if(e[10]>=0)h.by=e[10];if(typeof e[15]=='string'&&(PRI[e[15]]||SID[e[15]]))h.gun=e[15];if(e[16]>=0)(h.kit||(h.kit={tonic:0})).tonic=e[16]|0;if(h.st!='follow')return;
+ h.hp=e[4];if(e[10]>=0)h.by=e[10];if(h.st!='follow')return;
  h.gx=e[0];h.gy=e[1];if(h.sx===undefined){h.x=e[0];h.y=e[1]}h.sx=1;h.f=e[2];h.smv=e[5];if(e[7]!=null){h.tg={hp:1};h.aa=e[7]}else h.tg=null;
  if(h.pn===undefined)h.pn=e[8];else if(e[8]>h.pn){h.pn=e[8];h.sa=.18;h.pa=e[7]!=null?e[7]:0;try{sfx.melee()}catch(x){}}
  h.dr=e[9];if(e[14])h.fl=Math.max(h.fl||0,.1);
@@ -2420,7 +2424,7 @@ function ctrPlace(){try{for(const h of INJX){if(h.hp<=0)continue;const i=INJX.in
 function ctrAnnounce(){try{if(!mp.on||mode!='play')return;const l=INJX.filter(h=>h.hp>0).map(h=>({i:h.id,nm:h.name,look:h.look,inj:h.inj,x:+h.x.toFixed(1),y:+h.y.toFixed(1),g:h.gun}));if(l.length)mpSend({t:'hnew',l})}catch(e){}}
 function hunNew(o,f){try{if(f===mp.me||!Array.isArray(o.l))return;const bb=[...blds].sort((a,b)=>D(b.cx,b.cy,camp.x,camp.y)-D(a.cx,a.cy,camp.x,camp.y))[0],be=bb?bExt(bb):null;
  for(const d of o.l.slice(0,2)){if(!d||typeof d!='object')continue;const id=String(d.i||'').slice(0,24),nm=cleanName(d.nm);if(!id||!nm||id=='m'||injById(id))continue;
-  INJR.push({x:+d.x||0,y:+d.y||0,inj:INJ[d.inj]?d.inj:Object.keys(INJ)[0],name:nm,look:SKINS[d.look]||d.look=='plain'?d.look:'plain',f:1,site:'camp',st:'follow',hp:50,mh:50,fl:0,cd:R(14,24),bub:null,be,by:f,free:T,kit:{tonic:0},gun:PRI[d.g]&&d.g!='none'?d.g:'pistol',id})}}catch(e){}}
+  INJR.push({x:+d.x||0,y:+d.y||0,inj:INJ[d.inj]?d.inj:Object.keys(INJ)[0],name:nm,look:SKINS[d.look]||d.look=='plain'?d.look:'plain',f:1,site:'camp',st:'follow',hp:50,mh:50,fl:0,cd:R(14,24),bub:null,be,by:f,free:T,kit:{tonic:0},gun:(PRI[d.g]||SID[d.g])&&d.g!='none'?d.g:'pistol',id})}}catch(e){}}
 // STEP 8: how he dies. Same gore as a hunter dying (gore() with his own skin palette, see die()): the weapon (src) decides the style, a mob kill uses the claw ('melee') style. The Reaper takes him as a dark vanish with no body.
 // h.gz = gore was spawned (drawInjured then draws nothing, the falling body gib paints the corpse); h.nr = no revive, ever (nothing in the game targets a dead hunter: injTry, injTick, injApply and injNet all stop at hp<=0).
 function injDie(a,src){const h=INJH;if(!h||h.st=='dead')return;const was=h.st=='freed'||h.st=='follow';h.hp=0;h.wa=was;h.st='dead';h.bub=null;h.nr=1;h.ds=src||'';h.tg=null;h.dr=0;
@@ -2438,17 +2442,17 @@ function ctrStash(o){const c=ctrClean(o&&o.h);if(!c)return;if(!addContract(c)&&C
 // ctrBring(n): called by the newGame wrapper right after the map exists. n = players in the match. Tomes in the bag (max 2) leave the bag and become allied hunters standing at your camp with his loadout; CTO remembers them (saved as cto, so a refresh mid-match brings them home).
 function ctrBring(n){INJX=[];INJR=[];CTO=[];const L=[];const cap=mp.hg==null?2:Math.max(0,Math.min(2,mp.hg|0));mp.hg=null;   // STEP 17: how many hunters the team search promised (mp.hg, set by mpSearch); extra tomes go back to the stash
 
- for(const arr of[P.bag,sel.bag])for(let i=arr.length-1;i>=0;i--)if(arr[i]&&arr[i].k=='contract'){if(arr===P.bag)L.unshift(arr[i]);arr.splice(i,1)}
+ for(const arr of[P.bag,sel.bag,sel.tomes])for(let i=arr.length-1;i>=0;i--)if(arr[i]&&arr[i].k=='contract'){if(arr===P.bag||arr===sel.tomes)L.unshift(arr[i]);arr.splice(i,1)}
  if(!L.length)return;const ds=L.map(o=>ctrClean(o.h)).filter(Boolean);
  const bb=[...blds].sort((a,b)=>D(b.cx,b.cy,camp.x,camp.y)-D(a.cx,a.cy,camp.x,camp.y))[0],be=bb?bExt(bb):null;
  ds.forEach((d,i)=>{if(i>=cap){if(!addContract(d)&&CTP.length<8)CTP.push(d);return}let x=P.x,y=P.y+10;
   for(let t=0;t<40;t++){const a=Math.PI*(i?.25:.75)+R(-.4,.4)*(1+t/8),r=26+t*1.5,qx=P.x+Math.cos(a)*r,qy=P.y+Math.sin(a)*r*.7+8;if(!hit(qx,qy,8)){x=qx;y=qy;break}}
-  INJX.push({x,y,inj:d.inj,name:d.nm,look:d.look,f:1,site:'camp',st:'follow',hp:50,mh:50,fl:0,cd:R(14,24),bub:null,be,by:mp.me,free:T,kit:{tonic:((d.g.t||[]).find(t=>t.k=='tonic')||{n:0}).n},gun:(PRI[d.g.p]?d.g.p:(d.g.s&&d.g.s!='none'?d.g.s:d.g.p)),ct:d,id:'p'+mp.me+'_'+i});CTO.push(d)});
+  INJX.push({x,y,inj:d.inj,name:d.nm,look:d.look,f:1,site:'camp',st:'follow',hp:50,mh:50,fl:0,cd:R(14,24),bub:null,be,by:mp.me,free:T,kit:{tonic:ctrTonic(d.g)},gun:ctrGun(d.g),ct:d,id:'p'+mp.me+'_'+i});CTO.push(d)});
  if(n>1&&INJX.length){setTimeout(ctrPlace,60);[1500,4000,9000].forEach(t=>setTimeout(ctrAnnounce,t))}
  SAVE(1);if(INJX.length)say(INJX.map(h=>h.name).join(' and ')+(INJX.length>1?' stand':' stands')+' ready at camp.',4.5)}
 // ctrReturn(): called by end() on an escape AND on a death. A hunter who is alive comes home (his tome goes back to the stash, or waits in CTP); a dead one is gone forever (STEP 12 adds the burn animation and the save at the moment he dies). Returns the message.
 function ctrReturn(){try{let m='';const L=INJX;INJX=[];CTO=[];for(const h of L){if(!h.ct)continue;
-  if(h.hp>0){ctrSyncKit(h);if(!addContract(h.ct)&&CTP.length<8){const c=ctrClean(h.ct);if(c)CTP.push(c)}m+=h.name+' came home with you. '}else if(!h.gone)m+=h.name+' is gone forever. '}return m}catch(e){return ''}}
+  if(h.hp>0){try{const q=Math.max(0,(h.kit&&h.kit.tonic)|0),g=h.ct.g;g.t=(g.t||[]).filter(x=>x.k!='tonic');if(q>0)g.t.push({k:'tonic',n:Math.min(q,mxs('tonic'))})}catch(e){}if(!addContract(h.ct)&&CTP.length<8){const c=ctrClean(h.ct);if(c)CTP.push(c)}m+=h.name+' came home with you. '}else if(!h.gone)m+=h.name+' is gone forever. '}return m}catch(e){return ''}}
 // STEP 12: the tome burns the moment a contracted hunter dies in a match. injDeathHook(h,src,wasAlly) is called once per death by injDie. Only hunters brought in from a tome (h.ct, they live in INJX) have a tome to burn;
 // the injured hunter found on the map has none until he is paid out on an escape (step 10). The tome's details leave CTO (so a refresh cannot bring it home), SAVE() runs at once, and the message says he is gone forever.
 // h.gone = 1 stops ctrReturn repeating the message at the end of the match. Cosmetic fire: ember bursts over about a second, played only while the match is still running.
@@ -2469,9 +2473,9 @@ function injTry(){const h=INJH;if(!h||h.hp<=0||h.st!='hurt'||!P||P.dead)return;i
  TS('tonic',TC('tonic')-1);fixSlot();injFree(h);injRescued();h.by=mp.me;if(mp.on)mpSend({t:'inj',hp:h.hp,st:'freed',by:mp.me});say(h.name+' drinks the Holy Water. He is free.',3.5)}
 function injReq(f){const h=INJH;if(mpCli()||!h||h.hp<=0||h.st!='hurt')return;injFree(h);h.by=f;mpSend({t:'inj',hp:h.hp,st:'freed',by:f});say(hn(f)+' gave '+h.name+' Holy Water.',3.5)}
 let INJWK=0;   // walk phase for injStand (set by drawInjured from h.wk while he moves)
-let INJA=0;   // aim angle for injStand, in the sprite's own (mirrored) space; set by drawInjured while he has a target
+let INJGN='pistol',INJA=0;   // aim angle for injStand, in the sprite's own (mirrored) space; set by drawInjured while he has a target
 let INJP=0;   // punch swing 0..1 for injStand
-const injStand=()=>warden(0,0,INJA,INJFL,INJWK,'pistol',0,null,INJP,'','');
+const injStand=()=>warden(0,0,INJA,INJFL,INJWK,INJGN||'pistol',0,null,INJP,'','');
 // ---------- /INJURED HUNTER DATA ----------
 // ---------- LESSER DEMONS (PARKED) ----------
 // Lesser demons are a new tier between horde mobs and archdemons. Each gets its own lore page.
@@ -2743,12 +2747,12 @@ function drawCerberus(x,y,a,fl,wk,sn){
   }
  }
  ctx.restore()}
-const CT={s:{a:()=>stash,c:SC,r:SR,e:'#sg'},b:{a:()=>sel.bag,c:4,r:4,e:'#bg'}};
+const CT={s:{a:()=>stash,c:SC,r:SR,e:'#sg'},b:{a:()=>sel.bag,c:4,r:4,e:'#bg'},tb:{a:()=>sel.tomes,c:4,r:2,e:'#tbg'}};
 function stashBody(){const sl=(id,lab,w,h)=>{const it=slotGet(id);return `<div class=slot data-sl=${id} style="width:calc(var(--cs)*${w});height:calc(var(--cs)*${h})"><span>${lab}</span>${it?`<div class=it data-sl=${id} data-ik=${it.k}></div>`:''}</div>`};
  const fv=[0,1,2].map(i=>{const f=FAV[i];return `<div class="favbox${f?' sv':''}" data-fav=${i}><span>Fav${i+1}</span>${f?'':'<small>empty</small>'}</div>`}).join('');
  const grid=(arr,ct)=>arr.map((o,i)=>{const[w,h]=isz2(o);return `<div class=it data-ct=${ct} data-g=${i} data-ik=${o.k} style="left:calc(var(--cs)*${o.x});top:calc(var(--cs)*${o.y});width:calc(var(--cs)*${w});height:calc(var(--cs)*${h})"></div>`}).join('');
- return `<div class=stw><div class=eq><h2>Gear</h2><div class=grow><div class=gl><div class=eqp>${sl('p','Primary',4,2)}${sl('s','Sidearm',2,2)}</div><div class=eqt>${[0,1,2,3,4,5].map(i=>sl('t'+i,'Tool',2,2)).join('')}</div></div><div class=favs>${fv}</div></div><h2>Backpack <small>(16 squares)</small></h2><div class=sgrid id=bg style="--gc:4;--gr:4">${grid(sel.bag,'b')}</div><div class=sellz id=sz>Sell: drag an item here for half its shop price</div></div><div><h2 class=sth>Stash<span class=sttabs>${STT()}</span></h2><div class=sgrid id=sg style="--gc:20;--gr:8">${grid(stash,'s')}</div><div class=ibox id=ib></div></div></div><div class=foot><span>Cash: $${bank}</span><span style="opacity:.6">Shift-drag or right-click a stack to split it \u00b7 R rotates an item (hover it or while dragging)</span><button data-so=1>Auto-sort</button><button data-v=shop>Gunsmith</button><button data-v=trainplay>Training Grounds</button>${back}</div>`}
-function stashInit(){$('#menu').querySelectorAll('.it').forEach(el=>{const k=el.dataset.ik,sid=el.dataset.sl,ct=el.dataset.ct,o=sid?slotGet(sid):CT[ct].a()[+el.dataset.g];el.appendChild(itemCv(k,el.offsetWidth*2,el.offsetHeight*2,o&&o.sk,o&&o.r));if(selRef&&(sid?selRef.sid==sid:selRef.o===o))el.classList.add('sel');if(TOOL[k]){const b=document.createElement('b');b.textContent='x'+(o.n||1);el.appendChild(b)}el.onpointerdown=e=>{if(e.button)return;pickInfo(k,el,sid?{sid}:{ct,o});startDrag(e,el,k,sid,ct,el.dataset.g,o)};if(!sid){el.onpointerenter=()=>{hov={ct,o}};el.onpointerleave=()=>{if(hov&&hov.o===o)hov=null}}if(!sid&&TOOL[k])el.oncontextmenu=e=>{e.preventDefault();splitOne(ct,o)}});renderInfo();favInit()}
+ return `<div class=stw><div class=eq><h2>Gear</h2><div class=grow><div class=gl><div class=eqp>${sl('p','Primary',4,2)}${sl('s','Sidearm',2,2)}</div><div class=eqt>${[0,1,2,3,4,5].map(i=>sl('t'+i,'Tool',2,2)).join('')}</div></div><div class=favs>${fv}</div></div><div class=bprow><div><h2>Backpack <small>(16 squares)</small></h2><div class=sgrid id=bg style="--gc:4;--gr:4">${grid(sel.bag,'b')}</div></div><div class=tbx><h2>Tomes <small>(${sel.tomes.length}/${ctrMax()})</small></h2><div class="sgrid tgrid" id=tbg style="--gc:4;--gr:2">${grid(sel.tomes,'tb')}</div><div class=tbn>${sel.tomes.length?'In your party: '+sel.tomes.map(o=>o.h.nm).join(', '):'Put a hunter tome here and he joins your party'}</div></div></div><div class=sellz id=sz>Sell: drag an item here for half its shop price</div></div><div><h2 class=sth>Stash<span class=sttabs>${STT()}</span></h2><div class=sgrid id=sg style="--gc:20;--gr:8">${grid(stash,'s')}</div><div class=ibox id=ib></div></div></div><div class=foot><span>Cash: $${bank}</span><span style="opacity:.6">Shift-drag or right-click a stack to split it \u00b7 R rotates an item (hover it or while dragging)</span><button data-so=1>Auto-sort</button><button data-v=shop>Gunsmith</button><button data-v=trainplay>Training Grounds</button>${back}</div>`}
+function stashInit(){$('#menu').querySelectorAll('.it').forEach(el=>{const k=el.dataset.ik,sid=el.dataset.sl,ct=el.dataset.ct,o=sid?slotGet(sid):CT[ct].a()[+el.dataset.g];el.appendChild(itemCv(k,el.offsetWidth*2,el.offsetHeight*2,o&&o.sk,o&&o.r));if(selRef&&(sid?selRef.sid==sid:selRef.o===o))el.classList.add('sel');if(TOOL[k]){const b=document.createElement('b');if(k=='contract'){b.className='tn';b.textContent=o.h?o.h.nm:''}else b.textContent='x'+(o.n||1);el.appendChild(b)}el.onpointerdown=e=>{if(e.button)return;pickInfo(k,el,sid?{sid}:{ct,o});startDrag(e,el,k,sid,ct,el.dataset.g,o)};if(!sid){el.onpointerenter=()=>{hov={ct,o}};el.onpointerleave=()=>{if(hov&&hov.o===o)hov=null}}if(!sid&&TOOL[k])el.oncontextmenu=e=>{e.preventDefault();splitOne(ct,o)}});renderInfo();favInit()}
 function splitOne(ct,o){if(!o||!TOOL[o.k]||(o.n||1)<2)return;for(const c of [ct,ct=='b'?'s':'b']){const C=CT[c],a=C.a(),f=spotIn(a,C.c,C.r,o.k);if(f){o.n--;a.push({k:o.k,x:f[0],y:f[1],n:1});SAVE();menu();return}}note='No room to split that stack.';menu()}
 // ---------- ITEM INFO: click an item in the stash (or hover/click in the in-game inventory) to see its stats ----------
 let selInfo=null,selRef=null,skOpen=0;
@@ -2760,9 +2764,8 @@ function pickInfo(k,el,ref){selInfo=k;selRef=ref||null;skOpen=0;document.querySe
 function renderInfo(){const b=document.getElementById('ib');if(!b)return;const d=selInfo&&itemDef(selInfo);
  if(!d){b.innerHTML='<div class=ibe>Click a weapon or item to inspect it.</div>';return}
  const k=selInfo,wp=!TOOL[k];
- b.innerHTML='<div class=ibi></div><div class=ibt><h3>'+d.n+'</h3><div class=ibk>'+itemType(k)+' \u00b7 '+(d.nb?'not sold in shops':d.c?'shop price $'+d.c:'free in the shop')+(k=='contract'?' \u00b7 cannot be sold':' \u00b7 sells for $'+(d.tot?d.c:Math.floor(d.c/2)))+'</div>'+(wp?st(d)+wNotes(d).map(x=>'<div class=ibn>'+x+'</div>').join(''):'<p>'+d.d+'</p>'+(()=>{const co=k=='contract'?refObj():null;return co&&co.h?'<p><b>'+co.h.nm.replace(/[<>&]/g,'')+'</b><br>'+co.h.story.replace(/[<>&]/g,'')+'<br><i>Gear: '+(PRI[co.h.g.p]?PRI[co.h.g.p].n||co.h.g.p:'none')+'</i></p>':''})())+'</div>';
- if(k=='contract')ctrGearUI(b);
- const ro=k=='impcap'||k=='contract'?null:refObj(),cur=ro?(wp?skv(k,ro.sk):skv(k,TSK[k])):'';b.querySelector('.ibi').appendChild(itemCv(k,256,192,cur));
+ b.innerHTML='<div class=ibi></div><div class=ibt><h3>'+d.n+(k=='contract'?(()=>{const co=refObj();return co&&co.h?' \u2014 '+co.h.nm:''})():'')+'</h3><div class=ibk>'+itemType(k)+' \u00b7 '+(d.nb?'not sold in shops':d.c?'shop price $'+d.c:'free in the shop')+(k=='contract'?' \u00b7 cannot be sold':' \u00b7 sells for $'+(d.tot?d.c:Math.floor(d.c/2)))+'</div>'+(wp?st(d)+wNotes(d).map(x=>'<div class=ibn>'+x+'</div>').join(''):'<p>'+d.d+'</p>'+(k=='contract'?ctrCard():''))+'</div>';
+ const ro=k=='impcap'||k=='contract'?null:refObj(),cur=ro?(wp?skv(k,ro.sk):skv(k,TSK[k])):'';b.querySelector('.ibi').appendChild(itemCv(k,256,192,cur));if(k=='contract')ctrCardInit(b);
  if(ro){const t=b.querySelector('.ibt'),row=document.createElement('div'),sl=WSK[k]||[];row.className='ibs';
   if(!sl.length)row.innerHTML='<span class=ibn>No skins exist for this '+(wp?'weapon':'tool')+' yet.</span>';
   else{const tg=document.createElement('button');tg.className='skb';tg.textContent='Skin: '+(cur?WSKINS[cur].n:'Standard')+(skOpen?' \u25B4':' \u25BE');tg.onclick=ev=>{ev.stopPropagation();skOpen=!skOpen;renderInfo()};row.appendChild(tg);
@@ -2785,17 +2788,17 @@ function startDrag(e,el,k,sid,ct,gi,o){e.preventDefault();const[w,h]=isz2(o||{k}
 const tabRoom=(i,d)=>{const arr=STB[i];if(!arr)return false;if(TOOL[d.k]&&arr.some(t=>t.k==d.k&&t.n<mxs(d.k)))return true;return !!spotIn(arr,SC,SR,d.k)};
 function dragMove(e){const d=drg;if(!d)return;const cs=d.cs;d.lx=e.clientX;d.ly=e.clientY;d.gh.style.left=e.clientX-d.w*cs/2+'px';d.gh.style.top=e.clientY-d.h*cs/2+'px';
  document.querySelectorAll('.slot').forEach(x=>x.classList.remove('ok','no'));document.querySelectorAll('.stb').forEach(x=>x.classList.remove('dok','dno'));d.hl.style.display='none';d.t=null;
- for(const c of ['s','b']){const C=CT[c],G=gRect(C.e);if(e.clientX>G.l&&e.clientX<G.l+G.w&&e.clientY>G.t&&e.clientY<G.t+G.h){
+ for(const c of ['s','b','tb']){const C=CT[c],G=gRect(C.e);if(e.clientX>G.l&&e.clientX<G.l+G.w&&e.clientY>G.t&&e.clientY<G.t+G.h){
    const arr=C.a(),gx=Math.round((e.clientX-d.w*cs/2-G.l)/cs),gy=Math.round((e.clientY-d.h*cs/2-G.t)/cs),px=Math.floor((e.clientX-G.l)/cs),py=Math.floor((e.clientY-G.t)/cs),src=!d.sid&&!d.split&&d.ct==c?arr[+d.gi]:null;
    const mg=TOOL[d.k]?arr.find(o=>o!==src&&o.k==d.k&&o.n<mxs(d.k)&&px>=o.x&&px<o.x+isz2(o)[0]&&py>=o.y&&py<o.y+isz2(o)[1]):null;
-   let ok2,x=gx,y=gy,w=d.w,h=d.h;if(mg){ok2=1;x=mg.x;y=mg.y;[w,h]=isz2(mg)}else ok2=fitsIn(arr,C.c,C.r,gx,gy,d.w,d.h,src)&&ldOK(d,c=='b'?'bag':'stash');
+   let ok2,x=gx,y=gy,w=d.w,h=d.h;if(mg){ok2=1;x=mg.x;y=mg.y;[w,h]=isz2(mg)}else ok2=fitsIn(arr,C.c,C.r,gx,gy,d.w,d.h,src)&&ldOK(d,c=='b'?'bag':c=='tb'?'tome':'stash');
    d.t={c,x:gx,y:gy,ok:ok2,mg};Object.assign(d.hl.style,{display:'block',left:G.l+x*cs+'px',top:G.t+y*cs+'px',width:w*cs+'px',height:h*cs+'px'});d.hl.className='hl'+(ok2?'':' no');return}}
  const tb=document.elementsFromPoint(e.clientX,e.clientY).map(x=>x.closest&&x.closest('.stb')).find(Boolean);
  if(tb){const ti=+tb.dataset.stt;if(stUn[ti]&&ti!=stTab){const okk=tabRoom(ti,d);d.t={tab:ti,ok:okk};tb.classList.add(okk?'dok':'dno')}return}
  const sl=document.elementsFromPoint(e.clientX,e.clientY).map(x=>x.closest&&x.closest('.slot')).find(Boolean);
  if(sl){const id=sl.dataset.sl,old=slotGet(id),okk=accepts(id,d.k,d.sid)&&ldOK(d,'slot')&&id!=d.sid&&!(old&&old.k==d.k&&old.n>=mxs(d.k));d.t={s:id,ok:okk};sl.classList.add(okk?'ok':'no')}}
 function take(d){if(d.split){d.split.n--;return}if(d.sid)slotSet(d.sid,null);else{const a=CT[d.ct].a(),i=a.indexOf(d.o);if(i>=0)a.splice(i,1)}}
-function dragEnd(){const d=drg;if(!d)return;drg=null;removeEventListener('pointermove',dragMove);d.gh.remove();d.hl.remove();const t=d.t,o=d.o;let ch=0;const reSel=nr=>{if(selRef&&(d.sid?selRef.sid==d.sid:selRef.o===d.o))selRef=nr};
+function dragEnd(){const d=drg;if(!d)return;drg=null;removeEventListener('pointermove',dragMove);d.gh.remove();d.hl.remove();const t=d.t,o=d.o;let ch=0;const b0=sel.tomes.map(x=>x.h?[x.h.id,x.h.nm]:['','']);const reSel=nr=>{if(selRef&&(d.sid?selRef.sid==d.sid:selRef.o===d.o))selRef=nr};
  const mergeInto=tt=>{const mv=Math.min(mxs(d.k)-tt.n,o.n||1);tt.n+=mv;const rest=(o.n||1)-mv;if(rest>0)o.n=rest;else take(d);ch=1};
  const toTab=ti=>{const arr=STB[ti];let n=TOOL[d.k]?(o.n||1):1,mv=0;
   if(TOOL[d.k]){for(const q of arr){if(n<=0)break;if(q.k==d.k&&q.n<mxs(d.k)){const m=Math.min(mxs(d.k)-q.n,n);q.n+=m;n-=m;mv+=m}}
@@ -2817,7 +2820,7 @@ function dragEnd(){const d=drg;if(!d)return;drg=null;removeEventListener('pointe
    else{const C=CT[d.ct],a=C.a(),i=a.indexOf(o);a.splice(i,1);
     if(old){const z=isz(old.k),q=fitsIn(a,C.c,C.r,o.x,o.y,z[0],z[1])?[o.x,o.y]:spotIn(a,C.c,C.r,old.k);if(!q)a.splice(i,0,o);else{a.push({k:old.k,x:q[0],y:q[1],n:old.n||(TOOL[old.k]?1:0),...(old.sk?{sk:old.sk}:{})});slotSet(id,{k:d.k,n:o.n,sk:o.sk});reSel({sid:id});ch=1}}
     else{slotSet(id,{k:d.k,n:o.n,sk:o.sk});reSel({sid:id});ch=1}}}}
- if(ch)SAVE();{const nn=note;note='';menu(nn)}}
+ if(ch){try{const jn=sel.tomes.filter(x=>x.h&&!b0.some(q=>q[0]==x.h.id)).map(x=>x.h.nm),ln=b0.filter(q=>!sel.tomes.some(x=>x.h&&x.h.id==q[0])).map(q=>q[1]);if(jn.length)note=jn.join(' and ')+' joined your party.';else if(ln.length)note=ln.join(' and ')+' left your party.'}catch(e){}SAVE()}{const nn=note;note='';menu(nn)}}
 // ---- ROTATE ITEMS WITH R in the stash: while dragging, or hovering an item (it turns in place if it still fits) ----
 addEventListener('keydown',e=>{if(e.code!=='KeyR'||e.repeat||e.ctrlKey||e.metaKey||e.altKey||mode==='play')return;const d=drg;
  if(d){const z0=isz(d.k);if(z0[0]===z0[1])return;e.preventDefault();d.rot^=1;[d.w,d.h]=[d.h,d.w];d.gh.style.width=d.w*d.cs+'px';d.gh.style.height=d.h*d.cs+'px';d.gh.innerHTML='';d.gh.appendChild(itemCv(d.k,d.w*64,d.h*64,d.o&&d.o.sk,d.rot));dragMove({clientX:d.lx,clientY:d.ly});return}
@@ -4388,9 +4391,9 @@ const mpMate=i=>{try{return !!(mp.ids[i]&&isMate(mp.ids[i]))}catch(e){return fal
 // TEAMS step 2: the 3 boxes across the top of the hub screen. Box 1 = the team host. Empty boxes say +Invite (clicking them is wired in step 3). A ready teammate's box turns green.
 // STEP 17: contracted hunters fill the empty team boxes. tmWant() = the tomes in my bag (max 2); tmDecl() = what I tell the team about them; the TEAM host hands the free slots out in member order (3 minus the humans, see tmAlloc) and sends the result
 // in the roster (mem[].hu). tmMine() = the hunters I really bring into the match (mpSearch sends them as mp.hg and in my profile, ctrBring brings exactly that many). Humans always win a slot over a hunter.
-const tmWant=()=>(sel.bag||[]).filter(o=>o&&o.k=='contract'&&ctrClean(o.h)).slice(0,2);
-const tmDecl=()=>tmWant().map(o=>{const h=ctrClean(o.h);return{nm:h.nm,sk:h.look,gp:h.g.p}});
-const tmCleanHu=a=>(Array.isArray(a)?a:[]).slice(0,2).map(x=>x&&typeof x=='object'?{nm:cleanName(x.nm)||'Hunter',sk:SKINS[x.sk]?x.sk:'plain',gp:PRI[x.gp]&&x.gp!='none'?x.gp:'pistol'}:null).filter(Boolean);
+const tmWant=()=>(sel.tomes||[]).filter(o=>o&&o.k=='contract'&&ctrClean(o.h)).slice(0,2);
+const tmDecl=()=>tmWant().map(o=>{const h=ctrClean(o.h);return{nm:h.nm,sk:h.look,gp:ctrGun(h.g)}});
+const tmCleanHu=a=>(Array.isArray(a)?a:[]).slice(0,2).map(x=>x&&typeof x=='object'?{nm:cleanName(x.nm)||'Hunter',sk:SKINS[x.sk]?x.sk:'plain',gp:(PRI[x.gp]||SID[x.gp])&&x.gp!='none'?x.gp:'pistol'}:null).filter(Boolean);
 function tmAlloc(){const t=myTeam(),o={};let left=Math.max(0,3-t.members.length);for(const id of t.members){const d=id===mp.id?tmDecl():tmCleanHu((mp.tp[id]||{}).dc),g=d.slice(0,Math.min(2,left));left-=g.length;o[id]=g}return o}
 const tmMine=()=>{const t=myTeam();if(t.members.length<2)return tmDecl();return t.host===mp.id?(tmAlloc()[mp.id]||[]):tmDecl().slice(0,(mp.mhu||[]).length)};
 function tmHuAll(){const t=myTeam();if(t.members.length<2)return tmDecl().map(x=>Object.assign({by:mp.id},x));const al=t.host===mp.id?tmAlloc():null,o=[];for(const id of t.members){const l=id===mp.id?tmMine():al?(al[id]||[]):((mp.tp[id]||{}).hu||[]);l.forEach(x=>o.push(Object.assign({by:id},x)))}return o}
@@ -4454,7 +4457,7 @@ function tmMsg(topic,buf){let o;try{o=JSON.parse(buf.toString())}catch(e){return
 function tmCancelInv(k){const p=mp.pend[k];if(!p)return;delete mp.pend[k];tmSend('hb1/search',{k:'cx',to:k,key:k});note='Invite to '+p.nm+' cancelled.';tmRefresh()}
 function tmBox(i){const t=myTeam(),sl=tmSlots()[i]||{k:'e'};if(mpBusy){note='You cannot change your team while searching for a match.';tmRefresh();return}
  if(sl.k=='p'){if(t.host===mp.id)tmCancelInv(sl.key);return}
- if(sl.k=='h'){if(t.host===mp.id&&t.members.length+Object.keys(mp.pend||{}).length<3){tmAsk();return}note=sl.h.nm+' is a contracted hunter'+(sl.h.by===mp.id?' from a tome in your bag. Take the tome out of your bag to leave him at home.':'. He takes a free team slot, and a hunter friend would take his place.');tmRefresh();return}
+ if(sl.k=='h'){if(t.host===mp.id&&t.members.length+Object.keys(mp.pend||{}).length<3){tmAsk();return}note=sl.h.nm+' is a contracted hunter'+(sl.h.by===mp.id?' from a tome in your tome box. Take the tome out of the box to leave him at home.':'. He takes a free team slot, and a hunter friend would take his place.');tmRefresh();return}
  if(sl.k=='e'){if(t.host===mp.id)tmAsk();return}
  const id=sl.id;
  if(id===mp.id){if(t.members.length<2)return;if(t.host===mp.id){if(confirm('Disband your team?')){tmSend(tmRoom(t.id),{k:'dis',tid:t.id});tmReset()}}else if(confirm('Leave the team?')){tmSend(tmRoom(t.id),{k:'lv',tid:t.id});tmReset()}return}
@@ -5080,7 +5083,7 @@ function favClick(e){if(!FM)return;const el=document.getElementById('favmod'),L=
 addEventListener('keydown',e=>{if(e.code=='Escape'&&FM){e.stopPropagation();if(FM.pick){FM.pick=null;favRender()}else favClose()}},true);
 
 // ---------- STASH AUTO-SORT ----------
-function sortStash(){const tl={},its=[];stash.forEach(o=>{if(TOOL[o.k])tl[o.k]=(tl[o.k]||0)+(o.n||1);else its.push({k:o.k,n:o.n||0,src:o})});
+function sortStash(){const tl={},its=[];stash.forEach(o=>{if(TOOL[o.k]&&o.k!='contract')tl[o.k]=(tl[o.k]||0)+(o.n||1);else its.push({k:o.k,n:o.n||0,src:o})});
  for(const k in tl){let n=tl[k];while(n>0){const c=Math.min(mxs(k),n);its.push({k,n:c});n-=c}}
  const gp=k=>PRI[k]&&k!='none'?0:SID[k]?1:2,ar=k=>{const z=isz(k);return z[0]*z[1]};
  its.sort((a,b)=>gp(a.k)-gp(b.k)||ar(b.k)-ar(a.k)||(a.k<b.k?-1:a.k>b.k?1:0)||b.n-a.n);
@@ -5576,6 +5579,20 @@ function tapMove(d){const k=d.k,o=d.o,n0=o.n||1;let ch=0;
 {const _dt=dragEnd;dragEnd=function(e){const d=drg;
  if(d&&d.st&&!d.split&&!d.sell&&e&&e.type=='pointerup'&&(e.pointerType=='touch'||INPUT=='mobile'||INPUT=='pad')&&Math.hypot(e.clientX-d.st.x,e.clientY-d.st.y)<10&&performance.now()-d.st.t<700){drg=null;removeEventListener('pointermove',dragMove);d.gh.remove();d.hl.remove();tapMove(d);return}
  _dt.apply(this,arguments)}}
+// ---- drag a weapon / Holy Water onto a tome to arm that hunter ----
+{const _dm=dragMove;dragMove=function(e){_dm(e);try{document.querySelectorAll('.it.tdok,.it.tdno').forEach(x=>x.classList.remove('tdok','tdno'));const d=drg;if(!d||d.sell)return;
+ if(!(PRI[d.k]&&d.k!='none'||SID[d.k]&&d.k!='none'||d.k=='tonic'))return;
+ const el=document.elementsFromPoint(e.clientX,e.clientY).find(x=>x.classList&&x.classList.contains('it')&&x.dataset.ik=='contract'&&x.dataset.ct);if(!el)return;
+ const ob=CT[el.dataset.ct].a()[+el.dataset.g];if(!ob||!ob.h)return;const ok=ctrCan(ob,d);d.t={tome:ob,ok};d.hl.style.display='none';el.classList.add(ok?'tdok':'tdno')}catch(x){}}}
+{const _de=dragEnd;dragEnd=function(e){const d=drg;
+ if(d&&d.t&&d.t.tome&&!d.sell){drg=null;removeEventListener('pointermove',dragMove);d.gh.remove();d.hl.remove();let m;
+  if(d.t.ok)m=ctrGive(d.t.tome,d);else m=ctrUsable(d.k)||d.k=='tonic'?d.t.tome.h.nm+' cannot carry more Holy Water.':d.t.tome.h.nm+' cannot use the '+(PRI[d.k]||SID[d.k]).n+'. It is too unwieldy for him.';
+  note='';menu(m);return}
+ if(d&&d.k=='contract'&&d.t&&!d.t.ok&&d.t.c=='tb'&&d.ct!='tb')note='Your party is full: only '+ctrMax()+' hunter'+(ctrMax()==1?'':'s')+' can join you.';
+ _de.apply(this,arguments)}}
+{const _tm=tapMove;tapMove=function(d){if(d&&d.k=='contract'&&!d.sid&&d.o&&CT[d.ct]){const from=CT[d.ct].a(),i=from.indexOf(d.o),to=d.ct=='tb'?'s':'tb',C=CT[to],a=C.a();let m='';if(i<0)return menu();
+ if(to=='tb'&&a.length>=ctrMax())m='Your party is full: only '+ctrMax()+' hunter'+(ctrMax()==1?'':'s')+' can join you.';else{const f=spotIn(a,C.c,C.r,'contract');if(!f)m=to=='tb'?'The tome box is full.':'The stash has no room.';else{from.splice(i,1);a.push({k:'contract',x:f[0],y:f[1],n:1,h:d.o.h});m=d.o.h.nm+(to=='tb'?' joined your party.':' left your party.');SAVE()}}menu(m);return}
+ return _tm.apply(this,arguments)}}
 // touch input drives the same keys / mouse the PC controls use
 function mcAuto(dt){let tg=null,near=0;
  if(!MC.fire&&!MC.punch&&!CHAT.on&&P.cur<=1){const w=P.w[P.cur],gun=!!(w&&w.d&&P.rl<=0&&P.mag[P.cur]>0);let best=1e9;
@@ -6880,10 +6897,10 @@ const tgPool=()=>tgPool.c||(tgPool.c=Object.keys(PRI).filter(k=>k!='none'&&!PRI[
 // Multiplayer: the captive is local to its owner (other hunters just see the imp vanish); a client tells the host with {t:'cap',i:id} so the host drops it, and CAPIDS stops snapshots re-adding it.
 const CAPIDS=new Set(),CAPG='#39ff14';let pents=[],pgId=0;
 const ctCnt=()=>sel.bag.filter(o=>o.k=='contract').length,tombCnt=()=>sel.tools.filter(t=>t&&t.k=='tomb').length+sel.bag.filter(o=>o.k=='tomb').length;
-const ldOK=(d,dest)=>{if(d.k=='impcap')return dest=='stash';if(d.k=='contract')return dest=='stash'||d.ct=='b'||ctCnt()<2;if(d.k!='tomb'||dest=='stash')return true;return !!d.sid||d.ct=='b'||tombCnt()==0};
+const ldOK=(d,dest)=>{if(dest=='tome')return d.k=='contract'&&(d.ct=='tb'||sel.tomes.length<ctrMax());if(d.k=='impcap')return dest=='stash';if(d.k=='contract')return dest=='stash';if(d.k!='tomb'||dest=='stash')return true;return !!d.sid||d.ct=='b'||tombCnt()==0};
 function enforceLoad(){let msg='',seen=0,seenC=0;const back=k=>{if(addItemAny(k,1))return;if(k=='impcap')bank+=100};
  sel.tools.forEach((t,i)=>{if(!t)return;if(t.k=='impcap'){sel.tools[i]=null;back('impcap');msg='A captive imp cannot go into the map.'}else if(t.k=='tomb'&&++seen>1){sel.tools[i]=null;back('tomb');msg='Only 1 Tomb can go into the map.'}});
- for(let i=sel.bag.length-1;i>=0;i--){const o=sel.bag[i];if(o.k=='contract'){if(++seenC>2){sel.bag.splice(i,1);ctrStash(o);msg='Only 2 hunters can go into the map.'}}else if(o.k=='impcap'){sel.bag.splice(i,1);back('impcap');msg='A captive imp cannot go into the map.'}else if(o.k=='tomb'&&++seen>1){sel.bag.splice(i,1);back('tomb');msg='Only 1 Tomb can go into the map.'}}
+ for(let i=sel.bag.length-1;i>=0;i--){const o=sel.bag[i];if(o.k=='contract'){sel.bag.splice(i,1);ctrPark(o);msg='Tomes go in the tome box, not the backpack.'}else if(o.k=='impcap'){sel.bag.splice(i,1);back('impcap');msg='A captive imp cannot go into the map.'}else if(o.k=='tomb'&&++seen>1){sel.bag.splice(i,1);back('tomb');msg='Only 1 Tomb can go into the map.'}}
  return msg}
 {const _m=menu;menu=function(m){try{const n=enforceLoad();if(n)m=(m?m+' ':'')+n}catch(e){}return _m.call(this,m)}}
 {const _g=giveTool;giveTool=function(k){if(k=='tomb'&&(TC('tomb')>0||(P.bag||[]).some(o=>o.k=='tomb'))){say('You can only carry 1 Tomb',1.5);return 0}return _g.apply(this,arguments)}}
