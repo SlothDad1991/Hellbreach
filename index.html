@@ -15,7 +15,7 @@ h2{margin:6px 0;font-size:30px;border-bottom:2px dashed #e8e6d866}
 .paper{background:#cdb98a;color:#2b1d12;transform:rotate(-1.2deg);box-shadow:3px 4px 8px #000a;position:relative;font-weight:700}
 .paper:nth-child(odd){transform:rotate(1.4deg)}
 .paper::before{content:'';position:absolute;top:-5px;left:50%;width:10px;height:10px;border-radius:50%;background:#b01c1c;box-shadow:0 2px 3px #000}
-.paper.on{outline:3px solid var(--red);outline-offset:3px}
+.paper.on{outline:3px solid var(--red);outline-offset:3px}.ctgrid{display:flex;flex-wrap:wrap;gap:22px;justify-content:center;margin:12px 0}.ctile{width:190px;background:#1a0f0c;border:3px solid #6a4a30;box-shadow:3px 4px 8px #000a;cursor:pointer;text-align:center;position:relative;padding:0 0 8px;user-select:none}.ctile:hover{border-color:#ffd9d0;background:#2a1612}.ctile.on{border-color:var(--red)}.ctile canvas{display:block;width:100%;image-rendering:pixelated;background:linear-gradient(#2a1a14,#140a08)}.ctile .ctn{font-size:24px;font-weight:700;margin:6px 4px 0;line-height:1.05}.ctile small{display:block;font-size:15px;opacity:.8;line-height:1.15;margin:2px 6px}.ctbar{height:9px;background:#0008;margin:5px 10px;border:1px solid #6a4a30}.ctbar i{display:block;height:100%;background:#b02a22}.ctbadge{position:absolute;top:6px;right:6px;background:#e0b040;color:#1a0f0c;font-weight:700;font-size:18px;border-radius:50%;width:28px;height:28px;line-height:28px;box-shadow:0 0 8px #e0b040}.ctlv{position:absolute;top:6px;left:6px;background:#000b;color:#ffd9d0;font-size:15px;padding:1px 7px;border:1px solid #6a4a30}.ctbig{width:100%;max-width:260px;image-rendering:pixelated;display:block;margin:0 auto 10px;background:linear-gradient(#2a1a14,#140a08);border:3px solid #6a4a30}.ctq{cursor:default}.ctq.dn{opacity:.7}.ctq.lk{opacity:.55}
 .chalk{border:2px solid #e8e6d855;border-radius:6px 14px 5px 12px}
 .fbar{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:0 0 10px}.fbar>span{flex-basis:100%;text-align:center;font-size:20px;opacity:.75}.fbox{flex:1 1 90px;min-width:0;border:2px solid #e8e6d855;border-radius:6px 14px 5px 12px;background:#0005;padding:4px 8px;text-align:center;font-size:24px;line-height:1.05;cursor:pointer;opacity:.55}.fbox.on{background:#8a1c1ccc;border-color:#ffd9d0;opacity:1}.fbox.lock{cursor:default}.tbar{display:flex;gap:10px;justify-content:center;margin:2px 0 10px;position:relative;z-index:1}.tbox{flex:0 1 150px;min-width:0;border:2px solid #e8e6d855;border-radius:6px 14px 5px 12px;background:#0005;padding:4px 8px;text-align:center;font-size:24px;line-height:1.05;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.tbox small{display:block;font-size:16px;opacity:.75}.tbox.emp{border-style:dashed;opacity:.6}.tbox.me{border-color:#ffd9d0}.tbox.rdy{background:#1e7a3acc;border-color:#6be08a}
 .tbox.hun{border-color:#7ab8ffaa;background:#10223acc}
@@ -184,28 +184,29 @@ button.tt-btn:active{transform:translateX(12px) scale(.98)}
    Open question: after 90s with no compatible match the game starts a solo run (you play alone with the monsters). The question is whether, instead, the filter should
        RELAX after 90s (widen to accept any team size so you get matched with someone) before falling back to solo. Owner has not decided; explain it if asked.
    -----------------------------------------------------------------------------------------------------
-   TO IMPLEMENT: INJURED HUNTER + CONTRACT SCROLL (owner's request, Oct 23). NOTHING IS BUILT YET. Read this block first, then build the lowest-numbered step that is still listed.
-     THE RULES FOR THIS LIST (owner's): when a step is finished and tested, DELETE THAT STEP from this list in the same chat, and renumber nothing (the numbers are only labels). When the LAST step is deleted
-       (the whole mechanic is in the game and tested), DELETE THIS ENTIRE BLOCK, including this rule line and the design summary below. Never leave finished steps in the list.
-     DESIGN SUMMARY (owner's words, decided): 50% chance an injured hunter spawns on the map. He is hurt for one of 5 different reasons (for example stuck under a broken cart). He talks in speech bubbles, e.g. "Hunter, please help,
-       give me some Holy Water and I'll contract for you!". If you give him Holy Water he follows you and helps fight. When you exit (clean escape) you get a SCROLL that is a contract with the hunter's details.
-       If you bring that scroll into a match, the hunter comes with you. If he dies, the scroll burns away and he is gone forever.
-     DECIDED BY THE OWNER (Oct 23, step 1 answered): (a) UP TO TWO contracted hunters per match. (b) They COUNT AS YOUR TEAM: with one you are a duo, with two you are a trio, and they count toward the player count
-       when searching for games (matchmaking team size / mpGroupTeams, roster, Ready check, the 90s solo fallback all have to know about them). (c) MULTIPLAYER FROM THE START: nothing here may be solo-only.
-       (d) You can GIVE a contracted hunter a whole loadout (weapons and tools) and he HEALS HIMSELF with the Holy Water / tools you give him; so he is healed by his own kit, not by a button.
-       Defaults used unless the owner changes them: bringing him is free; you get his scroll if he is alive when you escape, however far away he is.
-     BUILT SO FAR (all in the INJURED HUNTER DATA block; search for it): step 2 data (INJ with 5 injuries, INJ_NAMES, INJ_FOLLOW, injRoll(); look = injLook(): 80% the plain Hunter skin, the other 20% split evenly between every other skin in SKINS). Step 3 spawn: injSpawn(bb) from newGame() sets INJH ({x,y,inj,name,look,f,site,st,hp,mh,fl,cd,bub}) or null; tutStart() clears it. Step 4 drawing: drawInjured() from render(), 5 scenes in INJD; the owner REMOVED the rescue marker, only his name shows within 170px. Step 5 speech: injTick(dt) from update(), injSay(h,kind) with kind plea | thanks | nohw | follow (step 6 must call thanks and nohw, step 7 follow), injBubDraw() after the darkness. Step 6 giving Holy Water (BUILT): in injTick, standing within 44px of a hurt hunter shows a prompt and the interact key (keys.KeyE, so touch works) calls injTry(); no Holy Water = injSay 'nohw'; with Holy Water he goes st 'hurt' -> 'freed' (injFree: healed to full, rescue burst, 'thanks' bubble, drawn standing with a pistol by injStand). Multiplayer: a client sends {t:'injg'}, the monster host decides in injReq (first request wins) and broadcasts {t:'inj',st:'freed',by}; only the requester spends the Holy Water, when the host confirms. Step 7a, follow and pathing (BUILT, all five parts): injFree sets st 'follow'; injFollow(h,dt) (called from injTick) walks him in a straight line toward you, stopping in a 40-70px band, easing out if closer than 40px, standing still if you are dead; speeds up to match your sprint (cap 128) and never overtakes; sets h.f, h.mv and the walk phase h.wk, drawn walking via INJWK/injStand; he collides like the player (injBlk / injGo wall-follow, h.sd, h.fol, h.be = boss building rect, kept out until bossOpen); only solo / monster host move him (clients draw him from the host snapshot (7d)); stuck / far-behind recovery by injTele (teleports him 60-100px from you: over 400px away, stuck 1.5s, or 8s of wall-following with no progress; 2s cooldown; h.ta fade-in); he says an injSay(h,'follow') line every 20-40s while following (first one 14-24s after he is freed, never over another bubble, never when you are dead; INJ_FOLLOW has 10 lines). Step 7b1 (BUILT): injTarget(h,dt) (called from injTick right after injFollow) picks h.tg every 0.25s (imps first, then lesser demons, nearest, within 260px, line of sight; sticks until it dies / passes 290px / loses sight; ignores m.capShim, the Reaper and other types), sets the aim angle h.aa and makes him face it; he does NOT punch yet (7b4 to 7b6) and no scroll is given yet (steps 9-10). Step 7b2 (BUILT): injGun(h,dt) (called from injTick right after injTarget; INJ_DMG .6, INJ_GAP 1.4) fires h.gun ('pistol') from the PRI / SID table at h.tg: h.mag, h.gcd (shot timer; NOT h.cd, which is the speech timer), h.rl (reload, unlimited reserve); bullets go into bul flagged by:'inj' with wk = the gun key, plus muzzle flash, smoke, noise() and sfx.gun; the bullet loop skips him for by:'inj' bullets; drawInjured aims the gun at the target via INJA. Step 7b3 (BUILT): the bullet loop sets INJCR=1 around hurt() for by:'inj' bullets; a prog() wrapper returns at once while INJCR is set (ledger, achievement and run stats all count from prog()), hurt() stores m.ic=1 when the last hit was his and the daily-run kill count skips m.ic monsters; gore, blood, drops and loot are untouched (hurt gets the gun key as src); his bullets skip the remote-player hit loop. Step 7b4 (BUILT): inside injGun, a living imp or lesser demon within 30px (not m.capShim) is punched instead of shot, also during a reload: INJ_PDMG 20, INJ_PGAP .9s, hurt(...,'melee') with INJCR=1 (no credit), mv knockback 6 like yours, sfx.melee, swing h.sa .18s drawn through INJP / injStand and a white arc in drawInjured; he turns to the monster (h.tg, h.aa, h.pa, h.f). Step 7b5 (BUILT, in injTarget / injFollow): h.spT = the last time you moved faster than 100px/s (sprint; walk is 68, sprint 118-140); h.lk = leashed = you sprinted in the last 0.6s or he is over 200px from you (released under 170px); while leashed h.tg is null and nothing is picked, so he only follows (7a) and never chases; targets must be within 150px of YOU to be picked and are dropped past 180px from you; punches (7b4) still happen when a monster is on top of him. Any new thing he does that damages a monster must set INJCR=1 around its hurt() call. He does not top up his magazine while idle. Step 7b6 (BUILT, fight chatter): two shared line pools INJ_FIGHT (when he first spots an enemy) and INJ_KILL (after a kill that was his; a kill() wrapper checks m.ic), both said through injSay(h,'fight'|'kill'); injChat(h,kind,chance) is the only gate: at least 15s between fight/kill lines (h.ft), never over another bubble, never when you are dead, he is dead or he is not following, and never when his next follow line is due within 2s (a chat line also pushes the follow timer h.cd out to 10s or more). A fight starts when he gets a target after 6s with none (h.inf, h.fs); the fight line is tried for the first 4s of it (h.fd = said) and fires at most once per fight; kill lines have a 35% chance. Tested over 90s fights: no overlaps, no spam. Step 7c (BUILT): see the STEP 7c comment above injBubDraw. Monsters that are chasing may target him (mpTgt wrapper, 40% roll, never when one is within 45px of you), hurtTG routes to injHit(d,a,'mob'), the Reaper takes him (rdStart wrapper), 'hurt' and 'drink' lines through injUrg, h.kit.tonic (starts 0) drunk at under 40% hp when nothing is within 40px (INJ_HW 30 hp, 8s cooldown, 1.1s drink with a bottle drawn). Step 7d (BUILT): see the STEP 7d comment above injBubDraw (injLead, injSnap, injApply, injSmooth, injShots, the 'ish' message, the d / s fields on {t:'inj'}). Killing him: injHit/injDie/injNet (hooks in the bullet loop, melee, stab, grenades, shellBoom, fires and mpHandle t:'inj'). Step 8, his death (BUILT): injDie(a,src) runs gore() with his own skin palette like a hunter's death (weapon decides the style, a mob kill uses 'melee'), pool + splat, shake; the Reaper takes him as a dark vanish with no body; h.gz = gore spawned so drawInjured draws nothing (the body gib is the corpse); h.wa = he was an ally (freed / following), used by injDeathMsg(h,src,f) for the death line ('has fallen' for allies); h.nr = no revive (every hunter system stops at hp<=0); your tripwires trigger when he walks onto one (only while following) and the blast hurts him (injHit 55, src 'tripwire', synced like his other damage). STEP 12 SIGNAL: set the global injDeathHook = function(h,src,wasAlly){...}; injDie calls it exactly once per death on solo, host and clients (guarded by h.st=='dead'), so the scroll burn goes there. Step 9, the Contract Tome item (BUILT; the UI always says 'tome', the key is 'contract'): TOOL.contract (tot:1, nb:1, c:0), ISZ 2x2, SPX, a drawn sprite in drawWpn, mxs 1 (never stacks), accepts() refuses tool slots, ldOK / enforceLoad keep it OUT of the map for now (STEP 11 must relax this), it cannot be sold (sell strip refuses it) and its info card shows his name, story and gear. The item object is {k:'contract',x,y,n:1,h:{id,nm,look,inj,story,g:{p,s,t}}}; g is his loadout (a pistol only until STEP 18). ctrClean(h) validates / copies the details (used by the loader: stash AND bag keep h on load, and moving a tome between stash tabs or containers carries h along); addContract({name,look,inj,story}) puts a new tome in the first stash tab with room and returns it (0 = all tabs full), STEP 10 calls it from end(w) with his INJH details (name, look, inj; story defaults to INJ[inj].story) and then SAVE(). Test it in a DEV-named match with the /tome cheat. STEP 13 still has to check old saves / bag loadouts end to end. Step 10, the tome on escape (BUILT): end(w) calls ctrExtract() on an ESCAPE only (never on death): if he is alive and contracted (st 'follow'), you are the hunter who gave him the Holy Water (h.by===mp.me, so in multiplayer only the freer gets the tome) and he has not been paid out yet (h.tm), addContract adds his tome to the stash (first tab with room) and the escape message says so; if every stash tab is full the details wait in CTP (saved as ctp in bh_save, max 8) and menu() adds them as soon as room appears. No tome if you die or he dies. If the freer dies and a teammate escapes with him alive, nobody gets the tome (owner has not decided). Step 11, bringing tomes into a match (BUILT, SOLO ONLY): put up to 2 tomes in the BAG (ldOK / enforceLoad cap it at 2; tomes still cannot go in tool slots or be sold); the pre-run caption shows 'Hunters: names'. The newGame wrapper calls ctrBring(n) after the map exists: tomes leave P.bag / sel.bag and each becomes an allied hunter in INJX (same shape as INJH, st 'follow', h.ct = the tome details, h.gun = his g.p, standing near your camp); CTO (saved as cto) lists the ones who are out. EVERY hunter system still reads the global INJH, so all of them go through injAll() / injEach(fn) / injOn(h,fn) (a swap of INJH for one call): update, render, lights, bubbles, bullets, melee, stab, shell blasts, grenades, fire pools, tripwires (they trigger on any following hunter), mpTgt, hurtTG, the kill chatter (injNear) and the Reaper. New hunter code MUST use these, never INJH alone. end() calls ctrReturn() on an escape AND on a death: a living hunter's tome returns to the stash (or waits in CTP), a dead one is 'gone forever' (message only); a refresh mid-match returns the tomes from cto. Freeing the map hunter is refused while you already lead 2 living hunters. IN MULTIPLAYER (n>1) ctrBring puts the tomes straight back in the stash with a message: STEP 14 / 17 must remove that gate and sync INJX (snapshots, {t:'inj'} messages carry no hunter id yet, so each needs one). STEP 12 must also drop the tome from CTO and SAVE() at the moment he dies in a match (today the tome only disappears at end()). Delete this line with the block.
-     WHAT THE CODE ALREADY GIVES US: newGame() (lesser demon spawn with its 50% roll, and the supply sites: cart / camp / fallen / cache); item tables TOOL, ISZ, SPX, drawWpn and the revive totem as the pattern for a new item;
-       end(w) and SAVE() / bh_save for escape, death and saving; warden() + SKINS to draw a hunter; say() is only a single screen message, so there are NO world speech bubbles yet; there is NO friendly AI yet (mobAI is enemies only).
-       Keep the hunter OUT of MOBS and pickMob() (same rule as the lesser demons), keep it out of the tutorial, and place everything from the seed so multiplayer stays in sync.
-     STEP 12 (BUILT) - Scroll burns when he dies in a match: ctrBurn(h) runs from injDeathHook (see the STEP 12 block after ctrReturn): drops his tome from CTO, SAVE(), ember burst, message "<name> is gone forever". Only tome hunters (h.ct) burn; ctrReturn skips h.gone ones.
-     STEP 13 (BUILT) - Saving: tomes are saved with their details in bh_save (stash tabs stash/stx, bag, ctp = waiting for room, cto = out in a match); the loader runs every one through ctrClean and drops bad ones, old saves without these fields load as before. Inside a match every save must be SAVE(1) (run flag) or a refresh would hand back the loadout: ctrBring and ctrBurn do that. A refresh mid-match (run=1) also sends any tome still in the saved bag to CTP, so none is lost.
-     STEP 14 (BUILT for tome hunters; see the STEP 14 block after injDeathHook) - Multiplayer (REQUIRED, built alongside the other steps, not last): the monster host runs every hunter NPC; snapshots (mpSendSnap) and clients need his position, HP, state and speech; other players see your hunters; the injured hunter spawn must come from the shared seed; two players must not both claim him (first Holy Water wins, host decides).
-     STEP 15 (BUILT) - Hunter Lore folder 'Hunters in Need' (LORE tab 3, index 17; picture in loreArt; found when you come within 260px of him, bring a tome, or free him). Achievement 'Hand of Mercy' (ACH id resc, stat resc, 1 / 5 / 15 hunters freed with Holy Water). Ledger task type 'resc' (tText, hudm, ledStory, ledgerCommit all know it) added as a 5th and last task of The Last Crusade ('The Wounded Left Behind'); that ledger's skin now comes after it (own.push is guarded so old owners are not given it twice). injRescued() is the one place that counts a rescue.
-     STEP 17 (BUILT) - Teams and matchmaking (OWNER DECIDED: friendly fire ON for hunters, hunters are players in the roster and fill the team boxes at the top, hunters count towards the player count, random names). Search for 'STEP 17': tmWant / tmDecl / tmAlloc / tmMine / tmSlots (team boxes: humans, pending invites, then hunters; humans always win a slot, hunters only fill free ones: 3 minus the humans, handed out in member order by the team host and sent in the roster as mem[].hu); mpGroupsAll (hc = hunters per member: team SIZE for the Solos / Duos / Trios rule = humans + hunters, max 3; each hunter takes one of the 6 places; the search counter and the start trigger use the weighted count); mpSearch sets mp.hg and sends hu in the profile and hc in the heartbeat; ctrBring brings exactly mp.hg tomes (extras go back to the stash); mpRosterList adds the hunters to the 10s roster. Friendly fire: every player's bullets, blasts, fire and melee already hurt every hunter (own, a teammate's, an enemy team's); a hunter's bullets never hurt a human; killing a hunter taints nothing (his tome burning is the cost). Names: tomes keep the random name the hunter was found with (INJ_NAMES, now 64 names).
-     STEP 18 - Giving him a loadout: a screen to hand him primary / sidearm / tools / Holy Water before the match (the scroll stores his loadout); he is lost with it if he dies, and it comes back to you on a clean escape if he lives. OWNER DECIDED: you can also hand him items in the match (a give prompt like the Holy Water one, he gets only a pistol when first saved), and his loadout is edited in the stash by opening his TOME (the contract); the tome keeps his gear between matches. Always write 'tome' in the UI text.
-     SUGGESTED ORDER: steps 2 to 6 first (spawn, scenes, bubbles, Holy Water, all seed-driven and synced from the start via step 14), then 7 and 8 (follower with his own kit), then 9, 10, 13, 18 (scroll, loadout, saving), then 11, 12, 17 (bringing him in, teams and matchmaking), then 15 and 16.
-   -----------------------------------------------------------------------------------------------------
+   TO IMPLEMENT: CONTACTS (replaces the Ledgers tab; owner's request, Oct 25). A Tarkov / Dark and Darker style page of NPC profiles, each giving quests. Build it in the numbered steps below.
+     RULES FOR THIS LIST: (1) when a step is built AND tested, DELETE that step from this list the same turn. (2) When every step is gone, DELETE this whole CONTACTS block, including these rules and the decisions. (3) Do one step per turn unless the owner says otherwise.
+     DECISIONS (owner): At most 3 quests can be active at the same time. The tab is called "Quests". The owner CHANGED HIS MIND (Oct 25): the 5 old ledger characters (Aldric, Haddan, Ossian, Marrow, Ulf) are NOT the contacts. The contacts are NEW NPCs, each the face of a different GROUP (more lore), 5 groups now. OWNER (Oct 25, later): all five groups get NEW faces (not the first ones) and reputation / levels were REMOVED (no levels, no pay bonus); portraits are ANIMATED (ctDraw/ctLoop: idle bob, gaze sway, fx, flickering flames); each face holds its own lore item instead of a pistol (candle taper, lamplighter's pole, gilded reliquary, sealed envelope + coin, crossbow); each face has its own NPC-only skin (NPCSK + SKB.npc_*, shown in the Quests portraits; the reward skins are unchanged). Progress on the old ledgers is dropped; skins already owned stay.
+     THE 5 GROUPS (the first four faces were Sister Odalys Marsh, Tobias Wick, High Inquisitor Veyra Aurelle and Mr. Hollow; they are REPLACED by the faces below, and Mr. Hollow stays as the unseen broker behind Ferris Vane) (one NPC each, 4 quests each using the existing quest types until step 8; each group's top level unlocks a reward skin):
+       1. The Salt Wardens       - NPC: Sister Perpetua Crane, Sealwright of Saint Orrin. A chapter of the Order whose chapel drowned when the breach opened the water table; they salt and seal what they cannot kill. Quests: wards and exits (escape alive, banish corpses, rescue the wounded). Reward skin: Bog Witch.
+       2. The Lamplighter Guild  - NPC: Hesper Quill, Wickmistress of the Guild. Civilians who keep the parish lamps burning so the dark stays out. Quests: fire and light (flamethrower kills, clearing imps, getting out alive). Reward skin: Rattlebones.
+       3. The Gilded Inquisition - NPC: Magister Lucan Verrow, Auditor of the Reliquary. A rich, zealous wing of the Order that burns heresy and collects relics (this is where the open lore hook lives: every relic carried out widens the cracks). Quests: the archdemon (damage, finish, banish). Pays the most. Reward skin: Iron Crusader.
+       4. The Quiet Buyers       - NPC: Ferris Vane, the Appraiser, who speaks for the unseen broker Mr. Hollow. The anonymous network that pays fortunes for demon parts; hints that the trade is how hell spreads. Quests: the trade (kills with set weapons, banishing corpses, carrying parts out). Reward skin: Dusk Gunslinger.
+       A FIFTH group is BUILT: the Kennelmen of Saint Hubert (quests: kill imps, crossbow kills, melee kills, free 2 injured hunters), reward skin Wolfhide Stalker. More shortlist groups can follow (Harvest Cult, Carnival of Teeth, Department of Hauntings, and so on).
+     PANEL BRAINSTORM, THE FIVE QUEST GROUPS (Oct 25; lore experts + Goetia specialists + devs + playtesters; owner has NOT yet picked the fifth group; it is only a recommendation):
+       Lore reasoning: the Order is the parent of the parish. The four built groups are chapters of the Order (Salt Wardens, Gilded Inquisition), civilians (Lamplighters) and an outsider (Quiet Buyers). Hierarchy gap: nobody hunts the lesser demons (the commanders, 'loosed to roam, to lead, and to learn the parish by its screaming'). Five ways to hold the dark: seal and salt (Wardens), light (Lamplighters), burn and keep (Inquisition), sell (Buyers), hunt by silence (fifth group).
+       Canon rules for every group: nobody ever answers WHY the demons came (the Chronicle says we do not know); a group may only guess. The horde hunts by sound and smell and HAS eyes, so the Lamplighters' 'light keeps imps off' is their belief, never proven. The Order gives a mask only when the mask will outlive the face, and dye is for people who expect to be remembered, so the Inquisition's gold leaf is a pointed contrast to the Order's drab. The Lore tab already says Old Marrow is the best paying of the quiet buyers, so Mr. Hollow is the broker behind her (Marrow can be a minor name in his network, not a contact).
+       RECOMMENDED FIFTH: The Kennelmen of Saint Hubert. NPC (built): Houndmistress Ysolde Barrow, Keeper of the Kennel. Hook: the parish's gamekeepers and hound-masters, now hunting the commanders; poor and proud, they pay in knowledge and teach what the Chronicle teaches (hold your breath, stand still). Reward skin: Wolfhide Stalker. Quest theme: lesser demons and silence. Lore ties: Saint Hubert is the patron of hunters and his legend is a stag with a cross between its antlers; Furfur (on the agreed lesser demon list) appears as a hart with a fiery tail in the Ars Goetia, so 'the hunt inverted' is the Kennelmen's nemesis; Raum is the crow-commander of the Chronicle; Cerberus is Dante and Greek myth (Inferno canto VI), NOT a Goetic spirit, so do not call it one; folklore links Hubert's name with spectral hunts in places (the Wild Hunt), which suits the Wolfhide Stalker skin.
+       Dev feasibility for the Kennelmen: every run already spawns 1 or 2 lesser demons picked from LESSER_MK (cerberus, raum, vepar), so a quest type 'ld' (kill a lesser demon, any or by name) is reliable per run and fits progQ. A 'stay unbitten when the Cerberus sniffs you' quest is possible (Cerberus has sniff and bite states) but needs a new counter. Kill credit: lesser demons run on the monster host, so credit must reach the killer's own client the way imp kills do; test it with a live multiplayer room. Dana: make their quests a little harder than the Lamplighters'. Priya: the Wolfhide Stalker skin is already drawn, only a portrait and emblem are needed.
+       Emblems (sigil art historian): Salt Wardens = a salt wave, Lamplighters = a lantern flame, Gilded Inquisition = a red wax seal, Quiet Buyers = a blank envelope, Kennelmen = a stag skull collar.
+       Playtester wishes (not decided): contact quests unlock Lore tab entries; Mr. Hollow and the Inquisition hint at each other; quick quests such as 'kill a lesser demon' for speedrunners; the co-op lead asks whether quest progress should count for the whole team (it does not yet).
+       BENCH if more groups are ever wanted, in the panel's order: the Bell-Sextons (Mordrek, the churchyard, the Gravedigger, the Bell Tower), the Ashen Registry (the Ashen Doctor's ash-signed death ledger), the Foundry Road Four (survivors of the ninety, aimed at Gorrath). CUT by the panel: the Carnival of Teeth and the Department of Hauntings (no hook in canon; 'Department' is modern in a world of pikes and plague wagons). Do not make a cult a contact for now.
+       STILL OPEN for the owner: pick the fifth group, and confirm or drop the hook that every relic carried out widens the cracks (the Inquisition and the Buyers both lean on it).
+     STEPS (one at a time, each testable alone):
+       8. (PARTLY BUILT) New quest types. DONE: xk = escape alive through one exit (Order Wagon / Ferryman's Boat / Bell Tower; used by Wardens 1+4 and Lamplighters 4), tgk = kill imps in the Training Grounds (used by Quiet Buyers 2; banked when you leave by the gate). Free an injured hunter already existed (resc). STILL OPEN (owner to say if wanted): quests for the other new systems (Reaper, Blood Moon, lesser demons, teams, Mordrek's churchyard).
+       9. (optional, later) A lesser-demon kill quest type ('ld') for the Kennelmen, and any extra contacts who pay in gear or discounts instead of skins.
+      11. Full test: accept, complete, extract, check rep, cash and skins, load an old save, try multiplayer.
+      12. (LATER, owner will revisit: nothing decided yet) QUEST LINES: add quest lines to the Quests system. Do NOT build this until the owner comes back to it and says what a quest line is (for example longer story chains per contact, or lines that cross several contacts). Ask him before starting.
    TO IMPLEMENT: "LEARN THE LORE" NARRATED CINEMATIC (owner's request, Oct 19). STEPS 1-5 ARE BUILT (step 5 = wiring: tutorial prompt button, title screen entry, Lore menu button; localStorage bh_loreseen marks it seen) (step 4 = narration: LC_HOOK in the LORE NARRATION block; owner's recorded voice is embedded as LORE_VO in <script id=lorevo> at the end of the file, pages 0-12; browser voice is only a fallback; menu music ducked) (step 3 = loreCine(onEnd) full-screen player: title card, 12 pages, end card, Esc/Skip ends, click/Space/Right = next page, reduced-motion safe; hooks for narration: LC_HOOK={page(k,pg,chunks),stop()}, page lengths = PG[k].dur; started from Lore menu > Read the Chronicle > Play cinematic): const LORE_PAGES (13 pages, owner's Chronicle verbatim, each has a shot id) and the stills: drawLoreShot(g,id,t) draws a 224x126 shot, loreShot(id,t) returns a ready offscreen canvas (cached for still ids, redrawn each call for the ids in LORE_ANIM: eye, seam, bells, bleed, toll, ruin, reach; t = 0..1 progress through the page), loreShotFree() releases them when the cinematic ends. A page-by-page previewer already exists: Lore menu > Read the Chronicle (scr=='chron', chronInit); step 5 only needs to add the replay-cinematic button there. Scale the canvas up with imageSmoothingEnabled=false. Do the remaining steps in order; DELETE each step from these notes when it ships.
      Goal: on first launch, the tutorial prompt (tutAsk, #tutask) gets a third button "Learn the Lore" next to "Start tutorial" / "Skip for now". It plays a short cinematic:
        still shots slowly come onto the screen, drift, then move off as the next arrives, while an OLD MAN with a RASPY narrator voice reads the Chronicle.
@@ -350,7 +351,11 @@ button.tt-btn:active{transform:translateX(12px) scale(.98)}
    Open questions for the owner: add the subtype tabs to the loadout and shop screens for the new weapons? Melee primaries (blades, hammers) as a later brainstorm (parked: they need new combat code)?
    A Goetia seal engraved on the stock per subtype is a cosmetic idea.
    ===================================================================================================== */
-const $=s=>document.querySelector(s),VW=640,VH=360,WW=2200,WH=1450;
+const $=s=>document.querySelector(s),VW=640,VH=360,WW=3300,WH=2175;
+// MAPK = how many times bigger the map is than the original 2200x1450 (area): use it to scale anything that is counted per map (specks, trees, loot, ambient demons) so the density stays the same.
+const MAPK=WW*WH/(2200*1450);
+// BK = how many times wider AND taller a building is than the original (210-300 x 150-210). Owner chose option 1 (2.5x width and height) on Oct 25; the option-2 value would be BK=1.58 (2.5x the floor area). Rooms are split inside buildWalls (see the notes).
+const BK=2.5;   // OWNER WANTS TO REVISIT THIS SIZE after playing it in game (keep this note until he says it is good). If he wants smaller buildings set BK=1.58 (about 2.5x the area) and re-tune: rooms per building (planRooms target R(4,8), RMIN), demons per room (STEP 11 block in newGame), loot per room (STEP 12 block) and the muffled noise in noise() (STEP 14).
 const cv=$('#g'),dk=document.createElement('canvas'),dx=dk.getContext('2d');let ctx=cv.getContext('2d');
 dk.width=VW;dk.height=VH;
 // HI-RES WORLD: the game still thinks in 640x360 units, but the visible canvas now has HRS backing pixels per unit (2 normally, 3 on big/hi-dpi screens),
@@ -778,7 +783,7 @@ Object.assign(SKINS,{
 Object.assign(FAMS,{inq:{n:'High Inquisitor',d:'Ivory plate, gold leaf and a halo. Matches the Gilded Inquisition set.',c:850,def:'inq'}});
 const pit=q=>q.t=='f'?FAMS[q.k]:q.t=='w'?(SID[q.k]||PRI[q.k]||TOOL[q.k]):SKINS[q.k];
 let pname='';const cleanName=v=>String(v==null?'':v).replace(/[^\w .'\-]/g,'').replace(/\s+/g,' ').trim().slice(0,14);
-let LS={},AST={},ANT={},RS={},AL=null,shopScr='shop',wsConf=null,setConf=null,traps=[],own=['hunter','plain'],curFam='hunter',note='',pend=null,stash=[],invOpen=0;
+let LS={},CS={},AST={},ANT={},RS={},shopScr='shop',wsConf=null,setConf=null,traps=[],own=['hunter','plain'],curFam='hunter',note='',pend=null,stash=[],invOpen=0;
 const ISZ={rifle:[4,2],shotgun:[4,2],repeater:[3,2],crossbow:[3,2],pistol:[2,2],revolver:[2,2],tonic:[1,1],bomb:[2,1],pepperbox:[3,2],musket:[4,2],flamer:[3,2],handcannon:[2,2],whisper:[2,2],flask:[1,1],flare:[1,1],ward:[1,1],tripwire:[2,1],saltline:[1,1],noisemaker:[1,1],chalk:[1,1],gatling:[4,2],blunderbuss:[4,2],longbow:[4,2],sprayer:[4,2],mortar:[3,2],sixshooter:[2,2],dartpistol:[2,2],stake:[2,1],carbine:[3,2],sawnoff:[3,2],pump:[4,2],lever:[3,2],drum:[3,2],repxbow:[3,2],fowling:[4,2],derringer:[2,1],pocketrev:[2,2],navyrev:[2,2],scatterpistol:[2,2],dragoon:[2,2],sling:[2,1],saltgun:[4,2],stamtonic:[1,1],bootwraps:[1,1],revive:[1,2],tomb:[1,2],impcap:[4,3],contract:[2,2],muzzle:[2,1],pyre:[2,1],magpie:[2,1],thief:[2,1],pearl:[2,1],undertow:[2,1]},SC=20,SR=8,MAXST=3,NTS=6,EXD=10/* seconds standing in an exit ring to escape */,isz=k=>ISZ[k]||[1,1],mxs=k=>k=='revive'||k=='tomb'||k=='impcap'||k=='contract'?1:MAXST,isz2=o=>{const z=isz(o.k);return o.r?[z[1],z[0]]:z};
 const fitsIn=(arr,C,R_,x,y,w,h,ex)=>x>=0&&y>=0&&x+w<=C&&y+h<=R_&&!arr.some(o=>{if(o===ex)return 0;const z=isz2(o);return x<o.x+z[0]&&x+w>o.x&&y<o.y+z[1]&&y+h>o.y});
 const spotIn=(arr,C,R_,k,ex)=>{const[w,h]=isz(k);for(let y=0;y<=R_-h;y++)for(let x=0;x<=C-w;x++)if(fitsIn(arr,C,R_,x,y,w,h,ex))return[x,y];return null};
@@ -850,8 +855,8 @@ let FAV=[null,null,null];
 const favClean=f=>{if(!f||typeof f!='object')return null;const pri=PRI[f.pri]&&f.pri!='none'?f.pri:'none',side=SID[f.side]&&f.side!='none'?f.side:'none',seen={};
  const tools=Array.from({length:NTS},(_,i)=>{const t=Array.isArray(f.tools)?f.tools[i]:null;if(!t||!TOOL[t.k]||TOOL[t.k].tot||seen[t.k])return null;seen[t.k]=1;return{k:t.k,n:Math.max(1,Math.min(mxs(t.k),(t.n|0)||1))}});
  return pri=='none'&&side=='none'&&!tools.some(Boolean)?null:{pri,side,tools}};
-const SAVE=run=>{try{localStorage.setItem('bh_save',JSON.stringify({fav:FAV,nm:pname,bank,own,led:LS,al:AL,skin:sel.skin,sk:sel.sk,stash:STB[0],stx:[STB[1],STB[2],STB[3]],stu:stUn.slice(1),pri:sel.pri,side:sel.side,bag:sel.bag,tomes:sel.tomes,tools:sel.tools,tsk:TSK,ast:AST,ant:ANT,ctp:CTP,cto:CTO,run:run?1:0}))}catch(e){}};
-try{const d=JSON.parse((localStorage.getItem('bh_save')||'null').replace(/"smg"/g,'"pepperbox"'));if(d&&Array.isArray(d.own)){own=[...new Set(['hunter','plain',...d.own.filter(k=>FAMS[k]||SKINS[k]||WSKINS[k])])];bank=Math.max(120,d.bank|0);if(d.led)LS=d.led;if(Array.isArray(d.fav))FAV=[0,1,2].map(i=>favClean(d.fav[i]));if(d.ast&&typeof d.ast=='object'){for(const k in d.ast){const v=+d.ast[k];if(isFinite(v)&&v>=0)AST[k]=v}}if(d.ant&&typeof d.ant=='object'){for(const k in d.ant){const v=d.ant[k]|0;if(v>0&&v<4)ANT[k]=v}}AL=d.al||null;if(Array.isArray(d.ctp))CTP=d.ctp.map(ctrClean).filter(Boolean).slice(0,8);if(Array.isArray(d.cto))d.cto.map(ctrClean).filter(Boolean).forEach(c=>{if(CTP.length<8)CTP.push(c)});for(const k in(d.tsk&&typeof d.tsk=='object'?d.tsk:{})){const v=skv(k,d.tsk[k]);if(TOOL[k]&&v&&own.includes(v))TSK[k]=v}sel.skin=SKINS[d.skin]&&own.includes(d.skin)?d.skin:'plain';sel.wsk={};sel.sk={p:'',s:''};const lw=d.sk?{}:(d.wsk&&typeof d.wsk=='object'?d.wsk:{}),lsk=k=>{const id=lw[k];return WSKINS[id]&&WSKINS[id].k==k&&own.includes(id)?id:''};pname=cleanName(d.nm);
+const SAVE=run=>{try{localStorage.setItem('bh_save',JSON.stringify({fav:FAV,nm:pname,bank,own,led:LS,cs:(ctSync(),CS),skin:sel.skin,sk:sel.sk,stash:STB[0],stx:[STB[1],STB[2],STB[3]],stu:stUn.slice(1),pri:sel.pri,side:sel.side,bag:sel.bag,tomes:sel.tomes,tools:sel.tools,tsk:TSK,ast:AST,ant:ANT,ctp:CTP,cto:CTO,run:run?1:0}))}catch(e){}};
+try{const d=JSON.parse((localStorage.getItem('bh_save')||'null').replace(/"smg"/g,'"pepperbox"'));if(d&&Array.isArray(d.own)){own=[...new Set(['hunter','plain',...d.own.filter(k=>FAMS[k]||SKINS[k]||WSKINS[k])])];bank=Math.max(120,d.bank|0);if(d.led)LS=d.led;if(d.cs&&typeof d.cs=='object')CS=d.cs;if(Array.isArray(d.fav))FAV=[0,1,2].map(i=>favClean(d.fav[i]));if(d.ast&&typeof d.ast=='object'){for(const k in d.ast){const v=+d.ast[k];if(isFinite(v)&&v>=0)AST[k]=v}}if(d.ant&&typeof d.ant=='object'){for(const k in d.ant){const v=d.ant[k]|0;if(v>0&&v<4)ANT[k]=v}}if(Array.isArray(d.ctp))CTP=d.ctp.map(ctrClean).filter(Boolean).slice(0,8);if(Array.isArray(d.cto))d.cto.map(ctrClean).filter(Boolean).forEach(c=>{if(CTP.length<8)CTP.push(c)});for(const k in(d.tsk&&typeof d.tsk=='object'?d.tsk:{})){const v=skv(k,d.tsk[k]);if(TOOL[k]&&v&&own.includes(v))TSK[k]=v}sel.skin=SKINS[d.skin]&&own.includes(d.skin)?d.skin:'plain';sel.wsk={};sel.sk={p:'',s:''};const lw=d.sk?{}:(d.wsk&&typeof d.wsk=='object'?d.wsk:{}),lsk=k=>{const id=lw[k];return WSKINS[id]&&WSKINS[id].k==k&&own.includes(id)?id:''};pname=cleanName(d.nm);
  const ok=k=>k&&k!='none'&&(PRI[k]||SID[k]),wk=(k,o)=>ok(k)?(skv(k,o&&typeof o=='object'?o.sk:'')||lsk(k)):'';const stl=arr=>(Array.isArray(arr)?arr:[]).forEach(o=>{const k=typeof o=='string'?o:o&&o.k;if(!(ok(k)||TOOL[k]))return;if(k=='contract'&&!ctrClean(o&&o.h))return;const z=isz2(typeof o=='object'&&o?{k,r:o.r?1:0}:{k});if(typeof o=='object'&&Number.isInteger(o.x)&&Number.isInteger(o.y)&&fits(o.x,o.y,z[0],z[1])){stash.push({k,x:o.x,y:o.y,n:TOOL[k]?Math.min(mxs(k),o.n||2):(o.n||0),...(o.r&&z[0]!=z[1]?{r:1}:{}),...(wk(k,o)?{sk:wk(k,o)}:{}),...(k=='contract'?{h:ctrClean(o.h)}:{})});if(TOOL[k])for(let q=(o.n||2)-mxs(k);q>0;q--)addItem(k,1)}else if(addItem(k,o&&o.n)){const q=wk(k,o);if(q)stash[stash.length-1].sk=q;if(k=='contract')stash[stash.length-1].h=ctrClean(o.h)}});
  stash=[];stl(d.stash);STB=[stash,[],[],[]];stTab=0;stConf=-1;stUn=[1,0,0,0];if(Array.isArray(d.stu))[1,2,3].forEach(i=>{if(d.stu[i-1]){stUn[i]=1;stash=STB[i];stl(d.stx&&d.stx[i-1])}});stash=STB[0];
  if(d.run){try{(Array.isArray(d.bag)?d.bag:[]).concat(Array.isArray(d.tomes)?d.tomes:[]).forEach(o=>{if(o&&o.k=='contract'){const c=ctrClean(o.h);if(c&&CTP.length<8)CTP.push(c)}})}catch(e){}sel.pri='none';sel.side='none';sel.bag=[];sel.tools=Array(NTS).fill(null)}else{if(PRI[d.pri])sel.pri=d.pri;if(SID[d.side])sel.side=d.side;if(d.sk&&typeof d.sk=='object'){sel.sk.p=skv(sel.pri,d.sk.p);sel.sk.s=skv(sel.side,d.sk.s)}else{sel.sk.p=lsk(sel.pri);sel.sk.s=lsk(sel.side)}sel.bag=[];(Array.isArray(d.bag)?d.bag:d.bag?[d.bag]:[]).forEach(o=>{const k=typeof o=='string'?o:o&&o.k;if(!(ok(k)||TOOL[k]))return;if(k=='contract'&&!ctrClean(o&&o.h))return;const z=isz2(typeof o=='object'&&o?{k,r:o.r?1:0}:{k});if(typeof o=='object'&&Number.isInteger(o.x)&&Number.isInteger(o.y)&&fitsIn(sel.bag,4,4,o.x,o.y,z[0],z[1]))sel.bag.push({k,x:o.x,y:o.y,n:TOOL[k]?Math.min(mxs(k),o.n||1):(o.n||0),...(o.r&&z[0]!=z[1]?{r:1}:{}),...(wk(k,o)?{sk:wk(k,o)}:{}),...(k=='contract'?{h:ctrClean(o.h)}:{})});else if(addTo(sel.bag,4,4,k,o&&o.n)){const q=wk(k,o);if(q)sel.bag[sel.bag.length-1].sk=q;if(k=='contract')sel.bag[sel.bag.length-1].h=ctrClean(o.h)}});if(Array.isArray(d.tools))sel.tools=Array.from({length:NTS},(_,i)=>{const t=d.tools[i];if(!t)return null;const k=typeof t=='string'?t:t.k;if(TOOL[k])for(let q=(t.n||2)-mxs(k);q>0;q--)addItem(k,1);return TOOL[k]?{k,n:Math.min(mxs(k),t.n||2)}:null});sel.tomes=[];(Array.isArray(d.tomes)?d.tomes:[]).slice(0,2).forEach(o=>{const c=o&&o.k=='contract'?ctrClean(o.h):null;if(!c)return;const f=spotIn(sel.tomes,4,2,'contract');if(f)sel.tomes.push({k:'contract',n:1,x:f[0],y:f[1],h:c});else if(!addContract(c)&&CTP.length<8)CTP.push(c)});ctrMigrate()}}}catch(e){}
@@ -875,7 +880,7 @@ const WKEYS=['rifle','shotgun','repeater','crossbow','pistol','revolver','pepper
 const wph=k=>k=='melee'?'melee attacks':k=='bomb'?'grenades':'the '+(PRI[k]||SID[k]).n;
 const mtxt=m=>m.t=='kills'?`Kill ${m.n} imps`:m.t=='wkills'?`Kill ${m.n} imps with ${wph(m.w)}`:m.t=='bdmg'?`Deal ${m.n} damage to the demon with ${wph(m.w)}`:`Land the killing blow on the demon with ${wph(m.w)}`;
 const MT={kills:'Purge the Horde',wkills:'Trick Shots',bdmg:'Wound the Demon',bfin:'Final Blow'};
-let offers=[],mi=0,mis={t:'boss',n:0,p:0,done:0,bo:0};
+let offers=[],mi=0,mis={t:'boss',n:0,p:0,done:0,bo:0},MQ=[];   // MQ = the quests tracked in this run (up to 3, built by ctRunQuests() in newGame); mis is just MQ[0] for the old HUD
 function genMissions(){const ty=['kills','wkills','bdmg','bfin'].sort(()=>Math.random()-.5).slice(0,3);mi=0;
  offers=ty.map(t=>{const w=WKEYS[R(0,WKEYS.length)|0],lo=w=='melee'||w=='bomb';
   if(t=='kills'){const n=R(8,15)|0;return{t,n,bo:200+n*20}}
@@ -883,57 +888,111 @@ function genMissions(){const ty=['kills','wkills','bdmg','bfin'].sort(()=>Math.r
   if(t=='bdmg'){const n=Math.round((lo?R(150,260):R(220,360))/10)*10;return{t,w,n,bo:150+Math.round(n*.8)}}
   return{t,w,n:0,bo:250}})}
 genMissions();
-function prog(m,dd,src,dead){if(mis.done||mis.fail)return;
- if(m.boss){if(mis.t=='bdmg'&&(!mis.w||src==mis.w))mis.p=Math.min(mis.n,mis.p+dd);if(mis.t=='bfin'&&dead){if(!mis.w||src==mis.w)done();else mis.fail=1}}
- else if(dead&&(m.ty||'imp')=='imp'&&(mis.t=='kills'||(mis.t=='wkills'&&src==mis.w)))mis.p++;
- if(['kills','wkills','bdmg'].includes(mis.t)&&mis.b+mis.p>=mis.n)done()}
-function done(){if(mis.done)return;mis.done=1;say('Ledger task complete! Extract alive to claim it.',5)}
-const hudm=()=>{const g=mis.b+mis.p,w=mis.w?wph(mis.w).replace('the ',''):'';return mis.t=='kills'?`Imps ${g}/${mis.n}`:mis.t=='wkills'?`Imps (${w}) ${g}/${mis.n}`:mis.t=='bdmg'?`Demon dmg${w?' ('+w+')':''} ${g}/${mis.n}`:mis.t=='bfin'?`Finish the demon${w?': '+w:''}`:mis.t=='resc'?`Free hunters ${g}/${mis.n}`:mis.t=='esc'?`Extract alive ${mis.b}/${mis.n}`:'Banish the demon, then extract'};
+function progQ(q,m,dd,src,dead){if(q.done||q.fail)return;
+ if(m.boss){if(q.t=='bdmg'&&(!q.w||src==q.w))q.p=Math.min(q.n,q.p+dd);if(q.t=='bfin'&&dead){if(!q.w||src==q.w)done(q);else q.fail=1}}
+ else if(dead&&(m.ty||'imp')=='imp'&&(q.t=='kills'||q.t=='tgk'||(q.t=='wkills'&&src==q.w)))q.p++;
+ if(['kills','wkills','bdmg','tgk'].includes(q.t)&&q.b+q.p>=q.n)done(q)}
+function prog(m,dd,src,dead){for(const q of MQ)progQ(q,m,dd,src,dead)}
+function done(q){q=q||mis;if(!q||q.done)return;q.done=1;say('Quest task complete: '+(q.h||'')+'. Extract alive to claim it.',5)}
+const hudq=mis=>{const g=mis.b+mis.p,w=mis.w?wph(mis.w).replace('the ',''):'';return mis.t=='kills'?`Imps ${g}/${mis.n}`:mis.t=='wkills'?`Imps (${w}) ${g}/${mis.n}`:mis.t=='bdmg'?`Demon dmg${w?' ('+w+')':''} ${g}/${mis.n}`:mis.t=='bfin'?`Finish the demon${w?': '+w:''}`:mis.t=='resc'?`Free hunters ${g}/${mis.n}`:mis.t=='esc'?`Extract alive ${mis.b}/${mis.n}`:mis.t=='xk'?`Extract through ${EXN[mis.x].replace('the ','')}`:mis.t=='tgk'?`Training Grounds imps ${g}/${mis.n}`:'Banish the demon, then extract'};
+const hudm=()=>hudq(mis);
+// HUD (step 6): one line per accepted quest under the sigil line; the lines below shift down 12px for each extra quest.
+const hudQs=()=>MQ.map(q=>({t:q.done?'Quest done: '+q.h+' - extract to claim':q.fail?'Quest failed: '+q.h:'Quest: '+hudq(q),c:q.done?'#8fe0a0':q.fail?'#a06a60':'#c0a070'})),hudQh=()=>Math.max(0,MQ.length-1)*12;
 // ---------- LEDGERS: story arcs with tasks; progress is banked on a clean extraction; the last task unlocks a skin that cannot be bought ----------
 const LEDGERS=[
-{id:'crusade',t:'The Last Crusade',skin:'knight',h:"Sir Aldric Vane led one hundred knights into the Hellbreach to seal it. Only his armor walked back out, empty, still marching. Finish the crusade he could not.",tasks:[
- {t:'kills',n:10,bo:150,h:'Clear the Gatehouse',s:"Aldric's banner still hangs in the gatehouse ash. The imps nest beneath it. Burn them out."},
- {t:'wkills',w:'melee',n:6,bo:250,h:'Steel Before Powder',s:"The crusade swore never to fire on the damned, only to cut them down. Honor the vow with melee attacks."},
- {t:'bdmg',n:300,bo:350,h:'Break the Archdemon',s:"A squire scratched a warning into a dented shield: the archdemon fears nothing but its own blood. Make it bleed."},
- {t:'ban',n:1,bo:600,h:'Lay the Knight to Rest',s:"Banish the archdemon's corpse and carry Aldric's banner out. The empty armor will finally stand down."},
- {t:'resc',n:1,bo:500,h:'The Wounded Left Behind',s:"The crusade left its wounded in the ash, and the ash still holds them. Give an injured hunter Holy Water and let one more soul walk out of the Breach."}]},
-{id:'draw',t:"Dead Man's Draw",skin:'gun',h:"Marshal Cole Haddan owed the Breach one last duel and lost it at high noon. His hat still hangs on a hitching post beside the sigils, waiting for a new owner.",tasks:[
- {t:'wkills',w:'pistol',n:6,bo:150,h:'Warm Up the Hand',s:"Cole never trusted a rifle. Six imps with the plain Pistol will show you how he thought."},
- {t:'esc',n:2,bo:250,h:'Ride Out Twice',s:"Haddan's rule: a gunslinger is only as good as his exits. Leave the Breach alive, twice."},
- {t:'bfin',n:1,bo:350,h:'The Killing Shot',s:"His last duel ended on a single bullet that missed. Land the killing blow on the archdemon yourself."},
- {t:'kills',n:20,bo:600,h:'High Noon',s:"Twenty imps, one long afternoon. Finish what the marshal started, and the hat is yours."}]},
-{id:'choir',t:'The Bone Choir',skin:'bones',h:"Cantor Ossian sang the damned to sleep for forty years. When the Breach swallowed his choir he kept singing, long after his voice was gone. The song still needs a singer.",tasks:[
- {t:'kills',n:15,bo:150,h:'Quiet the Verses',s:"The first verse is a chorus of imps. Silence fifteen of them."},
- {t:'wkills',w:'bomb',n:5,bo:250,h:'Percussion',s:"Every hymn needs a drum. Kill five imps with grenades."},
- {t:'esc',n:3,bo:350,h:'Three Silent Exits',s:"The choir fell silent one by one. Leave the Breach alive three times, and be heard by none."},
- {t:'bfin',n:1,bo:600,h:'The Last Verse',s:"Land the killing blow on the archdemon. Ossian finally gets his rest, and you get his bones."}]},
-{id:'bargain',t:"The Bog Witch's Bargain",skin:'witch',h:"Old Marrow brews cures from hellfire and wants a fresh supply. She pays in coin first, and in something worse later. The cauldron is always hungry.",tasks:[
- {t:'kills',n:12,bo:150,h:'Fresh Ingredients',s:"Marrow wants imp horns, twelve of them, still warm."},
- {t:'wkills',w:'crossbow',n:6,bo:250,h:'Silver for the Pot',s:"Silver bolts leave the meat clean. Six imps with the Crossbow."},
- {t:'bdmg',n:350,bo:350,h:'A Pinch of Archdemon',s:"The recipe calls for a pinch of the archdemon itself. Take it with a few hundred damage."},
- {t:'esc',n:3,bo:600,h:'Never Tip the Witch',s:"Marrow does not tip, and does not wait. Bring your wares out alive, three times, and the hat and broth are yours."}]},
-{id:'pack',t:'The Pack Under the Hill',skin:'wolf',h:"The Skarn wolf-clan hunted the Breach for a hundred winters. Now the pack is gone and only Ulf, the last stalker, still howls from the hill. Answer him.",tasks:[
- {t:'esc',n:2,bo:150,h:'Run With the Wind',s:"A wolf survives by knowing when to leave. Escape the Breach alive twice."},
- {t:'kills',n:14,bo:250,h:'Thin the Herd',s:"Imps follow the scent of the dead. Cull fourteen of them before they track the clan's cubs."},
- {t:'bdmg',w:'melee',n:150,bo:350,h:'Tooth and Claw',s:"The Skarn never killed from afar. Deal damage to the archdemon with melee attacks."},
- {t:'ban',n:1,bo:600,h:'Avenge the Pack',s:"Banish the archdemon's corpse and carry its pelt home. Ulf will lay down the howl."}]}];
+{id:'wardens',t:'The Salt Wardens',skin:'witch',h:"The chapel of Saint Orrin drowned the night the Breach split the water table. Its sisters did not leave. They salted the floodwater, sealed the doors with brine and wax, and kept the Tide Ledger by candle, naming every soul the water took. Sister Perpetua Crane, their Sealwright, melts the wax and sets every seal herself. She wants the exits kept clean, the dead put down, and the wounded carried home. The Wardens pay in coin, and in the one thing the parish cannot buy: a door that stays shut.",tasks:[
+ {t:'xk',x:0,n:1,bo:150,h:'Mark the Way Out',s:"Perpetua keeps the Order's plague wagon salted so the drowned cannot follow. Leave alive by the Order Wagon and the marks hold."},
+ {t:'resc',n:1,bo:250,h:'Pulled From the Tide',s:"The Tide Ledger lists a hunter as still breathing. Give an injured hunter Holy Water and bring his name out of the water."},
+ {t:'ban',n:1,bo:350,h:'Salt the Fallen Lord',s:"A corpse left lying wakes again. Banish the archdemon's corpse, salt it down, and reach an exit."},
+ {t:'xk',x:1,n:1,bo:600,h:'The Tide Keeps Its Ledger',s:"Every hunter who leaves by the water is a line the sea does not get to write. Leave the Breach alive in the Ferryman's Boat, and the Bog Witch's hat is yours."}]},
+{id:'lamplighters',t:'The Lamplighter Guild',skin:'bones',h:"Before the Breach the Guild lit the parish lamps at dusk and put them out at dawn. Now the dusk does not end, and the lamps are the only thing between the streets and the dark. Wickmistress Hesper Quill still climbs her pole every night, and pays well for anyone who clears the posts of whatever crawls up them. The Guild believes imps hate light the way the living hate silence.",tasks:[
+ {t:'wkills',w:'flamer',n:8,bo:150,h:'Trim the Wicks',s:"Fire is the Guild's trade. Burn eight imps with the Flamethrower and the first row of lamps will hold."},
+ {t:'kills',n:15,bo:250,h:'Clear the Lamp Posts',s:"Imps nest at the foot of every post and snuff the flame. Clear fifteen of them from the lamp lines."},
+ {t:'bdmg',w:'flamer',n:250,bo:350,h:'Light the Archdemon Up',s:"Hesper swears the archdemon has never been properly lit. Deal damage to it with the Flamethrower."},
+ {t:'xk',x:2,n:1,bo:600,h:'Home Before Dark',s:"The Bell Tower tolls the dark awake, and the Guild wants it answered. Leave alive through the Bell Tower, and you carry the Rattlebones lantern."}]},
+{id:'inquisition',t:'The Gilded Inquisition',skin:'knight',h:"The Order's richest wing burns heresy in gold leaf and collects what survives. Magister Lucan Verrow, Auditor of the Reliquary, does not hunt demons for the parish. He hunts them for the relics they leave behind, and every relic he carries out of the Breach is blessed, catalogued and shipped to a vault no one has seen. Whisper that the cracks widen with each one and he smiles. The Inquisition pays the best of any contact, and asks the least.",tasks:[
+ {t:'bdmg',n:250,bo:250,h:'Test the Heresy',s:"The Auditor wants to know how the archdemon bleeds. Deal 250 damage and report back."},
+ {t:'bdmg',w:'crossbow',n:150,bo:350,h:'Gilded Bolts',s:"Consecrated bolts, as the Order prescribes. Deal damage to the archdemon with the Crossbow."},
+ {t:'bfin',n:1,bo:600,h:'The Verdict',s:"A heretic is not sentenced until the Inquisition delivers the blow. Land the killing blow on the archdemon yourself."},
+ {t:'ban',n:1,bo:900,h:'Carry the Relic Out',s:"Banish the archdemon's corpse and carry what it leaves to the exit. Lucan will not say where it goes, and will give you the Iron Crusader's plate."}]},
+{id:'buyers',t:'The Quiet Buyers',skin:'gun',h:"No one has seen Mr. Hollow's face, only the envelopes: thick, unsigned, left under a stone at the edge of the ash road. Ferris Vane, his Appraiser, is the nearest thing to a face the Buyers allow: a blank porcelain mask, a jeweller's loupe, and a ledger that knows the weight of whatever you carried out. The Quiet Buyers pay fortunes for demon parts, and they are particular. Clean kills, fresh goods, no questions. A few hunters have noticed that every part sold leaves a crack where the corpse lay, and have stopped noticing. The Buyers always seem to know what you carried out.",tasks:[
+ {t:'wkills',w:'pistol',n:6,bo:150,h:'Samples',s:"Vane wants proof of your aim. Kill six imps with the plain Pistol, no waste, no mess."},
+ {t:'tgk',n:10,bo:250,h:'Test the Merchandise',s:"Vane's buyers want your aim proven before they deal. Kill ten caged imps in the Training Grounds, then leave by the gate."},
+ {t:'ban',n:1,bo:400,h:'Fresh Goods',s:"The best parts come from the biggest corpse. Banish the archdemon's corpse and reach an exit with the goods."},
+ {t:'esc',n:3,bo:600,h:'Deliver and Never Look Back',s:"The Buyers pay on delivery and ask nothing. Get out alive three times, and the Dusk Gunslinger's duster is yours."}]},
+{id:'kennelmen',t:'The Kennelmen of Saint Hubert',skin:'wolf',h:"Before the Breach the parish gamekeepers and hound-masters kept the Kennel of Saint Hubert, patron of hunters. The hounds are gone now. The keepers hunt what the Breach loosed, the commanders that roam the parish and learn it by its screaming, and they do it the old way: by silence. Houndmistress Ysolde Barrow keeps the Kennel and pays in what the poor and proud can give, which is knowledge. Hold your breath. Stand still. She does not say why the demons came, only that they must be hunted, and she will give the Wolfhide Stalker's pelt to anyone who can follow a trail without being heard.",tasks:[
+ {t:'kills',n:12,bo:150,h:'Run the Pack to Ground',s:"Ysolde starts every trainee on small game. Clear twelve imps from the ash road and the old hound trails run clean again."},
+ {t:'wkills',w:'crossbow',n:6,bo:250,h:'Hold Your Breath',s:"The Kennelmen hunt by silence. Kill six imps with the Crossbow and let nothing in the dark hear you do it."},
+ {t:'wkills',w:'melee',n:5,bo:350,h:'Close Enough to Smell',s:"A true hunter takes the quarry at arm's length. Kill five imps with melee attacks."},
+ {t:'resc',n:2,bo:600,h:'No Hunter Left on the Trail',s:"The Kennel never leaves a hunter behind. Free two injured hunters and bring them out, and the Wolfhide Stalker's pelt is yours."}]}];
 LEDGERS.forEach(L=>{FAMS[L.skin].led=1;SKINS[L.skin].led=1});
+// the Wolfhide Stalker is the Kennelmen of Saint Hubert's reward skin (a contact reward, so it cannot be bought)
+FAMS.wolf.led=1;SKINS.wolf.led=1;
 // secret EPIC skin: not buyable, not in any ledger; its unlock rule is deliberately hidden from the UI
 FAMS.reaper={n:'The Reaper',d:SKINS.reaper.d,c:0,def:'reaper',led:1,mys:1,ep:1};
 const EPT=' <b style="color:#c070ff;text-shadow:0 0 6px #8a30ff">[EPIC]</b>';
 const lst=id=>LS[id]||(LS[id]={i:0,p:0});
-function curL(){let L=LEDGERS.find(l=>l.id==AL);if(!L||lst(L.id).i>=L.tasks.length){L=LEDGERS.find(l=>lst(l.id).i<l.tasks.length);AL=L?L.id:null}return L||null}
-const ledSub=()=>{const L=curL();return L?L.t+' \u2014 task '+(lst(L.id).i+1)+'/'+L.tasks.length:'All Ledgers complete'},ledFoot=()=>{const L=curL();return L?L.t:'all complete'};
-const tText=T=>T.t=='kills'?`Kill ${T.n} imps`:T.t=='wkills'?`Kill ${T.n} imps with ${wph(T.w)}`:T.t=='bdmg'?`Deal ${T.n} damage to the archdemon${T.w?' with '+wph(T.w):''}`:T.t=='bfin'?`Land the killing blow on the archdemon${T.w?' with '+wph(T.w):''}`:T.t=='resc'?`Free ${T.n} injured hunter${T.n>1?'s':''} with Holy Water`:T.t=='esc'?`Escape the breach alive${T.n>1?' '+T.n+' times':''}`:'Banish the archdemon\'s corpse, then reach an exit';
-function ledgerTask(){const L=curL();if(!L)return{t:'none',n:0,p:0,b:0,done:0,fail:0,bo:0};const s=lst(L.id);return Object.assign({},L.tasks[s.i],{p:0,b:s.p,done:0,fail:0})}
-function ledgerCommit(){const L=curL();if(!L||mis.t=='none')return'';const s=lst(L.id),T=L.tasks[s.i];if(!T||mis.t!=T.t)return'';let ok=0;
- if(T.t=='esc'){s.p++;ok=s.p>=T.n}else if(T.t=='ban')ok=!!banished;else if(T.t=='bfin')ok=!!mis.done;else{s.p+=mis.p;ok=s.p>=T.n}
- if(!ok)return'';bank+=T.bo;let m='Ledger task complete: '+T.h+' (+$'+T.bo+'). ';s.i++;s.p=0;
- if(s.i>=L.tasks.length){if(!own.includes(L.skin)){own.push(L.skin);m+='LEDGER COMPLETE! You unlocked the '+SKINS[L.skin].n+' skin. '}else m+='LEDGER COMPLETE! '}return m}
-const ledList=()=>LEDGERS.map((L,k)=>{const s=lst(L.id),dn=s.i>=L.tasks.length;return `<div class="paper ${mi==k?'on':''}" data-m=${k}>\u2620 ${L.t}<br><small>${dn?'Complete \u2014 skin unlocked':'Task '+(s.i+1)+' of '+L.tasks.length+(AL==L.id?' \u2014 ACTIVE':'')}</small><br>Reward: ${SKINS[L.skin].n} skin</div>`}).join('');
-function ledStory(){const L=LEDGERS[mi]||LEDGERS[0],s=lst(L.id),k=L.tasks.length;
- return `<div class=chalk>${L.t}<small>${L.h}</small></div><div class=chalk>How it works<small>Tap a Ledger to make it active. Progress is banked when you extract alive; dying loses that run's progress.</small></div>`+L.tasks.map((T,i)=>{const dn=i<s.i,cur=i==s.i,pr=cur&&['kills','wkills','bdmg','esc','resc'].includes(T.t)?` (${s.p}/${T.n})`:'';
-  return `<div class="paper ${cur?'on':''}" style="cursor:default">${dn?'\u2714':cur?'\u25B6':'\u25CB'} ${dn||cur?T.h:'???'}${i==k-1?' \u2014 skin: '+SKINS[L.skin].n:''}<br><small>${dn||cur?tText(T)+pr+'<br>'+T.s:'Locked'}</small><br>Reward $${T.bo}${i==k-1?' + the skin':''}</div>`}).join('')}
+// ---------- CONTACTS (the old Ledgers screen is gone; LS still holds each contact's quest progress). Each contact is one of the four groups (LEDGERS holds their quest data until the cleanup step); quests reuse the ledger task types. CS[id]={rep,done:[quest ids],act:[quest ids]} is saved as 'cs'; ctSync() keeps it in step with the old LS progress until the old system is removed. ----------
+const CT_INFO={
+ wardens:{nm:'Sister Perpetua Crane',ti:'Sealwright of Saint Orrin',fa:'The Salt Wardens'},
+ lamplighters:{nm:'Hesper Quill',ti:'Wickmistress of the Guild',fa:'The Lamplighter Guild'},
+ inquisition:{nm:'Magister Lucan Verrow',ti:'Auditor of the Reliquary',fa:'The Gilded Inquisition'},
+ buyers:{nm:'Ferris Vane',ti:'The Appraiser',fa:'The Quiet Buyers'},
+ kennelmen:{nm:'Ysolde Barrow',ti:'Houndmistress of the Kennel',fa:'The Kennelmen of Saint Hubert'}};
+// NPC-ONLY SKINS: each contact has her/his own look, drawn by SKB.npc_* and used for the Quests portraits. They live outside SKINS on purpose, so they never show in the shop, the skin counts or the random injured-hunter looks. The reward skin each group pays out is unchanged (LEDGERS[].skin).
+const NPC_OF={wardens:'npc_wardens',lamplighters:'npc_lamp',inquisition:'npc_inq',buyers:'npc_buyers',kennelmen:'npc_kennel'};
+const NPCSK={
+ npc_wardens:{held:(x,y)=>{const fk=Math.sin(performance.now()/75)*.15+Math.sin(performance.now()/31)*.08;ctx.globalAlpha=.25+fk;ctx.fillStyle='#ffd070';ctx.beginPath();ctx.arc(x+.2,y-7.2,4.2,0,7);ctx.fill();ctx.globalAlpha=1;ctx.fillStyle='#c8a040';ctx.fillRect(x-1.8,y+.8,3.6,.8);ctx.fillStyle='#efe8d0';ctx.fillRect(x-.6,y-6,1.6,6.8);ctx.fillStyle='#d4cbb0';ctx.fillRect(x+.5,y-3.4,.5,2.2);ctx.fillStyle='#ffd870';ctx.beginPath();ctx.arc(x+.2,y-7.3,.95+fk,0,7);ctx.fill();ctx.fillStyle='#fff6c0';ctx.beginPath();ctx.arc(x+.2,y-7,.45,0,7);ctx.fill()},v:'npc_wardens',n:'Sister Perpetua Crane',coat:'#3e5654',coat2:'#5e7a76',hood:'#cfd2c6',mask:'#dccfbd',eye:'#9fe8e0',eyeg:'#6fd0c8',rune:'#f0ede0',band:'#9a2a26',
+  fx:(x,y,t)=>{for(let i=0;i<4;i++){const p=(t*.3+i/4)%1;ctx.globalAlpha=(1-p)*.85;ctx.fillStyle='#f4f2e8';ctx.fillRect(x-6+i*4+Math.sin(t*1.5+i*2),y-14+p*20,1,1)}ctx.globalAlpha=1}},
+ npc_lamp:{held:(x,y)=>{const fk=Math.sin(performance.now()/80)*.15+Math.sin(performance.now()/29)*.1;ctx.strokeStyle='#5a3a20';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x-.8,y+5);ctx.lineTo(x+3,y-15);ctx.stroke();ctx.fillStyle='#c89030';ctx.fillRect(x+1.9,y-17.4,2.4,1.8);ctx.fillRect(x+2.6,y-16,.8,.8);ctx.globalAlpha=.3+fk;ctx.fillStyle='#ffc060';ctx.beginPath();ctx.arc(x+3.1,y-19,3.4,0,7);ctx.fill();ctx.globalAlpha=1;ctx.fillStyle='#ffd870';ctx.beginPath();ctx.arc(x+3.1,y-19,1+fk,0,7);ctx.fill();ctx.fillStyle='#fff6c0';ctx.fillRect(x+2.8,y-19.4,.6,.9)},v:'npc_lamp',n:'Hesper Quill',coat:'#6a3a22',coat2:'#2e241c',hood:'#241c16',mask:'#c9a07c',eye:'#ffd56b',eyeg:'#ffb030',rune:'#ffcf5a',band:'#e0a840',
+  fx:(x,y,t)=>{const lx=x-7.6,ly=y-9,fk=.6+.3*Math.sin(t*9)+.15*Math.sin(t*23);ctx.strokeStyle='#2a2018';ctx.lineWidth=.6;ctx.beginPath();ctx.moveTo(x-4.2,y-12.5);ctx.lineTo(lx,ly-3);ctx.lineTo(lx,ly-1.6);ctx.stroke();ctx.fillStyle='#c89030';ctx.fillRect(lx-1.3,ly-1.4,2.6,3.2);ctx.globalAlpha=.25*fk;ctx.fillStyle='#ffc060';ctx.beginPath();ctx.arc(lx,ly,6,0,7);ctx.fill();ctx.globalAlpha=Math.min(1,.5+fk*.5);ctx.fillStyle='#ffe090';ctx.fillRect(lx-.7,ly-.8,1.4,1.8);ctx.globalAlpha=1}},
+ npc_inq:{held:(x,y)=>{ctx.globalAlpha=.3;ctx.fillStyle='#ffd870';ctx.beginPath();ctx.arc(x,y-2.4,5,0,7);ctx.fill();ctx.globalAlpha=1;ctx.fillStyle='#d8b040';ctx.fillRect(x-2.6,y-3,5.2,3.6);ctx.fillStyle='#e8c860';ctx.beginPath();ctx.moveTo(x-2.9,y-3);ctx.lineTo(x,y-5.4);ctx.lineTo(x+2.9,y-3);ctx.closePath();ctx.fill();ctx.fillStyle='#8a6a20';ctx.fillRect(x-2.6,y-.4,5.2,.6);ctx.fillStyle='#a01820';ctx.fillRect(x-.6,y-2.4,1.2,1.4);ctx.fillRect(x-.2,y-4.1,.4,1.1)},v:'npc_inq',n:'Magister Lucan Verrow',coat:'#e6dcc4',coat2:'#c8a850',hood:'#8a1c24',mask:'#e8c860',eye:'#ff4a3a',eyeg:'#ff2a1a',rune:'#a01820',band:'#b8902c',
+  fx:(x,y,t)=>{const sw=Math.sin(t*1.8)*1.6,cx=x-9+sw,cy=y+1;ctx.strokeStyle='#c8a850';ctx.lineWidth=.5;ctx.beginPath();ctx.moveTo(x-6.4,y-4);ctx.lineTo(cx,cy-1.5);ctx.stroke();ctx.fillStyle='#c8a850';ctx.beginPath();ctx.arc(cx,cy,1.6,0,7);ctx.fill();ctx.fillStyle='#8a6a20';ctx.fillRect(cx-1.6,cy,3.2,.6);for(let i=0;i<3;i++){const p=(t*.5+i/3)%1;ctx.globalAlpha=(1-p)*.6;ctx.fillStyle='#f4e4b0';ctx.fillRect(cx-.5+Math.sin(t*2+i*2)*1.4,cy-2-p*9,1.2,1.2)}ctx.globalAlpha=1}},
+ npc_buyers:{held:(x,y)=>{ctx.fillStyle='#f0ece0';ctx.fillRect(x-2.4,y-3.6,4.8,3.2);ctx.fillStyle='#b8b4a4';ctx.fillRect(x-2.4,y-3.6,4.8,.6);ctx.fillRect(x-.1,y-3,.2,1.2);ctx.fillStyle='#a02020';ctx.beginPath();ctx.arc(x,y-1.6,.8,0,7);ctx.fill();ctx.fillStyle='#d8b440';ctx.fillRect(x+2.6,y-1.2,1.8,1.8);ctx.fillStyle='#fff4b0';ctx.fillRect(x+2.6,y-1.2,1.8,.5)},v:'npc_buyers',n:'Ferris Vane',coat:'#4a4c52',coat2:'#6a6c74',hood:'#1c1c22',mask:'#ece8e0',eye:'#ffffff',eyeg:'#ffffff',rune:'#c8c0a0',band:'#a89040',
+  fx:(x,y,t)=>{const w=Math.abs(Math.cos(t*3))*1.6+.3,cx=x-6.8,cy=y-10+Math.sin(t*1.6)*.8;ctx.fillStyle='#d8b440';ctx.fillRect(cx-w,cy-1.4,w*2,2.8);ctx.fillStyle='#fff4b0';ctx.fillRect(cx-w,cy-1.4,w*2,.6)}},
+ npc_kennel:{gun:'crossbow',v:'npc_kennel',n:'Ysolde Barrow',coat:'#5a4430',coat2:'#8a6a48',hood:'#2e241a',mask:'#d4b896',eye:'#9fd870',eyeg:'#70c040',rune:'#d8d0b8',band:'#c8c0a0',
+  fx:(x,y,t,ca)=>{for(let i=0;i<3;i++){const p=(t*.5+i/3)%1;ctx.globalAlpha=(1-p)*.5;ctx.fillStyle='#e8f0f0';ctx.fillRect(x+ca*3+p*ca*4,y-8-p*4,1.5,1.5)}ctx.globalAlpha=1}}};
+const CONTACTS=LEDGERS.map(L=>({id:L.id,nm:CT_INFO[L.id].nm,ti:CT_INFO[L.id].ti,fa:CT_INFO[L.id].fa,pt:L.skin,bio:L.h,skin:NPC_OF[L.id],
+ quests:L.tasks.map((T,i)=>Object.assign({id:L.id+'-'+i},T))}));
+const ctGet=id=>CONTACTS.find(c=>c.id==id)||null,ctQuest=qid=>{for(const c of CONTACTS){const q=c.quests.find(x=>x.id==qid);if(q)return q}return null};
+const cst=id=>CS[id]&&typeof CS[id]=='object'?CS[id]:(CS[id]={rep:0,done:[],act:[]});
+function ctSync(){for(const k of Object.keys(LS))if(!LEDGERS.some(L=>L.id==k))delete LS[k];for(const k of Object.keys(CS))if(!CONTACTS.some(c=>c.id==k))delete CS[k];for(const c of CONTACTS){const st=cst(c.id);if(!Array.isArray(st.done))st.done=[];if(!Array.isArray(st.act))st.act=[];const n=Math.min(lst(c.id).i|0,c.quests.length);for(let i=0;i<n;i++)if(!st.done.includes(c.quests[i].id))st.done.push(c.quests[i].id);st.act=st.act.filter(q=>!st.done.includes(q));st.rep=Math.max(st.rep|0,st.done.length)}}
+ctSync();
+// NO REPUTATION (owner removed it, Oct 25): contacts have no levels and no pay bonus. CS[id].rep is only the count of quests finished with that contact (it drives the progress bar and the quests-done total).
+const ctPay=(id,bo)=>bo;
+// ACTIVE QUESTS (step 3). A contact's quests are a chain, so at most one per contact is open (the one at LS[id].i); CS[id].act holds it once accepted. Up to CT_MAX are tracked at once. Only accepted quests count in a run (step 6): nothing accepted means no quests in the run.
+// Run quests live in MQ: copies of the task with p (progress this run), b (progress banked before), done, fail, cid, qid. ctAccept/ctAbandon return '' on success or a message on failure; the Quests page (step 6) will call them.
+const CT_MAX=3;let ctSel='wardens',ctMsg='';
+function ctActIds(){const ids=[];for(const c of CONTACTS){const s=lst(c.id);if(s.i>=c.quests.length)continue;const qid=c.id+'-'+s.i;if(cst(c.id).act.includes(qid))ids.push(qid)}
+return ids.slice(0,CT_MAX)}
+function ctRunQuests(tg){return ctActIds().filter(qid=>{const[c0,i0]=qid.split('-'),T0=LEDGERS.find(l=>l.id==c0).tasks[+i0];return (T0.t=='tgk')==!!tg}).map(qid=>{const[cid,i]=qid.split('-'),s=lst(cid),L=LEDGERS.find(l=>l.id==cid);return Object.assign({},L.tasks[+i],{cid,qid,p:0,b:s.p,done:0,fail:0})})}
+function ctAccept(qid){qid=String(qid);const[cid,i]=qid.split('-'),c=ctGet(cid);if(!c)return'Unknown quest';const s=lst(cid);if(String(s.i)!=i||s.i>=c.quests.length)return'That quest is not open yet';const st=cst(cid);if(st.act.includes(qid))return'Already accepted';if(CONTACTS.reduce((a,x)=>a+cst(x.id).act.length,0)>=CT_MAX)return'You can only carry '+CT_MAX+' quests at once';st.act.push(qid);return''}
+function ctAbandon(qid){qid=String(qid);const c=ctGet(qid.split('-')[0]);if(!c)return;const st=cst(c.id);st.act=st.act.filter(x=>x!=qid)}
+// QUESTS PAGE, list view (step 4). One card per contact: portrait (the contact's reward skin drawn with warden()), name, title, faction, level, a progress bar and the next quest. ctPaint() fills the portrait canvases after the menu is built. Cards open the detail view in step 5.
+const ctSub=()=>{const d=CONTACTS.reduce((a,c)=>a+Math.min(cst(c.id).rep|0,c.quests.length),0),t=CONTACTS.reduce((a,c)=>a+c.quests.length,0);return ctActIds().length+'/'+CT_MAX+' active — '+d+' of '+t+' quests done'};
+const ctOpen=c=>c.quests[lst(c.id).i]||null,ctOn=c=>{const q=ctOpen(c);return !!q&&ctActIds().includes(q.id)};
+function ctTile(c){const st=cst(c.id),n=c.quests.length,dn=Math.min(st.rep|0,n),q=ctOpen(c);
+ return `<div class="ctile${ctOn(c)?' on':''}" data-ct=${c.id}><canvas class=ctp data-sk=${c.skin} width=160 height=180></canvas><div class=ctn>${c.nm}</div><small>${c.ti}</small><div class=ctbar><i style="width:${dn/n*100}%"></i></div><small>${q?'Quest available':'All quests done'}${ctOn(c)?' — ACTIVE':''}</small></div>`}
+// QUEST LIST: click a portrait to open the contact's page: portrait, bio, level and only the quest that is open right now. Finished quests and locked ones are not listed; finishing one makes the next appear.
+function ctDetail(){const c=ctGet(ctSel)||CONTACTS[0],st=cst(c.id),n=c.quests.length,dn=Math.min(st.rep|0,n),s=lst(c.id);
+ const left=`<canvas class="ctp ctbig" data-sk=${c.skin} width=224 height=252></canvas><div class=chalk style="cursor:default"><b>${c.nm}</b><small>${c.ti} — ${c.fa}</small></div><div class=chalk style="cursor:default"><small style="opacity:1">${c.bio}</small></div>`;
+ const list=(s.i>=n?`<div class="paper ctq dn">\u2714 Every quest is done<br><small>${c.nm} has nothing more to ask of you.</small></div>`:'')+c.quests.map((T,i)=>{if(i!=s.i)return'';const dn2=i<s.i,cur=i==s.i,pr=cur&&['kills','wkills','bdmg','esc','resc','tgk'].includes(T.t)?` (${s.p}/${T.n})`:'',act=cur&&ctActIds().includes(T.id),last=i==n-1;
+  return `<div class="paper ctq ${cur?'on':dn2?'dn':'lk'}">${dn2?'✔':cur?'▶':'○'} ${dn2||cur?T.h:'???'}${act?' — ACTIVE':''}<br><small>${dn2||cur?tText(T)+pr+'<br>'+T.s:'Locked until the quest before it is done'}</small><br>${dn2?'Done \u2014 reward paid':'Reward $'+ctPay(c.id,T.bo)+(last?' + the '+SKINS[c.skin].n+' skin':'')}${cur?(act?`<br><button data-cx=${T.id}>Abandon</button>`:`<br><button data-ca=${T.id}>Accept</button>`):''}</div>`}).join('');
+ return `<h2>${c.nm}</h2><div class=cols><div class=col><h2>Contact</h2>${left}</div><div class=col><h2>Quests</h2>${list}</div></div>${ctMsg?`<p class=msg>${ctMsg}</p>`:''}<div class=foot><span>Carrying: ${ctActIds().length}/${CT_MAX} quests</span>${backTo('missions')}</div>`}
+// ANIMATED PORTRAITS: ctDraw() repaints every visible portrait canvas (idle bob, slow gaze sway, plus each skin's own fx and flickering held item, all driven by the clock). ctPaint() draws once and starts the loop (~30 fps); the loop ends by itself when no portrait canvas is on the page and idles at 400 ms while the Quests page is hidden.
+function ctDraw(){const T=performance.now()/1000;let n=0;document.querySelectorAll('canvas.ctp').forEach(c=>{if(!c.offsetParent)return;n++;const x=c.getContext('2d'),o=ctx,sk=sel.skin,k=c.width/32,ph=c.dataset.sk.length*1.7,bob=Math.sin(T*2.1+ph)*.35,a=.35+Math.sin(T*.7+ph)*.1;ctx=x;sel.skin=c.dataset.sk;try{x.clearRect(0,0,c.width,c.height);const g=x.createRadialGradient(16*k,28*k,2,16*k,28*k,21*k);g.addColorStop(0,'rgba(255,190,90,.35)');g.addColorStop(1,'rgba(255,190,90,0)');x.fillStyle=g;x.fillRect(0,0,c.width,c.height);x.fillStyle='rgba(0,0,0,.3)';x.beginPath();x.ellipse(16*k,28.5*k,10.5*k,2*k,0,0,7);x.fill();x.save();x.scale(k,k);const NP=NPCSK[c.dataset.sk];warden(16,25+bob,a,0,0,NP?(NP.gun||null):'pistol',0,null,0,'','');if(NP&&NP.held)NP.held(16+Math.cos(a)*5,22+bob+Math.sin(a)*5);x.restore()}catch(e){}finally{ctx=o;sel.skin=sk}});return n}
+let ctRaf=0;
+function ctLoop(){ctRaf=0;if(!document.querySelector('canvas.ctp'))return;const n=ctDraw();ctRaf=setTimeout(ctLoop,n&&!document.hidden?33:400)}
+function ctPaint(){ctDraw();if(!ctRaf)ctRaf=setTimeout(ctLoop,33)}
+const EXN=['the Order Wagon',"the Ferryman's Boat",'the Bell Tower'];   // exit names by exit index k (0 wagon, 1 boat, 2 bell tower); quest type xk = escape alive through exit T.x
+const tText=T=>T.t=='kills'?`Kill ${T.n} imps`:T.t=='wkills'?`Kill ${T.n} imps with ${wph(T.w)}`:T.t=='bdmg'?`Deal ${T.n} damage to the archdemon${T.w?' with '+wph(T.w):''}`:T.t=='bfin'?`Land the killing blow on the archdemon${T.w?' with '+wph(T.w):''}`:T.t=='resc'?`Free ${T.n} injured hunter${T.n>1?'s':''} with Holy Water`:T.t=='esc'?`Escape the breach alive${T.n>1?' '+T.n+' times':''}`:T.t=='xk'?`Escape alive through ${EXN[T.x]}`:T.t=='tgk'?`Kill ${T.n} imps in the Training Grounds`:'Banish the archdemon\'s corpse, then reach an exit';
+// RUN-END PAYOUT (step 7): end(true) calls this on a live extraction. Every accepted quest in MQ is banked: kills and damage add to the saved progress, an escape counts once, a banish/finish needs its run flag. A finished quest pays ctPay() cash, counts it toward the contact's quests done (ctSync) and is named in the return text; unfinished ones report their progress. Dying never calls it, so that run's progress is lost.
+function ledgerCommit(){if(!MQ.length)return'';let out='';
+ for(const q of MQ){const L=LEDGERS.find(l=>l.id==q.cid);if(!L)continue;const s=lst(L.id),T=L.tasks[s.i];if(!T||String(s.i)!=q.qid.split('-')[1])continue;let ok=0;
+  if(T.t=='esc'){s.p++;ok=s.p>=T.n}else if(T.t=='ban')ok=!!banished;else if(T.t=='xk')ok=!!(P&&P.xk==T.x);else if(T.t=='bfin')ok=!!q.done;else{s.p+=q.p;ok=s.p>=T.n}
+  if(!ok){if(['kills','wkills','bdmg','resc','esc','tgk'].includes(T.t)&&(T.t=='esc'||q.p>0))out+='Quest progress: '+T.h+' ('+s.p+'/'+T.n+'). ';continue}const pay=ctPay(L.id,T.bo);bank+=pay;let m='Quest complete: '+T.h+' (+$'+pay+'). ';s.i++;s.p=0;ctSync();
+  if(s.i>=L.tasks.length){if(!own.includes(L.skin)){own.push(L.skin);m+='All quests for '+ctGet(L.id).fa+' are done! You unlocked the '+SKINS[L.skin].n+' skin. '}else m+='All quests for '+ctGet(L.id).fa+' are done! '}else m+=ctGet(L.id).nm+' has another quest for you. ';out+=m}
+ return out}
 
 // ---------- ACHIEVEMENTS: 3 tiers each (Bronze / Silver / Gold). Lifetime stats live in AST; a run's stats (RS) are banked when the run ends, win or lose ----------
 const TN=['Bronze','Silver','Gold'],TCOL=['#cd7f32','#c8ccd2','#ffd23a'];
@@ -955,7 +1014,7 @@ const ACH=[
  {id:'dead',n:'Hard Lessons',s:'deaths',g:[1,10,50],d:n=>`Die in the breach ${n} time${n>1?'s':''}`},
  {id:'lore',n:'Lorekeeper',s:'lore',g:()=>{const T=loreTot();return[Math.ceil(T*.25),Math.ceil(T*.6),T]},d:n=>`Find ${n} lore folders`},
  {id:'skin',n:'Wardrobe',s:'skins',g:()=>{const T=skinTot();return[3,Math.ceil(T*.6),T]},d:n=>`Own ${n} skins`},
- {id:'led',n:'Ledger Keeper',s:'led',g:[4,12,20],d:n=>`Complete ${n} Ledger tasks`}];
+ {id:'led',n:'Quest Keeper',s:'led',g:[4,8,16],d:n=>`Complete ${n} quests`}];
 const achG=a=>typeof a.g=='function'?a.g():a.g;
 function achVal(k){return k=='lore'?(skinLoreSync(),LKS.size):k=='skins'?Object.keys(SKINS).filter(x=>own.includes(x)).length:k=='led'?LEDGERS.reduce((a,L)=>a+Math.min(lst(L.id).i,L.tasks.length),0):(AST[k]||0)}
 const achTier=a=>{const v=achVal(a.s);return achG(a).filter(g=>v>=g).length};
@@ -1853,7 +1912,7 @@ function menu(m){try{if(scr=='lb')lbOpen();else lbClose()}catch(e){}try{if(CTP.l
  else if(scr.startsWith('shop_')){const mi_=/^shop_i_([ps])_(\w+)$/.exec(scr),cat=mi_?mi_[1]:scr[5],src=cat=='p'?PRI:cat=='s'?SID:TOOL,ti=cat=='p'?'Primary Weapons':cat=='s'?'Secondary Weapons':'Tools',SL=cat=='p'?SUBP:SUBS;
   if(!mi_&&cat!='t'){body=pg('Gunsmith \u2014 '+ti,SL.map(([id,nm,ds])=>[id,nm,ds,Object.values(src).filter(w=>w.k!='none'&&w.sub==id).length]).filter(x=>x[3]).map(([id,nm,ds,n])=>`<div class=chalk data-v=shop_i_${cat}_${id}>${nm}<small>${ds} \u2014 ${n} on the rack</small></div>`).join(''),backTo('shop'))}
   else{const sb=mi_?SL.find(x=>x[0]==mi_[2]):null;body=pg('Gunsmith \u2014 '+(sb?sb[1]:ti),Object.entries(src).filter(([k,w])=>k!='none'&&!w.tot&&(!sb||w.sub==sb[0])).map(([k,w])=>`<div class=chalk data-w=${k}><canvas class=ic data-ic=${k} width=34 height=18></canvas>${w.n} \u2014 ${w.c?'$'+w.c:'FREE'}<small>${dsc(k)}</small></div>`).join(''),backTo(cat=='t'?'shop':'shop_'+cat)+'<button data-v=stash>Stash</button>')}}
- else if(scr=='buy'){const q=pend,it=pit(q),qn=q.t=='w'?pq:1,tot=it.c*qn,ok2=bank>=tot;body=`<div class=hub><div class=stage><canvas id=pc width=256 height=288></canvas><div class=cap>${it.n}</div></div><div class="opts list"><h2>${it.led?it.n:'Buy '+it.n+'?'}</h2><p>${q.t=='w'?dsc(q.k):it.d}</p>${it.mys?`<p>${EPT} \u2014 Unlock: ???<br>How this skin is earned is a secret.</p>`:it.led?`<p>Ledger reward \u2014 this skin cannot be bought. Complete "${(LEDGERS.find(L=>FAMS[L.skin]===it||SKINS[L.skin]===it)||{}).t}" to unlock it.</p>`:`<p>Price: ${it.c?'$'+it.c:'FREE'}${q.t=='w'&&it.c?' each':''} \u2014 Cash: $${bank}</p>${q.t=='w'?`<p>Quantity: <button data-bq=- ${pq<=1?'disabled':''}>\u2212</button> <b>${pq}</b> <button data-bq=+ ${pq>=PQMAX||it.c*(pq+1)>bank?'disabled':''}>+</button> &nbsp;Total: $${tot}</p>`:''}${ok2?'':'<p class=msg>Not enough cash.</p>'}<button data-y=1 ${ok2?'':'disabled'}>Buy${qn>1?' '+qn:''}${tot?' for $'+tot:' (free)'}</button>`} <button data-n=1>${it.led?'Back':'Cancel'}</button></div></div>`}
+ else if(scr=='buy'){const q=pend,it=pit(q),qn=q.t=='w'?pq:1,tot=it.c*qn,ok2=bank>=tot;body=`<div class=hub><div class=stage><canvas id=pc width=256 height=288></canvas><div class=cap>${it.n}</div></div><div class="opts list"><h2>${it.led?it.n:'Buy '+it.n+'?'}</h2><p>${q.t=='w'?dsc(q.k):it.d}</p>${it.mys?`<p>${EPT} \u2014 Unlock: ???<br>How this skin is earned is a secret.</p>`:it.led?`${(()=>{const g=LEDGERS.find(L=>FAMS[L.skin]===it||SKINS[L.skin]===it);return g?`<p>Contact reward \u2014 this skin cannot be bought. Finish every quest for ${g.t} to unlock it.</p>`:`<p>This skin cannot be bought yet. A future contact will hand it out.</p>`})()}`:`<p>Price: ${it.c?'$'+it.c:'FREE'}${q.t=='w'&&it.c?' each':''} \u2014 Cash: $${bank}</p>${q.t=='w'?`<p>Quantity: <button data-bq=- ${pq<=1?'disabled':''}>\u2212</button> <b>${pq}</b> <button data-bq=+ ${pq>=PQMAX||it.c*(pq+1)>bank?'disabled':''}>+</button> &nbsp;Total: $${tot}</p>`:''}${ok2?'':'<p class=msg>Not enough cash.</p>'}<button data-y=1 ${ok2?'':'disabled'}>Buy${qn>1?' '+qn:''}${tot?' for $'+tot:' (free)'}</button>`} <button data-n=1>${it.led?'Back':'Cancel'}</button></div></div>`}
  else if(/^sk(_|$)/.test(scr)){const mi_=/^sk_i_([ps])_(\w+)$/.exec(scr),mv=/^sk_v_(\w+)$/.exec(scr),skl=k=>WSK[k]||[],
   row=(k,w)=>`<div class=chalk data-v=sk_v_${k}><canvas class=ic data-ic=${k} width=34 height=18></canvas>${w.n}<small>${skl(k).length?skl(k).length+' skin'+(skl(k).length>1?'s':''):'Not yet pulled from the Veil'}</small></div>`,
   subs=(c,src)=>(c=='p'?SUBP:SUBS).map(([id,nm,ds])=>[id,nm,ds,Object.values(src).filter(w=>w.k!='none'&&w.sub==id).length]).filter(x=>x[3]).map(([id,nm,ds,n])=>`<div class=chalk data-v=sk_i_${c}_${id}>${nm}<small>${ds} \u2014 ${n} on the rack</small></div>`).join('');
@@ -1869,29 +1928,29 @@ function menu(m){try{if(scr=='lb')lbOpen();else lbClose()}catch(e){}try{if(CTP.l
   else if(scr=='sk_t')body=pg('Skins \u2014 Tool Skins',Object.entries(TOOL).map(([k,w])=>row(k,w)).join(''),backTo('sk'));
   else if(mv){const k=mv[1],w=PRI[k]||SID[k]||TOOL[k]||{n:'Skins'},bk=TOOL[k]?'sk_t':'sk_i_'+(PRI[k]?'p':'s')+'_'+w.sub;body=pg(w.n+' \u2014 Skins',skl(k).length?``+skl(k).map(s=>{const o=own.includes(s.id),eq=!!(TOOL[k]&&TSK[k]==s.id);return `<div class="chalk ${eq?'on':''}" data-ws=${s.id}><canvas class=ic data-ic=${k} data-wk=${s.id} width=34 height=18></canvas>${s.n}${o?(eq?' \u2014 Equipped':' \u2014 Owned'):' \u2014 $'+s.c+' \u{1F512}'}<small>${s.d}${o?' <b>Apply it to a '+(TOOL[k]?'tool':'weapon')+' from the Stash (Skin button).</b>':''}${!o&&wsConf==s.id?' <b>Click again to buy for $'+s.c+'.</b>':''}</small></div>`}).join(''):'<div class=postit>Not yet pulled from the Veil</div>',backTo(bk))}
   else body=pg('Skins','',backTo('hub'))}
- else if(scr=='l_skin')body=pg('Hunter Skins',Object.entries(FAMS).map(([k,f])=>`<div class="chalk ${SKINS[sel.skin].f==k?'on':''}" data-f=${k}>${f.n}${f.ep?EPT:''}${own.includes(k)?'':f.mys?' \u2014 Unlock: ??? \u{1F512}':f.led?' \u2014 Ledger reward \u{1F512}':' \u2014 $'+f.c+' \u{1F512}'}<small>${f.d}</small></div>`).join(''),backTo('sk'));
+ else if(scr=='l_skin')body=pg('Hunter Skins',Object.entries(FAMS).map(([k,f])=>`<div class="chalk ${SKINS[sel.skin].f==k?'on':''}" data-f=${k}>${f.n}${f.ep?EPT:''}${own.includes(k)?'':f.mys?' \u2014 Unlock: ??? \u{1F512}':f.led?' \u2014 Contact reward \u{1F512}':' \u2014 $'+f.c+' \u{1F512}'}<small>${f.d}</small></div>`).join(''),backTo('sk'));
  else if(scr=='l_var')body=pg(FAMS[curFam].n+' \u2014 Variations',Object.entries(SKINS).filter(([k,v])=>v.f==curFam).map(([k,v])=>`<div class="chalk ${sel.skin==k?'on':''}" data-k=${k}>${v.n}${own.includes(k)?'':' \u2014 $'+v.c+' \u{1F512}'}<small>${v.d}</small></div>`).join(''),backTo('l_skin'));
  else if(scr=='l_pri')body=pg('Primary Weapon',Object.entries(PRI).map(([k,w])=>`<div class="chalk ${sel.pri==k?'on':''}" data-p=${k}><canvas class=ic data-ic=${k} width=34 height=18></canvas>${w.n} \u2014 $${w.c}<small>${st(w)}</small></div>`).join(''),backTo('load'));
  else if(scr=='l_side')body=pg('Sidearm',Object.entries(SID).map(([k,w])=>`<div class="chalk ${sel.side==k?'on':''}" data-s=${k}>${k=='none'?'':`<canvas class=ic data-ic=${k} width=34 height=18></canvas>`}${w.n} \u2014 $${w.c}<small>${st(w)}</small></div>`).join(''),backTo('load'));
  else if(scr=='l_tools')body=pg('Tools (max 2)',Object.entries(TOOL).map(([k,t])=>`<div class="chalk ${sel.tools.includes(k)?'on':''}" data-t=${k}><canvas class=ic data-ic=${k} width=34 height=18></canvas>${t.n} \u2014 $${t.c}<small>${t.d}</small></div>`).join(''),backTo('load'));
  else if(scr=='lb')body=lbBody();
  else if(scr=='ach')body=`${achBody()}<div class=foot><span>Bronze, Silver and Gold tiers for each feat</span>${back}</div>`;
- else if(scr=='missions')body=`<div class=cols>${col('Ledgers',ledList())}${col((LEDGERS[mi]||LEDGERS[0]).t,ledStory())}</div><div class=foot><span>Active: ${ledFoot()}</span>${back}</div>`;
+ else if(scr=='missions')body=`<h2>Quests</h2><div class=ctgrid>${CONTACTS.map(ctTile).join('')}</div><div class=foot><span>Carrying: ${ctActIds().length}/${CT_MAX} quests</span>${back}</div>`;else if(scr=='ctdetail')body=ctDetail();
  else if(scr=='lore'){skinLoreSync();const S=LORE[lorTab]||LORE[0],op=lorOpen>=0&&lkHas(lorTab,lorOpen)?S.e[lorOpen]:null,nf=S.e.filter((q,i)=>lkHas(lorTab,i)).length;
   body=`<div class=slate><div class=tabs>${LORE.map((s,i)=>`<div class="tb ${i==lorTab?'on':''}" data-l=${i}>${s.t.replace(' Lore','')}</div>`).join('')}</div><h2 class=lt>${S.t}</h2><p class=sub>${op?'Folder open. Close it to pick another.':S.sub}</p>`+(op?`<div class=fopen><div class=ftab>${op[0]}</div><div class=fback><div class=fsheet><div class="pol sp"><canvas data-la="${lorTab}.${lorOpen}" width=224 height=126></canvas></div><h3>${op[0]}</h3><p>${op[1]}</p></div></div></div>`:`<div class=fds>${S.e.map((n0,i)=>{const kn=lkHas(lorTab,i);return `<div class="fd${kn?'':' lk'}" ${kn?'data-lo='+i:''} style="--r:${(((i*37)%7)-3)*.8}deg"><div class=ft></div><div class=fl>${kn?n0[0]:'???'}</div></div>`}).join('')}</div>`)+`</div><div class=foot><span>${nf} of ${S.e.length} folders found${op?'':' \u2014 click one to open it'}</span>${op?'<button data-lo=-1>\u2190 Close folder</button>':'<button data-v=chron>Read the Chronicle</button> <button data-cine=1>Play cinematic</button> '+back}</div>`}
  else if(scr=='chron'){const pg=LORE_PAGES[chI],tl=pg.text.split('\n').map(x=>`<p>${x}</p>`).join('');
   body=`<div class=slate><h2 class=lt>${chI?pg.title:'The Chronicle of the Breach'}</h2><p class=sub>${chI?'Page '+chI+' of '+(LORE_PAGES.length-1)+' \u2014 the narrated cinematic will play these pages in order':'Title card'}</p><div class=chv><canvas id=chc width=224 height=126></canvas><div class=cht>${chI?tl:'<p><i>'+pg.text+'</i></p>'}</div></div></div><div class=foot><span>Preview of the Learn the Lore cinematic: pictures and script so far</span><span><button data-ch=-1 ${chI?'':'disabled'}>\u2190 Prev</button> <button data-ch=1 ${chI<LORE_PAGES.length-1?'':'disabled'}>Next \u2192</button> <button data-cine=1>Play cinematic</button> ${backTo('lore')}</span></div>`} else if(scr=='help')body=`<div class=lore><h2>Controls</h2><ul>${HELP.split(' \u00b7 ').map(l=>`<li>${l}</li>`).join('')}</ul></div><div class=foot><span></span>${back}</div>`;
- else body=`${teamBar()}<div class=hub><div class=lcol><div class=stage><canvas id=pc width=256 height=288></canvas><div class=cap>${pname?pname+' \u2014 ':''}${PRI[sel.pri].n} \u00b7 ${SID[sel.side].n} \u00b7 ${tl}</div></div><div class="chalk nmbox" data-v=name>Hunter Name<small>${pname||'Unnamed \u2014 tap to set'}</small></div>${riskBox()}</div><div class=opts>${fltBar()}${teamGo(ok)}${ok?'':'<p class=msg style="font-size:20px">Can\'t afford this loadout.</p>'}<div class=chalk data-v=sk>Skins<small>${SKINS[sel.skin].n}</small></div><div class=chalk data-v=stash>Stash & Gunsmith<small>${STB.reduce((a,t)=>a+t.length,0)} items stored</small></div><div class=chalk data-v=missions>Ledgers<small>${ledSub()}</small></div><div class=chalk data-v=ach>Achievements<small>${achTotals()[0]} of ${achTotals()[1]} tiers earned</small></div><div class=chalk data-v=lore>Lore</div><div class=chalk data-v=lb>Leaderboard<small>Top 10 hunters on each board</small></div><div class=chalk data-v=title>Main Menu</div></div></div><div class=foot><span>Cash: $${bank}</span><span>Ledger: ${ledFoot()}</span></div>`;
+ else body=`${teamBar()}<div class=hub><div class=lcol><div class=stage><canvas id=pc width=256 height=288></canvas><div class=cap>${pname?pname+' \u2014 ':''}${PRI[sel.pri].n} \u00b7 ${SID[sel.side].n} \u00b7 ${tl}</div></div><div class="chalk nmbox" data-v=name>Hunter Name<small>${pname||'Unnamed \u2014 tap to set'}</small></div>${riskBox()}</div><div class=opts>${fltBar()}${teamGo(ok)}${ok?'':'<p class=msg style="font-size:20px">Can\'t afford this loadout.</p>'}<div class=chalk data-v=sk>Skins<small>${SKINS[sel.skin].n}</small></div><div class=chalk data-v=stash>Stash & Gunsmith<small>${STB.reduce((a,t)=>a+t.length,0)} items stored</small></div><div class=chalk data-v=missions>Quests<small>${ctSub()}</small></div><div class=chalk data-v=ach>Achievements<small>${achTotals()[0]} of ${achTotals()[1]} tiers earned</small></div><div class=chalk data-v=lore>Lore</div><div class=chalk data-v=lb>Leaderboard<small>Top 10 hunters on each board</small></div><div class=chalk data-v=title>Main Menu</div></div></div><div class=foot><span>Cash: $${bank}</span><span>Quests: ${ctActIds().length}/${CT_MAX} active</span></div>`;
 ;const drawIcons=()=>document.querySelectorAll('canvas[data-ic]').forEach(c=>{const o=ctx;ctx=c.getContext('2d');try{const sk0=c.dataset.wk||(TOOL[c.dataset.ic]&&TSK[c.dataset.ic]),hd=sk0&&WSKINS[sk0]&&WSKINS[sk0].hd,s3=hd?3:1;if(hd&&c.width!=102){c.width=102;c.height=54}ctx.clearRect(0,0,c.width,c.height);drawWpn(c.dataset.ic,5*s3,9*s3,0,s3,c.dataset.wk)}finally{ctx=o}});
- $('#menu').style.display='block';$('#menu').innerHTML=`<div class=board><i hidden></i><h1>\u2620 Hellbreach \u2620</h1>${m?`<p class=msg>${m}</p>`:''}${body}</div>`;drawIcons();if(scr=='name'){const pn=$('#pn');if(pn){const sv=()=>{},
+ $('#menu').style.display='block';$('#menu').innerHTML=`<div class=board><i hidden></i><h1>\u2620 Hellbreach \u2620</h1>${m?`<p class=msg>${m}</p>`:''}${body}</div>`;drawIcons();ctPaint();if(scr=='name'){const pn=$('#pn');if(pn){const sv=()=>{},
    cm=then=>{const v=cleanName(pn.value),acc=()=>{pname=v;SAVE();if(then)then()},bad=()=>{pn.disabled=false;pname=NMOK||'';SAVE();lbPush();menu('\u201c'+v+'\u201d is already taken by another hunter. Choose a different name, or press Recover old hunter if it is yours.')},
      chk=()=>{if(!nmKey(v)||(hasDev(v)&&DEVAUTH)||nmKey(v)===nmKey(NMOK)){acc();return}pn.disabled=true;const w=document.createElement('p');w.className='msg';w.textContent='Checking that name...';pn.insertAdjacentElement('afterend',w);nmGate(v,()=>{pn.disabled=false;acc()},bad)};
     if(!hasDev(v)||DEVAUTH){chk();return}
     devAsk(ok=>{if(ok){DEVAUTH=1;try{localStorage.setItem('bh_dv',PW_HASH)}catch(e){}acc()}else{const w=cleanName(v.replace(/dev/gi,''));pn.value=w;pname=w;SAVE();pn.focus()}})};
    pn.oninput=sv;{const sb=document.querySelector('#menu .opts button[data-v=hub]');if(sb)sb.addEventListener('click',e=>{e.stopPropagation();cm(()=>{scr='hub';menu('')})})}{const bb=document.querySelector('#menu .foot button[data-v=hub]');if(bb)bb.addEventListener('click',e=>{e.stopPropagation();cm(()=>{scr='hub';menu('')})})}
    ['keydown','keyup','keypress'].forEach(ev=>pn.addEventListener(ev,e=>e.stopPropagation()));pn.addEventListener('keydown',e=>{if(e.key=='Enter')cm(()=>{scr='hub';menu('')})});pn.focus();pn.setSelectionRange(pn.value.length,pn.value.length)}}if(scr=='stash')stashInit();if(scr=='lore'){loreStr();setTimeout(loreStr,120);loreArt()}if(scr=='chron')chronInit()}
-$('#menu').onclick=e=>{const t=e.target.closest('[data-lb],[data-so],[data-stt],[data-ws],[data-wset],[data-l],[data-lo],[data-v],[data-xa],[data-bq],[data-m],[data-f],[data-y],[data-n],[data-w],[data-u],[data-q],[data-r],[data-k],[data-p],[data-s],[data-t],#go');if(!t)return;const d=t.dataset;if(d.stt===undefined)stConf=-1;
- if(d.stt!==undefined){const i=+d.stt;if(stUn[i]){stConf=-1;stSet(i);selRef=null;selInfo=null}else if(stConf!=i)stConf=i;else if(bank<STP[i]){note='Not enough cash: that tab costs $'+STP[i].toLocaleString()+'.';stConf=-1}else{bank-=STP[i];stUn[i]=1;stConf=-1;stSet(i);selRef=null;selInfo=null;SAVE();note='Stash tab '+(i+1)+' unlocked!'}}else if(d.bq){pq=Math.max(1,Math.min(PQMAX,pq+(d.bq=='+'?1:-1)))}else if(d.xa){const i=d.xa[0]=='s'?1:0,w=xaW(i);if(w){const n=xa[i]+(d.xa[1]=='+'?1:-1);if(n<0||n>XAMAX)return;if(d.xa[1]=='+'&&cost()+xaP(w)>bank){note='Not enough cash.'}else xa[i]=n}}else if(d.lb!==undefined)lbTab=+d.lb;else if(d.so!==undefined)note=sortStash();else if(d.l!==undefined){lorTab=+d.l;lorOpen=-1}else if(d.lo!==undefined)lorOpen=+d.lo;else if(d.wset){const S=WSETS.find(x=>x.id==d.wset);if(S){const left=setLeft(S),cost=setCost(S);wsConf=null;if(left.length<2)setConf=null;else if(setConf!=S.id)setConf=S.id;else if(bank<cost){note='Not enough cash.';setConf=null}else{bank-=cost;left.forEach(i=>own.push(i));setConf=null;SAVE();note='Unlocked the whole '+S.n+' for $'+cost+'! Select an item in the Stash and press Skin to apply it.'}}}else if(d.ws){setConf=null;const id=d.ws;if(id.startsWith('x_')){delete sel.wsk[id.slice(2)];SAVE()}else{const s=WSKINS[id]||SKINS[id];if(s){if(own.includes(id)){wsConf=null;note=WSKINS[id]?'Apply it from the Stash: select the item, then press Skin.':'Pick it under Hunter Skins.'}else if(wsConf!=id){wsConf=id}else if(bank<s.c){note='Not enough cash.';wsConf=null}else{bank-=s.c;own.push(id);wsConf=null;SAVE();note=WSKINS[id]?'Unlocked '+s.n+'! Select the item in the Stash and press Skin to apply it.':'Unlocked '+s.n+'! Pick it under Hunter Skins.'}}}}else if(d.v){wsConf=null;setConf=null;lorOpen=-1;scr=d.v;if(/^shop_/.test(d.v))shopScr=d.v}else if(d.m){mi=+d.m;const Lx=LEDGERS[mi];if(Lx&&lst(Lx.id).i<Lx.tasks.length){AL=Lx.id;SAVE()}}else if(d.f){curFam=d.f;const f=FAMS[d.f];if(own.includes(d.f)){if(Object.values(SKINS).filter(v=>v.f==d.f).length>1)scr='l_var';else{sel.skin=f.def;SAVE()}}else{pend={t:'f',k:d.f};scr='buy'}}
+$('#menu').onclick=e=>{const t=e.target.closest('[data-lb],[data-so],[data-stt],[data-ws],[data-wset],[data-l],[data-lo],[data-v],[data-xa],[data-bq],[data-ct],[data-ca],[data-cx],[data-f],[data-y],[data-n],[data-w],[data-u],[data-q],[data-r],[data-k],[data-p],[data-s],[data-t],#go');if(!t)return;const d=t.dataset;if(d.stt===undefined)stConf=-1;
+ if(d.stt!==undefined){const i=+d.stt;if(stUn[i]){stConf=-1;stSet(i);selRef=null;selInfo=null}else if(stConf!=i)stConf=i;else if(bank<STP[i]){note='Not enough cash: that tab costs $'+STP[i].toLocaleString()+'.';stConf=-1}else{bank-=STP[i];stUn[i]=1;stConf=-1;stSet(i);selRef=null;selInfo=null;SAVE();note='Stash tab '+(i+1)+' unlocked!'}}else if(d.bq){pq=Math.max(1,Math.min(PQMAX,pq+(d.bq=='+'?1:-1)))}else if(d.xa){const i=d.xa[0]=='s'?1:0,w=xaW(i);if(w){const n=xa[i]+(d.xa[1]=='+'?1:-1);if(n<0||n>XAMAX)return;if(d.xa[1]=='+'&&cost()+xaP(w)>bank){note='Not enough cash.'}else xa[i]=n}}else if(d.lb!==undefined)lbTab=+d.lb;else if(d.so!==undefined)note=sortStash();else if(d.l!==undefined){lorTab=+d.l;lorOpen=-1}else if(d.lo!==undefined)lorOpen=+d.lo;else if(d.wset){const S=WSETS.find(x=>x.id==d.wset);if(S){const left=setLeft(S),cost=setCost(S);wsConf=null;if(left.length<2)setConf=null;else if(setConf!=S.id)setConf=S.id;else if(bank<cost){note='Not enough cash.';setConf=null}else{bank-=cost;left.forEach(i=>own.push(i));setConf=null;SAVE();note='Unlocked the whole '+S.n+' for $'+cost+'! Select an item in the Stash and press Skin to apply it.'}}}else if(d.ws){setConf=null;const id=d.ws;if(id.startsWith('x_')){delete sel.wsk[id.slice(2)];SAVE()}else{const s=WSKINS[id]||SKINS[id];if(s){if(own.includes(id)){wsConf=null;note=WSKINS[id]?'Apply it from the Stash: select the item, then press Skin.':'Pick it under Hunter Skins.'}else if(wsConf!=id){wsConf=id}else if(bank<s.c){note='Not enough cash.';wsConf=null}else{bank-=s.c;own.push(id);wsConf=null;SAVE();note=WSKINS[id]?'Unlocked '+s.n+'! Select the item in the Stash and press Skin to apply it.':'Unlocked '+s.n+'! Pick it under Hunter Skins.'}}}}else if(d.v){wsConf=null;setConf=null;lorOpen=-1;scr=d.v;if(/^shop_/.test(d.v))shopScr=d.v}else if(d.ca){ctMsg=ctAccept(d.ca);if(!ctMsg)SAVE()}else if(d.cx){ctAbandon(d.cx);ctMsg='';SAVE()}else if(d.ct){ctSel=d.ct;ctMsg='';scr='ctdetail'}else if(d.f){curFam=d.f;const f=FAMS[d.f];if(own.includes(d.f)){if(Object.values(SKINS).filter(v=>v.f==d.f).length>1)scr='l_var';else{sel.skin=f.def;SAVE()}}else{pend={t:'f',k:d.f};scr='buy'}}
  else if(d.k){const v=SKINS[d.k];if(own.includes(d.k)){sel.skin=d.k;SAVE()}else{pend={t:'k',k:d.k};scr='buy'}}
  else if(d.y){const q=pend,it=pit(q);if(q.t=='w'){let got=0;while(got<pq&&bank>=it.c&&addItemAny(q.k)){bank-=it.c;got++}if(got){SAVE();note='Bought '+(got>1?got+'x ':'')+it.n+' \u2014 '+(got>1?'they are':'it is')+' in your stash.'+(got<pq?' Ran out of '+(bank<it.c?'cash':'stash room')+' after '+got+'.':'')}else note=bank<it.c?'Not enough cash.':'Not enough room in the stash.';scr=shopScr;pend=null;pq=1}else{if(bank>=it.c&&!it.led){bank-=it.c;if(q.t=='f'){own.push(q.k,it.def);sel.skin=it.def}else{own.push(q.k);sel.skin=q.k}SAVE();note='Unlocked '+it.n+'!'}scr=q.t=='f'?'l_skin':'l_var';pend=null}}
  else if(d.n){scr=pend.t=='f'?'l_skin':pend.t=='w'?shopScr:'l_var';pend=null}
@@ -1916,25 +1975,52 @@ function vw(x,y,h,g){if(!g)return W(x,y,6,h);const a=h/2-18+R(-30,30)|0;W(x,y,6,
 const hit=(x,y,r)=>{for(const w of walls)if(x+r>w.x&&x-r<w.x+w.w&&y+r>w.y&&y-r<w.y+w.h)return true;return false};
 function mv(e,a,b,r){if(!hit(e.x+a,e.y,r))e.x+=a;if(!hit(e.x,e.y+b,r))e.y+=b;e.x=cl(e.x,r,WW-r);e.y=cl(e.y,r,WH-r)}
 function los(a,b,c,d){const n=Math.ceil(D(a,b,c,d)/6);for(let i=1;i<n;i++)if(hit(a+(c-a)*i/n,b+(d-b)*i/n,.5))return false;return true}
-function genGround(){ground=mk(WW,WH);const g=ground.getContext('2d');g.fillStyle='#2a1b1d';g.fillRect(0,0,WW,WH);
- for(let i=0;i<9000;i++){g.fillStyle=['#1f1214','#3b2024','#2f2a30','#170c0e'][i%4];g.fillRect(R(0,WW),R(0,WH),R(1,3),1)}
- g.fillStyle='rgba(110,30,14,.3)';for(let i=0;i<40;i++){g.beginPath();g.ellipse(R(0,WW),R(0,WH),R(20,60),R(10,30),0,0,7);g.fill()}
+function genGround(){for(const c of [typeof ground!='undefined'?ground:0,typeof blood!='undefined'?blood:0,typeof wl!='undefined'?wl:0])if(c&&c.width>1){c.width=c.height=1}   // the three full-map canvases are about 86 MB on the 3300x2175 map: free the previous match's ones right away instead of waiting for the garbage collector
+ ground=mk(WW,WH);const g=ground.getContext('2d');g.fillStyle='#2a1b1d';g.fillRect(0,0,WW,WH);
+ for(let i=0;i<9000*MAPK;i++){g.fillStyle=['#1f1214','#3b2024','#2f2a30','#170c0e'][i%4];g.fillRect(R(0,WW),R(0,WH),R(1,3),1)}
+ g.fillStyle='rgba(110,30,14,.3)';for(let i=0;i<40*MAPK;i++){g.beginPath();g.ellipse(R(0,WW),R(0,WH),R(20,60),R(10,30),0,0,7);g.fill()}
  g.fillStyle='rgba(0,0,0,.05)';for(let y=0;y<WH;y+=16)for(let x=0;x<WW;x+=16)if((x+y)/16%2==0)g.fillRect(x,y,16,16);
- for(let i=0;i<90;i++){let x=R(0,WW),y=R(0,WH),a=R(0,6.28);const pts=[[x,y]];for(let k=0;k<7;k++){a+=R(-.9,.9);x+=Math.cos(a)*R(14,34);y+=Math.sin(a)*R(14,34);pts.push([x,y])}
+ for(let i=0;i<90*MAPK;i++){let x=R(0,WW),y=R(0,WH),a=R(0,6.28);const pts=[[x,y]];for(let k=0;k<7;k++){a+=R(-.9,.9);x+=Math.cos(a)*R(14,34);y+=Math.sin(a)*R(14,34);pts.push([x,y])}
   for(const [w,c] of [[6,'rgba(255,70,10,.12)'],[2.5,'rgba(255,100,20,.35)'],[1,'rgba(255,190,80,.8)']]){g.strokeStyle=c;g.lineWidth=w;g.beginPath();pts.forEach((p,k)=>k?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.stroke()}}
  blood=mk(WW,WH);bx=blood.getContext('2d')}
 function splat(x,y,n,r,g){for(let i=0;i<n;i++){bx.fillStyle=g?`rgba(${60+R(0,40)|0},${140+R(0,70)|0},${20+R(0,30)|0},${R(.4,.8)})`:`rgba(${40+R(0,40)|0},6,${30+R(0,40)|0},${R(.4,.8)})`;bx.beginPath();bx.ellipse(x+R(-r,r),y+R(-r,r),R(1,r/3+1),R(1,r/4+1),R(0,3),0,7);bx.fill()}}
 function burst(x,y,n,sp,col,s,a){for(let i=0;i<n;i++){const t=a!=null?a+R(-.8,.8):R(0,6.28),v=R(.3,1)*sp;parts.push({x,y,vx:Math.cos(t)*v,vy:Math.sin(t)*v,l:R(.3,.8),c:col,s})}}
 const bExt=b=>{const g=b.wg;if(!g)return b;const x=Math.min(b.x,g.x),y=Math.min(b.y,g.y);return{x,y,w:Math.max(b.x+b.w,g.x+g.w)-x,h:Math.max(b.y+b.h,g.y+g.h)-y}};
 const inHouse=(b,x,y,m)=>(x>b.x+m&&x<b.x+b.w-m&&y>b.y+m&&y<b.y+b.h-m)||!!(b.wg&&x>b.wg.x+m&&x<b.wg.x+b.wg.w-m&&y>b.wg.y+m&&y<b.wg.y+b.wg.h-m);
-function planWing(b){b.wg=null;if(Math.random()>.75)return;const s=R(0,4)|0,L=s<2?b.w:b.h,gl=R(80,Math.min(150,L-50))|0,go=R(20,L-gl-20)|0,dp=R(60,100)|0;b.ws=s;b.wo=go;b.wl=gl;b.wg=[{x:b.x+go,y:b.y-dp+6,w:gl,h:dp},{x:b.x+go,y:b.y+b.h-6,w:gl,h:dp},{x:b.x-dp+6,y:b.y+go,w:dp,h:gl},{x:b.x+b.w-6,y:b.y+go,w:dp,h:gl}][s]}
+function planWing(b){b.wg=null;if(Math.random()>.75)return;const s=R(0,4)|0,L=s<2?b.w:b.h,gl=R(80*BK,Math.min(150*BK,L-50*BK))|0,go=R(20,L-gl-20)|0,dp=R(60*BK,100*BK)|0;b.ws=s;b.wo=go;b.wl=gl;b.wg=[{x:b.x+go,y:b.y-dp+6,w:gl,h:dp},{x:b.x+go,y:b.y+b.h-6,w:gl,h:dp},{x:b.x-dp+6,y:b.y+go,w:dp,h:gl},{x:b.x+b.w-6,y:b.y+go,w:dp,h:gl}][s]}
 function wLine(x,y,len,hz,gs){let p=0;for(const[g,l]of gs.sort((a,b)=>a[0]-b[0])){if(g>p)hz?W(x+p,y,g-p,6):W(x,y+p,6,g-p);p=g+l}if(len>p)hz?W(x+p,y,len-p,6):W(x,y+p,6,len-p)}
-function buildWalls(b){const g=[[],[],[],[]],ds=[R(0,4)|0];if(Math.random()<.5)ds.push((ds[0]+1+(R(0,3)|0))%4);
+// ---- INTERIOR ROOMS (every building except the archdemon's lair): the floor is split again and again into rooms by walls that each have a 36-wide doorway.
+// Rules that keep every room reachable: every split wall has a door, and no later wall may touch the end of a door (or an outside door / the wing opening), so a doorway never opens onto a wall.
+// Leaves are stored in b.rooms ({x,y,w,h}, wing room has wg:1) and the interior doors in b.idr ({x,y,w,h,hz}); steps 10-12 use them for floors, props, demons and loot.
+const RMIN=150;
+function planRooms(b){
+ const hit1=(a,v)=>a.some(i=>v+6>i[0]&&v<i[1]),fT=[],fB=[],fL=[],fR=[],pad=24;
+ (b.dr||[]).forEach(d=>{if(d.wg)return;const lo=d.of-pad,hi=d.of+d.ln+pad;if(d.q==0)fT.push([b.x+lo,b.x+hi]);else if(d.q==1)fB.push([b.x+lo,b.x+hi]);else if(d.q==2)fL.push([b.y+lo,b.y+hi]);else fR.push([b.y+lo,b.y+hi])});
+ if(b.wg){const lo=b.wo-14,hi=b.wo+b.wl+14;if(b.ws==0)fT.push([b.x+lo,b.x+hi]);else if(b.ws==1)fB.push([b.x+lo,b.x+hi]);else if(b.ws==2)fL.push([b.y+lo,b.y+hi]);else fR.push([b.y+lo,b.y+hi])}
+ b.idr=[];
+ const tryV=rc=>{for(let k=0;k<16;k++){const c=R(rc.x0+RMIN,rc.x1-RMIN-6)|0;if(hit1(rc.t,c)||hit1(rc.bt,c))continue;const d=R(rc.y0+pad,rc.y1-pad-36)|0;
+   wLine(c,rc.y0,rc.y1-rc.y0,0,[[d-rc.y0,36]]);b.idr.push({x:c,y:d,w:6,h:36,hz:0});
+   return[{x0:rc.x0,y0:rc.y0,x1:c,y1:rc.y1,t:rc.t,bt:rc.bt,l:rc.l,r:[[d-pad,d+36+pad]]},{x0:c+6,y0:rc.y0,x1:rc.x1,y1:rc.y1,t:rc.t,bt:rc.bt,l:[[d-pad,d+36+pad]],r:rc.r}]}return null};
+ const tryH=rc=>{for(let k=0;k<16;k++){const c=R(rc.y0+RMIN,rc.y1-RMIN-6)|0;if(hit1(rc.l,c)||hit1(rc.r,c))continue;const d=R(rc.x0+pad,rc.x1-pad-36)|0;
+   wLine(rc.x0,c,rc.x1-rc.x0,1,[[d-rc.x0,36]]);b.idr.push({x:d,y:c,w:36,h:6,hz:1});
+   return[{x0:rc.x0,y0:rc.y0,x1:rc.x1,y1:c,t:rc.t,bt:[[d-pad,d+36+pad]],l:rc.l,r:rc.r},{x0:rc.x0,y0:c+6,x1:rc.x1,y1:rc.y1,t:[[d-pad,d+36+pad]],bt:rc.bt,l:rc.l,r:rc.r}]}return null};
+ let rooms=[{x0:b.x+6,y0:b.y+6,x1:b.x+b.w-6,y1:b.y+b.h-6,t:fT,bt:fB,l:fL,r:fR}];const dead=new Set(),target=R(4,8)|0;
+ while(rooms.length<target){const c=rooms.filter(r=>!dead.has(r)).sort((a,z)=>(z.x1-z.x0)*(z.y1-z.y0)-(a.x1-a.x0)*(a.y1-a.y0))[0];if(!c)break;
+  const w=c.x1-c.x0,h=c.y1-c.y0,cv=w>=2*RMIN+6,ch=h>=2*RMIN+6;let res=null;
+  if(cv&&(w>=h||!ch))res=tryV(c);if(!res&&ch)res=tryH(c);if(!res&&cv)res=tryV(c);
+  if(!res){dead.add(c);continue}rooms.splice(rooms.indexOf(c),1,res[0],res[1])}
+ b.rooms=rooms.map(r=>({x:r.x0,y:r.y0,w:r.x1-r.x0,h:r.y1-r.y0}));if(b.wg)b.rooms.push({x:b.wg.x,y:b.wg.y,w:b.wg.w,h:b.wg.h,wg:1})}
+// ---- STEP 12: which room is which. bEntry(b) = the room behind the building's first outside door (the entry hall: no demons, little loot, no sigil). clueRoom(b) = the biggest room that is NOT the entry hall and not the wing (the sigil goes here; if the only other room is the wing, the wing). Both return null for a building with no rooms (the lair).
+function bEntry(b){const rs=b.rooms||[];if(rs.length<2)return null;const d0=(b.dr||[])[0];if(!d0)return null;if(d0.wg)return rs.find(q=>q.wg)||null;
+ const pt=d0.q==0?[b.x+d0.of+d0.ln/2,b.y+26]:d0.q==1?[b.x+d0.of+d0.ln/2,b.y+b.h-26]:d0.q==2?[b.x+26,b.y+d0.of+d0.ln/2]:[b.x+b.w-26,b.y+d0.of+d0.ln/2];
+ return rs.find(q=>!q.wg&&pt[0]>q.x&&pt[0]<q.x+q.w&&pt[1]>q.y&&pt[1]<q.y+q.h)||null}
+function clueRoom(b){const rs=b.rooms||[];if(rs.length<2)return null;const e=bEntry(b),c0=rs.filter(q=>q!==e),c1=c0.filter(q=>!q.wg),c=c1.length?c1:c0;return(c.length?c:rs).reduce((a,q)=>!a||q.w*q.h>a.w*a.h?q:a,null)}
+function buildWalls(b,lair){const g=[[],[],[],[]],ds=[R(0,4)|0];if(Math.random()<.5)ds.push((ds[0]+1+(R(0,3)|0))%4);
  ds.forEach(q=>g[q].push([R(30,(q<2?b.w:b.h)-66)|0,36]));const o=b.wg;if(o)g[b.ws]=[[b.wo+6,b.wl-12]];b.dr=[];g.forEach((a,q)=>{if(!(o&&q==b.ws))a.forEach(d=>b.dr.push({q,of:d[0],ln:d[1]}))});
  wLine(b.x,b.y,b.w,1,g[0]);wLine(b.x,b.y+b.h-6,b.w,1,g[1]);wLine(b.x,b.y,b.h,0,g[2]);wLine(b.x+b.w-6,b.y,b.h,0,g[3]);
  if(o){const om=[1,0,3,2][b.ws],h=[[],[],[],[]],c=[0,1,2,3].filter(i=>i!=om)[R(0,3)|0];h[c].push([((c<2?o.w:o.h)-36)/2|0,36]);b.dr.push({q:c,of:((c<2?o.w:o.h)-36)/2|0,ln:36,wg:1});
   if(om!=0)wLine(o.x,o.y,o.w,1,h[0]);if(om!=1)wLine(o.x,o.y+o.h-6,o.w,1,h[1]);if(om!=2)wLine(o.x,o.y,o.h,0,h[2]);if(om!=3)wLine(o.x+o.w-6,o.y,o.h,0,h[3])}
- if(Math.random()<.6){const f=.5+(Math.random()<.5?1:-1)*R(.1,.2);Math.random()<.5?wLine(b.x+6,b.y+b.h*f,b.w-12,1,[[R(20,b.w-68)|0,36]]):wLine(b.x+b.w*f,b.y+6,b.h-12,0,[[R(20,b.h-68)|0,36]])}}
+ if(!lair)planRooms(b);else if(Math.random()<.6){const f=.5+(Math.random()<.5?1:-1)*R(.1,.2);Math.random()<.5?wLine(b.x+6,b.y+b.h*f,b.w-12,1,[[R(20,b.w-68)|0,36]]):wLine(b.x+b.w*f,b.y+6,b.h-12,0,[[R(20,b.h-68)|0,36]])}}
 // ---------- MOB TYPES (w = spawn weight: easy ones common, hard ones rare) ----------
 const MOBS={imp:{hp:45,sp:52,dm:10,cd:.9,w:44},skitter:{hp:22,sp:90,dm:6,cd:.6,w:26},bloat:{hp:60,sp:34,w:12},vine:{hp:55,sp:30,w:12},brute:{hp:150,sp:38,dm:24,cd:1.1,sc:1.5,w:10},gleaner:{hp:50,sp:62,dm:14,cd:.9,w:0},spooler:{hp:70,sp:46,dm:12,cd:1,w:9}};
 const pickMob=()=>{const tu=typeof TUTR!=='undefined'&&TUTR,wt=(k,o)=>k=='spooler'&&tu?0:o.w;let r=Math.random()*Object.entries(MOBS).reduce((a,[k,o])=>a+wt(k,o),0);for(const[k,o]of Object.entries(MOBS)){if((r-=wt(k,o))<0)return k}return'imp'};
@@ -2276,7 +2362,7 @@ function injTick(dt){const h=INJH;if(!h||mode!='play'||typeof P==='undefined'||!
 // injGo() goes straight at you when the way is clear; when blocked it commits to one side (h.sd = +1/-1, the side with the smaller turn) and wall-follows by sweeping the heading in 20-degree steps from that side until the line of sight to you is clear, then goes straight again.
 // h.fol = seconds he has been wall-following (step 7a4 uses it, with a no-progress check, to teleport him out of a loop). No recovery when stuck yet (7a4). Only solo and the monster host move him; clients keep him where he is until step 7d syncs him.
 const injBlk=(h,x,y)=>hit(x,y,4)||(!bossOpen&&h.be&&x>h.be.x-8&&x<h.be.x+h.be.w+8&&y>h.be.y-8&&y<h.be.y+h.be.h+8);
-function injGo(h,dx,dy,st,dt){const a0=Math.atan2(dy,dx),S=.35,ok=a=>{const c=Math.cos(a),s=Math.sin(a);return !injBlk(h,h.x+c*st,h.y+s*st)&&!injBlk(h,h.x+c*(st+5),h.y+s*(st+5))},clear=los(h.x,h.y,P.x,P.y);
+function injGo(h,dx,dy,st,dt,tx,ty){const a0=Math.atan2(dy,dx),S=.35,ok=a=>{const c=Math.cos(a),s=Math.sin(a);return !injBlk(h,h.x+c*st,h.y+s*st)&&!injBlk(h,h.x+c*(st+5),h.y+s*(st+5))},clear=los(h.x,h.y,tx===undefined?P.x:tx,ty===undefined?P.y:ty);
  if(clear||!h.sd){if(ok(a0)){h.sd=0;h.fol=0;return go(a0)}if(!h.sd){let kl=99,kr=99;for(let k=1;k<=9;k++){if(kl==99&&ok(a0-k*S))kl=k;if(kr==99&&ok(a0+k*S))kr=k}if(kl==99&&kr==99)return false;h.sd=kr<=kl?1:-1;h.fol=0}}
  if(clear&&h.sd&&ok(a0)){h.sd=0;h.fol=0;return go(a0)}
  h.fol=(h.fol||0)+dt;for(let k=0;k<=9;k++)if(ok(a0+h.sd*k*S))return go(a0+h.sd*k*S);for(let k=1;k<=9;k++)if(ok(a0-h.sd*k*S)){const a=a0-h.sd*k*S;h.sd=-h.sd;return go(a)}return false;
@@ -2288,11 +2374,34 @@ function injTele(h){if(h.tpc>0||!INJL||INJL.dead)return false;const ox=h.x,oy=h.
   if(x<20||y<20||x>WW-20||y>WH-20||injBlk(h,x,y)||hit(x,y,10)||!los(INJL.x,INJL.y,x,y))continue;
   burst(ox,oy-4,12,50,'#a89878',0);h.x=x;h.y=y;burst(x,y-4,12,50,'#a89878',0);h.ta=.35;h.tpc=2;h.sd=0;h.fol=0;h.fp=0;h.sw=0;h.fm=0;h.px=INJL.x;h.py=INJL.y;h.f=INJL.x>=x?1:-1;return true}
  return false}
+// STEP 13: DOOR PATHING. Wall-following alone cannot find the way through the doors of a multi-room building (he used to teleport instead, about every second trip). Now, when a wall is between him and you,
+// injPath(h,tx,ty) runs an A* over an 8px grid (only the area between you two plus a 140px margin, 420px if that finds nothing, cells tested lazily with the same walls/trees/sealed boss building he collides with, plus 1.5px of margin) and injWay(h,dt) hands injFollow the next waypoint
+// (the farthest path node within 110px he can walk to in a straight, body-wide line). The path is replanned at most every 0.5s, when you moved 50+px from where it ended, or when he wall-followed for 1.5s. No path found = the old wall-following, and the teleport recovery of 7a4 stays as the last resort.
+// Fields on the hunter: nvP (path), nvI (index), nvG (goal it was planned for), nvQ (replan timer). Not saved, not sent over the network (only the monster host / solo moves him).
+function losF(a,b,c,d){const n=Math.ceil(D(a,b,c,d)/5);for(let i=1;i<n;i++)if(hit(a+(c-a)*i/n,b+(d-b)*i/n,4.5))return false;return true}
+function injPath(h,tx,ty,m){m=m||140;const C=8,x0=Math.max(8,Math.min(h.x,tx)-m)|0,y0=Math.max(8,Math.min(h.y,ty)-m)|0,x1=Math.min(WW-8,Math.max(h.x,tx)+m),y1=Math.min(WH-8,Math.max(h.y,ty)+m),gw=Math.ceil((x1-x0)/C),gh=Math.ceil((y1-y0)/C);if(gw*gh>60000)return null;
+ const bl=new Int8Array(gw*gh),free=i=>{let v=bl[i];if(!v){const x=x0+(i%gw)*C+C/2,y=y0+((i/gw)|0)*C+C/2;v=bl[i]=(injBlk(h,x,y)||hit(x,y,5.5))?2:1}return v==1},
+  cell=(x,y)=>Math.max(0,Math.min(gh-1,((y-y0)/C)|0))*gw+Math.max(0,Math.min(gw-1,((x-x0)/C)|0)),
+  near=i=>{if(free(i))return i;const cx=i%gw,cy=(i/gw)|0;for(let r=1;r<=4;r++)for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){if(Math.max(Math.abs(dx),Math.abs(dy))!=r)continue;const X=cx+dx,Y=cy+dy;if(X<0||Y<0||X>=gw||Y>=gh)continue;if(free(Y*gw+X))return Y*gw+X}return -1};
+ const s0=near(cell(h.x,h.y)),g0=near(cell(tx,ty));if(s0<0||g0<0)return null;
+ const gs=new Float32Array(gw*gh).fill(1e9),fr=new Int32Array(gw*gh).fill(-1),cl2=new Uint8Array(gw*gh),gx=g0%gw,gy=(g0/gw)|0,hh=i=>{const dx=Math.abs(i%gw-gx),dy=Math.abs(((i/gw)|0)-gy);return Math.max(dx,dy)+.414*Math.min(dx,dy)};
+ const hp=[];const push=(f,i)=>{let k=hp.length;hp.push([f,i]);while(k>0){const q=(k-1)>>1;if(hp[q][0]<=hp[k][0])break;[hp[q],hp[k]]=[hp[k],hp[q]];k=q}},pop=()=>{const t=hp[0],l=hp.pop();if(hp.length){hp[0]=l;let k=0;for(;;){let a=2*k+1,b=a+1,m2=k;if(a<hp.length&&hp[a][0]<hp[m2][0])m2=a;if(b<hp.length&&hp[b][0]<hp[m2][0])m2=b;if(m2==k)break;[hp[m2],hp[k]]=[hp[k],hp[m2]];k=m2}}return t};
+ gs[s0]=0;push(hh(s0),s0);let n=0,found=false;
+ while(hp.length&&n++<30000){const[,i]=pop();if(cl2[i])continue;cl2[i]=1;if(i==g0){found=true;break}const cx=i%gw,cy=(i/gw)|0;
+  for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){if(!dx&&!dy)continue;const X=cx+dx,Y=cy+dy;if(X<0||Y<0||X>=gw||Y>=gh)continue;const j=Y*gw+X;if(cl2[j]||!free(j))continue;if(dx&&dy&&(!free(cy*gw+X)||!free(Y*gw+cx)))continue;
+   const ng=gs[i]+(dx&&dy?1.414:1);if(ng<gs[j]){gs[j]=ng;fr[j]=i;push(ng+hh(j),j)}}}
+ if(!found)return null;const out=[];for(let i=g0;i!=s0&&i>=0;i=fr[i])out.push([x0+(i%gw)*C+C/2,y0+((i/gw)|0)*C+C/2]);return out.reverse()}
+function injPath2(h,tx,ty){return injPath(h,tx,ty,140)||injPath(h,tx,ty,420)}
+function injWay(h,dt){const L=INJL;if(!L||los(h.x,h.y,L.x,L.y)){h.nvP=null;return null}
+ h.nvQ=(h.nvQ||0)-dt;if(h.nvQ<=0&&(!h.nvP||Math.hypot(L.x-h.nvG[0],L.y-h.nvG[1])>50||(h.fol||0)>1.5)){h.nvQ=.5;h.nvP=injPath2(h,L.x,L.y);h.nvI=0;h.nvG=[L.x,L.y]}
+ const p=h.nvP;if(!p||!p.length)return null;
+ while(h.nvI<p.length-1&&(Math.hypot(p[h.nvI][0]-h.x,p[h.nvI][1]-h.y)<7||(Math.hypot(p[h.nvI+1][0]-h.x,p[h.nvI+1][1]-h.y)<110&&losF(h.x,h.y,p[h.nvI+1][0],p[h.nvI+1][1]))))h.nvI++;
+ return p[h.nvI]}
 function injFollow(h,dt){h.mv=0;if(h.dr>0)return;const px=h.px,py=h.py;if(mpCli()||!INJL||INJL.dead||!(dt>0)){h.px=INJL&&INJL.x;h.py=INJL&&INJL.y;return}
  const pv=px===undefined?0:Math.hypot(INJL.x-px,INJL.y-py)/dt;h.px=INJL.x;h.py=INJL.y;if(pv>100&&pv<200)h.spT=T;
  const dx=INJL.x-h.x,dy=INJL.y-h.y,d=Math.hypot(dx,dy)||1;let s=0,st=0;
  if(d>400&&injTele(h))return;
- if(d>70||(h.fm&&d>55)){h.fm=1;s=Math.min(128,Math.max(68,pv*1.05,68+(d-70)*.9));if(d<85)s*=Math.max(.4,(d-55)/30);st=Math.min(s*dt,Math.max(0,d-55));if(st>0&&injGo(h,dx,dy,st,dt)){h.mv=1;h.wk=(h.wk||0)+dt*(s>90?14:9)}
+ if(d>70||(h.fm&&d>55)){h.fm=1;s=Math.min(128,Math.max(68,pv*1.05,68+(d-70)*.9));if(d<85)s*=Math.max(.4,(d-55)/30);st=Math.min(s*dt,Math.max(0,d-55));const wp=st>0?injWay(h,dt):null,gx=wp?wp[0]-h.x:dx,gy=wp?wp[1]-h.y:dy;if(st>0&&injGo(h,gx,gy,st,dt,wp?wp[0]:undefined,wp?wp[1]:undefined)){h.mv=1;h.wk=(h.wk||0)+dt*(s>90?14:9)}
   h.sw=(h.sw||0)+dt;if(h.sw>=1.5){if(d>90&&Math.hypot(h.x-h.sx,h.y-h.sy)<8&&injTele(h))return;h.sx=h.x;h.sy=h.y;h.sw=0}
   if(h.sd){if(h.bd===undefined||d<h.bd-12){h.bd=d;h.fp=0}else if((h.fp+=dt)>8&&injTele(h))return}else{h.bd=d;h.fp=0}
   return}
@@ -2466,7 +2575,7 @@ function injNet1(hp,f,o){const h=INJH;if(o&&o.st=='freed'){if(h&&h.hp>0&&h.st=='
 // Solo and host: spend one Holy Water and free him at once. Client: ask the host ({t:'injg'}); the host's injReq frees him (first request wins) and broadcasts {t:'inj',st:'freed',by}; only the requester spends the Holy Water, when that arrives (see injNet).
 function injFree(h){h.st='follow';h.mv=0;h.hp=h.mh;h.fl=0;h.bub=null;h.cd=R(14,24);h.free=T;h.kit=h.kit||{tonic:0};burst(h.x,h.y-6,22,80,'#9ad0ff',0);burst(h.x,h.y-8,10,50,'#f0e0a0',0);try{sfx.heal()}catch(e){}injSay(h,'thanks')}
 // STEP 15: a rescue = YOU gave the map hunter Holy Water (solo / host in injTry, a client when the host confirms in injNet1). Counts for the Hand of Mercy achievement (RS.resc, banked at run end) and the 'resc' ledger task, and unlocks his lore folder.
-function injRescued(){try{RS.resc=(RS.resc||0)+1;lk(3,17);if(mis&&mis.t=='resc'&&!mis.done&&!mis.fail){mis.p++;if(mis.b+mis.p>=mis.n)done()}}catch(e){}}
+function injRescued(){try{RS.resc=(RS.resc||0)+1;lk(3,17);for(const q of MQ)if(q.t=='resc'&&!q.done&&!q.fail){q.p++;if(q.b+q.p>=q.n)done(q)}}catch(e){}}
 function injTry(){const h=INJH;if(!h||h.hp<=0||h.st!='hurt'||!P||P.dead)return;if(INJX.filter(q=>q.hp>0).length>=2){say('You already lead two hunters. '+h.name+' must wait for another day.',3.5);return}
  if(TC('tonic')<=0){if(!h.nw||T-h.nw>4){h.nw=T;injSay(h,'nohw');say(h.name+' needs Holy Water.',2.5)}return}
  if(mpCli()){if(!h.rq||T-h.rq>2){h.rq=T;mpSend({t:'injg'})}return}
@@ -2830,28 +2939,43 @@ addEventListener('keydown',e=>{if(e.code!=='KeyR'||e.repeat||e.ctrlKey||e.metaKe
  hov=null;menu('No room to rotate that here.')});
 function newGame(){
  boss=Object.keys(BOSS)[Math.random()*Object.keys(BOSS).length|0];showMap=0;genGround();gorW=boss=='gorrath'?1:0;GFS=[];GGR=[];GHP=[];if(gorW)gorGround();nyxW=boss=='nyxara'?1:0;NSN=[];NWF=[];if(nyxW)nyxGround();morW=boss=='mordrek'?1:0;MGR=[];MBL=null;MCH=null;MBD=[];morBt=0;if(morW)morGround();walls=[];blds=[];
- camp=edgePt();exts=[];for(let t=0;exts.length<2&&t<500;t++){const p=edgePt();if(D(p.x,p.y,camp.x,camp.y)>1000&&exts.every(e=>D(p.x,p.y,e.x,e.y)>800))exts.push(p)}
-RS={};mis=ledgerTask();trees=[];M=[];bul=[];eb=[];bombs=[];lobs=[];fires=[];flares=[];parts=[];traps=[];gibs=[];drops=[];spurts=[];found=0;bossOpen=0;seals=[];banished=0;corpse=null;bty=null;bn=null;
- for(let t=0;blds.length<7&&t<2500;t++){const w=R(210,300)|0,h=R(150,210)|0,x=R(120,WW-w-120)|0,y=R(120,WH-h-120)|0,b={x,y,w,h};planWing(b);const e=bExt(b);
-  if(blds.some(o=>{const q=bExt(o);return e.x<q.x+q.w+50&&e.x+e.w+50>q.x&&e.y<q.y+q.h+50&&e.y+e.h+50>q.y})||D(cl(camp.x,e.x,e.x+e.w),cl(camp.y,e.y,e.y+e.h),camp.x,camp.y)<220)continue;blds.push(b)}
- blds.forEach((b,i)=>{b.ty=i%7;b.cx=b.x+b.w/2;b.cy=b.y+b.h/2;WK=b.ty;buildWalls(b);WK=-1});
+ camp=edgePt();exts=[];for(let t=0;exts.length<2&&t<500;t++){const p=edgePt();if(D(p.x,p.y,camp.x,camp.y)>1500&&exts.every(e=>D(p.x,p.y,e.x,e.y)>1200))exts.push(p)}
+ for(let t=0;exts.length==2&&t<800;t++){const p=edgePt();if(D(p.x,p.y,camp.x,camp.y)>1300&&exts.every(e=>D(p.x,p.y,e.x,e.y)>1000))exts.push(p)}   // BELL TOWER: the 3rd exit (k=2), also on the map edge, 1300+ from camp and 1000+ from the other exits (if no spot is found the map keeps 2 exits)
+RS={};MQ=ctRunQuests();mis=MQ[0]||{t:'none',n:0,p:0,b:0,done:0,fail:0,bo:0};trees=[];M=[];bul=[];eb=[];bombs=[];lobs=[];fires=[];flares=[];parts=[];traps=[];gibs=[];drops=[];spurts=[];found=0;bossOpen=0;seals=[];banished=0;corpse=null;bty=null;bn=null;
+ for(let t=0;(blds.length<7&&t<2500||blds.length<6&&t<9000);t++){const w=R(210*BK,300*BK)|0,h=R(150*BK,210*BK)|0,x=R(120,WW-w-120)|0,y=R(120,WH-h-120)|0,b={x,y,w,h};planWing(b);const e=bExt(b);
+  if(blds.some(o=>{const q=bExt(o);return e.x<q.x+q.w+50&&e.x+e.w+50>q.x&&e.y<q.y+q.h+50&&e.y+e.h+50>q.y})||D(cl(camp.x,e.x,e.x+e.w),cl(camp.y,e.y,e.y+e.h),camp.x,camp.y)<220||e.x<80||e.y<80||e.x+e.w>WW-80||e.y+e.h>WH-80||exts.some(q=>q.x>e.x-100&&q.x<e.x+e.w+100&&q.y>e.y-100&&q.y<e.y+e.h+100))continue;blds.push(b)}   // the whole building incl. its wing stays 80+ from the map edge and 100+ from both exits
+ blds.forEach((b,i)=>{b.ty=i%7;b.cx=b.x+b.w/2;b.cy=b.y+b.h/2});
  const sp=camp,far=[...blds].sort((a,b)=>D(b.cx,b.cy,sp.x,sp.y)-D(a.cx,a.cy,sp.x,sp.y)),bb=far[0],oth=far.slice(1).sort(()=>Math.random()-.5);
- clues=oth.slice(0,3).map(b=>({x:b.cx+R(-30,30),y:b.cy+R(-20,20),got:0}));
- for(let i=0;i<100;i++){const x=R(30,WW-30),y=R(30,WH-30);if(blds.some(b=>{const e=bExt(b);return x>e.x-25&&x<e.x+e.w+25&&y>e.y-25&&y<e.y+e.h+25})||D(x,y,sp.x,sp.y)<120||exts.some(e=>D(x,y,e.x,e.y)<60))continue;trees.push({x,y});W(x-2,y-3,4,4,1)}
+ blds.forEach(b=>{WK=b.ty;buildWalls(b,b===bb);WK=-1});   // walls are built after the lair is known: the lair stays one big hall (owner's decision: keep it as one hall, so the boss never needs door pathing)
+ const CR=[];   // STEP 12: each sigil sits in the biggest room away from the entry hall (CR remembers its room so a clue that lands on a set piece can be nudged after genBuildings)
+ clues=oth.slice(0,3).map(b=>{const q=clueRoom(b);if(!q)return{x:b.cx+R(-30,30),y:b.cy+R(-20,20),got:0};const av=roomAvoid(b),c={x:q.x+q.w/2,y:q.y+q.h/2,got:0};
+  for(let t=0;t<30;t++){const x=q.x+q.w/2+R(-q.w*.25,q.w*.25),y=q.y+q.h/2+R(-q.h*.25,q.h*.25);if(t<20&&av.some(a=>x>a[0]&&x<a[2]&&y>a[1]&&y<a[3]))continue;c.x=x|0;c.y=y|0;break}
+  CR.push({c,q,av});return c});
+ for(let i=0;i<100*MAPK;i++){const x=R(30,WW-30),y=R(30,WH-30);if(blds.some(b=>{const e=bExt(b);return x>e.x-25&&x<e.x+e.w+25&&y>e.y-25&&y<e.y+e.h+25})||D(x,y,sp.x,sp.y)<120||exts.some(e=>D(x,y,e.x,e.y)<60))continue;trees.push({x,y});W(x-2,y-3,4,4,1)}
  if(gorW)gorMap(bb,sp);if(nyxW)nyxMap(bb,sp);if(morW)morMap(bb,sp);
  genBuildings(bb);genExits();sealBoss(bb);
+ CR.forEach(o=>{const c=o.c,q=o.q;if(!hit(c.x,c.y,10))return;for(let t=0;t<60;t++){const x=R(q.x+24,q.x+q.w-24)|0,y=R(q.y+24,q.y+q.h-24)|0;if(hit(x,y,10)||(t<40&&o.av.some(a=>x>a[0]&&x<a[2]&&y>a[1]&&y<a[3])))continue;c.x=x;c.y=y;break}});   // STEP 12: a sigil never sits inside a wall or prop
  const B=BOSS[boss];M.push({boss:1,bb:bb,bh:B.bh,x:bb.cx,y:bb.cy,hx:bb.cx,hy:bb.cy,hp:B.hp,mh:B.hp,st:'idle',wt:0,cd:2,fl:0,dash:0,wk:0});
- for(let i=0;i<46;i++){let x,y,t=0;do{const b=i<24?blds[i%blds.length]:null;x=b?b.cx+R(-b.w/3,b.w/3):R(60,WW-60);y=b?b.cy+R(-b.h/3,b.h/3):R(60,WH-60)}while((hit(x,y,6)||D(x,y,sp.x,sp.y)<350)&&t++<30);M.push(mkMob(x,y,'idle'))}
+ for(let i=0,NM=Math.round(22*MAPK);i<NM;i++){let x,y,t=0;do{x=R(60,WW-60);y=R(60,WH-60)}while((hit(x,y,10)||D(x,y,sp.x,sp.y)<350||blds.some(b=>inHouse(b,x,y,-16)))&&t++<60);M.push(mkMob(x,y,'idle'))}   // outdoor roamers never start inside a building
+ // STEP 11 - demons INSIDE the buildings, per room (owner chose MEDIUM: 2-3 per room). The entry hall (the room behind the first outside door) is left empty, the biggest room also gets one brute.
+ // The lair keeps the old 4 demons spread around its hall (it has no rooms yet).
+ blds.forEach(b=>{const put=(x0,y0,w,h,ty)=>{for(let t=0,x,y;t<40;t++){x=R(x0+28,x0+w-28);y=R(y0+28,y0+h-28);if(hit(x,y,10)||D(x,y,sp.x,sp.y)<350)continue;M.push(mkMob(x,y,'idle',ty));return}};
+  const rs=(b.rooms||[]).filter(q=>true);if(b===bb||rs.length<2){const n=b===bb?4:3;for(let k=0;k<n;k++)put(b.x,b.y,b.w,b.h);return}
+  const ent=bEntry(b),big=rs.filter(q=>!q.wg).reduce((a,c)=>!a||c.w*c.h>a.w*a.h?c:a,null);
+  rs.forEach(q=>{q.dw=0;if(q===ent)return;const n=R(2,4)|0;q.dw=n;for(let k=0;k<n;k++)put(q.x,q.y,q.w,q.h);if(q===big){put(q.x,q.y,q.w,q.h,'brute');q.dw+=3}})});   // q.dw = how tough the room is (demons, brute counts 3); STEP 12 puts more loot in the tougher rooms
  // Lesser demon: Cerberus. Anywhere on the open map: never inside or beside any building (wings included), never near where players spawn (the camp).
  // Lesser demons: always at least 1, and a 50% chance of a second. Each is picked from the built types in LESSER_MK (add new ones there).
  {const mks=Object.keys(LESSER_MK),ld=[];for(let n=0,c=Math.random()<.5?2:1;n<c;n++){let x,y,t=0;do{x=R(80,WW-80);y=R(80,WH-80)}while((hit(x,y,16)||D(x,y,sp.x,sp.y)<500||ld.some(l=>D(x,y,l.x,l.y)<500)||blds.some(b=>{const e=bExt(b);return x>e.x-40&&x<e.x+e.w+40&&y>e.y-40&&y<e.y+e.h+40}))&&t++<300);if(t<=300){const m=LESSER_MK[mks[R(0,mks.length)|0]](x,y);if(m.ty=='raum')placeNest(m,sp);ld.push(m);M.push(m)}}}
  items=[];scn=[];
  // Loot odds unchanged (74% ammo roll), but every second ammo roll is skipped so only half the ammo piles spawn. Ammo is plentiful, tools are thinner, weapons are rare. fb=1 (a fallen hunter's pack) can carry a weapon more often.
  let ac=0;const pk=(x,y,fb)=>{let q=Math.random();if(fb)q=Math.random()<.12?.99:Math.random()*.96;let it;if(q<.74){if(ac++&1)return;it={t:'ammo'}}else if(q<.82)it={t:'tonic'};else if(q<.89)it={t:'bomb'};else if(q<.96)it={t:'tool',k:(()=>{let k;do k=XT[R(0,XT.length)|0];while(k=='revive'&&!(mp.on&&mp.n>1));return k})()};else{const s=Math.random()<.55?0:1,ks=Object.keys(s?SID:PRI).filter(k=>k!='none');it={t:'wpn',s,k:ks[R(0,ks.length)|0]}}{const sl=WSK[it.t=='wpn'||it.t=='tool'?it.k:it.t=='tonic'||it.t=='bomb'?it.t:''];if(sl&&sl.length&&Math.random()<.1)it.sk=sl[R(0,sl.length)|0].id}it.x=x;it.y=y;items.push(it)};
- blds.forEach(b=>{for(let i=0;i<3;i++)pk(b.x+R(25,b.w-25),b.y+R(25,b.h-25))});
+ // STEP 12: loot lies in the ROOMS. Entry hall: 0-1 piles (50%), every other room 1, +1 if it holds 3+ demons, +1 more if it holds the brute. The lair (one big hall) keeps 3 piles. Piles keep out of walls, doorways and each other.
+ {const lootAt=(x0,y0,w,h,av)=>{for(let t=0;t<40;t++){const x=R(x0+22,x0+w-22)|0,y=R(y0+22,y0+h-22)|0;if(hit(x,y,8)||D(x,y,sp.x,sp.y)<140||clues.some(c=>D(x,y,c.x,c.y)<34)||items.some(o=>D(x,y,o.x,o.y)<20)||(av&&t<25&&av.some(a=>x>a[0]&&x<a[2]&&y>a[1]&&y<a[3])))continue;pk(x,y);return}};
+  blds.forEach(b=>{const rs=b.rooms||[];if(b===bb||rs.length<2){for(let i=0;i<3;i++)lootAt(b.x,b.y,b.w,b.h);return}
+   const ent=bEntry(b),av=roomAvoid(b);rs.forEach(q=>{let n=q===ent?(Math.random()<.5?1:0):1;if((q.dw||0)>=3)n++;if((q.dw||0)>=5)n++;for(let k=0;k<n;k++)lootAt(q.x,q.y,q.w,q.h,av)})})}
  // Outdoor loot never lies bare on the grass: every pile sits at a supply site (wrecked cart, abandoned camp, fallen hunter, tarped cache)
  const SK=['cart','camp','fallen','cache'],SG=g=>ground.getContext('2d');let glN=0;
- for(let i=0,n=0;i<16&&n<400;n++){const x=R(60,WW-60),y=R(60,WH-60);
+ for(let i=0,n=0;i<Math.round(16*MAPK)&&n<400*MAPK;n++){const x=R(60,WW-60),y=R(60,WH-60);
   if(hit(x,y,16)||D(x,y,sp.x,sp.y)<140||exts.some(e=>D(x,y,e.x,e.y)<70)||clues.some(c=>D(x,y,c.x,c.y)<50)||scn.some(c=>D(x,y,c.x,c.y)<120)||blds.some(b=>{const e=bExt(b);return x>e.x-30&&x<e.x+e.w+30&&y>e.y-30&&y<e.y+e.h+30}))continue;
   const k=SK[R(0,4)|0],f=R(0,1)<.5?1:-1,sc={x,y,k,f};scn.push(sc);i++;
   const g=ground.getContext('2d');g.save();
@@ -2861,11 +2985,11 @@ RS={};mis=ledgerTask();trees=[];M=[];bul=[];eb=[];bombs=[];lobs=[];fires=[];flar
   else{g.fillStyle='rgba(20,12,8,.3)';g.beginPath();g.ellipse(x,y+4,16,8,0,0,7);g.fill();W(x-7,y-5,14,8,1)}
   g.restore();
   const m=k=='fallen'?2:k=='cache'?4:3;
-  for(let j=0;j<m;j++){const a=Math.PI*2*(j+R(0,.6))/m+(k=='camp'?.5:0);let ix=x+Math.cos(a)*R(16,22),iy=y+Math.sin(a)*R(12,17)+4;if(hit(ix,iy,6)){ix=x+R(-2,2)*f;iy=y+13}const n0=items.length;pk(ix,iy,k=='fallen');const li=items[items.length-1];if(items.length>n0&&li.t=='ammo'&&glN<4&&Math.random()<.22){items.pop();M.push(mkGleaner(ix,iy));glN++}}}
+  for(let j=0;j<m;j++){const a=Math.PI*2*(j+R(0,.6))/m+(k=='camp'?.5:0);let ix=x+Math.cos(a)*R(16,22),iy=y+Math.sin(a)*R(12,17)+4;if(hit(ix,iy,6)){ix=x+R(-2,2)*f;iy=y+13}const n0=items.length;pk(ix,iy,k=='fallen');const li=items[items.length-1];if(items.length>n0&&li.t=='ammo'&&glN<Math.round(4*MAPK)&&Math.random()<.22){items.pop();M.push(mkGleaner(ix,iy));glN++}}}
  INJH=injSpawn(bb);   // injured hunter: 50% chance, placed by his injury's site (see INJURED HUNTER DATA)
  const pw=[sel.pri!='none'?PRI[sel.pri]:null,sel.side!='none'?SID[sel.side]:null];
  P={x:sp.x,y:sp.y,hp:100,st:100,w:pw,wsk:[pw[0]?skv(sel.pri,sel.sk.p):'',pw[1]?skv(sel.side,sel.sk.s):''],bag:(sel.bag||[]).map(o=>{const c={...o};delete c.mg;delete c.rs;return c}),cur:pw[0]?0:1,mag:pw.map(w=>w?w.m:0),res:pw.map((w,i)=>w?w.m*3+(w.d?(xa[i]|0)*w.m:0):0),rl:0,cd:0,mc:0,ts:Array.from({length:NTS},(_,i)=>{const t=sel.tools[i];return t&&TOOL[t.k]?{k:t.k,n:Math.min(mxs(t.k),t.n||1)}:null}),wd:0,hf:0,wk:0,sl:0,carry:0,bp:0,ep:0,face:0,sa:0,nz:0,lf:0};tsBind(P);
- xa=[0,0];invOpen=0;mode='play';$('#menu').style.display='none';say('Burn 3 sigils to unseal the demon\'s door, then hunt it.'+(mis.t=='none'?'':' Ledger: '+tText(mis)+'.'),6)}
+ xa=[0,0];invOpen=0;mode='play';$('#menu').style.display='none';say('Burn 3 sigils to unseal the demon\'s door, then hunt it.'+(MQ.length?' Quests: '+MQ.map(tText).join('; ')+'.':''),6)}
 
 // ---------- GORRATH'S BREACH: map changes + fire-touched brutes (only when Gorrath is the boss; the tutorial has its own world) ----------
 // Scorched Parish (burnt ground, stumps instead of trees, ash drift that muffles sprint steps), Magma Fissures (burn you, light the dark, Gorrath cannot cross except at stone slabs),
@@ -2877,22 +3001,22 @@ const gHs=(a,b)=>{const h=Math.sin(a*12.9898+b*78.233)*43758.5453;return h-Math.
 const gDs=(px,py,s)=>{const dx=s.x2-s.x1,dy=s.y2-s.y1,l=dx*dx+dy*dy||1,t=cl(((px-s.x1)*dx+(py-s.y1)*dy)/l,0,1);return Math.hypot(px-s.x1-t*dx,py-s.y1-t*dy)};
 const onFis=(x,y,r)=>GFS.some(q=>!q.c&&gDs(x,y,q)<r);
 function gorGround(){const g=ground.getContext('2d');g.fillStyle='rgba(8,4,4,.4)';g.fillRect(0,0,WW,WH);
- for(let i=0;i<70;i++){g.fillStyle='rgba(0,0,0,.3)';g.beginPath();g.ellipse(R(0,WW),R(0,WH),R(30,90),R(14,40),0,0,7);g.fill()}
- for(let i=0;i<40;i++){g.fillStyle='rgba(120,114,106,.14)';g.beginPath();g.ellipse(R(0,WW),R(0,WH),R(20,70),R(10,30),0,0,7);g.fill()}
- for(let i=0;i<6000;i++){g.fillStyle=['#0c0606','#1a100c','#3a3430','#4a4440'][i&3];g.fillRect(R(0,WW),R(0,WH),R(1,3),1)}
- for(let i=0;i<260;i++){g.fillStyle=Math.random()<.5?'#ff5a1a':'#ff9a3a';g.fillRect(R(0,WW)|0,R(0,WH)|0,1,1)}}
+ for(let i=0;i<70*MAPK;i++){g.fillStyle='rgba(0,0,0,.3)';g.beginPath();g.ellipse(R(0,WW),R(0,WH),R(30,90),R(14,40),0,0,7);g.fill()}
+ for(let i=0;i<40*MAPK;i++){g.fillStyle='rgba(120,114,106,.14)';g.beginPath();g.ellipse(R(0,WW),R(0,WH),R(20,70),R(10,30),0,0,7);g.fill()}
+ for(let i=0;i<6000*MAPK;i++){g.fillStyle=['#0c0606','#1a100c','#3a3430','#4a4440'][i&3];g.fillRect(R(0,WW),R(0,WH),R(1,3),1)}
+ for(let i=0;i<260*MAPK;i++){g.fillStyle=Math.random()<.5?'#ff5a1a':'#ff9a3a';g.fillRect(R(0,WW)|0,R(0,WH)|0,1,1)}}
 function gorMap(bb,sp){
  const free=(x,y,pd,cd)=>x>20&&y>20&&x<WW-20&&y<WH-20&&!blds.some(b=>{const e=bExt(b);return x>e.x-pd&&x<e.x+e.w+pd&&y>e.y-pd&&y<e.y+e.h+pd})&&D(x,y,sp.x,sp.y)>cd&&exts.every(e=>D(x,y,e.x,e.y)>70)&&clues.every(c=>D(x,y,c.x,c.y)>60);
  // broken walls: cut a 34px gap in up to 2 long walls of every building except the lair
  blds.forEach(b=>{if(b===bb)return;walls.filter(w=>w.k==b.ty&&!w.t&&Math.max(w.w,w.h)>=90).sort(()=>Math.random()-.5).slice(0,2).forEach(w=>{const hz=w.w>w.h,L=hz?w.w:w.h,gp=34,po=R(18,L-gp-18)|0;walls.splice(walls.indexOf(w),1);
   if(hz){walls.push({...w,w:po});walls.push({...w,x:w.x+po+gp,w:L-po-gp});GHP.push({x:w.x+po+gp/2,y:w.y+w.h/2,h:0})}else{walls.push({...w,h:po});walls.push({...w,y:w.y+po+gp,h:L-po-gp});GHP.push({x:w.x+w.w/2,y:w.y+po+gp/2,h:0})}})});
  // magma fissures: crooked cracks, every 5th segment is a stone slab you can cross on
- for(let n=0;n<7;n++){let x,y,t=0;do{x=R(100,WW-100);y=R(100,WH-100)}while(!free(x,y,40,260)&&t++<80);if(t>80)continue;let a=R(0,6.28),k=0;
+ for(let n=0;n<Math.round(7*MAPK);n++){let x,y,t=0;do{x=R(100,WW-100);y=R(100,WH-100)}while(!free(x,y,40,260)&&t++<80);if(t>80)continue;let a=R(0,6.28),k=0;
   for(let i=0;i<22;i++){a+=R(-.5,.5);const nx=x+Math.cos(a)*R(28,40),ny=y+Math.sin(a)*R(28,40);if(!free(nx,ny,30,230))break;GFS.push({x1:x,y1:y,x2:nx,y2:ny,c:k++%5==2});x=nx;y=ny}}
  // dry grass patches
- for(let n=0;n<16;n++){let x,y,t=0;do{x=R(80,WW-80);y=R(80,WH-80)}while(!free(x,y,30,180)&&t++<60);if(t>60)continue;const c=R(9,16)|0;for(let i=0;i<c;i++){const gx=x+R(-55,55),gy=y+R(-40,40);if(free(gx,gy,12,150)&&!hit(gx,gy,4)&&!onFis(gx,gy,10))GGR.push({x:gx,y:gy,b:0,s:GGR.length})}}
+ for(let n=0;n<Math.round(16*MAPK);n++){let x,y,t=0;do{x=R(80,WW-80);y=R(80,WH-80)}while(!free(x,y,30,180)&&t++<60);if(t>60)continue;const c=R(9,16)|0;for(let i=0;i<c;i++){const gx=x+R(-55,55),gy=y+R(-40,40);if(free(gx,gy,12,150)&&!hit(gx,gy,4)&&!onFis(gx,gy,10))GGR.push({x:gx,y:gy,b:0,s:GGR.length})}}
  // rubble heaps in the open (they block shots, so they are cover)
- for(let n=0,t=0;n<10&&t<300;t++){const x=R(60,WW-60),y=R(60,WH-60);if(!free(x,y,30,180)||hit(x,y,14)||GFS.some(q=>gDs(x,y,q)<24))continue;W(x-9,y-5,18,10,1);GHP.push({x,y,h:1});n++}}
+ for(let n=0,t=0;n<Math.round(10*MAPK)&&t<300*MAPK;t++){const x=R(60,WW-60),y=R(60,WH-60);if(!free(x,y,30,180)||hit(x,y,14)||GFS.some(q=>gDs(x,y,q)<24))continue;W(x-9,y-5,18,10,1);GHP.push({x,y,h:1});n++}}
 function gorGroundDraw(cx,cy){const t=T,c=ctx;
  c.fillStyle='rgba(170,160,150,.5)';for(let i=0;i<46;i++){const x=(gHs(i,1)*VW+t*(8+gHs(i,2)*12))%VW,y=(gHs(i,3)*VH+t*(10+gHs(i,4)*14))%VH;c.fillRect(x|0,y|0,1,1)}
  GGR.forEach(g=>{const x=g.x-cx|0,y=g.y-cy|0;if(x<-8||x>VW+8||y<-8||y>VH+8)return;
@@ -2950,13 +3074,13 @@ const NSP=(()=>{let sd=11;const rn=()=>(sd=(sd*16807)%2147483647)/2147483647;
   for(let i=0;i<4;i++)r('#7dffa8',10+((rn()*12)|0),4+((rn()*8)|0),1,1)});
  return{puff:[puff(1),puff(2),puff(3)],stone:[stone(0),stone(1),stone(2)],br:[0,1,2,3].map(f=>braz(f)),out:braz(0,1)}})();
 function nyxGround(){const g=ground.getContext('2d');g.fillStyle='rgba(26,10,44,.5)';g.fillRect(0,0,WW,WH);
- for(let i=0;i<60;i++){g.fillStyle='rgba(0,0,0,.28)';g.beginPath();g.ellipse(R(0,WW),R(0,WH),R(30,90),R(14,40),0,0,7);g.fill()}
- for(let i=0;i<46;i++){g.fillStyle='rgba(120,104,140,.13)';g.beginPath();g.ellipse(R(0,WW),R(0,WH),R(20,70),R(10,30),0,0,7);g.fill()}
- for(let i=0;i<6000;i++){g.fillStyle=['#120a14','#1a1020','#2a2030','#33283a'][i&3];g.fillRect(R(0,WW),R(0,WH),R(1,3),1)}
- for(let i=0;i<200;i++){g.fillStyle=Math.random()<.5?'#ff5a1a':'#ff9a3a';g.fillRect(R(0,WW)|0,R(0,WH)|0,1,1)}}
+ for(let i=0;i<60*MAPK;i++){g.fillStyle='rgba(0,0,0,.28)';g.beginPath();g.ellipse(R(0,WW),R(0,WH),R(30,90),R(14,40),0,0,7);g.fill()}
+ for(let i=0;i<46*MAPK;i++){g.fillStyle='rgba(120,104,140,.13)';g.beginPath();g.ellipse(R(0,WW),R(0,WH),R(20,70),R(10,30),0,0,7);g.fill()}
+ for(let i=0;i<6000*MAPK;i++){g.fillStyle=['#120a14','#1a1020','#2a2030','#33283a'][i&3];g.fillRect(R(0,WW),R(0,WH),R(1,3),1)}
+ for(let i=0;i<200*MAPK;i++){g.fillStyle=Math.random()<.5?'#ff5a1a':'#ff9a3a';g.fillRect(R(0,WW)|0,R(0,WH)|0,1,1)}}
 function nyxMap(bb,sp){
  const free=(x,y,pd,cd)=>x>20&&y>20&&x<WW-20&&y<WH-20&&!blds.some(b=>{const e=bExt(b);return x>e.x-pd&&x<e.x+e.w+pd&&y>e.y-pd&&y<e.y+e.h+pd})&&D(x,y,sp.x,sp.y)>cd&&exts.every(e=>D(x,y,e.x,e.y)>70)&&clues.every(c=>D(x,y,c.x,c.y)>60)&&!hit(x,y,16);
- for(let n=0,t=0;n<14&&t<600;t++){const near=n<9,a=R(0,6.28),r=near?R(110,330):R(300,900),x=near?bb.cx+Math.cos(a)*r:R(60,WW-60),y=near?bb.cy+Math.sin(a)*r:R(60,WH-60);
+ for(let n=0,t=0;n<9+Math.round(5*MAPK)&&t<600*MAPK;t++){const near=n<9,a=R(0,6.28),r=near?R(110,330):R(300,900),x=near?bb.cx+Math.cos(a)*r:R(60,WW-60),y=near?bb.cy+Math.sin(a)*r:R(60,WH-60);
   if(!free(x,y,35,250)||NSN.some(q=>D(x,y,q.x,q.y)<70))continue;NSN.push({x,y,v:n%3,hc:0});W(x-7,y-4,14,8,1);n++}
  for(let n=0,t=0;n<5&&t<400;t++){const a=R(0,6.28),r=R(100,280),x=bb.cx+Math.cos(a)*r,y=bb.cy+Math.sin(a)*r;
   if(!free(x,y,30,220)||NSN.some(q=>D(x,y,q.x,q.y)<45)||NWF.some(q=>D(x,y,q.x,q.y)<90))continue;NWF.push({x,y,on:1,s:n,sm:0});W(x-5,y-3,10,6,1);n++}}
@@ -2998,19 +3122,19 @@ const MSP=(()=>{let sd=23;const rn=()=>(sd=(sd*16807)%2147483647)/2147483647;
  const bones=v=>cv(44,22,r=>{sd=v*7+2;r('#00000055',3,15,38,5);for(let i=0;i<9;i++){const x=(3+rn()*34)|0,y=(6+rn()*9)|0,t=i%3;if(t==0){r('#d8d0b4',x,y,7,1);r('#a89c80',x,y+1,7,1);r('#d8d0b4',x-1,y-1,2,3);r('#d8d0b4',x+6,y-1,2,3)}else if(t==1){r('#e6dec4',x,y,5,5);r('#a89c80',x,y+4,5,1);r('#1a1410',x+1,y+1,1,2);r('#1a1410',x+3,y+1,1,2);r('#1a1410',x+2,y+3,1,1)}else{r('#d8d0b4',x,y,1,6);r('#d8d0b4',x+2,y,1,5);r('#d8d0b4',x+4,y+1,1,4);r('#a89c80',x,y+5,5,1)}}});
  return{hs:[hs(0),hs(1),hs(2)],grave:grave(),tower:tower(),choir:[choir(0),choir(1),choir(2)],bones:[bones(0),bones(1)]}})();
 function morGround(){const g=ground.getContext('2d');g.fillStyle='rgba(18,28,22,.45)';g.fillRect(0,0,WW,WH);
- for(let i=0;i<52;i++){g.fillStyle='rgba(0,0,0,.26)';g.beginPath();g.ellipse(R(0,WW),R(0,WH),R(30,90),R(14,40),0,0,7);g.fill()}
- for(let i=0;i<5000;i++){g.fillStyle=['#10160f','#1a2018','#262c22','#2e2a20'][i&3];g.fillRect(R(0,WW),R(0,WH),R(1,3),1)}
- for(let i=0;i<500;i++){const x=R(0,WW),y=R(0,WH);g.fillStyle='#2e3e22';g.fillRect(x,y,1,2);g.fillRect(x+2,y+1,1,2)}}
+ for(let i=0;i<52*MAPK;i++){g.fillStyle='rgba(0,0,0,.26)';g.beginPath();g.ellipse(R(0,WW),R(0,WH),R(30,90),R(14,40),0,0,7);g.fill()}
+ for(let i=0;i<5000*MAPK;i++){g.fillStyle=['#10160f','#1a2018','#262c22','#2e2a20'][i&3];g.fillRect(R(0,WW),R(0,WH),R(1,3),1)}
+ for(let i=0;i<500*MAPK;i++){const x=R(0,WW),y=R(0,WH);g.fillStyle='#2e3e22';g.fillRect(x,y,1,2);g.fillRect(x+2,y+1,1,2)}}
 function morMap(bb,sp){
  const free=(x,y,pd,cd)=>x>30&&y>30&&x<WW-30&&y<WH-30&&!blds.some(b=>{const e=bExt(b);return x>e.x-pd&&x<e.x+e.w+pd&&y>e.y-pd&&y<e.y+e.h+pd})&&D(x,y,sp.x,sp.y)>cd&&exts.every(e=>D(x,y,e.x,e.y)>80)&&clues.every(c=>D(x,y,c.x,c.y)>60)&&!hit(x,y,18);
- for(let n=0,t=0;n<14&&t<700;t++){const near=n<8,a=R(0,6.28),r=near?R(120,340):R(300,950),x=near?bb.cx+Math.cos(a)*r:R(60,WW-60),y=near?bb.cy+Math.sin(a)*r:R(60,WH-60);
+ for(let n=0,t=0;n<8+Math.round(6*MAPK)&&t<700*MAPK;t++){const near=n<8,a=R(0,6.28),r=near?R(120,340):R(300,950),x=near?bb.cx+Math.cos(a)*r:R(60,WW-60),y=near?bb.cy+Math.sin(a)*r:R(60,WH-60);
   if(!free(x,y,30,230)||MGR.some(q=>D(x,y,q.x,q.y)<110))continue;MGR.push({x,y,t:R(6,16)});n++}
  for(let t=0;t<500&&!MBL;t++){const a=R(0,6.28),r=R(230,420),x=bb.cx+Math.cos(a)*r,y=bb.cy+Math.sin(a)*r;
   if(!free(x,y,40,260)||MGR.some(q=>D(x,y,q.x,q.y)<70))continue;MBL={x,y,on:1,hp:60,rg:-1};W(x-16,y-10,32,14,1)}
  for(let t=0;t<600&&!MCH;t++){const a=R(0,6.28),r=R(380,700),x=bb.cx+Math.cos(a)*r,y=bb.cy+Math.sin(a)*r,st=[];
   for(let k=0;k<6;k++){const q=k/6*6.2832;st.push({x:x+Math.cos(q)*58,y:y+Math.sin(q)*34,v:k%3})}
   if(!free(x,y,60,260)||MBL&&D(x,y,MBL.x,MBL.y)<160||MGR.some(q=>D(x,y,q.x,q.y)<110)||st.some(q=>!free(q.x,q.y,20,200)))continue;MCH={x,y,st,ht:0};st.forEach(q=>W(q.x-6,q.y-3,12,6,1))}
- for(let n=0,t=0;n<9&&t<500;t++){const x=R(60,WW-60),y=R(60,WH-60);if(!free(x,y,25,200)||MBD.some(q=>D(x,y,q.x,q.y)<120)||MGR.some(q=>D(x,y,q.x,q.y)<60)||(MBL&&D(x,y,MBL.x,MBL.y)<80))continue;MBD.push({x,y,v:n&1,nt:0});n++}}
+ for(let n=0,t=0;n<Math.round(9*MAPK)&&t<500*MAPK;t++){const x=R(60,WW-60),y=R(60,WH-60);if(!free(x,y,25,200)||MBD.some(q=>D(x,y,q.x,q.y)<120)||MGR.some(q=>D(x,y,q.x,q.y)<60)||(MBL&&D(x,y,MBL.x,MBL.y)<80))continue;MBD.push({x,y,v:n&1,nt:0});n++}}
 function morGroundDraw(cx,cy){const c=ctx;
  MBD.forEach(q=>{const x=q.x-cx,y=q.y-cy;if(x<-60||x>VW+60||y<-40||y>VH+40)return;c.drawImage(MSP.bones[q.v],(x-22)|0,(y-11)|0)});
  MGR.forEach(q=>{const x=q.x-cx,y=q.y-cy;if(x<-60||x>VW+60||y<-40||y>VH+40)return;c.drawImage(MSP.grave,(x-22)|0,(y-14)|0)});
@@ -3035,7 +3159,13 @@ function morFogDraw(){if(!MOR()||P.dead)return;const c=ctx;c.save();c.fillStyle=
 const EVCH={bm:.30,rain:.40,fog:.40,collapse:.40};   // chance per run of each random event; they add up to 1.5 events per run on average
 const evOk=(k,o)=>{const sd=blds[0]?blds[0].x*.53+blds[0].y:1;return hs(sd+o)<EVCH[k]};
 // ---------- ACTIONS ----------
-function noise(x,y,r){lessNoiseSrc(x,y);M.forEach(m=>{if(m.lesser){if(m.hp>0&&D(m.x,m.y,x,y)<r&&lessOut(x,y)){m.sx=x;m.sy=y;m.hun=1;m.ht=T}return}if(m.hp>0&&!glLure(m)&&D(m.x,m.y,x,y)<r&&(!m.boss||D(m.x,m.y,x,y)<160)){m.st='chase';m.lt=0}})}
+// STEP 14: BUILDING WALLS MUFFLE NOISE for ordinary demons (bigger buildings hold ~12 demons, and one rifle shot used to wake 75% of them through the walls). wallMuffle(x,y,tx,ty) counts the building walls (w.k>=0: not trees, not the boss seals)
+// the straight line from the noise to the demon crosses: 0 walls = full radius, 1 wall = 60%, 2 or more = 40%. A doorway is a gap in the wall, so sound still carries through an open door. The boss, lesser demons (their own hearing, lessOut) and the Gorrath/Nyxara/Mordrek systems are unchanged.
+function wallMuffle(x1,y1,x2,y2){let c=0;const dx=x2-x1,dy=y2-y1;for(const w of walls){if(w.k<0)continue;let t0=0,t1=1;
+  if(dx==0){if(x1<w.x||x1>w.x+w.w)continue}else{let a=(w.x-x1)/dx,b=(w.x+w.w-x1)/dx;if(a>b){const q=a;a=b;b=q}t0=Math.max(t0,a);t1=Math.min(t1,b);if(t0>t1)continue}
+  if(dy==0){if(y1<w.y||y1>w.y+w.h)continue}else{let a=(w.y-y1)/dy,b=(w.y+w.h-y1)/dy;if(a>b){const q=a;a=b;b=q}t0=Math.max(t0,a);t1=Math.min(t1,b);if(t0>t1)continue}
+  if(++c>=2)return .4}return c?.6:1}
+function noise(x,y,r){lessNoiseSrc(x,y);M.forEach(m=>{if(m.lesser){if(m.hp>0&&D(m.x,m.y,x,y)<r&&lessOut(x,y)){m.sx=x;m.sy=y;m.hun=1;m.ht=T}return}if(m.hp>0&&!glLure(m)){const d=D(m.x,m.y,x,y);if(d<r&&(m.boss?d<160:d<r*wallMuffle(x,y,m.x,m.y))){m.st='chase';m.lt=0}}})}
 // RETRIEVABLE BOLTS: bows and crossbows leave their bolt behind. Every bolt can be picked up again: it lies where it landed (or in the demon it hit); none break.
 // Walk over it to get one bolt back in that weapon's reserve. Local to the shooter (it has an id, so multiplayer never broadcasts it) and it rots away after 90s. Max 40 on the ground.
 const BOLTK=['crossbow','repxbow','longbow'];let blN=0;
@@ -3050,9 +3180,9 @@ function shoot(){if(P.cur>1){if(P.cd<=0){P.cd=.5;mouse.l=0;useSlotTool(P.cur-2)}
 function reload(){const w=P.w[P.cur];if(w&&w.d&&P.rl<=0&&P.mag[P.cur]<w.m&&(P.res[P.cur]>0||w.inf)){P.rl=w.rl;say('Reloading...',w.rl)}}
 function melee(){const sw=P.w[1];if(sw&&sw.ml){stab(sw);try{sfx.melee()}catch(e){}return}P.mc=.6;P.sa=.18;const a=P.face;let h=0;M.forEach(m=>{const nr=m.lesser?(D(m.x,m.y,P.x,P.y)<30||[14,24,34,44].some(r=>cerbHit(m,P.x+Math.cos(a)*r,P.y+Math.sin(a)*r,2))):D(m.x,m.y,P.x,P.y)<30;if(m.hp>0&&nr){let d=Math.abs(Math.atan2(m.y-P.y,m.x-P.x)-a);d=Math.min(d,6.28-d);if(d<1||m.lesser){hurt(m,30,a,'melee');mv(m,Math.cos(a)*6,Math.sin(a)*6,6);h=1}}});injEach(()=>{if(INJH&&INJH.hp>0&&D(INJH.x,INJH.y,P.x,P.y)<30){let d=Math.abs(Math.atan2(INJH.y-P.y,INJH.x-P.x)-a);d=Math.min(d,6.28-d);if(d<1){injHit(30,a,'melee');h=1}}});if(h)shake=3}
 function hurt(m,d,a,src){if(glLure(m))glReveal(m);const dd=Math.min(d,Math.max(m.hp,0));m.hp-=d;prog(m,dd,src,m.hp<=0);m.fl=.1;burst(m.x,m.y,10,90,m.ty=='bloat'?'#7ad04a':'#8a0f18',1,a);spray(m.x,m.y,6,a,4+Math.min(16,d/3|0),120,m.ty=='bloat');if(Math.random()<.5&&src!='fire'&&src!='flamer')splat(m.x,m.y,2,6,m.ty=='bloat');m.st='chase';if(m.boss)m.al=2.5;m.ga=a;m.gd=d;m.gs=src;if(m.hp<=0)kill(m)}
-function kill(m){const fr=['flamer','fire','bomb','tripwire','flask'].includes(m.gs),ac=m.ty=='bloat';gore(m,m.ga,m.gd,m.gs);if(!fr)splat(m.x,m.y,m.boss?30:14,m.boss?30:14,ac);burst(m.x,m.y,m.boss?30:14,110,ac?'#7ad04a':'#ff6a1a',1);m.hp=-1;if(m.ty=='bloat')boom(m);if(m.boss){corpse={x:m.x,y:m.y};say('The demon falls! Hold E on the corpse to banish it for the bounty.'+(mis.fail?' Ledger task failed.':''),6)}}
+function kill(m){const fr=['flamer','fire','bomb','tripwire','flask'].includes(m.gs),ac=m.ty=='bloat';gore(m,m.ga,m.gd,m.gs);if(!fr)splat(m.x,m.y,m.boss?30:14,m.boss?30:14,ac);burst(m.x,m.y,m.boss?30:14,110,ac?'#7ad04a':'#ff6a1a',1);m.hp=-1;if(m.ty=='bloat')boom(m);if(m.boss){corpse={x:m.x,y:m.y};say('The demon falls! Hold E on the corpse to banish it for the bounty.'+(mis.fail?' Quest failed.':''),6)}}
 function hurtP(d,k){if(P.dead)return;if(k)lastK=k;if(P.wd>0)d*=.4;P.hp-=d;P.hf=.25;shake=5;burst(P.x,P.y,8,80,'#a01018',1);spray(P.x,P.y,6,null,10+Math.min(14,d/3|0),110);splat(P.x,P.y,3,6);if(P.hp<=0)die()}
-function end(w){mode='menu';scr='hub';const impN=w?capExtract():(P&&(P.cap=null),'');const lm=w?ledgerCommit():'';const tmN=w?ctrExtract():'';const ctN=ctrReturn();achCommit(w);try{lbPush()}catch(e){}if(w){bank+=P.carry;sel.pri=P.w[0]?P.w[0].k:'none';sel.side=P.w[1]?P.w[1].k:'none';sel.sk={p:P.w[0]?psk(0):'',s:P.w[1]?psk(1):''};sel.bag=P.bag;sel.tools=P.ts.map(x=>x?{k:x.k,n:x.n}:null);}else{sel.pri='none';sel.side='none';sel.sk={p:'',s:''};sel.bag=[];sel.tools=Array(NTS).fill(null)}invOpen=0;genMissions();{const c=curL();mi=Math.max(0,LEDGERS.findIndex(l=>c&&l.id==c.id))}bank=Math.max(bank,120);SAVE();menu(w?(lm+impN+tmN+ctN+(P.carry?`Escaped with the bounty! +$${P.carry}`:'You escaped... empty-handed.')):'You died. Everything your character carried is lost. Your stash is safe.'+(ctN?' '+ctN:'')+(()=>{const r=RWD;RWD='';return r})())}
+function end(w){mode='menu';scr='hub';const impN=w?capExtract():(P&&(P.cap=null),'');const lm=w?ledgerCommit():'';const tmN=w?ctrExtract():'';const ctN=ctrReturn();achCommit(w);try{lbPush()}catch(e){}if(w){bank+=P.carry;sel.pri=P.w[0]?P.w[0].k:'none';sel.side=P.w[1]?P.w[1].k:'none';sel.sk={p:P.w[0]?psk(0):'',s:P.w[1]?psk(1):''};sel.bag=P.bag;sel.tools=P.ts.map(x=>x?{k:x.k,n:x.n}:null);}else{sel.pri='none';sel.side='none';sel.sk={p:'',s:''};sel.bag=[];sel.tools=Array(NTS).fill(null)}invOpen=0;genMissions();bank=Math.max(bank,120);SAVE();menu(w?(lm+impN+tmN+ctN+(P.carry?`Escaped with the bounty! +$${P.carry}`:'You escaped... empty-handed.')):'You died. Everything your character carried is lost. Your stash is safe.'+(ctN?' '+ctN:'')+(()=>{const r=RWD;RWD='';return r})())}
 addEventListener('keydown',e=>{if(e.code=='Tab'&&mode=='play')e.preventDefault();if(e.repeat)return;keys[e.code]=1;if(mode!='play')return;const c=e.code;if(P.dead){if(c=='Enter'||c=='KeyL')end(0);return}
  if(c=='KeyM'){showMap=!showMap;mouse.l=mouse.r=0}if(c=='KeyI'||c=='Tab'){ivd=null;ivSel=null;invOpen=!invOpen;showMap=0;mouse.l=mouse.r=0;refocus()}if(c=='Escape')showMap=0;
  if(c=='KeyR'){if(invOpen)invRot();else reload()}if(c>='Digit1'&&c<='Digit'+(2+NTS))setSlot(+c[5]-1);
@@ -3171,7 +3301,7 @@ function update(dt){injEach(()=>injTick(dt));
   if(it.t=='ammo'){const ss=[0,1].filter(i=>P.w[i]&&!P.w[i].ml);if(!ss.length)continue;const i=ss[R(0,ss.length)|0];P.res[i]+=Math.ceil(P.w[i].m*1.5);say('+ammo ('+P.w[i].n+')',2)}
   else{if(!giveTool(it.t=='tool'?it.k:it.t))continue}it.got=1}
  items=items.filter(i=>!i.got&&!(i.exp&&Date.now()>i.exp));
- const ex=exts.find(e=>!e.sealed&&D(P.x,P.y,e.x,e.y)<26);if(ex){if(P.ep<=0)say(TGR?'Leaving...':ex.n+': hold your ground!',2.5);P.ep+=dt}else P.ep=Math.max(0,P.ep-dt*2);if(P.ep>=EXDF())return end(1);
+ const ex=exts.find(e=>!e.sealed&&D(P.x,P.y,e.x,e.y)<26);if(ex){P.xk=ex.k;if(P.ep<=0)say(TGR?'Leaving...':ex.k==2?'Bell Tower: ring it and run, the horde will hear!':ex.n+': hold your ground!',2.5);P.ep+=dt;if(ex.k==2&&!TGR)bellToll(ex,dt)}else P.ep=Math.max(0,P.ep-dt*2);if(P.ep>=EXDF())return end(1);
  const CLI=mpCli();for(const m of M){if(m.hp<=0||CLI)continue;if(m.lesser){roamLesser(m,dt);continue}TG=mpTgt(m);const sx0=m.x,sy0=m.y;m.ig=(m.ig||0)-dt;m.fl-=dt;m.cd-=dt;const d=D(m.x,m.y,TG.x,TG.y),a=Math.atan2(TG.y-m.y,TG.x-m.x),v=los(m.x,m.y,TG.x,TG.y);m.a=a;if(m.boss)m.st=inHouse(m.bb,TG.x,TG.y,0)?'chase':'idle';
   if(m.ty=='gleaner'&&m.st=='lure'){if(d<17&&!TG.dead)glReveal(m);continue}
   if(m.st=='idle'){m.wt-=dt;if(m.wt<=0){m.wa=R(0,6.28);m.wt=R(1,4);m.go=Math.random()<.6}if(m.go&&!m.boss){mv(m,Math.cos(m.wa)*20*dt,Math.sin(m.wa)*20*dt,5);m.wk+=dt*5}
@@ -3280,8 +3410,25 @@ function graft(g,b,r){const cx=r.x+r.w/2,cy=r.y+r.h/2;
 function door(g,b,d){const o=d.wg?b.wg:b,hz=d.q<2,x=hz?o.x+d.of:d.q?o.x+o.w-6:o.x,y=hz?(d.q?o.y+o.h-6:o.y):o.y+d.of,w=hz?d.ln:6,h=hz?6:d.ln;
  g.save();g.translate(x+w/2,y+h/2);g.rotate(hz?0:1.57);fR(g,-d.ln/2,-3,d.ln*.4,5,'#4a3020');g.rotate(R(-.5,.5));fR(g,-3,-2,d.ln*.5,4,'#3a2412');g.restore();
  for(let i=0;i<8;i++)fR(g,x+R(-4,w+4),y+R(-4,h+4),R(2,6),1,'#6a4a2a');fP(g,x+w/2,y+h/2,8)}
+// ---- STEP 10: furniture and door drawing for buildings with several rooms ----
+// The building's own themed set piece (PR[b.ty]: pews, forge, ritual circle...) is drawn once, in its biggest room; every other room gets 1-3 small props, kept clear of all doorways.
+function roomAvoid(b){const z=[],pd=34,add=(x,y,w,h)=>z.push([x-pd,y-pd,x+w+pd,y+h+pd]);
+ (b.idr||[]).forEach(d=>add(d.x,d.y,d.w,d.h));
+ (b.dr||[]).forEach(d=>{const o=d.wg?b.wg:b,hz=d.q<2;add(hz?o.x+d.of:d.q?o.x+o.w-6:o.x,hz?(d.q?o.y+o.h-6:o.y):o.y+d.of,hz?d.ln:6,hz?6:d.ln)});
+ if(b.wg){const hz=b.ws<2;add(hz?b.x+b.wo:(b.ws?b.x+b.w-6:b.x),hz?(b.ws?b.y+b.h-6:b.y):b.y+b.wo,hz?b.wl:6,hz?6:b.wl)}
+ return z}
+function roomProps(g,b,rm,av){const n=1+(rm.w*rm.h>60000?1:0)+(Math.random()<.4?1:0),SZ=[[46,34],[44,22],[50,22],[24,24],[40,40]];
+ for(let i=0;i<n;i++)for(let t=0;t<14;t++){const kd=R(0,5)|0,sz=SZ[kd];if(rm.w<sz[0]+40||rm.h<sz[1]+40)continue;const x=R(rm.x+16,rm.x+rm.w-16-sz[0])|0,y=R(rm.y+16,rm.y+rm.h-16-sz[1])|0;
+  if(av.some(a=>x<a[2]&&x+sz[0]>a[0]&&y<a[3]&&y+sz[1]>a[1]))continue;
+  if(kd==0){fR(g,x,y,46,24,'#4a3020');fR(g,x,y,46,3,'#6a4a30');fR(g,x+6,y+26,9,7,'#3a2412');fR(g,x+31,y+26,9,7,'#3a2412');fD(g,x+23,y+9,2,'#eee');fE(g,b,x+23,y+9,24,'rgba(255,200,90,.4)')}
+  else if(kd==1){fR(g,x,y,22,20,'#5a4028');fR(g,x+2,y+2,18,16,'#6a4a30');fL(g,x+2,y+2,x+20,y+18,'#3a2412',1.5);fR(g,x+24,y+2,20,18,'#4e3822');fL(g,x+24,y+2,x+44,y+20,'#2e2010',1.5)}
+  else if(kd==2){fR(g,x,y,50,22,'#2e2624');fR(g,x,y,14,22,'#d8d0b4');fR(g,x+14,y,36,22,'#5a1620');fR(g,x+14,y,36,2,'#7a2a34')}
+  else if(kd==3){fD(g,x+12,y+12,11,'#2e2010');fD(g,x+12,y+12,9,'#5a4028');fD(g,x+12,y+12,3,'#1a1008');fL(g,x+3,y+12,x+21,y+12,'#3a2412',1)}
+  else{fR(g,x,y,40,40,'#3a0c14');fR(g,x+3,y+3,34,34,'#5a1822');fR(g,x+8,y+8,24,24,'#7a2a34');fR(g,x+18,y+18,4,4,'#d8c890')}
+  break}}
+function idoor(g,d){const hz=d.hz;g.save();g.translate(d.x+d.w/2,d.y+d.h/2);g.rotate(hz?0:1.57);fR(g,-18,-4,36,8,'#241810');fR(g,-18,-3,14,5,'#4a3020');g.rotate(R(-.4,.4));fR(g,-3,-2,17,4,'#3a2412');g.restore();for(let i=0;i<5;i++)fR(g,d.x+R(-3,d.w+3),d.y+R(-3,d.h+3),R(2,5),1,'#6a4a2a')}
 function genBuildings(bb){const g=ground.getContext('2d');
- blds.forEach(b=>{b.gl=[];const L=Math.random()<.5;[[b,1],[b.wg,0]].forEach(([r,m])=>{if(!r)return;g.save();g.beginPath();g.rect(r.x,r.y,r.w,r.h);g.clip();FL[b.ty](g,b,r);if(m)PR[b.ty](g,b,r,L);ravage(g,b,r,m?1:1.3);if(b===bb)graft(g,b,r);g.restore()});(b.dr||[]).forEach(d=>door(g,b,d))});
+ blds.forEach(b=>{b.gl=[];const L=Math.random()<.5;[[b,1],[b.wg,0]].forEach(([r,m])=>{if(!r)return;g.save();g.beginPath();g.rect(r.x,r.y,r.w,r.h);g.clip();FL[b.ty](g,b,r);if(m){const mr=(b.rooms||[]).filter(q=>!q.wg);if(mr.length>1){const big=mr.reduce((a,c)=>c.w*c.h>a.w*a.h?c:a,mr[0]),av=roomAvoid(b);mr.forEach(q=>{g.save();g.beginPath();g.rect(q.x,q.y,q.w,q.h);g.clip();if(q===big)PR[b.ty](g,b,q,Math.random()<.5);else roomProps(g,b,q,av);g.restore()})}else PR[b.ty](g,b,r,L)}ravage(g,b,r,m?1:1.3);if(b===bb)graft(g,b,r);g.restore()});(b.dr||[]).forEach(d=>door(g,b,d));(b.idr||[]).forEach(d=>idoor(g,d))});
  wl=mk(WW,WH);const w2=wl.getContext('2d');
  // contact shadow: a soft dark halo on the floor around every wall so walls stand out from the floor
  walls.forEach(w=>{if(w.t)return;for(let k=1;k<=4;k++)fR(w2,w.x-k*2,w.y-k*2,w.w+k*4,w.h+k*4+3,'rgba(0,0,0,.09)')});
@@ -3294,12 +3441,13 @@ function genBuildings(bb){const g=ground.getContext('2d');
    else if(q<.75)hz?fR(w2,w.x+u,w.y+2,R(3,7),1,'#ff7a1a'):fR(w2,w.x+2,w.y+u,1,R(3,7),'#ff7a1a');
    else hz?fR(w2,w.x+u,w.y+w.h+R(0,6),R(2,4),R(1,3),'#4a4646'):fR(w2,w.x+w.w+R(0,3),w.y+u,R(2,4),R(1,3),'#4a4646')}})}
 // escape routes: an Order wagon and a ferryman's boat, each inside a ward-ring
-function genExits(){const g=ground.getContext('2d');exts.forEach((e,k)=>{e.k=k;e.n=k?"Ferryman's Boat":'Order Wagon';const ny=e.y<=61?-1:e.y>=WH-61?1:0,nx=ny?0:e.x<=61?-1:1,hz=!!ny,vx=e.x+nx*40,vy=e.y+ny*40;
+function genExits(){const g=ground.getContext('2d');exts.forEach((e,k)=>{e.k=k;e.n=k==2?'Bell Tower':k?"Ferryman's Boat":'Order Wagon';const ny=e.y<=61?-1:e.y>=WH-61?1:0,nx=ny?0:e.x<=61?-1:1,hz=!!ny,vx=e.x+nx*40,vy=e.y+ny*40;
  fG(g,e.x,e.y,40,'rgba(255,230,160,.18)');g.strokeStyle='rgba(240,230,200,.55)';g.lineWidth=1.5;g.beginPath();g.arc(e.x,e.y,24,0,7);g.stroke();for(let i=0;i<12;i++){const a=i*.5236;fL(g,e.x+Math.cos(a)*19,e.y+Math.sin(a)*19,e.x+Math.cos(a)*24,e.y+Math.sin(a)*24,'rgba(240,230,200,.7)',1.5)}
  g.save();g.translate(vx,vy);g.rotate(hz?0:1.57);
  if(!k){for(const[x,y]of[[-20,-17],[10,-17],[-20,13],[10,13]])fR(g,x,y,10,4,'#1a1210');fR(g,-26,-12,52,24,'#6a5a44');for(let i=-22;i<26;i+=8)fL(g,i,-12,i,12,'#3a2e22');fR(g,-3,-9,6,18,'#d8d0b4');fR(g,-9,-3,18,6,'#d8d0b4');fR(g,8,-9,10,8,'#12100c');fL(g,-20,-10,-10,6,'#1a1210',1.5);fR(g,26,-8,8,16,'#3a2412');fR(g,34,-1,10,2,'#3a2412');fD(g,34,0,2.5,'#ffd060')}
+ else if(k==2){fR(g,-25,-15,50,30,'#2a2628');fR(g,-24,-14,48,28,'#3a3638');fR(g,-24,-14,48,3,'#5a5658');for(let i=-22;i<24;i+=9)fL(g,i,-11,i,14,'#262224',1);fR(g,-24,-14,13,5,'#4a4648');fR(g,11,-14,13,5,'#4a4648');fR(g,-24,9,9,5,'#4a4648');fR(g,15,9,9,5,'#4a4648');for(let i=0;i<7;i++)fR(g,R(-30,26),R(-19,15),R(3,7),R(2,4),i&1?'#2e2a2c':'#524e50');fR(g,-17,-4,6,8,'#14100e');fR(g,11,-4,6,8,'#14100e');fR(g,-17,-4,34,3,'#3a2412');fR(g,-17,-4,34,1,'#5a3a22');fR(g,-3,-2,6,12,'#1a0a0e');fR(g,-2,3,4,5,'#7a1018');fD(g,0,9,2,'#a01820')}
  else{g.fillStyle='#06121a';g.beginPath();g.ellipse(0,0,56,32,0,0,7);g.fill();for(let i=0;i<5;i++){g.strokeStyle='rgba(120,170,200,.25)';g.beginPath();g.ellipse(R(-30,30),R(-14,14),R(6,14),R(2,4),0,0,7);g.stroke()}fR(g,-56,-6,36,12,'#4a3020');for(let i=-54;i<-20;i+=6)fL(g,i,-6,i,6,'#2a1a0c');g.fillStyle='#5a3a1e';g.beginPath();g.ellipse(2,0,22,9,0,0,7);g.fill();g.fillStyle='#2a1a0c';g.beginPath();g.ellipse(2,0,17,5,0,0,7);g.fill();fL(g,-4,-8,-12,-18,'#3a2412',1.5);fL(g,-4,8,-12,18,'#3a2412',1.5);fD(g,22,0,2.5,'#ffd060')}
- g.restore();e.lx=vx+(hz?(k?22:34):0);e.ly=vy+(hz?0:(k?22:34));if(!hz){e.lx=vx;e.ly=vy+(k?22:34)}else{e.lx=vx+(k?22:34);e.ly=vy}
+ g.restore();e.bx=vx;e.by=vy;e.lx=vx+(hz?(k?22:34):0);e.ly=vy+(hz?0:(k?22:34));if(!hz){e.lx=vx;e.ly=vy+(k?22:34)}else{e.lx=vx+(k?22:34);e.ly=vy}
  fG(g,e.lx,e.ly,30,'rgba(255,200,90,.35)')})}
 // ---------- RENDER ----------
 function drawScn(k,x,y,f){const r=(a,b,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(x+a*f-(f<0?w:0),y+b,w,h)},cr=(a,b,s)=>{r(a,b,s,s,'#5a3a20');r(a,b,s,1,'#7a5430');r(a+s/2|0,b,1,s,'#3a2414');r(a,b+s-1,s,1,'#2a1a0e')};
@@ -3487,9 +3635,72 @@ wolf(x,y,a,fl,wk,hurt,b,t,ca,sa,K){const Z=(c,X,Y,w,h)=>{ctx.fillStyle=fl?'#fff'
  Z(K.mask,x-3,y-12.5,6,6);Z(K.hood,x-4.5,y-15,9,3.6);Z(K.hood,x-4.5,y-15,1.6,7.5);Z(K.hood,x+2.9,y-15,1.6,7.5);
  for(const s of[-1,1]){ctx.fillStyle=fl?'#fff':K.hood;ctx.beginPath();ctx.moveTo(x+s*4.6,y-14.5);ctx.lineTo(x+s*3.6,y-19.5);ctx.lineTo(x+s*1.4,y-14.5);ctx.closePath();ctx.fill();Z('#d8a0a0',x+s*2.8-.5,y-17,1,2)}
  Z(K.rune,x-3,y-10.8,6,1.1);Z(K.rune,x-2.6,y-8.6,.8,1.6);Z(K.rune,x+1.8,y-8.6,.8,1.6);
- Z(K.eye,x-2+ex,y-10.6,1.5,.9);Z(K.eye,x+.8+ex,y-10.6,1.5,.9);Z('#2a1c10',x-.5+ex,y-8.2,1,.9)}
+ Z(K.eye,x-2+ex,y-10.6,1.5,.9);Z(K.eye,x+.8+ex,y-10.6,1.5,.9);Z('#2a1c10',x-.5+ex,y-8.2,1,.9)},
+ npc_wardens(x,y,a,fl,wk,hurt,b,t,ca,sa,K){const Z=(c,X,Y,w,h)=>{ctx.fillStyle=fl?'#fff':c;ctx.fillRect(X,Y,w,h)},H=c=>hurt?'#8a2a2a':c,ex=ca*.7,sw=Math.sin(wk)*.5;
+ // Sister Perpetua Crane: drowned habit with a salt-crusted tide line, rope belt, brass keys, red wax seal, white wimple
+ Z('#1c2426',x-3.5,y+5+b,3,2);Z('#1c2426',x+.5,y+5-b,3,2);
+ ctx.fillStyle=fl?'#fff':H(K.coat);ctx.beginPath();ctx.moveTo(x-4.5,y-6);ctx.lineTo(x+4.5,y-6);ctx.lineTo(x+7,y+6);ctx.lineTo(x+4.2,y+6.5+sw);ctx.lineTo(x+1.4,y+5.6);ctx.lineTo(x-1.4,y+6.5-sw);ctx.lineTo(x-4.2,y+5.6);ctx.lineTo(x-7,y+6);ctx.closePath();ctx.fill();
+ Z(K.coat2,x-4.5,y-6,1.6,7);Z(K.coat2,x+2.9,y-6,1.6,7);Z('#26383a',x-6.2,y+3,12.4,2.6);
+ if(!fl){ctx.fillStyle='#f2f0e4';for(let i=0;i<7;i++)ctx.fillRect(x-6+i*1.9,y+3+(i%3)*.9,.9,.8)}
+ Z('#b8a070',x-4.8,y-.8,9.6,1.1);
+ ctx.fillStyle=fl?'#fff':K.band;ctx.beginPath();ctx.arc(x,y-3.6,1.9,0,7);ctx.fill();Z(K.rune,x-1.1,y-3.9,2.2,.5);Z(K.rune,x-.5,y-3,1.4,.5);
+ for(let i=0;i<3;i++)Z('#c8a040',x+3.1+i*.9+Math.sin(t*2.2+i)*.35,y+.3,.6,2.4);Z('#c8a040',x+2.8,y-.2,3,.5);
+ ctx.fillStyle=fl?'#fff':K.hood;ctx.beginPath();ctx.moveTo(x-6,y-5.2);ctx.lineTo(x-4.6,y-12.8);ctx.lineTo(x-2,y-15.4);ctx.lineTo(x+2,y-15.4);ctx.lineTo(x+4.6,y-12.8);ctx.lineTo(x+6,y-5.2);ctx.lineTo(x+3,y-6.4);ctx.lineTo(x-3,y-6.4);ctx.closePath();ctx.fill();
+ Z(K.mask,x-2.8,y-12.6,5.6,5.8);Z('#e8e4d4',x-3.2,y-13.4,6.4,1);Z('#2a3030',x-1.8+ex,y-10.3,1.3,.6);Z('#2a3030',x+.6+ex,y-10.3,1.3,.6);
+ if(!fl){ctx.globalAlpha=.4;ctx.fillStyle=K.eyeg;ctx.fillRect(x-2.2+ex,y-10.9,2.1,1.8);ctx.fillRect(x+.2+ex,y-10.9,2.1,1.8);ctx.globalAlpha=1}
+ Z('#8a6a60',x-.8,y-8.2,1.6,.5);Z(K.band,x+4.1,y-9,.9,3.6)},
+npc_lamp(x,y,a,fl,wk,hurt,b,t,ca,sa,K){const Z=(c,X,Y,w,h)=>{ctx.fillStyle=fl?'#fff':c;ctx.fillRect(X,Y,w,h)},H=c=>hurt?'#8a2a2a':c,C=(c,X,Y,r)=>{ctx.fillStyle=fl?'#fff':c;ctx.beginPath();ctx.arc(X,Y,r,0,7);ctx.fill()},ex=ca*.7;
+ // Hesper Quill: rust shirt, soot-black apron, wick shears, flat cap with brass goggles, a lantern hung from the cap
+ Z('#241a14',x-3.5,y+3+b,3,4);Z('#241a14',x+.5,y+3-b,3,4);Z(K.band,x-3.5,y+6+b,3,.9);Z(K.band,x+.5,y+6-b,3,.9);
+ Z(H(K.coat),x-5,y-6,10,8.4);Z(K.mask,x-6.6,y-3.6,1.6,2.6);
+ Z(K.coat2,x-3.7,y-5,7.4,10);Z(K.coat2,x-3.7,y-6,1,2);Z(K.coat2,x+2.7,y-6,1,2);
+ Z('#14100c',x-2.4,y-1.4,1.5,1.1);Z('#14100c',x+.9,y+1.8,1.8,1.1);Z('#14100c',x-.6,y+3.4,1.2,.9);
+ Z('#3a2a1a',x-5,y-.6,10,1.2);Z(K.band,x-.8,y-.6,1.6,1.2);Z('#a8a8b0',x+3.1,y+.6,.7,3.4);Z('#a8a8b0',x+4,y+.6,.7,3.4);Z('#5a4a3a',x+2.8,y+.2,2.4,.6);
+ Z(K.mask,x-3,y-12,6,5.8);Z('#4a2a18',x-3.4,y-12.4,.9,4);Z('#4a2a18',x-3,y-12.4,6,1.4);
+ Z(K.hood,x-4,y-14.6,8,2.6);Z(K.hood,x-3+ca*2.5,y-12.8,6.4,1.1);Z('#3a2a1a',x-4.2,y-13,8.4,.7);
+ C(K.band,x-1.9,y-13.3,1.5);C(K.band,x+1.9,y-13.3,1.5);C('#2a2418',x-1.9,y-13.3,.9);C('#2a2418',x+1.9,y-13.3,.9);
+ if(!fl){ctx.globalAlpha=.6+.3*Math.sin(t*4);ctx.fillStyle=K.eye;ctx.fillRect(x-2.2,y-13.6,.8,.8);ctx.fillRect(x+1.6,y-13.6,.8,.8);ctx.globalAlpha=1}
+ Z('#2a1a10',x-1.8+ex,y-10.2,1.2,1.1);Z('#2a1a10',x+.7+ex,y-10.2,1.2,1.1);Z('#4a3a30',x+1.2,y-8.6,1.8,.8);Z('#8a4a3a',x-.8,y-8,1.6,.5)},
+npc_inq(x,y,a,fl,wk,hurt,b,t,ca,sa,K){const Z=(c,X,Y,w,h)=>{ctx.fillStyle=fl?'#fff':c;ctx.fillRect(X,Y,w,h)},H=c=>hurt?'#8a2a2a':c,ex=ca*.7;
+ // Magister Lucan Verrow: ivory cassock, gold-edged crimson stole and mozzetta, red wax medallion, gold half-mask, crimson mitre
+ Z('#2a1c18',x-3.5,y+5+b,3,2);Z('#2a1c18',x+.5,y+5-b,3,2);
+ ctx.fillStyle=fl?'#fff':H(K.coat);ctx.beginPath();ctx.moveTo(x-4.8,y-6);ctx.lineTo(x+4.8,y-6);ctx.lineTo(x+6.6,y+6);ctx.lineTo(x-6.6,y+6);ctx.closePath();ctx.fill();
+ Z(K.hood,x-1.5,y-6,3,12);Z(K.coat2,x-1.5,y-6,.5,12);Z(K.coat2,x+1,y-6,.5,12);Z(K.coat2,x-.4,y-3.6,.8,2.8);Z(K.coat2,x-1.1,y-2.8,2.2,.7);
+ Z(K.coat2,x-6.6,y+4.6,13.2,1.2);if(!fl){ctx.fillStyle=K.band;for(let i=0;i<6;i++)ctx.fillRect(x-5.6+i*2.2,y+4.9,.8,.6)}
+ Z(H(K.hood),x-6.6,y-7.6,13.2,3.4);Z(K.coat2,x-6.6,y-4.4,13.2,.6);
+ ctx.fillStyle=fl?'#fff':K.rune;ctx.beginPath();ctx.arc(x+3.4,y-.6,1.5,0,7);ctx.fill();
+ Z('#d9b894',x-3,y-12.2,6,5.8);Z(K.mask,x-3.2,y-12.4,6.4,3.4);Z('#14101a',x-2.2+ex,y-10.9,1.5,.7);Z('#14101a',x+.8+ex,y-10.9,1.5,.7);
+ if(!fl){ctx.fillStyle=K.eye;ctx.fillRect(x-1.9+ex,y-10.8,.8,.5);ctx.fillRect(x+1.1+ex,y-10.8,.8,.5)}
+ Z(K.band,x-.4,y-10,.8,2);Z('#8a5a4a',x-.9,y-7.9,1.8,.5);
+ ctx.fillStyle=fl?'#fff':K.hood;ctx.beginPath();ctx.moveTo(x-4.4,y-12.4);ctx.lineTo(x-3.2,y-20);ctx.lineTo(x,y-22.6);ctx.lineTo(x+3.2,y-20);ctx.lineTo(x+4.4,y-12.4);ctx.closePath();ctx.fill();
+ Z(K.band,x-4.4,y-14.8,8.8,1.3);Z(K.coat2,x-.4,y-20.6,.8,4.4);Z(K.coat2,x-1.6,y-18.9,3.2,.8);Z(K.hood,x-4.6,y-12.6,1.2,5.8);Z(K.hood,x+3.4,y-12.6,1.2,5.8)},
+npc_buyers(x,y,a,fl,wk,hurt,b,t,ca,sa,K){const Z=(c,X,Y,w,h)=>{ctx.fillStyle=fl?'#fff':c;ctx.fillRect(X,Y,w,h)},H=c=>hurt?'#8a2a2a':c,ex=ca*.7;
+ // Ferris Vane: grey greatcoat, brass buttons, blank porcelain mask with a loupe, wide-brim hat, envelope in the pocket, ledger under the arm
+ Z('#14141a',x-3.5,y+4+b,3,3);Z('#14141a',x+.5,y+4-b,3,3);
+ ctx.fillStyle=fl?'#fff':H(K.coat);ctx.beginPath();ctx.moveTo(x-5,y-6);ctx.lineTo(x+5,y-6);ctx.lineTo(x+6.4,y+5.6);ctx.lineTo(x-6.4,y+5.6);ctx.closePath();ctx.fill();
+ Z(K.coat2,x-5,y-6,2,9.5);Z(K.coat2,x+3,y-6,2,9.5);Z('#14141a',x-.3,y-5,.6,10);
+ for(let i=0;i<3;i++)Z(K.band,x-1.4,y-3.6+i*2.6,.8,.8);
+ Z('#d8d4c8',x-1.2,y-6.6,2.4,2.6);Z('#f0ece0',x+1.8,y-4.6,2.8,1.9);Z('#b8b4a4',x+1.8,y-4.6,2.8,.45);if(!fl){ctx.fillStyle='#a02020';ctx.fillRect(x+2.8,y-4.1,.8,.8)}
+ Z('#4a2a22',x-7.4,y-3.2,2.4,4.6);Z(K.band,x-7.2,y-3.2,.4,4.6);Z(K.coat2,x-3.6,y-7.2,7.2,1.6);
+ Z(K.mask,x-3,y-12.4,6,6.4);Z('#d0ccc2',x+1.6,y-12.2,1.4,6);
+ ctx.strokeStyle=fl?'#fff':K.band;ctx.lineWidth=.9;ctx.beginPath();ctx.arc(x+1.3+ex,y-10.2,1.6,0,7);ctx.stroke();
+ if(!fl){ctx.globalAlpha=.4+.5*Math.max(0,Math.sin(t*2.2));ctx.fillStyle='#fff';ctx.fillRect(x+.5+ex,y-11,.9,.9);ctx.globalAlpha=1}
+ Z(K.hood,x-8,y-13.4,16,1.5);Z(K.hood,x-4,y-18.6,8,5.4);Z(K.band,x-4,y-15,8,1.1)},
+npc_kennel(x,y,a,fl,wk,hurt,b,t,ca,sa,K){const Z=(c,X,Y,w,h)=>{ctx.fillStyle=fl?'#fff':c;ctx.fillRect(X,Y,w,h)},H=c=>hurt?'#8a2a2a':c,ex=ca*.7;
+ // Ysolde Barrow: hound-leather coat, shearling collar, stag-skull gorget, antler-crowned hood, bone whistle and a leash coil
+ Z('#2a1c12',x-3.5,y+3+b,3,4);Z('#2a1c12',x+.5,y+3-b,3,4);Z(K.band,x-3.5,y+3+b,3,.8);Z(K.band,x+.5,y+3-b,3,.8);
+ ctx.fillStyle=fl?'#fff':H(K.coat);ctx.beginPath();ctx.moveTo(x-5,y-6);ctx.lineTo(x+5,y-6);ctx.lineTo(x+6.6,y+5.6+Math.sin(wk)*.4);ctx.lineTo(x-6.6,y+5.6-Math.sin(wk)*.4);ctx.closePath();ctx.fill();
+ Z(K.coat2,x-6.6,y+4,13.2,1.5);Z('#14100c',x-.3,y-4,.6,9);Z('#2a1c10',x-5.2,y-.8,10.4,1.3);Z(K.band,x-1,y-.8,2,1.3);
+ if(!fl){ctx.strokeStyle='#8a6a3a';ctx.lineWidth=.9;ctx.beginPath();ctx.arc(x-5.4,y+2.2,2,0,7);ctx.stroke();ctx.beginPath();ctx.arc(x-5.4,y+2.2,1.1,0,7);ctx.stroke()}
+ Z(K.rune,x+1.2+Math.sin(t*2)*.3,y+1.4,2.2,.8);
+ Z(H(K.coat2),x-6.2,y-7.8,12.4,3);if(!fl){ctx.fillStyle='#d9c8a8';for(let i=0;i<6;i++)ctx.fillRect(x-6+i*2.1,y-4.9,1.1,.9)}
+ Z(K.rune,x-2,y-5.6,4,3);Z(K.rune,x-1,y-2.8,2,1);Z('#14100c',x-1.4,y-4.8,1,1);Z('#14100c',x+.4,y-4.8,1,1);Z('#14100c',x-.2,y-3.2,.4,.8);
+ Z(K.mask,x-3,y-12.4,6,5.8);Z('#a0605a',x-2.4,y-11.8,.6,3.4);Z('#a0605a',x+1.6,y-11.2,.6,2.4);
+ Z(K.hood,x-4.6,y-15.2,9.2,3.2);Z(K.hood,x-4.6,y-15.2,1.6,7.8);Z(K.hood,x+3,y-15.2,1.6,7.8);
+ ctx.strokeStyle=fl?'#fff':K.rune;ctx.lineWidth=1;for(const s of[-1,1]){ctx.beginPath();ctx.moveTo(x+s*2.8,y-15);ctx.lineTo(x+s*4.2,y-19);ctx.lineTo(x+s*3.4,y-23);ctx.moveTo(x+s*3.9,y-17.6);ctx.lineTo(x+s*6.8,y-20);ctx.moveTo(x+s*3.9,y-20.4);ctx.lineTo(x+s*5.6,y-22.6);ctx.stroke()}
+ Z(K.eye,x-2+ex,y-10.6,1.4,1);Z(K.eye,x+.8+ex,y-10.6,1.4,1);Z('#5a3a30',x-.8,y-8.2,1.6,.5)}
 };
-function warden(x,y,a,fl,wk,gun,hurt,hol,pun,gs,hs){shadow(x,y,6);const K=SKINS[sel.skin]||SKINS.warden,b=Math.sin(wk)*1.5,t=performance.now()/1000,ca=Math.cos(a),sa=Math.sin(a),
+function warden(x,y,a,fl,wk,gun,hurt,hol,pun,gs,hs){shadow(x,y,6);const K=SKINS[sel.skin]||NPCSK[sel.skin]||SKINS.warden,b=Math.sin(wk)*1.5,t=performance.now()/1000,ca=Math.cos(a),sa=Math.sin(a),
   coat=fl?'#fff':hurt?'#8a2a2a':K.coat,coat2=fl?'#fff':hurt?'#6a1c1c':K.coat2,dark=fl?'#fff':'#14101a',bone=fl?'#fff':K.mask;
  if(K.v)SKB[K.v](x,y,a,fl,wk,hurt,b,t,ca,sa,K);else{
  // boots
@@ -3737,7 +3948,13 @@ function render(){
  if(GOR())gorGroundDraw(cx,cy);
  if(NYX())nyxGroundDraw(cx,cy);
  if(MOR())morGroundDraw(cx,cy);
- exts.forEach(e=>{if(e.sealed)return;const x=e.x-cx,y=e.y-cy,near=D(P.x,P.y,e.x,e.y)<26;ctx.strokeStyle=`rgba(255,240,180,${.5+.3*Math.sin(T*3+e.k)})`;ctx.lineWidth=1.5;ctx.setLineDash([4,4]);ctx.lineDashOffset=-T*10;ctx.beginPath();ctx.arc(x,y,17,0,7);ctx.stroke();ctx.setLineDash([]);if(P.ep>0&&near){ctx.strokeStyle='#8fe0a0';ctx.lineWidth=3;ctx.beginPath();ctx.arc(x,y,24,-1.5708,-1.5708+6.2832*P.ep/EXDF());ctx.stroke()}if(D(P.x,P.y,e.x,e.y)<170)tx(TGR?(P.ep>0?'':'Stand in the ring to exit'):e.n+(P.ep>0?'':' - stand in the ring'),x,y-32,'#e8e0b0','center')});
+ exts.forEach(e=>{if(e.sealed)return;const x=e.x-cx,y=e.y-cy,near=D(P.x,P.y,e.x,e.y)<26;ctx.strokeStyle=`rgba(255,240,180,${.5+.3*Math.sin(T*3+e.k)})`;ctx.lineWidth=1.5;ctx.setLineDash([4,4]);ctx.lineDashOffset=-T*10;ctx.beginPath();ctx.arc(x,y,17,0,7);ctx.stroke();ctx.setLineDash([]);if(P.ep>0&&near){ctx.strokeStyle='#8fe0a0';ctx.lineWidth=3;ctx.beginPath();ctx.arc(x,y,24,-1.5708,-1.5708+6.2832*P.ep/EXDF());ctx.stroke()}if(D(P.x,P.y,e.x,e.y)<170)tx(TGR?(P.ep>0?'':'Stand in the ring to exit'):e.n+(P.ep>0?'':e.k==2?' - fast but LOUD':' - stand in the ring'),x,y-32,'#e8e0b0','center');
+  if(e.k==2&&e.bx!==undefined){const bx=e.bx-cx,by=e.by-cy,rg=P.ep>0&&near,w=Math.sin(T*(rg?13:1.1)),ang=w*(rg?.55:.07);
+   ctx.fillStyle='rgba(0,0,0,.35)';ctx.beginPath();ctx.ellipse(bx,by+9,9,3,0,0,7);ctx.fill();
+   ctx.strokeStyle='#8a7a50';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(bx,by+2);ctx.quadraticCurveTo((bx+x)/2+w*(rg?5:1),(by+y)/2,x,y);ctx.stroke();
+   ctx.save();ctx.translate(bx,by-4);ctx.rotate(ang);ctx.fillStyle='#c8982e';ctx.beginPath();ctx.moveTo(-3,0);ctx.lineTo(3,0);ctx.quadraticCurveTo(8,6,9,13);ctx.lineTo(-9,13);ctx.quadraticCurveTo(-8,6,-3,0);ctx.fill();ctx.fillStyle='#e8c860';ctx.fillRect(-4,3,2,8);ctx.fillStyle='#8a6418';ctx.fillRect(-9,12,18,2);ctx.fillStyle='#3a2a10';ctx.fillRect(-1+w*(rg?2:0),14,2,3);ctx.restore();
+   if(e.tl&&T-e.tl<1){const q=T-e.tl;ctx.strokeStyle='rgba(255,220,140,'+(.6*(1-q)).toFixed(2)+')';ctx.lineWidth=2;ctx.beginPath();ctx.arc(bx,by,10+q*90,0,7);ctx.stroke()}}
+ })
  clues.forEach(c=>{if(c.got)return;const x=c.x-cx,y=c.y-cy;ctx.strokeStyle='rgba(255,70,40,'+(.6+.3*Math.sin(T*4))+')';ctx.lineWidth=1.5;ctx.beginPath();pentaPath(ctx,x,y,7);ctx.stroke()});
  M.forEach(m=>{if(m.ns){const x=m.ns.x-cx|0,y=m.ns.y-cy|0;if(x>-50&&x<VW+50&&y>-40&&y<VH+40)drawNest(x,y)}});
  items.forEach(it=>{const x=it.x-cx|0,y=it.y-cy|0;if(x<-10||x>VW+10||y<-10||y>VH+10)return;shadow(x,y,4);
@@ -3782,7 +3999,7 @@ scn.forEach(c=>{const x=c.x-cx|0,y=c.y-cy|0;if(x<-40||x>VW+40||y<-30||y>VH+30)re
  const w=P.w[P.cur];tx(P.cur<2&&w&&!w.ml?`${w.n}  ${P.mag[P.cur]}/${P.res[P.cur]}${P.rl>0?' (reload)':''}`:'',VW-8,VH-24,'#e8e6d8','right');
  ctx.font='bold 8px monospace';const SN=2+NTS,SP=Math.min(66,Math.floor((VW-240)/SN)),SW=SP-4;for(let i=0;i<SN;i++){const x=Math.round(VW/2-SN*SP/2)+i*SP,y=VH-22;ctx.fillStyle=i==P.cur?'#7a2a2ab0':'#000a';ctx.fillRect(x,y,SW,16);if(i==P.cur){ctx.strokeStyle='#e8e6d8';ctx.lineWidth=1;ctx.strokeRect(x+.5,y+.5,SW-1,15)}
   const lb=i<2?(P.w[i]?P.w[i].n.slice(0,7):i==P.cur?'Fists':''):(P.ts[i-2]?TL[P.ts[i-2].k]+' '+P.ts[i-2].n:'');if(lb){ctx.save();ctx.beginPath();ctx.rect(x,y,SW,16);ctx.clip();tx((i+1)+' '+lb,x+3,y+11,'#e8e6d8');ctx.restore()}}ctx.font='bold 10px monospace';
- tx(TGR?'':PC.on&&(banished||bty||!corpse)?'PEACE - the sun is out. Reach extraction!':banished?'Reach extraction!':bty?(bty.h===mp.me?'Reach extraction!':bty.h==null?'Grab the dropped bounty! (see map)':hn(bty.h)+' holds the bounty (see map)'):corpse?'Banish the corpse (hold E)':(found>=3||bossOpen)?`Hunt ${BOSS[boss].n} (red X)`:`Sigils ${found}/3 (E to burn) - the lair is sealed`,8,14,'#d8c890');tx(mis.t=='none'?'':mis.done?'Ledger task done - extract to claim':mis.fail?'Ledger task failed this run':'Ledger: '+hudm(),8,26,mis.done?'#8fe0a0':mis.fail?'#a06a60':'#c0a070');if(P.carry)tx('Bounty: $'+P.carry,8,38,'#e0b040');if(P.wd>0)tx("Ward "+Math.ceil(P.wd)+'s',8,50,'#f0d070');if(P.sb>0)tx('Stamina '+Math.ceil(P.sb)+'s',8,62,'#6af0a0');if(P.bw>0)tx('Wraps '+Math.ceil(P.bw)+'s',8,74,'#c8b890');if(P.hm>0)tx('Muzzle '+Math.ceil(P.hm)+'s',8,86,'#b8a898');if(P.bn)tx('Burning '+TOOL[P.bn.k].n+'... '+Math.ceil(3-P.bn.t)+'  (stand still)',VW/2,VH/2+48,'#ffb070','center');tx('[M] Map',VW-8,14,'#d8c890','right');if(mp.on)tx('Hunters alive: '+(1+Object.keys(mp.rp).length),VW-8,26,'#d89090','right');
+ tx(TGR?'':PC.on&&(banished||bty||!corpse)?'PEACE - the sun is out. Reach extraction!':banished?'Reach extraction!':bty?(bty.h===mp.me?'Reach extraction!':bty.h==null?'Grab the dropped bounty! (see map)':hn(bty.h)+' holds the bounty (see map)'):corpse?'Banish the corpse (hold E)':(found>=3||bossOpen)?`Hunt ${BOSS[boss].n} (red X)`:`Sigils ${found}/3 (E to burn) - the lair is sealed`,8,14,'#d8c890');{const hq=hudQs(),qo=hudQh();hq.forEach((r,k)=>tx(r.t,8,26+k*12,r.c));if(P.carry)tx('Bounty: $'+P.carry,8,38+qo,'#e0b040');if(P.wd>0)tx("Ward "+Math.ceil(P.wd)+'s',8,50+qo,'#f0d070');if(P.sb>0)tx('Stamina '+Math.ceil(P.sb)+'s',8,62+qo,'#6af0a0');if(P.bw>0)tx('Wraps '+Math.ceil(P.bw)+'s',8,74+qo,'#c8b890');if(P.hm>0)tx('Muzzle '+Math.ceil(P.hm)+'s',8,86+qo,'#b8a898');}if(P.bn)tx('Burning '+TOOL[P.bn.k].n+'... '+Math.ceil(3-P.bn.t)+'  (stand still)',VW/2,VH/2+48,'#ffb070','center');tx('[M] Map',VW-8,14,'#d8c890','right');if(mp.on)tx('Hunters alive: '+(1+Object.keys(mp.rp).length),VW-8,26,'#d89090','right');
  rdHud();if(TGR)tgHud();if(P.ep>0)tx('Escaping in '+Math.ceil(EXDF()-P.ep)+'...',VW/2,VH/2+34,'#8fe0a0','center');
  if(P.pk)tx('[E] take '+(P.pk.s?SID:PRI)[P.pk.k].n,VW/2,VH/2+48,'#ffd27a','center');if(msgT>0)tx(msg,VW/2,48,'#fff','center');drawDead()}
 // ---------- MAP ----------
@@ -3792,7 +4009,7 @@ function cline(x1,y1,x2,y2,s,j){const n=Math.max(2,Math.ceil(Math.hypot(x2-x1,y2
 function crect(x,y,w,h,s,j){cline(x,y,x+w,y,s,j);cline(x+w,y,x+w,y+h,s+40,j);cline(x+w,y+h,x,y+h,s+80,j);cline(x,y+h,x,y,s+120,j)}
 function skull(x,y,c){ctx.fillStyle=c;ctx.beginPath();ctx.arc(x,y,5,0,7);ctx.fill();ctx.fillRect(x-3,y+3,6,4);ctx.fillStyle='#120a0c';ctx.fillRect(x-3,y-1,2,3);ctx.fillRect(x+1,y-1,2,3);ctx.fillRect(x-1,y+4,1,3);ctx.fillRect(x+1,y+4,1,3)}
 function drawMap(){
- const s=.195,mw=WW*s,mh=WH*s,ox=(VW-mw)/2-20|0,oy=34,X=x=>ox+x*s,Y=y=>oy+y*s,tt=performance.now()/1000,pulse=.5+.5*Math.sin(tt*4),B=BOSS[boss],bs=M[0],CH='rgba(232,230,216,.9)';
+ const s=429/WW,mw=WW*s,mh=WH*s,ox=(VW-mw)/2-20|0,oy=34,X=x=>ox+x*s,Y=y=>oy+y*s,tt=performance.now()/1000,pulse=.5+.5*Math.sin(tt*4),B=BOSS[boss],bs=M[0],CH='rgba(232,230,216,.9)';
  ctx.save();ctx.setLineDash([]);
  // dim the world, then the wooden-framed board
  ctx.fillStyle='rgba(4,2,6,.88)';ctx.fillRect(0,0,VW,VH);
@@ -3823,7 +4040,7 @@ function drawMap(){
  // camp
  const cx0=X(camp.x),cy0=Y(camp.y);ctx.strokeStyle=CH;ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(cx0-6,cy0+4);ctx.lineTo(cx0,cy0-6);ctx.lineTo(cx0+6,cy0+4);ctx.closePath();ctx.stroke();tx('Camp',cx0+9,cy0+3,'#e8e6d8');
  // extraction points
- exts.forEach(e=>{if(e.sealed){const x=X(e.x),y=Y(e.y);ctx.strokeStyle='rgba(224,80,90,'+(.6+.4*pulse)+')';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,9,0,7);ctx.moveTo(x-6,y-6);ctx.lineTo(x+6,y+6);ctx.moveTo(x+6,y-6);ctx.lineTo(x-6,y+6);ctx.stroke();tx(CLM[e.k]||'It burned.',x,y+(y<60?20:-12),'#ff7a6a','center');return}const x=X(e.x),y=Y(e.y);ctx.strokeStyle=`rgba(143,224,160,${.5+.4*pulse})`;ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(x,y,8+2*pulse,0,7);ctx.stroke();ctx.strokeStyle='#8fe0a0';ctx.lineWidth=1.2;ctx.beginPath();if(e.k){ctx.moveTo(x-5,y);ctx.quadraticCurveTo(x,y+5,x+5,y);ctx.moveTo(x,y);ctx.lineTo(x,y-5)}else{ctx.rect(x-5,y-3,10,5);ctx.moveTo(x-1,y+4.5);ctx.arc(x-3,y+4.5,2,0,7);ctx.moveTo(x+5,y+4.5);ctx.arc(x+3,y+4.5,2,0,7)}ctx.stroke();tx(e.n,x,y+(y<60?20:-12),'#8fe0a0','center')});
+ exts.forEach(e=>{if(e.sealed){const x=X(e.x),y=Y(e.y);ctx.strokeStyle='rgba(224,80,90,'+(.6+.4*pulse)+')';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,9,0,7);ctx.moveTo(x-6,y-6);ctx.lineTo(x+6,y+6);ctx.moveTo(x+6,y-6);ctx.lineTo(x-6,y+6);ctx.stroke();tx(CLM[e.k]||'It burned.',x,y+(y<60?20:-12),'#ff7a6a','center');return}const x=X(e.x),y=Y(e.y);ctx.strokeStyle=`rgba(143,224,160,${.5+.4*pulse})`;ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(x,y,8+2*pulse,0,7);ctx.stroke();ctx.strokeStyle='#8fe0a0';ctx.lineWidth=1.2;ctx.beginPath();if(e.k==2){ctx.moveTo(x-4,y+4);ctx.quadraticCurveTo(x-4,y-4,x,y-5);ctx.quadraticCurveTo(x+4,y-4,x+4,y+4);ctx.lineTo(x-4,y+4);ctx.moveTo(x+1,y+6);ctx.arc(x,y+6,1,0,7)}else if(e.k){ctx.moveTo(x-5,y);ctx.quadraticCurveTo(x,y+5,x+5,y);ctx.moveTo(x,y);ctx.lineTo(x,y-5)}else{ctx.rect(x-5,y-3,10,5);ctx.moveTo(x-1,y+4.5);ctx.arc(x-3,y+4.5,2,0,7);ctx.moveTo(x+5,y+4.5);ctx.arc(x+3,y+4.5,2,0,7)}ctx.stroke();tx(e.n,x,y+(y<60?20:-12),'#8fe0a0','center')});
  // red string through the clues (and on to the lair once revealed)
  ctx.strokeStyle='rgba(176,36,36,.85)';ctx.lineWidth=1;ctx.beginPath();clues.forEach((c,i)=>i?ctx.lineTo(X(c.x),Y(c.y)):ctx.moveTo(X(c.x),Y(c.y)));if((found>=3||bossOpen)&&bs.hp>0)ctx.lineTo(X(bs.hx),Y(bs.hy));ctx.stroke();
  clues.forEach(c=>{const x=X(c.x),y=Y(c.y);
@@ -4347,7 +4564,7 @@ const _end=end;end=function(w){const r=_end(w);sfx.stop();w?sfx.escape():sfx.dea
 let cpT=0,exT=0,hbT=0;
 const _upd=update;
 update=function(dt){
- const pi=items.length,pf=found,pb=banished,pd=!!mis.done,pm=M.length,pc=P.cur,bo=!!(M[0]&&M[0].dash>0),bz=bombs.map(b=>({x:b.x,y:b.y,t:b.t}));
+ const pi=items.length,pf=found,pb=banished,pd=MQ.some(q=>q.done),pm=M.length,pc=P.cur,bo=!!(M[0]&&M[0].dash>0),bz=bombs.map(b=>({x:b.x,y:b.y,t:b.t}));
  _upd(dt);
  bz.forEach(b=>{if(b.t-dt<=0)sfx.bomb(b)});
  if(mode!='play')return;
@@ -4356,7 +4573,7 @@ update=function(dt){
  if(items.length<pi)sfx.pick();
  if(found>pf)sfx.sigilBurn();
  if(banished&&!pb)sfx.banish();
- if(mis.done&&!pd)sfx.bonus();
+ if(!pd&&MQ.some(q=>q.done))sfx.bonus();
  if(P.bp>.05&&P.bp<5&&keys.KeyE){cpT-=dt;if(cpT<=0){cpT=1;sfx.chant()}}else cpT=0;
  if(P.ep>.05&&P.ep<EXDF()){exT-=dt;if(exT<=0){exT=.45;sfx.ext(P.ep/EXDF())}}else exT=0;
  if(P.hp<45&&P.hp>0){hbT-=dt;if(hbT<=0){hbT=.5+P.hp/45*.6;sfx.beat()}}else hbT=0;
@@ -5092,7 +5309,12 @@ function sortStash(){const tl={},its=[];stash.forEach(o=>{if(TOOL[o.k]&&o.k!='co
 
 // ---------- RANDOM EVENT: COLLAPSE ----------
 // One extraction point is sealed for the rest of the run. No banner, no sound: the only warning is the map [M]. ?event=collapse = 3s in.
-const CLM=['The wagon burned.','The boat burned.'];
+const CLM=['The wagon burned.','The boat burned.','The bell tower burned.'];
+// ---------- BELL TOWER (the 3rd exit, k=2, on the map edge): half the normal exit time (EXD/2 = 5s) but LOUD. While you stand in its ring it tolls at once and then every BELL_GAP seconds: noise(BELL_R) wakes every ordinary demon in reach (building walls muffle it like any noise),
+// the ground shows the noise ring, the screen shakes, and in multiplayer every hunter within 1400px hears a bell toll to the <direction> (message {t:'bell',x,y}; the demons are woken through the normal noise() path, which clients already forward to the host). ----------
+const BELL_R=800,BELL_GAP=1.5;let BELLH=-9;
+function bellToll(e,dt){P.bl=(P.bl||0)-dt;if(P.bl>0)return;P.bl=BELL_GAP;e.tl=T;noise(e.x,e.y,BELL_R);shake=Math.max(shake,3);try{sfx.sigil(1)}catch(_){}if(mp.on)mpSend({t:'bell',x:e.x|0,y:e.y|0});if(!P.bln){P.bln=1;say('The bell tolls across the parish!',3)}}
+{const _bh=mpHandle;mpHandle=function(o){if(o&&o.t=='bell'&&mode=='play'&&P&&!P.dead&&Number.isFinite(o.x)&&Number.isFinite(o.y)){const d=D(P.x,P.y,o.x,o.y);if(d<1400){try{sfx.sigil(1)}catch(_){}shake=Math.max(shake,d<500?2:1);if(T-BELLH>4){BELLH=T;const dir=['east','south-east','south','south-west','west','north-west','north','north-east'][Math.round(Math.atan2(o.y-P.y,o.x-P.x)/(Math.PI/4)+8)%8];say('A bell tolls to the '+dir+'...',3)}}}_bh(o)}}
 function clSeal(e){e.sealed=1;P.ep=0;const ny=e.y<=61?-1:e.y>=WH-61?1:0,nx=ny?0:e.x<=61?-1:1,vx=e.x+nx*40,vy=e.y+ny*40,hz=!!ny,g=ground.getContext('2d');
  g.save();g.fillStyle='rgba(8,4,4,.9)';g.beginPath();g.arc(e.x,e.y,31,0,7);g.fill();g.beginPath();g.ellipse(vx,vy,hz?36:22,hz?22:36,0,0,7);g.fill();
  g.fillStyle='rgba(60,14,8,.7)';g.beginPath();g.ellipse(vx,vy,hz?24:14,hz?14:24,0,0,7);g.fill();
@@ -5100,7 +5322,7 @@ function clSeal(e){e.sealed=1;P.ep=0;const ny=e.y<=61?-1:e.y>=WH-61?1:0,nx=ny?0:
  for(let i=0;i<10;i++){g.fillStyle='rgba(255,'+((90+R(0,80))|0)+',30,.8)';g.fillRect(vx+R(-22,22),vy+R(-16,16),2,2)}
  g.restore();fires.push({x:vx,y:vy,r:24,t:1e9,tk:1e9,s:R(0,6)})}
 function clTick(){if(!P||P.dead||RD||P.tm===undefined)return;const el=RT0-P.tm;
- if(P.clT===undefined){const sd=blds[0]?blds[0].x*.53+blds[0].y:1;P.clT=RQ.get('event')=='collapse'?3:(evOk('collapse',43.1)?lp(170,Math.max(230,RT0-120),hs(sd+3.1)):1e9);P.clI=hs(sd+9.7)<.5?0:1}
+ if(P.clT===undefined){const sd=blds[0]?blds[0].x*.53+blds[0].y:1;P.clT=RQ.get('event')=='collapse'?3:(evOk('collapse',43.1)?lp(170,Math.max(230,RT0-120),hs(sd+3.1)):1e9);P.clI=(h=>h<.34?0:h<.67?1:2)(hs(sd+9.7))}
  if(P.clD||mpCli()||el<P.clT)return;const e=exts[P.clI]||exts[0];if(!e||exts.filter(x=>!x.sealed).length<2){P.clD=1;return}
  if(D(P.x,P.y,e.x,e.y)<70||P.ep>0||(mp.on&&Object.values(mp.rp).some(q=>q.hp>0&&D(q.x,q.y,e.x,e.y)<70))){P.clT=el+4;return}P.clD=1;clSeal(e);if(mp.on)mpSend({t:'ev',k:'cl',i:exts.indexOf(e)})}
 function clDraw(){if(P.dead)return;ctx.save();ctx.font='bold 9px monospace';for(const e of exts){if(!e.sealed)continue;const x=e.x-cam.x,y=e.y-cam.y;if(D(P.x,P.y,e.x,e.y)<190&&x>-60&&x<VW+60&&y>-60&&y<VH+60)tx(CLM[e.k]||'It burned.',x,y-34,'#ff8a6a','center')}ctx.restore();ctx.font='bold 10px monospace'}
@@ -5367,7 +5589,7 @@ const MUS=(()=>{let ac,mst,dly,nb,on=0,tm=null,nextB=0,nextH=0;const off=()=>{tr
   const s2=ac.createBufferSource();s2.buffer=nb;const f2=ac.createBiquadFilter();f2.type='bandpass';f2.frequency.value=4800;f2.Q.value=.5;const g2=ac.createGain();g2.gain.setValueAtTime(0,t0);g2.gain.linearRampToValueAtTime(.025,t0+.1);g2.gain.linearRampToValueAtTime(0,t0+.42);s2.connect(f2);f2.connect(g2);g2.connect(ac.destination);s2.start(t0,Math.random()*1.5);s2.stop(t0+.45)}
  return{start,click,tick,ruffle,cash}})();
 ['pointerdown','keydown'].forEach(ev=>addEventListener(ev,()=>{if(mode=='menu'){MUS.start();MUS.tick()}},true));
-addEventListener('click',e=>{if(mode!='menu')return;const t=e.target&&e.target.closest&&e.target.closest('#menu');if(!t)return;if(e.target.closest('button,.chalk,.tb,.fd,.paper,.it,[data-v],[data-l],[data-lo],[data-f],[data-k],[data-p],[data-s],[data-t],[data-w],[data-m],[data-lb],[data-xa],[data-bq],[data-y],[data-n],#go')){MUS.start();if(e.target.closest('[data-y]'))MUS.cash();else if(e.target.closest('[data-lo]'))MUS.ruffle();else MUS.click()}},true);
+addEventListener('click',e=>{if(mode!='menu')return;const t=e.target&&e.target.closest&&e.target.closest('#menu');if(!t)return;if(e.target.closest('button,.chalk,.tb,.fd,.paper,.it,[data-v],[data-l],[data-lo],[data-f],[data-k],[data-p],[data-s],[data-t],[data-w],[data-ct],[data-lb],[data-xa],[data-bq],[data-y],[data-n],#go')){MUS.start();if(e.target.closest('[data-y]'))MUS.cash();else if(e.target.closest('[data-lo]'))MUS.ruffle();else MUS.click()}},true);
 
 // tapping into the veil is on while Caps Lock is on
 let CAPS=false;['keydown','keyup','mousedown','mousemove'].forEach(ev=>addEventListener(ev,e=>{try{CAPS=!!e.getModifierState('CapsLock')}catch(_){}},true));
@@ -5436,6 +5658,17 @@ const pcSun=(x,y,r,a)=>{ctx.save();ctx.globalAlpha=a;const g=ctx.createRadialGra
 const CHEAT={god:0},CHBC=['moon','fog','rain','tithe','collapse','time','reaper'];
 const CHEATS={
  tome:['add a test contract tome (a hunter) to your stash and save (/tome [name])',a=>{const o=addContract({name:a.join(' ')||'Test Hunter',look:'plain',inj:INJ_KEYS[R(0,INJ_KEYS.length)|0]});if(o)SAVE();say(o?'A contract tome was added to your stash.':'No room in the stash for a contract tome.',4)}],
+ hunter:['spawn a hunter in distress 70-120px from you (/hunter [name], solo only). If the map hunter is already there and hurt he is moved next to you; if he is already your companion nothing happens',a=>{
+  if(mp.on&&mp.n>1){say('Solo only',2);return}
+  const bb=(M.find(m=>m.boss)||{}).bb;if(!bb){say('No map to put him in',2);return}
+  const h0=INJH;if(h0&&h0.hp>0&&h0.st!='hurt'){say(h0.name+' is already with you',3);return}
+  const be=bExt(bb);let x,y,t=0;
+  do{const an=R(0,6.28),r=R(70,120);x=P.x+Math.cos(an)*r;y=P.y+Math.sin(an)*r}while((x<60||y<60||x>WW-60||y>WH-60||hit(x,y,16)||(x>be.x-40&&x<be.x+be.w+40&&y>be.y-40&&y<be.y+be.h+40))&&t++<200);
+  if(t>200){say('No open ground found, try again',2);return}
+  let h=h0&&h0.hp>0&&h0.st=='hurt'?h0:null;
+  if(h){h.x=x;h.y=y;h.f=P.x>x?1:-1}
+  else{const r=injRoll(),nm=a.join(' ').replace(/\b\w/g,c=>c.toUpperCase()).slice(0,16);h={x,y,inj:r.inj,name:nm||r.name,look:r.look,f:P.x>x?1:-1,site:'open',st:'hurt',hp:50,mh:50,fl:0,cd:0,bub:null,be};INJH=h}
+  say(h.name+' lies injured nearby',3)}],
  peace:['kill every demon (the sun comes out)',()=>{M.forEach(m=>{if(m.hp>0)hurt(m,99999,R(0,6.28),'bomb')})}],
  kill:['kill all the small monsters, leave the archdemon',()=>{M.forEach(m=>{if(m.hp>0&&!m.boss&&!m.lesser)hurt(m,99999,R(0,6.28),'bomb')})}],
  heal:['full health and stamina',()=>{P.hp=100;P.st=100;P.exh=0}],
@@ -5705,7 +5938,7 @@ function padInvHop(dx,dy){const n=2+NTS;
  if(dy<0&&j==0){const e=cl(Math.round((GX+(i+.5)*GC-IBX-IBW/2)/IBS),0,n-1);mouse.x=IBX+e*IBS+IBW/2;mouse.y=IBY+25;return}
  i=cl(i+dx,0,3);j=cl(j+dy,0,3);mouse.x=GX+(i+.5)*GC;mouse.y=GY+(j+.5)*GC}
 // ---- menus and the hub stash (DOM): a pointer that sends the same pointer / mouse / click events a mouse would ----
-const PSEL='button,a[href],input,select,textarea,summary,label,[data-v],[data-inp],[data-a],[data-txt],[data-mcedit],[data-wset],[data-rumble],[data-ik],[onclick],.chalk,.tt-btn,.it,[role=button]';
+const PSEL='button,a[href],input,select,textarea,summary,label,[data-v],[data-inp],[data-a],[data-txt],[data-mcedit],[data-wset],[data-rumble],[data-ik],[onclick],.chalk,[data-ct],.tt-btn,.it,[role=button]';
 {const st=document.createElement('style');st.textContent='.padfoc{outline:3px solid #ffd27a!important;outline-offset:2px!important}';document.head.appendChild(st)}
 function padTarget(el){for(let e=el;e&&e!==document.body&&e.nodeType==1;e=e.parentElement){if(e.id=='padcur')return null;if(e.matches(PSEL))return e;try{const c=getComputedStyle(e).cursor;if(c=='pointer'||c=='grab')return e}catch(_){}}return null}
 function padCands(){const out=[],set=new Set(),vw=innerWidth,vh=innerHeight;
@@ -5841,7 +6074,7 @@ const loreSeenQ=()=>{try{return localStorage.getItem('bh_loreseen')=='1'}catch(e
 function loreCinePlay(after){loreCine(()=>{tutMark('bh_loreseen');if(after)after()})}
 TT_ITEMS.splice(2,0,{get l(){return loreSeenQ()?'Learn the Lore \u2713':'Learn the Lore'},v:'lorecine'});
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('.tt-btn[data-v=lorecine]');if(b){e.stopPropagation();e.preventDefault();loreCinePlay()}},true);
-const TXH=/^(Sigils \d|Hunt |Banish the|Reach extraction|Grab the dropped|PEACE|Ledger|THE REAPER|TIME IS UP|\d+:\d\d$)/;
+const TXH=/^(Sigils \d|Hunt |Banish the|Reach extraction|Grab the dropped|PEACE|Ledger|Quest|THE REAPER|TIME IS UP|\d+:\d\d$)/;
 {const _tx=tx;tx=function(s){if(TUTR&&typeof s=='string'&&TXH.test(s))return;return _tx.apply(this,arguments)}}
 const tMob=()=>INPUT=='mobile';
 const tBtn=(a,fb)=>{for(const id of MC_SMALL)if(MCFG.a[id]==a&&MACT[a])return 'the '+MACT[a].l+' button';return fb};
@@ -6060,12 +6293,12 @@ TLESS.push(
 const MTOUR=[
  {s:'#menu .nmbox',t:'Hunter Name',d:'Tap this to set the name other hunters see above your head in the breach. You can also set a recovery password here so you can get your hunter back on another device.'},
  {s:'#menu .risk',t:'Risk & Reward',d:'Read this before every hunt. Entry cost is paid up front. If you die you lose that cost plus everything you carried in. If you escape alive you are paid a bounty, and the range depends on the archdemon.'},
- {s:'#menu .foot',t:'Cash & Ledger',d:'Your cash is shown at the bottom, along with the Ledger you are working on. Cash buys guns, tools and ammo, and pays for your loadout each run.'},
+ {s:'#menu .foot',t:'Cash & Quests',d:'Your cash is shown at the bottom, along with how many quests you are carrying. Cash buys guns, tools and ammo, and pays for your loadout each run.'},
  {s:'#menu .fbar',t:'Match Against',d:'When you go online you can be matched with other hunters. These boxes choose which team sizes you accept: Solos, Duos or Trios. If you play in a team, the host chooses for everyone.'},
  {s:'#go',t:'Enter the Breach',d:'This starts a real hunt with your current loadout. It is greyed out if you cannot afford the loadout. Teams ready up first, then the host presses it for everyone.'},
  {s:'#menu [data-v=sk]',t:'Skins',d:'Change how your hunter, your weapons and your tools look. Skins you earn or unlock show up here.'},
  {s:'#menu [data-v=stash]',t:'Stash & Gunsmith',d:'This is your gear. Drag weapons and tools into the Primary, Sidearm and Tool slots, and fill the backpack. Everything you equip is at risk when you enter. Sell items for half their shop price, and use the Gunsmith button inside to buy weapons, tools and extra ammo.'},
- {s:'#menu [data-v=missions]',t:'Ledgers',d:'Story challenges with a list of tasks, such as clearing imps or getting melee kills. Finish tasks for bonus cash, and complete a whole Ledger to earn its reward skin.'},
+ {s:'#menu [data-v=missions]',t:'Quests',d:'Contacts who give you tasks, such as clearing imps or getting melee kills. Finish tasks for bonus cash, and complete all of a contact\'s quests to earn their reward skin.'},
  {s:'#menu [data-v=ach]',t:'Achievements',d:'Feats you can earn over many hunts. Each one has Bronze, Silver and Gold tiers, and this tab shows how many tiers you have earned.'},
  {s:'#menu [data-v=lore]',t:'Lore',d:'The story of the breach and a field guide to what lives in it. Tabs cover the world, the horde, archdemons, hunters, lesser demons, weapons, totems and tools. You can also read or play the Chronicle here.'},
  {s:'#menu [data-v=lb]',t:'Leaderboard',d:'The top 10 hunters on each board: escapes, archdemons slain, bounty carried out, horde kills, banished corpses and more. Use the tabs on the board to switch between them.'},
@@ -6102,12 +6335,12 @@ function menuTourStart(list,label){
  show()}
 {const _tf=tutFinish;tutFinish=function(how){const was=!!TUTR;_tf.apply(this,arguments);if(how=='done'&&was){scr='hub';menu('');setTimeout(menuTourStart,50)}}}
 
-// ---------- FIRST-VISIT TAB GUIDES: the first time you open Skins, Stash & Gunsmith, Ledgers, Achievements, Lore or Leaderboard, a short spotlight guide explains that screen ----------
+// ---------- FIRST-VISIT TAB GUIDES: the first time you open Skins, Stash & Gunsmith, Quests, Achievements, Lore or Leaderboard, a short spotlight guide explains that screen ----------
 // Reuses the menu tour player. Each guide shows once per device (localStorage bh_gd_<screen>); a step with no selector is a centred card. Steps whose element is missing are skipped.
 const GUIDES={
  sk:{l:'SKINS GUIDE',steps:[
   {t:'Skins',d:'This is your wardrobe. Pick a category to change how your hunter, your weapons or your tools look.'},
-  {s:'#menu [data-v=l_skin]',t:'Hunter Skins',d:'Choose your hunter. Locked skins show their price, or how they are earned, such as a Ledger reward.'},
+  {s:'#menu [data-v=l_skin]',t:'Hunter Skins',d:'Choose your hunter. Locked skins show their price, or how they are earned, such as a contact reward.'},
   {s:'#menu [data-v=sk_w]',t:'Weapon Skins',d:'Give a gun its own look. Pick a weapon, then choose one of its skins.'},
   {s:'#menu [data-v=sk_t]',t:'Tool Skins',d:'The same for tools like holy water, grenades and flares.'},
   {s:'#menu [data-v=sk_sets]',t:'Skin Sets',d:'Full collections. Buying the whole set gets you 10% off.'}]},
@@ -6122,11 +6355,11 @@ const GUIDES={
   {s:'#menu .sttabs',t:'Stash Tabs',d:'Tab 1 is free. The numbered tabs with a lock can be bought for extra storage.'},
   {s:'#menu [data-so]',t:'Auto-sort',d:'Tidies the stash into neat rows in one tap.'},
   {s:'#menu .foot [data-v=shop]',t:'Gunsmith',d:'The shop. Buy primary weapons, sidearms and tools, and top up your ammo before a hunt.'}]},
- missions:{l:'LEDGERS GUIDE',steps:[
-  {t:'Ledgers',d:'Ledgers are story challenges. Each one is a chain of tasks that pays cash and ends with a reward skin.'},
-  {s:'#menu .cols > .col:first-child',t:'Your Ledgers',d:'Tap a Ledger to read it and make it your active one. Progress counts toward the active Ledger only.'},
-  {s:'#menu .cols > .col:nth-child(2)',t:'The Tasks',d:'Tasks unlock one at a time. A finished task is ticked, the current one is marked with an arrow, and later ones stay hidden until you reach them.'},
-  {s:'#menu .cols .paper.on',t:'Banking Progress',d:'Progress is banked when you extract alive. If you die, that run\'s progress is lost.'}]},
+ missions:{l:'QUESTS GUIDE',steps:[
+  {t:'Quests',d:'Contacts give you quests. Each contact has a chain of tasks that pays cash and ends with a reward skin.'},
+  {s:'#menu .ctgrid',t:'Your Contacts',d:'Tap a portrait to open that contact. A gold ! means they have a quest open for you. Finish all of their quests to earn their reward skin.'},
+  {s:'#menu .ctile',t:'Accepting Quests',d:'Open a contact and press Accept on the quest that is open. You can carry 3 quests at once, and only accepted quests count in a run. Abandon one to make room. The quests you carry show on the screen during a hunt.'},
+  {s:'#menu .ctile',t:'Banking Progress',d:'Progress is banked when you extract alive. If you die, that run\'s progress is lost.'}]},
  ach:{l:'ACHIEVEMENTS GUIDE',steps:[
   {t:'Achievements',d:'Long-term feats that build up over many hunts. Each has three tiers: Bronze, Silver and Gold.'},
   {s:'#menu .achg .ach',t:'Reading a Card',d:'The stars show the tiers you have earned. The bar fills toward your next tier, and the line under it lists every tier target.'},
@@ -6690,7 +6923,7 @@ function weaponTick(dt){const w=P.cur<2?P.w[P.cur]:null;P.gj=Math.max(0,(P.gj||0
   P.w=[PRI.repeater,SID.pistol];P.mag=[PRI.repeater.m,SID.pistol.m];P.res=[PRI.repeater.m*k,SID.pistol.m*k];P.bag=[];P.cur=0;
   try{P.wsk=[skv('repeater',''),skv('pistol','')]}catch(e){}
   P.ts=[{k:'tonic',n:lean?1:2},null,null,null,null,null];tsBind(P);P.carry=0;
-  mis={t:'none',n:0,p:0,b:0,done:0,fail:0,bo:0};
+  mis={t:'none',n:0,p:0,b:0,done:0,fail:0,bo:0};MQ=[];
   A.active=true;
   say('Daily Challenge \u2014 '+cur.mod.n+': '+cur.mod.d,6)};
  /* ---- isolation: a daily run never touches stash, cash, loadout, ledgers, achievements or the online leaderboard ---- */
@@ -6866,7 +7099,7 @@ function bdxFx(x,y){const B=BDX;if(!B)return;const t=B.t,k=B.k,c=BDC[k];ctx.save
 // Kill a hunter and the gate locks for good: the Order sends waves of ten raiders (speech bubbles and all), a new ten each time the last ten fall, until you die.
 // The exit ring takes 3 seconds (EXDF below). Tunables: TG_GUNS (raider weapons), TG_WAVE (raiders in wave 1; every wave adds 1 and the new one arrives from a different side), TG_SCALE (health growth per wave).
 let TGR=null;
-const TG_CAGES=10,EXDF=()=>TGR?3:EXD;   // EXDF: exit time in seconds (3 in the Training Grounds, EXD everywhere else)
+const TG_CAGES=10,EXDF=()=>TGR?3:(P&&P.xk==2?EXD*.5:EXD);   // EXDF: exit time in seconds (3 in the Training Grounds, EXD everywhere else; the Bell Tower (P.xk==2, the exit you last stood in) takes half of EXD)
 const TG_W={x0:170,x1:1330,y0:150,y1:1300},TG_CY=262,TG_LANE=312,TG_GATE={x:170,y:640},TG_EXIT={x:262,y:640},TG_ROW0=420,TG_PITCH=100,TG_WAVE=5,TG_SCALE=.06;
 const TG_SKINS=['plain','penitent','ashen','gravedigger','knight','wolf','inq'];
 const TG_GUNS={pistol:{d:7,r:1.1,sp:.1,v:250,rng:200,n:1},repeater:{d:6,r:.75,sp:.09,v:280,rng:230,n:1},revolver:{d:10,r:1.15,sp:.08,v:270,rng:220,n:1},rifle:{d:13,r:1.8,sp:.03,v:360,rng:330,n:1},shotgun:{d:4,r:1.9,sp:.2,v:240,rng:130,n:5},musket:{d:18,r:2.5,sp:.04,v:330,rng:290,n:1}};
@@ -6883,7 +7116,7 @@ const tgPool=()=>tgPool.c||(tgPool.c=Object.keys(PRI).filter(k=>k!='none'&&!PRI[
  if(!hit(e.x+a,e.y,r)&&!cb(e.x+a,e.y))e.x+=a;if(!hit(e.x,e.y+b,r)&&!cb(e.x,e.y+b))e.y+=b;e.x=cl(e.x,r,WW-r);e.y=cl(e.y,r,WH-r)}}
 {const _ma=mobAI;mobAI=function(m,a,d,v,dt){if(TGR&&(m.ty==='hunter'||tgFrozen(m)))return;return _ma.apply(this,arguments)}}   // caged / towed imps and all hunters are driven by tgTick
 {const _g=gore;gore=function(m,a,d,src,pal){if(m&&m.ty==='hunter'&&!pal){try{pal=palFor(m.sk)}catch(e){}}return _g.call(this,m,a,d,src,pal)}}
-{const _p=prog;prog=function(){if(TGR)return;return _p.apply(this,arguments)}}
+{const _p=prog;prog=function(m,dd,src,dead){if(TGR){for(const q of MQ)progQ(q,m,dd,src,dead);return}return _p.apply(this,arguments)}}   // Training Grounds: only the accepted 'Training Grounds kills' quests (tgk) are in MQ here
 {const _l=lk;lk=function(){if(TGR)return;return _l.apply(this,arguments)}}   // kills in here never unlock lore or count for ledgers
 {const _tw=takeW;takeW=function(it){if(!TGR||it.rk===undefined)return _tw(it);const s=it.s,w=(s?SID:PRI)[it.k];keys.KeyE=0;P.w[s]=w;try{setPS(s,skv(it.k,it.sk))}catch(e){}P.mag[s]=w.m;P.res[s]=w.m*2;P.rl=0;P.cur=s;it.got=1}}   // a normal load (same as a real pickup); racks refill, ammo does not   // rack weapons swap straight into your hands
 {const _dm=drawM;drawM=function(m,cx,cy){if(m.ty==='hunter')return tgDrawHunter(m,cx,cy);_dm(m,cx,cy);if(TGR&&m.ty==='imp'&&m.hp>0&&(m.tw||m.bd))tgRope(m,cx,cy)}}
@@ -7094,7 +7327,7 @@ function tgStart(){
  gorW=nyxW=morW=0;GFS=[];GGR=[];GHP=[];NSN=[];NWF=[];MGR=[];MBL=null;MCH=null;MBD=[];morBt=0;
  const bm=M.find(m=>m.boss);bm.bb={x:2130,y:40,w:50,h:50};bm.x=bm.hx=2155;bm.y=bm.hy=65;M=[bm];   // the sealed boss is parked in a far corner, outside the fence
  walls=[];blds=[];trees=[];scn=[];clues=[];items=[];seals=[];bul=[];eb=[];bombs=[];lobs=[];fires=[];flares=[];parts=[];traps=[];gibs=[];drops=[];spurts=[];found=0;bossOpen=0;corpse=null;banished=0;bty=null;bn=null;
- mis={t:'none',done:0,fail:0};camp={x:TG_EXIT.x,y:TG_EXIT.y};exts=[{x:TG_EXIT.x,y:TG_EXIT.y,lx:TG_EXIT.x,ly:TG_EXIT.y,k:0,n:'Training Gate',sealed:0}];
+ MQ=ctRunQuests(1);mis=MQ[0]||{t:'none',done:0,fail:0};camp={x:TG_EXIT.x,y:TG_EXIT.y};exts=[{x:TG_EXIT.x,y:TG_EXIT.y,lx:TG_EXIT.x,ly:TG_EXIT.y,k:0,n:'Training Gate',sealed:0}];
  const lay=tgLayout();TG_W.y1=Math.min(WH-40,Math.max(780,lay.bottom+70));
  const G=TGR={t:0,cages:[],lamps:[],rack:[],hb:[],war:0,wave:0,sq:0,sqt:0,nw:null,gate:0,alive:0};
  const lp=(x,y,r,al,k)=>G.lamps.push({x,y,r,al,k,ph:R(0,6.28)});
@@ -7110,9 +7343,9 @@ function tgStart(){
  P.x=300;P.y=TG_GATE.y;P.tm=1e9;tutCalm();msg='';msgT=0;invOpen=0;showMap=0;
  say('Grab weapons from the racks (E) and test them on the caged imps.',7)}
 function tgFinish(how){
- if(!TGR)return;const wave=TGR.wave;TGR=null;PC.on=0;PC.t=0;try{sfx.stop()}catch(e){}
+ if(!TGR)return;const wave=TGR.wave;let qm='';if(how=='exit'){try{qm=ledgerCommit();SAVE()}catch(e){}}MQ=[];TGR=null;PC.on=0;PC.t=0;try{sfx.stop()}catch(e){}
  mode='menu';scr='stash';invOpen=0;showMap=0;keys={};mouse.l=mouse.r=0;msg='';msgT=0;
- note=how=='exit'?'You left the Training Grounds.':'You fell in the Training Grounds'+(wave?' (wave '+wave+')':'')+'. Nothing was lost.';menu()}
+ note=how=='exit'?'You left the Training Grounds.':'You fell in the Training Grounds'+(wave?' (wave '+wave+')':'')+'. Nothing was lost.';if(qm)note+=' '+qm;menu()}
 
 function tgDrawHunter(m,cx,cy){const x=m.x-cx,y=m.y-cy;if(x<-30||x>VW+30||y<-44||y>VH+44)return;
  const o=sel.skin;sel.skin=SKINS[m.sk]?m.sk:'plain';try{warden(x,y,m.a||0,m.fl>0?1:0,m.wk||0,m.gun||'fists',0,null,0,'','')}finally{sel.skin=o}
