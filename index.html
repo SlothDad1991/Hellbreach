@@ -2359,7 +2359,7 @@ function injSay(h,kind){const L=(INJ[h.inj].say[kind]||[]).concat(kind=='follow'
  const w=[];let line='';for(const q of s.split(' ')){if(line&&(line+' '+q).length>24){w.push(line);line=q}else line=line?line+' '+q:q}if(line)w.push(line);h.bub={l:w,t:0,d:2.6+s.length*.045}}
 function injTick(dt){const h=INJH;if(!h||mode!='play'||typeof P==='undefined'||!P)return;h.fl=Math.max(0,(h.fl||0)-dt);if(h.ta>0)h.ta-=dt;if(h.tpc>0)h.tpc-=dt;if(h.hp<=0){h.bub=null;return}
  INJL=mpCli()?null:injLead(h);if(INJL&&h.ld!==INJL.id){h.ld=INJL.id;h.px=undefined}
- if(h.st=='follow'){injFollow(h,dt);injTarget(h,dt);injGun(h,dt);injHeal(h,dt);if(mpCli())injSmooth(h,dt)}
+ if(h.st=='follow'){injFollow(h,dt);try{injSep(h,dt)}catch(e){}injTarget(h,dt);injGun(h,dt);injHeal(h,dt);if(mpCli())injSmooth(h,dt)}
  const ke=!!keys.KeyE,pr=ke&&!h.pe;h.pe=ke;if(h.st=='hurt'&&!P.dead){const dd=D(P.x,P.y,h.x,h.y);if(dd<44){if(!h.hint){h.hint=1;say(TC('tonic')>0?'Press E to give '+h.name+' Holy Water':h.name+' needs Holy Water',3)}if(pr)injTry()}else if(dd>90)h.hint=0}
  if(h.bub&&(h.bub.t+=dt)>=h.bub.d)h.bub=null;h.cd=(h.cd||0)-dt;if(h.st=='follow'&&INJL&&!INJL.dead&&!mpCli()&&!h.bub&&h.cd<=0){injSay(h,'follow');h.cd=R(20,40)}   // 7a5: now and then, 20-40s apart, never over another bubble
  if(h.st=='hurt'&&!h.bub&&h.cd<=0&&!P.dead&&D(P.x,P.y,h.x,h.y)<150){injSay(h,'plea');h.cd=9}}
@@ -2371,6 +2371,11 @@ function injTick(dt){const h=INJH;if(!h||mode!='play'||typeof P==='undefined'||!
 // injGo() goes straight at you when the way is clear; when blocked it commits to one side (h.sd = +1/-1, the side with the smaller turn) and wall-follows by sweeping the heading in 20-degree steps from that side until the line of sight to you is clear, then goes straight again.
 // h.fol = seconds he has been wall-following (step 7a4 uses it, with a no-progress check, to teleport him out of a loop). No recovery when stuck yet (7a4). Only solo and the monster host move him; clients keep him where he is until step 7d syncs him.
 const injBlk=(h,x,y)=>hit(x,y,4)||(!bossOpen&&h.be&&x>h.be.x-8&&x<h.be.x+h.be.w+8&&y>h.be.y-8&&y<h.be.y+h.be.h+8);
+// HUNTER COLLISION: followers no longer stack. Each living follower is pushed out of any other living follower closer than INJ_SEP px (the push is shared, walls and trees are respected).
+const INJ_SEP=13;
+function injSep(h,dt){if(mpCli()||!(h.hp>0)||h.st!='follow')return;for(const q of injAll()){if(q===h||q.st!='follow'||!(q.hp>0))continue;let dx=h.x-q.x,dy=h.y-q.y,d=Math.hypot(dx,dy);if(d>=INJ_SEP)continue;if(d<.01){const a=((h.id?String(h.id).length:0)+(h.x*7%6.28));dx=Math.cos(a);dy=Math.sin(a);d=1}const push=Math.min(INJ_SEP-d,60*dt+1)/2,nx=dx/d*push,ny=dy/d*push;
+  if(!injBlk(h,h.x+nx,h.y+ny)){h.x=cl(h.x+nx,4,WW-4);h.y=cl(h.y+ny,4,WH-4)}
+  if(!injBlk(q,q.x-nx,q.y-ny)){q.x=cl(q.x-nx,4,WW-4);q.y=cl(q.y-ny,4,WH-4)}}}
 function injGo(h,dx,dy,st,dt,tx,ty){const a0=Math.atan2(dy,dx),S=.35,ok=a=>{const c=Math.cos(a),s=Math.sin(a);return !injBlk(h,h.x+c*st,h.y+s*st)&&!injBlk(h,h.x+c*(st+5),h.y+s*(st+5))},clear=los(h.x,h.y,tx===undefined?P.x:tx,ty===undefined?P.y:ty);
  if(clear||!h.sd){if(ok(a0)){h.sd=0;h.fol=0;return go(a0)}if(!h.sd){let kl=99,kr=99;for(let k=1;k<=9;k++){if(kl==99&&ok(a0-k*S))kl=k;if(kr==99&&ok(a0+k*S))kr=k}if(kl==99&&kr==99)return false;h.sd=kr<=kl?1:-1;h.fol=0}}
  if(clear&&h.sd&&ok(a0)){h.sd=0;h.fol=0;return go(a0)}
@@ -2438,9 +2443,11 @@ function injGun(h,dt){if(mpCli()||h.hp<=0||h.dr>0)return;if(!h.gun)h.gun='pistol
  if(h.rl>0){h.rl-=dt;if(h.rl<=0){h.rl=0;h.mag=w.m}}
  // 7b4: a monster within 30px gets punched instead of shot (also while reloading)
  let nm=null,nd=30;for(const m of M){if(!(m.hp>0)||m.capShim||!(m.lesser||m.ty=='imp'))continue;const d=D(m.x,m.y,h.x,h.y);if(d<nd){nd=d;nm=m}}
- if(nm){const a=Math.atan2(nm.y-h.y,nm.x-h.x);h.tg=nm;h.aa=a;h.pa=a;if(Math.abs(nm.x-h.x)>2)h.f=nm.x>h.x?1:-1;
+ const gunOk=h.rl<=0&&h.mag>0&&h.gcd<=0&&!(w.mo||w.dr||w.gt||w.ml||!w.d);   // a loaded gun is fired even at point blank; fists only when it cannot fire right now
+ if(nm&&!gunOk){const a=Math.atan2(nm.y-h.y,nm.x-h.x);h.tg=nm;h.aa=a;h.pa=a;if(Math.abs(nm.x-h.x)>2)h.f=nm.x>h.x?1:-1;
   if(!(h.pcd>0)){h.pcd=INJ_PGAP;h.sa=.18;h.pn=(h.pn||0)+1;INJCR=1;try{hurt(nm,INJ_PDMG,a,'melee')}finally{INJCR=0}mv(nm,Math.cos(a)*6,Math.sin(a)*6,6);if(T-(h.snd||0)>.09){h.snd=T;try{sfx.melee()}catch(e){}}}
   return}
+ if(nm&&gunOk){h.tg=nm;h.aa=Math.atan2(nm.y-h.y,nm.x-h.x);if(Math.abs(nm.x-h.x)>2)h.f=nm.x>h.x?1:-1}
  if(h.rl>0)return;
  if(h.mag<=0){h.rl=w.rl;return}
  if(w.mo||w.dr||w.gt||w.ml||!w.d||h.gcd>0)return;
@@ -2481,9 +2488,9 @@ function injHeal(h,dt){if(mpCli()||!INJL||INJL.dead||h.hp<=0)return;const k=h.ki
  if(h.hp<h.mh*INJ_LOW&&k.tonic>0&&h.dc<=0&&!M.some(m=>m.hp>0&&!m.capShim&&D(m.x,m.y,h.x,h.y)<40))h.dr=INJ_DRT}
 function injDrink(h){const u=Math.min(1,(1-h.dr/INJ_DRT)*2.4),r=-.25-u*1.32;ctx.save();ctx.translate(6-u*.6,-6.5-u*1.5);ctx.rotate(r);ctx.fillStyle='#7ac8ff';ctx.fillRect(-1.5,-2,3,5);ctx.fillStyle='#d8f0ff';ctx.fillRect(-1.5,-2,1,5);ctx.fillStyle='#8a5a2a';ctx.fillRect(-1,-4,2,2);ctx.restore()}
 {const _t=mpTgt;mpTgt=function(m){const b=_t.apply(this,arguments),h=injNear(m);if(!h||mpCli()||m.boss||m.st!='chase')return b;
-  const dp=D(m.x,m.y,b.x,b.y),dh=D(m.x,m.y,h.x,h.y);if(dp<45){m.ij=0;return b}
-  if(!(T<(m.ir||0))){m.ir=T+1.5+Math.random();m.ij=dh<140&&dh<dp-10&&Math.random()<.4?T+2.5:0}
-  if(m.ij>T&&dh<200){h.dead=false;return h}return b}}
+  const dp=D(m.x,m.y,b.x,b.y),dh=D(m.x,m.y,h.x,h.y);if(dp<28&&!(m.ij>T)){m.ij=0;return b}   // companions draw aggro: anything closer to a hunter than to you, or being shot by a hunter, goes for him
+  if(!(T<(m.ir||0))){m.ir=T+.8+Math.random()*.6;const shot=m.ic&&dh<280,near=dh<230&&dh<dp+25;m.ij=(shot||near)&&Math.random()<(shot?.85:.7)?T+3.5:0}
+  if(m.ij>T&&dh<300){h.dead=false;return h}return b}}
 {const _h=hurtTG;hurtTG=function(d){const h=injAll().find(q=>q===TG);if(h){injOn(h,()=>injHit(d,MCUR?Math.atan2(h.y-MCUR.y,h.x-MCUR.x):0,'mob'));return}return _h.apply(this,arguments)}}
 {const _i=injHit;injHit=function(d,a,src){const h=INJH,b=h?h.hp:0,r=_i.apply(this,arguments);try{if(h&&h.hp>0&&h.hp<b&&src=='mob'&&h.hp<h.mh*.7)injUrg(h,'hurt',12)}catch(e){}return r}}
 {const _r=rdStart;rdStart=function(){const r=_r.apply(this,arguments);try{injEach(()=>{const h=INJH;if(h&&h.hp>0&&h.st=='follow')injHit(999,0,'reaper')})}catch(e){}return r}}
