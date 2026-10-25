@@ -79,6 +79,7 @@ body.rt h1,body.rt h2.lt,body.rt .tt-name,body.rt button.tt-btn,body.rt .risk h3
 .ctw{display:flex;gap:8px;margin:6px 0;flex-wrap:wrap}.ctl{position:relative;width:100px;height:62px;border:2px dashed #e8e6d844;border-radius:4px;background:#140a0cc0;box-sizing:border-box}
 .ctl.has{border-style:solid;border-color:#c8a050aa;cursor:pointer}.ctl.has:hover{border-color:#ff7060}.ctl>span{position:absolute;left:4px;top:0;font-size:14px;opacity:.7}
 .ctl i{position:absolute;left:4px;right:4px;top:14px;bottom:2px}.ctl em{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:center;font-size:15px;opacity:.45;padding-bottom:5px;font-style:normal}.ctl b{position:absolute;right:3px;bottom:0;font-size:15px}
+.ibox .ibl{flex:none;width:128px;display:flex;flex-direction:column;gap:8px}.ibox .ibh{width:126px;height:144px;border:1px solid #e8e6d822;border-radius:4px;background:radial-gradient(ellipse at 50% 78%,#4a2418aa,transparent 68%),#140a0cc0;overflow:hidden}
 .hl{position:fixed;pointer-events:none;background:#40ff6040;border:1px solid #60ff80}.hl.no{background:#ff304040;border-color:#ff5060}
 .slate{position:relative;margin-top:8px;border:12px solid #5a3a22;border-radius:4px;background:radial-gradient(ellipse at 25% 10%,#2f3f39,#17211d 75%);box-shadow:inset 0 0 70px #000,0 6px 20px #000;padding:10px 16px 22px;min-height:360px}
 .slate::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:0;background:repeating-linear-gradient(115deg,#ffffff06 0 3px,transparent 3px 40px)}
@@ -836,7 +837,15 @@ function ctrCard(){const o=refObj();if(!o||!o.h)return'';const h=o.h,g=h.g,E=x=>
  const tile=(w,lab,k,n,sub)=>'<div class="ctl'+(k?' has':'')+'" data-cg='+w+(k?' title="Click to take it back"':'')+'><span>'+lab+'</span>'+(k?'<i data-ck='+k+'></i>':'<em>'+sub+'</em>')+(n>1?'<b>x'+n+'</b>':'')+'</div>';
  const inBox=sel.tomes.includes(o);
  return '<p><b>'+E(h.nm)+'</b><br>'+E(h.story)+'</p><div class=ctw>'+tile('p','Primary',p,1,'none')+tile('s','Sidearm',sd,1,'his pistol')+tile('t','Holy Water',tn?'tonic':'',tn,'none')+'</div><div class=ibn>'+(inBox?E(h.nm)+' is in your party. ':'Put this tome in the tome box beside your backpack and '+E(h.nm)+' joins your party. ')+'Drag a weapon or Holy Water onto the tome to arm him. Click his gear to take it back.</div>'}
-function ctrCardInit(b){const o=refObj();if(!o||!o.h)return;const g=o.h.g;b.querySelectorAll('.ctl').forEach(el=>{const w=el.dataset.cg,i=el.querySelector('i');if(!i)return;const k=i.dataset.ck,sk=w=='p'?g.ps:w=='s'?g.ss:'';i.appendChild(itemCv(k,192,96,sk));el.onclick=ev=>{ev.stopPropagation();ctrTakeBack(o,w)}})}
+// Hunter preview for the contract info card: the real warden() art at game size on a tiny canvas, scaled up 3x with pixelated CSS (same look as in the match).
+// He stands with the gun he fires in his hand (primary, else sidearm, else his pistol) and, when he has both a primary and a sidearm, the sidearm holstered on his hip. His skin is his tome's look.
+function ctrHunterCv(h){const IW=42,IH=48,c=document.createElement('canvas');c.width=IW;c.height=IH;c.style.cssText='width:100%;height:100%;image-rendering:pixelated;pointer-events:none';
+ const g=h.g||{},p=PRI[g.p]&&g.p!='none'?g.p:'',sd=SID[g.s]&&g.s!='none'?g.s:'',gun=ctrGun(g),gsk=gun==p?g.ps:gun==sd?g.ss:'',hol=p&&sd?sd:null,hsk=hol?g.ss:'';
+ const[l,cx]=SPX[gun]||[10,3],q=PRI[gun]?.75:1,right=6+(l-cx)*q,ox=Math.round((IW-(9+right))/2+9),oy=31,o=ctx,sk=sel.skin;
+ ctx=c.getContext('2d');
+ try{sel.skin=SKINS[h.look]?h.look:'plain';warden(ox,oy,0,0,0,gun,0,hol,0,gsk||'',hsk||'')}catch(e){}finally{sel.skin=sk;ctx=o}
+ return c}
+function ctrCardInit(b){const o=refObj();if(!o||!o.h)return;const g=o.h.g;{const hb=b.querySelector('.ibh');if(hb)hb.appendChild(ctrHunterCv(o.h))}b.querySelectorAll('.ctl').forEach(el=>{const w=el.dataset.cg,i=el.querySelector('i');if(!i)return;const k=i.dataset.ck,sk=w=='p'?g.ps:w=='s'?g.ss:'';i.appendChild(itemCv(k,192,96,sk));el.onclick=ev=>{ev.stopPropagation();ctrTakeBack(o,w)}})}
 
 // ctrExtract(): called by end(w) on an ESCAPE only. You get his tome when he is alive and contracted (st 'follow') AND you are the hunter who gave him the Holy Water (h.by===mp.me; in solo both are the same); however far away he is. Once per hunter (h.tm).
 function ctrExtract(){try{const h=INJH;ctrFlush();if(!h||h.tm||!(h.hp>0)||h.st!='follow'||h.by!==mp.me)return '';h.tm=1;
@@ -2873,7 +2882,7 @@ function pickInfo(k,el,ref){selInfo=k;selRef=ref||null;skOpen=0;document.querySe
 function renderInfo(){const b=document.getElementById('ib');if(!b)return;const d=selInfo&&itemDef(selInfo);
  if(!d){b.innerHTML='<div class=ibe>Click a weapon or item to inspect it.</div>';return}
  const k=selInfo,wp=!TOOL[k];
- b.innerHTML='<div class=ibi></div><div class=ibt><h3>'+d.n+(k=='contract'?(()=>{const co=refObj();return co&&co.h?' \u2014 '+co.h.nm:''})():'')+'</h3><div class=ibk>'+itemType(k)+' \u00b7 '+(d.nb?'not sold in shops':d.c?'shop price $'+d.c:'free in the shop')+(k=='contract'?' \u00b7 cannot be sold':' \u00b7 sells for $'+(d.tot?d.c:Math.floor(d.c/2)))+'</div>'+(wp?st(d)+wNotes(d).map(x=>'<div class=ibn>'+x+'</div>').join(''):'<p>'+d.d+'</p>'+(k=='contract'?ctrCard():''))+'</div>';
+ b.innerHTML='<div class=ibl><div class=ibi></div>'+(k=='contract'?'<div class=ibh></div>':'')+'</div><div class=ibt><h3>'+d.n+(k=='contract'?(()=>{const co=refObj();return co&&co.h?' \u2014 '+co.h.nm:''})():'')+'</h3><div class=ibk>'+itemType(k)+' \u00b7 '+(d.nb?'not sold in shops':d.c?'shop price $'+d.c:'free in the shop')+(k=='contract'?' \u00b7 cannot be sold':' \u00b7 sells for $'+(d.tot?d.c:Math.floor(d.c/2)))+'</div>'+(wp?st(d)+wNotes(d).map(x=>'<div class=ibn>'+x+'</div>').join(''):'<p>'+d.d+'</p>'+(k=='contract'?ctrCard():''))+'</div>';
  const ro=k=='impcap'||k=='contract'?null:refObj(),cur=ro?(wp?skv(k,ro.sk):skv(k,TSK[k])):'';b.querySelector('.ibi').appendChild(itemCv(k,256,192,cur));if(k=='contract')ctrCardInit(b);
  if(ro){const t=b.querySelector('.ibt'),row=document.createElement('div'),sl=WSK[k]||[];row.className='ibs';
   if(!sl.length)row.innerHTML='<span class=ibn>No skins exist for this '+(wp?'weapon':'tool')+' yet.</span>';
@@ -7095,6 +7104,8 @@ function bdxFx(x,y){const B=BDX;if(!B)return;const t=B.t,k=B.k,c=BDC[k];ctx.save
  if(!BDX){const b=M[0]&&M[0].boss?M[0]:M.find(m=>m.boss);if(b&&b.hp<=0)bdxStart(b)}
  if(BDX)bdxStep(dt)}}
 // ---------- TRAINING GROUNDS: Stash > Training Grounds (next to the Gunsmith). A solo sandbox, nothing is saved and your gear is never touched. ----------
+// HUNTER TOMES: tomes in your tome box / backpack come in with you as companions (the normal ctrBring in newGame). Nothing can burn a tome in here: when you leave or die every tome goes straight back (tgReturnTomes),
+// whether his hunter lived or not. Once the room turns hostile, your companions shoot the raiders (tgFoe-free targeting in the injTarget wrapper) and the raiders shoot your companions too (tgFoe + tgHitC).
 // Every weapon and tool sits on a rack (grab with E, racks refill). Ten imps are caged along the north wall to test weapons on. Kill an imp and a jailer-hunter walks a fresh one in.
 // Kill a hunter and the gate locks for good: the Order sends waves of ten raiders (speech bubbles and all), a new ten each time the last ten fall, until you die.
 // The exit ring takes 3 seconds (EXDF below). Tunables: TG_GUNS (raider weapons), TG_WAVE (raiders in wave 1; every wave adds 1 and the new one arrives from a different side), TG_SCALE (health growth per wave).
@@ -7295,15 +7306,16 @@ function tgTick(dt){
     if(!m.done&&m.lt<.9){m.done=1;const c=m.cage,imp=m.imp;if(imp&&imp.hp>0){imp.tw=null;imp.cg=G.cages.indexOf(c);imp.x=c.x;imp.y=c.y+2;c.imp=imp;c.res=0;m.bub={s:tgPick(TG_LOCK),t:1.8};try{sfx.clatter(c.x,c.y)}catch(e){}burst(c.x,c.y+22,6,60,'#cfc6a8',0)}else{c.res=0;c.t=2}}
     if(m.lt<=0){m.state='out';m.pts=[[m.x,TG_LANE],[215,TG_LANE],[215,TG_GATE.y],[TG_W.x0+22,TG_GATE.y]]}}
    else if(m.state=='out'){if(tgWalk(m,m.pts,m.sp2,dt)){m.gone=1;G.gate=1.2}}
-  }else if(!P.dead){
-   const gd=tgGd(m.gun),a=Math.atan2(P.y-m.y,P.x-m.x),d=Math.hypot(P.x-m.x,P.y-m.y),v=los(m.x,m.y,P.x,P.y),pref=gd.rng*.62;m.a=a;
+  }else if(tgFoe(m)){
+   const ft=tgFoe(m),gd=tgGd(m.gun),a=Math.atan2(ft.y-m.y,ft.x-m.x),d=Math.hypot(ft.x-m.x,ft.y-m.y),v=los(m.x,m.y,ft.x,ft.y),pref=gd.rng*.62;m.a=a;
    let mx=0,my=0;if(!v||d>pref){mx=Math.cos(a);my=Math.sin(a)}else if(d<pref*.55){mx=-Math.cos(a);my=-Math.sin(a)}
    if(m.sw===undefined){m.sw=Math.random()<.5?-1:1;m.swt=R(1,2.2)}m.swt-=dt;if(m.swt<=0){m.sw=-m.sw;m.swt=R(1,2.4)}
    if(v){mx+=-Math.sin(a)*m.sw*.5;my+=Math.cos(a)*m.sw*.5}
    if(m.sdT>0){m.sdT-=dt;const q=mx;mx=-my*m.sdS;my=q*m.sdS}
    const px=m.x,py=m.y,want=Math.hypot(mx,my);if(want>.01){mv(m,mx/want*m.sp2*dt,my/want*m.sp2*dt,4);m.wk+=dt*8;if(Math.hypot(m.x-px,m.y-py)<m.sp2*dt*.25)m.stk=(m.stk||0)+dt;else m.stk=0;if(m.stk>.4){m.stk=0;m.sdT=.8;m.sdS=Math.random()<.5?1:-1}}
    m.sc=(m.sc===undefined?R(1,2):m.sc)-dt;if(v&&d<gd.rng&&m.sc<=0){m.sc=gd.r*R(.9,1.4);tgShoot(m,a,gd)}}}
- for(const b of G.hb){const n=Math.ceil(Math.hypot(b.vx,b.vy)*dt/4);b.l-=dt;for(let i=0;i<n&&b.l>0;i++){b.x+=b.vx*dt/n;b.y+=b.vy*dt/n;if(hit(b.x,b.y,.5)){b.l=0;burst(b.x,b.y,3,40,'#aaa',0);break}if(!P.dead&&D(b.x,b.y,P.x,P.y)<5.5){b.l=0;hurtP(b.d,{m:b.o,s:'gun'});break}}}
+ for(const b of G.hb){const n=Math.ceil(Math.hypot(b.vx,b.vy)*dt/4);b.l-=dt;for(let i=0;i<n&&b.l>0;i++){b.x+=b.vx*dt/n;b.y+=b.vy*dt/n;if(hit(b.x,b.y,.5)){b.l=0;burst(b.x,b.y,3,40,'#aaa',0);break}{const q=INJX.find(c=>c.hp>0&&c.st=='follow'&&D(b.x,b.y,c.x,c.y)<6);if(q){b.l=0;tgHitC(q,b);break}}
+  if(!P.dead&&D(b.x,b.y,P.x,P.y)<5.5){b.l=0;hurtP(b.d,{m:b.o,s:'gun'});break}}}
  G.hb=G.hb.filter(b=>b.l>0);
  for(const m of M){if(m.ty!=='hunter'||m.hp>0||m.cnt)continue;m.cnt=1;
   if(m.role=='jail'){if(m.cage&&!m.done){m.cage.res=0;m.cage.t=3}if(m.imp&&m.imp.tw===m)m.imp.tw=null;G.tn=tgAlarm(m)}
@@ -7341,11 +7353,34 @@ function tgStart(){
  G.cages.forEach((c,i)=>{const m=mkMob(c.x,c.y+2,'chase','imp');m.cg=i;c.imp=m;M.push(m)});
  if(!P.w[0]&&!P.w[1]){P.w=[null,SID.pistol];P.mag=[0,SID.pistol.m];P.res=[0,SID.pistol.m*3];P.cur=1}
  P.x=300;P.y=TG_GATE.y;P.tm=1e9;tutCalm();msg='';msgT=0;invOpen=0;showMap=0;
- say('Grab weapons from the racks (E) and test them on the caged imps.',7)}
+ try{for(const h of INJX){h.be=null;h.nvP=null}ctrPlace();if(INJX.length)SAVE()}catch(e){}   // companions: drop the old map's building box, stand them beside you, and overwrite the 'match in progress' save ctrBring made (a refresh now brings the tomes home and keeps your gear)
+ say((INJX.length?INJX.map(h=>h.name).join(' and ')+(INJX.length>1?' fight':' fights')+' at your side. ':'')+'Grab weapons from the racks (E) and test them on the caged imps.',7)}
 function tgFinish(how){
- if(!TGR)return;const wave=TGR.wave;let qm='';if(how=='exit'){try{qm=ledgerCommit();SAVE()}catch(e){}}MQ=[];TGR=null;PC.on=0;PC.t=0;try{sfx.stop()}catch(e){}
+ if(!TGR)return;const wave=TGR.wave;let qm='',tn='';try{tn=tgReturnTomes()}catch(e){}if(how=='exit'){try{qm=ledgerCommit();SAVE()}catch(e){}}MQ=[];TGR=null;PC.on=0;PC.t=0;try{sfx.stop()}catch(e){}
  mode='menu';scr='stash';invOpen=0;showMap=0;keys={};mouse.l=mouse.r=0;msg='';msgT=0;
- note=how=='exit'?'You left the Training Grounds.':'You fell in the Training Grounds'+(wave?' (wave '+wave+')':'')+'. Nothing was lost.';if(qm)note+=' '+qm;menu()}
+ note=how=='exit'?'You left the Training Grounds.':'You fell in the Training Grounds'+(wave?' (wave '+wave+')':'')+'. Nothing was lost.';if(tn)note+=' '+tn;if(qm)note+=' '+qm;menu()}
+
+// Tomes always come home from the Training Grounds, alive or dead (nothing here is real). Put back in the tome box if there is room, else the stash.
+function tgReturnTomes(){const L=INJX.filter(h=>h&&h.ct);for(const h of L)ctrPark({h:h.ct});INJX=[];INJR=[];CTO=[];if(L.length)SAVE();return L.length?'Your hunter tome'+(L.length>1?'s are':' is')+' safe: nothing burns in practice.':''}
+// Raiders aim at the nearest of you and your living companions (a slight lean towards you), re-picked about twice a second so they do not flip-flop.
+function tgFoe(m){if(m.ftT>T&&m.ft&&(m.ft===P?!P.dead:m.ft.hp>0&&m.ft.st=='follow'))return m.ft;
+ let b=null,bd=1e9;const c=[];if(!P.dead)c.push(P);for(const q of INJX)if(q.hp>0&&q.st=='follow')c.push(q);
+ for(const q of c){const d=D(q.x,q.y,m.x,m.y)*(q===P?.85:1);if(d<bd){bd=d;b=q}}
+ m.ft=b;m.ftT=T+R(.4,.8);return b}
+function tgHitC(q,b){injOn(q,()=>injHit(b.d,Math.atan2(b.vy,b.vx),b.k));if(q.hp>0&&q.hp<q.mh*.7)injUrg(q,'hurt',12)}
+// A tome hunter cannot burn in here: his tome is returned by tgReturnTomes whatever happens.
+{const _cb=ctrBurn;ctrBurn=function(h){if(!TGR)return _cb.apply(this,arguments);try{if(h&&h.ct)say(h.name+' fell, but this is only practice. His tome is safe.',4.5)}catch(e){}}}
+// Companions never shoot or punch the caged / roped imps (those are yours to test weapons on, and their kills would not count for you anyway): every imp is hidden from the companion code while it runs.
+const tgImpsOff=fn=>{const f=M.filter(m=>m.ty==='imp'&&!m.capShim);f.forEach(m=>m.capShim=1);try{return fn()}finally{f.forEach(m=>{m.capShim=0})}};
+{const _ig=injGun;injGun=function(h,dt){if(!TGR)return _ig.apply(this,arguments);return tgImpsOff(()=>_ig.call(this,h,dt))}}
+// Companions fight the hostile hunters (raiders and guards, never the jailers): nearest one within 330px that they can see, only while you are close enough that they are not leashed.
+{const _it=injTarget;injTarget=function(h,dt){if(!TGR||mpCli())return _it.apply(this,arguments);
+ tgImpsOff(()=>_it.call(this,h,dt));
+ if(!INJL||INJL.dead||h.hp<=0||h.lk)return;
+ if((h.tgT=(h.tgT||0)-dt)<=0){h.tgT=.2;let b=null,bd=1e9;
+  for(const m of M){if(m.ty!=='hunter'||!(m.hp>0)||(m.role!=='raid'&&m.role!=='guard'))continue;const d=D(m.x,m.y,h.x,h.y);if(d>330||d>=bd||!los(h.x,h.y,m.x,m.y))continue;b=m;bd=d}
+  if(b)h.tg=b;else if(h.tg&&h.tg.ty==='hunter')h.tg=null}
+ const t=h.tg;if(t&&t.ty==='hunter'){if(!(t.hp>0)){h.tg=null;return}h.aa=Math.atan2(t.y-h.y,t.x-h.x);if(Math.abs(t.x-h.x)>2)h.f=t.x>h.x?1:-1}}}
 
 function tgDrawHunter(m,cx,cy){const x=m.x-cx,y=m.y-cy;if(x<-30||x>VW+30||y<-44||y>VH+44)return;
  const o=sel.skin;sel.skin=SKINS[m.sk]?m.sk:'plain';try{warden(x,y,m.a||0,m.fl>0?1:0,m.wk||0,m.gun||'fists',0,null,0,'','')}finally{sel.skin=o}
